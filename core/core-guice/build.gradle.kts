@@ -1,4 +1,4 @@
 dependencies {
-    api(kotlin("reflect"))
-    api("com.google.inject:guice:5.1.0")
+  api(kotlin("reflect"))
+  api(Dependencies.GUICE)
 }

@@ -1,9 +1,7 @@
 package com.github.nava2.aff4.meta
 
-@JvmInline
-value class Namespaces(private val prefixMap: Map<String, String>) {
-  val defaultNamespace: String?
-    get() = prefixMap[""]
+data class Namespaces(private val prefixMap: Map<String, String>) {
+  val defaultNamespace: String? = prefixMap[""]
 
   operator fun get(prefix: String): String? {
     return prefixMap[prefix]
@@ -11,5 +9,9 @@ value class Namespaces(private val prefixMap: Map<String, String>) {
 
   fun getValue(prefix: String): String {
     return prefixMap.getValue(prefix)
+  }
+
+  fun withNamespace(prefix: String, iri: String): Namespaces {
+    return copy(prefixMap = prefixMap + mapOf(prefix to iri))
   }
 }

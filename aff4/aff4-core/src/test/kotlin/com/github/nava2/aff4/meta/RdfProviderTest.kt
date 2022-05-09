@@ -1,30 +1,60 @@
 package com.github.nava2.aff4.meta
 
+import com.github.nava2.aff4.Aff4CoreModule
+import com.github.nava2.aff4.ForImages
+import com.github.nava2.aff4.ForResources
+import com.github.nava2.aff4.io.relativeTo
 import com.github.nava2.aff4.io.sourceProvider
+import com.github.nava2.aff4.meta.parser.RdfProvider
+import com.github.nava2.guice.KAbstractModule
 import com.github.nava2.test.GuiceTestRule
+import com.google.inject.Provides
 import okio.ByteString.Companion.decodeHex
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import okio.openZip
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import javax.inject.Inject
+import javax.inject.Singleton
 
 class RdfProviderTest {
   @get:Rule
-  val rule: GuiceTestRule = GuiceTestRule(Aff4ModelModule)
+  val rule: GuiceTestRule = GuiceTestRule(
+    Aff4CoreModule,
+    object : KAbstractModule() {
+      override fun configure() = Unit
 
-  private val aff4FileSystem = FileSystem.RESOURCES.openZip("images/Base-Linear.aff4".toPath())
+      @Provides
+      @Singleton
+      @ForImages
+      fun providesFileSystemForImages(@ForResources resourcesFileSystem: FileSystem): FileSystem {
+        return resourcesFileSystem.relativeTo("images".toPath())
+      }
+    })
+
+  @Inject
+  @field:ForImages
+  private lateinit var imagesFileSystem: FileSystem
 
   @Inject
   private lateinit var rdfProvider: RdfProvider
 
+  private lateinit var aff4FileSystem: FileSystem
+  private val turtlePath = "information.turtle".toPath()
+
+  @Before
+  fun setup() {
+    aff4FileSystem = imagesFileSystem.openZip("Base-Linear.aff4".toPath())
+  }
+
   @Test
   fun `parse turtle rdf from zip content`() {
-    val turtleProvider = aff4FileSystem.sourceProvider("information.turtle".toPath())
     val consumer = CollectingModelConsumer()
-    rdfProvider.parseStream(turtleProvider, consumer)
+    rdfProvider.parseStream(turtlePath, aff4FileSystem.sourceProvider(turtlePath), consumer)
+
     assertThat(consumer.models).hasSize(2)
     assertThat(consumer.models).containsOnlyOnce(
       BlockHashes(

@@ -1,10 +1,18 @@
 package com.github.nava2.aff4.meta
 
+import javax.inject.Inject
+
 sealed interface Aff4Model {
 
-  abstract class Factory(private val types: List<String>) {
+  abstract class Parser(types: List<String>) {
+    @Inject
+    lateinit var namespaces: Namespaces
 
-    fun tryCreate(context: ModelRdfContext): Aff4Model? {
+    private val types by lazy(LazyThreadSafetyMode.NONE) {
+      types.map { Iri.parse(namespaces, it) }.toSet()
+    }
+
+    fun tryParse(context: ModelRdfContext): Aff4Model? {
       if (!matchesTypes(context)) return null
       return protectedTryCreate(context)
     }
@@ -12,7 +20,7 @@ sealed interface Aff4Model {
     abstract fun protectedTryCreate(context: ModelRdfContext): Aff4Model?
 
     private fun matchesTypes(context: ModelRdfContext): Boolean {
-      return types.any { Iri.parse(context.namespaces, it) in context.types }
+      return types.any { it in context.types }
     }
   }
 }

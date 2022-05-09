@@ -8,7 +8,7 @@ data class BlockHashes(
   val hash: Hash,
 ) : Aff4Model {
   @Singleton
-  class Factory : Aff4Model.Factory(types = listOf("aff4:BlockHashes")) {
+  class Parser : Aff4Model.Parser(types = listOf("aff4:BlockHashes")) {
     override fun protectedTryCreate(context: ModelRdfContext): BlockHashes {
       val hashValue = context.objectByIri<Literal>("aff4:hash")
       return BlockHashes(
