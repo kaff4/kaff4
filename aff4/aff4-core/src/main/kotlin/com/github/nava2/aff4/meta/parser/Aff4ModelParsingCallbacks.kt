@@ -22,7 +22,6 @@ internal class Aff4ModelParsingCallbacks @AssistedInject constructor(
   override fun onNamespaceDefined(prefix: String, iri: String) {
     namespaces = namespaces.withNamespace(prefix, iri)
   }
-
   override fun onModelObjectDefined(subject: Resource, statements: List<Statement>) {
     logger.traceEntry("subject = {}, statements = {}", subject, statements)
 

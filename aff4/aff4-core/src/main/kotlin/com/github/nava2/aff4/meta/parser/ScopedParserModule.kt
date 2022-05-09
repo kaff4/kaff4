@@ -4,6 +4,7 @@ import com.github.nava2.aff4.ForImages
 import com.github.nava2.aff4.io.RelativeFileSystem
 import com.github.nava2.aff4.meta.Aff4Model
 import com.github.nava2.aff4.meta.BlockHashes
+import com.github.nava2.aff4.meta.ZipVolume
 import com.github.nava2.guice.KAbstractModule
 import com.google.inject.BindingAnnotation
 import com.google.inject.Provides
@@ -29,6 +30,7 @@ internal class ScopedParserModule(
   override fun configure() {
     bindSet<Aff4Model.Parser> {
       to<BlockHashes.Parser>()
+      to<ZipVolume.Parser>()
     }
   }
 
