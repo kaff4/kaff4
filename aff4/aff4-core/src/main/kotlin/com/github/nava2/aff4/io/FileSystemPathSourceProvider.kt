@@ -24,4 +24,3 @@ class FileSystemPathSourceProvider internal constructor(
 fun FileSystem.sourceProvider(path: Path): FileSystemPathSourceProvider {
   return FileSystemPathSourceProvider(this, path)
 }
-

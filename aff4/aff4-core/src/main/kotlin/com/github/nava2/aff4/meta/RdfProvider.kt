@@ -26,21 +26,23 @@ class RdfProvider @Inject constructor(
   fun parseStream(sourceProvider: SourceProvider<Source>, consumer: Consumer<Aff4Model>) {
     val rdfParser = Rio.createParser(RDFFormat.TURTLE)
 
-    rdfParser.setRDFHandler(ModelParsingHandler { namespaces, subject, statements ->
-      logger.traceEntry("namespaces = {}, subject = {}, statements = {}", namespaces, subject, statements)
+    rdfParser.setRDFHandler(
+      ModelParsingHandler { namespaces, subject, statements ->
+        logger.traceEntry("namespaces = {}, subject = {}, statements = {}", namespaces, subject, statements)
 
-      val namespaces = Namespaces(namespaces)
-      val context = ModelRdfContext(
-        namespaces = namespaces,
-        iri = (subject as IRI).asIri(namespaces),
-        statements = statements,
-      )
+        val namespaces = Namespaces(namespaces)
+        val context = ModelRdfContext(
+          namespaces = namespaces,
+          iri = (subject as IRI).asIri(namespaces),
+          statements = statements,
+        )
 
-      val model = modelFactories.get().asSequence().mapNotNull { it.tryCreate(context) }.firstOrNull()
-      if (model != null) {
-        consumer.accept(model)
+        val model = modelFactories.get().asSequence().mapNotNull { it.tryCreate(context) }.firstOrNull()
+        if (model != null) {
+          consumer.accept(model)
+        }
       }
-    })
+    )
 
     sourceProvider.buffer().use { source ->
       rdfParser.parse(source.inputStream())
