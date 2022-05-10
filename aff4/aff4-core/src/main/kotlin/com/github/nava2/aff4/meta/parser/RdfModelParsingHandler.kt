@@ -1,8 +1,11 @@
 package com.github.nava2.aff4.meta.parser
 
+import com.github.nava2.logging.Logging
 import org.eclipse.rdf4j.model.Resource
 import org.eclipse.rdf4j.model.Statement
 import org.eclipse.rdf4j.rio.helpers.AbstractRDFHandler
+
+private val logger = Logging.getLogger()
 
 internal class RdfModelParsingHandler(
   private val callbacks: ParsingCallbacks,

@@ -7,14 +7,14 @@ import org.eclipse.rdf4j.model.Value
 
 data class ModelRdfContext(
 //  val context: Context
-  val namespaces: Namespaces,
+  val namespaces: NamespacesProvider,
   val iri: Iri,
   val statements: List<Statement>,
 ) {
   val types: Set<Iri>
 
   init {
-    val rdfIri = Iri(namespaces.getValue("rdf"), "type")
+    val rdfIri = Iri(namespaces.fromPrefix("rdf"), "type")
 
     types = statements.asSequence()
       .filter { statement ->

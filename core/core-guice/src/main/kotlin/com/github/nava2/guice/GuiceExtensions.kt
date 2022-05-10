@@ -18,6 +18,8 @@ operator fun <T> Provider<T>.getValue(instance: Any, property: KProperty<*>): T 
 
 inline fun <reified T> typeLiteral(): TypeLiteral<T> = object : TypeLiteral<T>() {}
 
+inline fun <reified T> key(): Key<T> = Key.get(typeLiteral())
+
 val <T> TypeLiteral<T>.key: Key<T>
   get() = Key.get(this)
 
