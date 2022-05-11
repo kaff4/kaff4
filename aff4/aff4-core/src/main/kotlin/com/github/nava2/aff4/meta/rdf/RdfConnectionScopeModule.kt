@@ -1,7 +1,6 @@
 package com.github.nava2.aff4.meta.rdf
 
 import com.github.nava2.guice.KAbstractModule
-import org.eclipse.rdf4j.repository.RepositoryConnection
 
 object RdfConnectionScopeModule : KAbstractModule() {
   private val rdfConnectionScope = RdfConnectionScope()
@@ -10,7 +9,11 @@ object RdfConnectionScopeModule : KAbstractModule() {
     bindScope(RdfConnectionScoped::class.java, rdfConnectionScope)
     bind<RdfConnectionScope>().toInstance(rdfConnectionScope)
 
-    bind<RepositoryConnection>()
+    bind<ScopedConnection>()
+      .toProvider(rdfConnectionScope.seededKeyProvider())
+      .`in`(RdfConnectionScoped::class.java)
+
+    bind<NamespacesProvider>()
       .toProvider(rdfConnectionScope.seededKeyProvider())
       .`in`(RdfConnectionScoped::class.java)
   }

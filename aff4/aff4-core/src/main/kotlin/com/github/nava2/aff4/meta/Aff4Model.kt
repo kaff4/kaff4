@@ -1,36 +1,34 @@
 package com.github.nava2.aff4.meta
 
-import com.github.nava2.aff4.meta.rdf.RdfConnectionScoped
-import org.eclipse.rdf4j.model.ValueFactory
+import com.github.nava2.aff4.meta.rdf.NamespacesProvider
+import com.github.nava2.aff4.meta.rdf.ScopedConnection
+import org.eclipse.rdf4j.model.Resource
+import org.eclipse.rdf4j.model.Statement
 import javax.inject.Inject
+import javax.inject.Provider
 
 sealed interface Aff4Model {
 
-  abstract class Parser(
+  abstract class Parser<out T : Aff4Model>(
     types: List<String>,
   ) {
     @Inject
-    private lateinit var valueFactory: ValueFactory
+    protected lateinit var namespacesProvider: NamespacesProvider
 
     @Inject
-    private lateinit var namespacesProvider: NamespacesProvider
+    private lateinit var connectionProvider: Provider<ScopedConnection>
 
     val types by lazy(LazyThreadSafetyMode.NONE) {
-      types.map { type ->
-        val (prefix, localName) = type.split(':')
-        valueFactory.createIRI(namespacesProvider.fromPrefix(prefix), localName)
-      }.toSet()
+      types.map { namespacesProvider.iriFromTurtle(it) }.toSet()
     }
 
-    fun tryParse(context: ModelRdfContext): Aff4Model? {
-//      if (!matchesTypes(context)) return null
-      return protectedTryCreate(context)
+    fun tryParse(subject: Resource): T? {
+      val connection = connectionProvider.get()
+      val statements = connection.queryStatements(subj = subject).use { it.toList() }
+
+      return protectedTryCreate(subject, statements)
     }
 
-    abstract fun protectedTryCreate(context: ModelRdfContext): Aff4Model?
-
-//    private fun matchesTypes(context: ModelRdfContext): Boolean {
-//      return types.any { it in context.types }
-//    }
+    abstract fun protectedTryCreate(subject: Resource, statements: List<Statement>): T?
   }
 }

@@ -11,4 +11,3 @@ import kotlin.annotation.AnnotationTarget.VALUE_PARAMETER
 @Target(FUNCTION, PROPERTY, VALUE_PARAMETER, CLASS, FIELD, FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class RdfConnectionScoped
-

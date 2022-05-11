@@ -1,5 +1,6 @@
 package com.github.nava2.aff4.meta
 
+import com.github.nava2.aff4.meta.rdf.NamespacesProvider
 import org.eclipse.rdf4j.model.IRI
 
 data class Iri(

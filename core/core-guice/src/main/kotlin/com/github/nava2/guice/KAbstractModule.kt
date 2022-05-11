@@ -16,7 +16,7 @@ abstract class KAbstractModule protected constructor() : AbstractModule() {
   protected inline fun <reified T> bindSet(
     block: KSetMultibinderHelper<T>.() -> Unit
   ): Multibinder<T> {
-    val multibinder = Multibinder.newSetBinder(binder(), T::class.java)
+    val multibinder = Multibinder.newSetBinder(binder(), typeLiteral<T>())
     KSetMultibinderHelper(multibinder).block()
     return multibinder
   }
@@ -25,7 +25,7 @@ abstract class KAbstractModule protected constructor() : AbstractModule() {
     annotatedWith: Class<out Annotation>,
     block: KSetMultibinderHelper<T>.() -> Unit
   ): Multibinder<T> {
-    val multibinder = Multibinder.newSetBinder(binder(), T::class.java, annotatedWith)
+    val multibinder = Multibinder.newSetBinder(binder(), typeLiteral<T>(), annotatedWith)
     KSetMultibinderHelper(multibinder).block()
     return multibinder
   }
@@ -45,7 +45,7 @@ abstract class KPrivateModule : PrivateModule() {
   protected inline fun <reified T> bindSet(
     block: KSetMultibinderHelper<T>.() -> Unit
   ): Multibinder<T> {
-    val multibinder = Multibinder.newSetBinder(binder(), T::class.java)
+    val multibinder = Multibinder.newSetBinder(binder(), typeLiteral<T>())
     KSetMultibinderHelper(multibinder).block()
     return multibinder
   }
@@ -54,7 +54,7 @@ abstract class KPrivateModule : PrivateModule() {
     annotatedWith: Class<out Annotation>,
     block: KSetMultibinderHelper<T>.() -> Unit
   ): Multibinder<T> {
-    val multibinder = Multibinder.newSetBinder(binder(), T::class.java, annotatedWith)
+    val multibinder = Multibinder.newSetBinder(binder(), typeLiteral<T>(), annotatedWith)
     KSetMultibinderHelper(multibinder).block()
     return multibinder
   }

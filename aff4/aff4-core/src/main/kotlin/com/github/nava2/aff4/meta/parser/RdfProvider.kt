@@ -6,26 +6,23 @@ import com.github.nava2.aff4.io.useAsInputStream
 import com.github.nava2.aff4.meta.Aff4Model
 import com.github.nava2.aff4.meta.rdf.RdfConnectionScoped
 import com.github.nava2.aff4.meta.rdf.RdfConnectionScoping
-import com.github.nava2.guice.KAbstractModule
+import com.github.nava2.aff4.meta.rdf.ScopedConnection
 import com.github.nava2.guice.getInstance
-import com.github.nava2.logging.Logging
 import com.google.inject.Injector
-import com.google.inject.assistedinject.FactoryModuleBuilder
 import okio.Path
 import okio.Source
-import org.eclipse.rdf4j.repository.RepositoryConnection
+import org.eclipse.rdf4j.model.IRI
+import org.eclipse.rdf4j.model.Resource
+import org.eclipse.rdf4j.query.TupleQuery
+import org.eclipse.rdf4j.query.TupleQueryResult
 import org.eclipse.rdf4j.rio.RDFFormat
-import org.intellij.lang.annotations.Language
 import java.util.function.Consumer
 import javax.inject.Inject
+import javax.inject.Provider
 import javax.inject.Singleton
-
-private val logger = Logging.getLogger()
-
 
 @Singleton
 class RdfProvider @Inject constructor(
-  private val injector: Injector,
   private val rdfConnectionScoping: RdfConnectionScoping,
 ) {
   fun parseStream(
@@ -34,60 +31,58 @@ class RdfProvider @Inject constructor(
     consumer: Consumer<Aff4Model>,
   ) {
     rdfConnectionScoping.scoped { parser: Parser ->
-      parser.parse(imagePath, sourceProvider)
+      parser.parse(imagePath, sourceProvider, consumer)
     }
   }
 
   @RdfConnectionScoped
   private class Parser @Inject constructor(
-    private val connection: RepositoryConnection,
+    private val connection: ScopedConnection,
     private val injector: Injector,
   ) {
     fun parse(
       imagePath: Path,
       sourceProvider: SourceProvider<Source>,
+      consumer: Consumer<Aff4Model>,
     ) {
       sourceProvider.buffer().useAsInputStream { source ->
-        connection.add(source, RDFFormat.TURTLE)
+        connection.mutable.add(source, RDFFormat.TURTLE)
       }
 
       val privateInjector = injector.createChildInjector(
         ScopedParserModule(imagePath),
-        object : KAbstractModule() {
-          override fun configure() {
-            install(
-              FactoryModuleBuilder()
-                .implement(RdfModelParsingHandler.ParsingCallbacks::class.java, Aff4ModelParsingCallbacks::class.java)
-                .build(Aff4ModelParsingCallbacks.Factory::class.java)
-            )
-          }
-        }
       )
 
-      val modelParsers = privateInjector.getInstance<Set<Aff4Model.Parser>>()
+      val modelParsers = privateInjector.getInstance<ModelParsers>()
+      modelParsers.parseModels(consumer)
+    }
+  }
+}
 
-      val query = connection.prepareGraphQuery("CONSTRUCT WHERE {?s ?p ?o}")
-      query.evaluate().use { result ->
-        logger.info("result = ${result.toList()}")
-      }
+private class ModelParsers @Inject constructor(
+  private val modelParsers: Provider<Set<Aff4Model.Parser<*>>>,
+  private val connection: ScopedConnection,
+) {
+  fun parseModels(consumer: Consumer<Aff4Model>) {
+    for (modelParser in modelParsers.get()) {
+      val subjects = connection.querySubjectsByType(modelParser.types.single())
 
-      for (modelParser in modelParsers) {
-        @Language("sparql") val queryString = """
-            SELECT ?s ?p ?o
-            WHERE { 
-              ?s a ?type
-            }
-          """.trimIndent()
-        val query = connection.prepareTupleQuery(queryString)
-        query.setBinding("type", modelParser.types.single())
-        query.evaluate().use { results ->
-          for (bindingSet in results) {
-            val subject = bindingSet.getValue("subject")
-
-          }
-        }
+      for (model in subjects.mapNotNull { modelParser.tryParse(it) }) {
+        consumer.accept(model)
       }
     }
   }
 }
 
+private fun ScopedConnection.querySubjectsByType(type: IRI): List<Resource> {
+  val query = queryStatements(pred = namespaces.iriFromTurtle("rdf:type"), obj = type).apply {
+    enableDuplicateFilter()
+  }
+  return query.use { result -> result.map { it.subject } }
+}
+
+inline fun <T> TupleQuery.executeQuery(block: (result: TupleQueryResult) -> T): T {
+  return evaluate().use { result ->
+    block(result)
+  }
+}

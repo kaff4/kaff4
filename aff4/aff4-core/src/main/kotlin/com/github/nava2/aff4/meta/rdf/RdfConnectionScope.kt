@@ -1,3 +1,5 @@
+@file:Suppress("ForbiddenImport")
+
 package com.github.nava2.aff4.meta.rdf
 
 import com.github.nava2.guice.key
@@ -17,8 +19,10 @@ class RdfConnectionScope : Scope {
       "Can not enter connections scope multiple times with the same connection: $connection"
     }
 
+    val scopedConnection = ScopedConnection(connection)
     val seededValues = mutableMapOf<Key<*>, Any>(
-      key<RepositoryConnection>() to connection,
+      key<ScopedConnection>() to scopedConnection,
+      key<NamespacesProvider>() to scopedConnection.namespaces,
     )
 
     val closable = AutoCloseable {

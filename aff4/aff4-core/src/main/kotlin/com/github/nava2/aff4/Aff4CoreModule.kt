@@ -1,6 +1,5 @@
 package com.github.nava2.aff4
 
-import com.github.nava2.aff4.meta.parser.RdfRepositoryModule
 import com.github.nava2.guice.KAbstractModule
 import com.google.inject.BindingAnnotation
 import okio.FileSystem
@@ -28,7 +27,5 @@ object Aff4CoreModule : KAbstractModule() {
     bind<FileSystem>()
       .annotatedWith(ForResources::class.java)
       .toInstance(FileSystem.RESOURCES)
-
-    install(RdfRepositoryModule)
   }
 }
