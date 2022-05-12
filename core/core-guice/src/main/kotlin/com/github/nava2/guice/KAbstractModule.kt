@@ -4,6 +4,7 @@ import com.google.inject.AbstractModule
 import com.google.inject.PrivateModule
 import com.google.inject.binder.AnnotatedBindingBuilder
 import com.google.inject.binder.AnnotatedElementBuilder
+import com.google.inject.multibindings.MapBinder
 import com.google.inject.multibindings.Multibinder
 
 abstract class KAbstractModule protected constructor() : AbstractModule() {
@@ -28,6 +29,14 @@ abstract class KAbstractModule protected constructor() : AbstractModule() {
     val multibinder = Multibinder.newSetBinder(binder(), typeLiteral<T>(), annotatedWith)
     KSetMultibinderHelper(multibinder).block()
     return multibinder
+  }
+
+  protected inline fun <reified K, reified V> bindMap(
+    block: MapBinder<in K, in V>.() -> Unit
+  ): MapBinder<K, V> {
+    val mapBinder = MapBinder.newMapBinder(binder(), typeLiteral<K>(), typeLiteral<V>())
+    block(mapBinder)
+    return mapBinder
   }
 }
 

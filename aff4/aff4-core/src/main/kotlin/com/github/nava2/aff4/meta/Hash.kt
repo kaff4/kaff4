@@ -4,7 +4,7 @@ import okio.ByteString
 import okio.ByteString.Companion.decodeHex
 import org.eclipse.rdf4j.model.Literal
 
-sealed interface Hash : Aff4Model {
+sealed interface Hash {
   val hash: ByteString
 
   data class Sha1(override val hash: ByteString) : Hash

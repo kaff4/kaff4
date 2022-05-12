@@ -2,13 +2,17 @@ package com.github.nava2.aff4.meta.parser
 
 import com.github.nava2.aff4.ForImages
 import com.github.nava2.aff4.io.RelativeFileSystem
-import com.github.nava2.aff4.meta.Aff4Model
-import com.github.nava2.aff4.meta.BlockHashes
+import com.github.nava2.aff4.meta.Hash
+import com.github.nava2.aff4.meta.rdf.io.RdfValueConverter
 import com.github.nava2.guice.KAbstractModule
+import com.github.nava2.guice.typeLiteral
 import com.google.inject.BindingAnnotation
 import com.google.inject.Provides
 import okio.FileSystem
 import okio.Path
+import okio.Path.Companion.toPath
+import org.eclipse.rdf4j.model.Literal
+import org.eclipse.rdf4j.model.Value
 import javax.inject.Singleton
 
 /**
@@ -26,17 +30,25 @@ annotation class ForImageFolder
 internal class ScopedParserModule(
   private val imagePath: Path,
 ) : KAbstractModule() {
-  override fun configure() {
-    bindSet<Aff4Model.Parser<*>> {
-      to<BlockHashes.Parser>()
-//      to<ZipVolume.Parser>()
-    }
-  }
+  override fun configure() = Unit
 
   @ForImageFolder
   @Singleton
   @Provides
   fun providesImageRootFileSystem(@ForImages imagesFileSystem: FileSystem): FileSystem {
     return RelativeFileSystem(imagesFileSystem, imagePath)
+  }
+}
+
+internal object Aff4ImagePathRdfValueConverter : RdfValueConverter<Path>(typeLiteral()) {
+  override fun convert(value: Value): Path? {
+    val path = (value as? Literal)?.label ?: return null
+    return path.toPath()
+  }
+}
+
+internal object Aff4HashRdfValueConverter : RdfValueConverter<Hash>(typeLiteral()) {
+  override fun convert(value: Value): Hash? {
+    return (value as? Literal)?.let { Hash.fromLiteral(it) }
   }
 }

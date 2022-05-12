@@ -4,12 +4,17 @@ import com.google.inject.Injector
 import com.google.inject.Key
 import com.google.inject.TypeLiteral
 import com.google.inject.binder.AnnotatedBindingBuilder
+import com.google.inject.binder.LinkedBindingBuilder
 import com.google.inject.binder.ScopedBindingBuilder
 import javax.inject.Provider
 import kotlin.reflect.KProperty
 
 inline fun <reified T> AnnotatedBindingBuilder<in T>.to(): ScopedBindingBuilder {
-  return to(T::class.java)
+  return to(typeLiteral<T>())
+}
+
+inline fun <reified T> LinkedBindingBuilder<in T>.to(): ScopedBindingBuilder {
+  return to(typeLiteral<T>())
 }
 
 operator fun <T> Provider<T>.getValue(instance: Any, property: KProperty<*>): T {

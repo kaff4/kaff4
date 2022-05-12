@@ -7,19 +7,21 @@ import com.github.nava2.aff4.meta.Aff4Model
 import com.github.nava2.aff4.meta.rdf.RdfConnectionScoped
 import com.github.nava2.aff4.meta.rdf.RdfConnectionScoping
 import com.github.nava2.aff4.meta.rdf.ScopedConnection
+import com.github.nava2.aff4.meta.rdf.io.RdfModel
+import com.github.nava2.aff4.meta.rdf.io.RdfModelParser
 import com.github.nava2.guice.getInstance
 import com.google.inject.Injector
 import okio.Path
 import okio.Source
 import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.Resource
-import org.eclipse.rdf4j.query.TupleQuery
-import org.eclipse.rdf4j.query.TupleQueryResult
 import org.eclipse.rdf4j.rio.RDFFormat
 import java.util.function.Consumer
 import javax.inject.Inject
 import javax.inject.Provider
 import javax.inject.Singleton
+import kotlin.reflect.KClass
+import kotlin.reflect.full.findAnnotation
 
 @Singleton
 class RdfProvider @Inject constructor(
@@ -60,14 +62,18 @@ class RdfProvider @Inject constructor(
 }
 
 private class ModelParsers @Inject constructor(
-  private val modelParsers: Provider<Set<Aff4Model.Parser<*>>>,
+  private val models: Provider<Set<KClass<out Aff4Model>>>,
+  private val rdfModelParser: RdfModelParser,
   private val connection: ScopedConnection,
 ) {
   fun parseModels(consumer: Consumer<Aff4Model>) {
-    for (modelParser in modelParsers.get()) {
-      val subjects = connection.querySubjectsByType(modelParser.types.single())
+    for (modelType in models.get()) {
+      val modelRdfType = modelType.findAnnotation<RdfModel>()!!.rdfType
+      val subjects = connection.querySubjectsByType(connection.namespaces.iriFromTurtle(modelRdfType))
 
-      for (model in subjects.mapNotNull { modelParser.tryParse(it) }) {
+      for (subject in subjects) {
+        val statements = connection.queryStatements(subj = subject).use { it.toList() }
+        val model = rdfModelParser.parse(modelType, subject, statements)
         consumer.accept(model)
       }
     }
@@ -79,10 +85,4 @@ private fun ScopedConnection.querySubjectsByType(type: IRI): List<Resource> {
     enableDuplicateFilter()
   }
   return query.use { result -> result.map { it.subject } }
-}
-
-inline fun <T> TupleQuery.executeQuery(block: (result: TupleQueryResult) -> T): T {
-  return evaluate().use { result ->
-    block(result)
-  }
 }
