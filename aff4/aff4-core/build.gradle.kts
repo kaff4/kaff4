@@ -12,4 +12,6 @@ dependencies {
   implementation("org.eclipse.rdf4j:rdf4j-sail-memory:4.0.0")
   implementation("org.eclipse.rdf4j:rdf4j-query:4.0.0")
   implementation("com.squareup.okio:okio:3.1.0")
+
+  implementation("org.apache.commons:commons-lang3:3.12.0")
 }

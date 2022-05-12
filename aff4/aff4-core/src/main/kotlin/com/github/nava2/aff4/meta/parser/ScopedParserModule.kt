@@ -40,14 +40,14 @@ internal class ScopedParserModule(
   }
 }
 
-internal object Aff4ImagePathRdfValueConverter : RdfValueConverter<Path>(typeLiteral()) {
+internal object Aff4ImagePathRdfValueConverter : RdfValueConverter<Path>(typeLiteral<Path>()) {
   override fun convert(value: Value): Path? {
     val path = (value as? Literal)?.label ?: return null
     return path.toPath()
   }
 }
 
-internal object Aff4HashRdfValueConverter : RdfValueConverter<Hash>(typeLiteral()) {
+internal object Aff4HashRdfValueConverter : RdfValueConverter<Hash>(typeLiteral<Hash>()) {
   override fun convert(value: Value): Hash? {
     return (value as? Literal)?.let { Hash.fromLiteral(it) }
   }

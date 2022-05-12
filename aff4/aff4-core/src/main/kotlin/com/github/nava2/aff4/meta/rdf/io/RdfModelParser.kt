@@ -2,6 +2,7 @@ package com.github.nava2.aff4.meta.rdf.io
 
 import com.github.nava2.aff4.meta.rdf.NamespacesProvider
 import com.google.inject.TypeLiteral
+import org.apache.commons.lang3.ClassUtils
 import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.Resource
 import org.eclipse.rdf4j.model.Statement
@@ -137,6 +138,7 @@ class RdfModelParser @Inject constructor(
     init {
       val javaType = parameter.type.javaType
 
+      val elementType: Type
       if (javaType is ParameterizedType) {
         if (javaType.rawType == List::class.java || javaType.rawType == Set::class.java) {
           collectionType = javaType.rawType as Class<*>
@@ -149,8 +151,18 @@ class RdfModelParser @Inject constructor(
           elementType = javaType
         }
       } else {
-        elementType = javaType
         collectionType = null
+        elementType = javaType
+      }
+
+      elementType as Class<*>
+      this.elementType = if (
+        ClassUtils.isPrimitiveOrWrapper(elementType) &&
+        ClassUtils.isPrimitiveWrapper(elementType)
+      ) {
+        ClassUtils.wrapperToPrimitive(elementType)
+      } else {
+        elementType
       }
     }
   }

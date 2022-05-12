@@ -17,7 +17,7 @@ import org.eclipse.rdf4j.rio.RDFFormat
 import java.io.InputStream
 
 @RdfConnectionScoped
-data class ScopedConnection(
+class ScopedConnection(
   private val connection: RepositoryConnection,
 ) {
   /** @see [RepositoryConnection.getValueFactory] */
@@ -60,12 +60,24 @@ data class ScopedConnection(
 
   internal fun close() = connection.close()
 
-  data class Mutable internal constructor(
+  class Mutable internal constructor(
     private val connection: RepositoryConnection,
   ) {
     /** @see [RepositoryConnection.add] */
     fun add(input: InputStream, dataFormat: RDFFormat, vararg contexts: Resource) {
       connection.add(input, dataFormat, *contexts)
+    }
+
+    /** @see [RepositoryConnection.add] */
+    fun add(subject: Resource, vararg values: Pair<IRI, Value>) {
+      val valueFactory = connection.valueFactory
+      val statements = values.map { (p, o) -> valueFactory.createStatement(subject, p, o) }
+      connection.add(statements)
+    }
+
+    /** @see [RepositoryConnection.setNamespace] */
+    fun setNamespace(prefix: String, name: String) {
+      connection.setNamespace(prefix, name)
     }
   }
 }

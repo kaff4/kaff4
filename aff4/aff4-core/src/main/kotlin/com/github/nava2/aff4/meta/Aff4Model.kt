@@ -24,3 +24,18 @@ data class ZipVolume(
   val interfaceType: Resource, // todo this should be an enum?
   val stored: Path,
 ) : Aff4Model
+
+@RdfModel("aff4:Map")
+data class Map(
+  @RdfSubject val arn: Resource,
+  val blockMapHash: Hash,
+  val dependentStream: Resource,
+  val mapGapDefaultStream: Resource,
+  val mapHash: Hash,
+  val mapIdxHash: Hash,
+  val mapPathHash: Hash,
+  val mapPointHash: Hash,
+  val size: Long,
+  val stored: Resource,
+  val target: Resource,
+) : Aff4Model

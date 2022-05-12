@@ -1,12 +1,5 @@
 package com.github.nava2.aff4.meta.rdf.io
 
-import com.github.nava2.aff4.meta.rdf.io.RdfValueConverter.BigIntegerHandler
-import com.github.nava2.aff4.meta.rdf.io.RdfValueConverter.DoubleHandler
-import com.github.nava2.aff4.meta.rdf.io.RdfValueConverter.IntHandler
-import com.github.nava2.aff4.meta.rdf.io.RdfValueConverter.IriHandler
-import com.github.nava2.aff4.meta.rdf.io.RdfValueConverter.ResourceHandler
-import com.github.nava2.aff4.meta.rdf.io.RdfValueConverter.StringHandler
-import com.github.nava2.aff4.meta.rdf.io.RdfValueConverter.ZonedDateTimeConverter
 import com.github.nava2.guice.KAbstractModule
 import com.google.inject.TypeLiteral
 import com.google.inject.multibindings.MapBinder
@@ -14,10 +7,12 @@ import com.google.inject.multibindings.MapBinder
 internal object RdfModelParserModule : KAbstractModule() {
   override fun configure() {
     bindMap<TypeLiteral<*>, RdfValueConverter<*>> {
-      bindConverter(StringHandler)
-      bindConverter(IntHandler)
+      bindConverter(StringRdfConverter)
+      bindConverter(IntRdfConverter)
+      bindConverter(LongRdfConverter)
       bindConverter(BigIntegerHandler)
-      bindConverter(DoubleHandler)
+      bindConverter(FloatRdfConverter)
+      bindConverter(DoubleRdfConverter)
       bindConverter(ZonedDateTimeConverter)
       bindConverter(IriHandler)
       bindConverter(ResourceHandler)
@@ -25,6 +20,8 @@ internal object RdfModelParserModule : KAbstractModule() {
   }
 }
 
-private fun MapBinder<in TypeLiteral<*>, in RdfValueConverter<*>>.bindConverter(converter: RdfValueConverter<*>) {
-  addBinding(converter.type).toInstance(converter)
+fun MapBinder<in TypeLiteral<*>, in RdfValueConverter<*>>.bindConverter(converter: RdfValueConverter<*>) {
+  for (type in converter.types) {
+    addBinding(type).toInstance(converter)
+  }
 }

@@ -18,7 +18,8 @@ class NamespacesProvider internal constructor(
 
   fun iriFromTurtle(turtleIri: String): IRI {
     val (prefix, localName) = turtleIri.split(':')
-    return valueFactory.createIRI(fromPrefix(prefix), localName)
+    val namespace = fromPrefix(prefix)
+    return valueFactory.createIRI(namespace, localName)
   }
 
   private fun tryFindPrefix(prefix: String): String? {
