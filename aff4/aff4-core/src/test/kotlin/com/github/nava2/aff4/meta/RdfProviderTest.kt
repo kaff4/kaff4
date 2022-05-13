@@ -87,7 +87,7 @@ class RdfProviderTest {
         ),
         ZipVolume(
           arn = arn("aff4://685e15cc-d0fb-4dbc-ba47-48117fc77044"),
-          creationTime = ZonedDateTime.parse("2016-12-07T03:40:09.126Z").withZoneSameLocal(ZoneId.of("GMT")),
+          creationTime = parseGMT("2016-12-07T03:40:09.126Z"),
           interfaceType = aff4Type("Volume"),
           stored = "Base-Linear.aff4".toPath(),
           contains = listOf(
@@ -137,9 +137,31 @@ class RdfProviderTest {
                 "86e31321cd598db02e659af030c56fbf924b22"
               ).decodeHex()
           ),
-        )
+        ),
+        CaseNotes(
+          arn = arn("aff4://427e2078-b010-462b-ba7c-f286b390ba94"),
+          caseNumber = "Case ID: 1SR Canonical",
+          evidenceNumber = "Drive 1",
+          examiner = "Administrator",
+          notes = "This is an appended case note",
+          stored = arn("aff4://685e15cc-d0fb-4dbc-ba47-48117fc77044"),
+          target = arn("aff4://cf853d0b-5589-4c7c-8358-2ca1572b87eb"),
+          timestamp = parseGMT("2016-12-07T03:40:09.127Z")
+        ),
+        CaseNotes(
+          arn = arn("aff4://c21070c3-6d57-4f3b-9276-f83b6bfed5ae"),
+          caseNumber = "Case ID: 1SR Canonical",
+          evidenceNumber = "Drive 1",
+          examiner = "Administrator",
+          notes = "This is another appended case note",
+          stored = arn("aff4://685e15cc-d0fb-4dbc-ba47-48117fc77044"),
+          target = arn("aff4://cf853d0b-5589-4c7c-8358-2ca1572b87eb"),
+          timestamp = parseGMT("2016-12-07T03:40:14.127Z")
+        ),
       )
   }
+
+  private fun parseGMT(parse: String) = ZonedDateTime.parse(parse).withZoneSameLocal(ZoneId.of("GMT"))
 
   private fun arn(namespace: String, localName: String) = valueFactory.createIRI(namespace, localName)
   private fun arn(iri: String) = valueFactory.createIRI(iri)

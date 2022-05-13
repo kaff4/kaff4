@@ -24,7 +24,7 @@ class RdfModelParserTest {
   private lateinit var rdfConnectionScoping: RdfConnectionScoping
 
   @Test
-  fun `test primitive properties - long`() {
+  fun `primitive properties - long`() {
     data class PrimitiveModelClass @RdfModel("test://primitive-model-class") constructor(
       @RdfValue("test:longValue")
       val longValue: Long,
@@ -51,7 +51,7 @@ class RdfModelParserTest {
   }
 
   @Test
-  fun `test primitive properties - string`() {
+  fun `primitive properties - string`() {
     data class PrimitiveModelClass @RdfModel("test://primitive-model-class") constructor(
       @RdfValue("test:stringValue")
       val stringValue: String,
@@ -74,8 +74,46 @@ class RdfModelParserTest {
     assertThat(actualModel).isEqualTo(expectedModel)
   }
 
+  interface WithSubject {
+    @RdfSubject
+    val subject: Resource
+
+    @RdfValue("invalid:intValue")
+    val intValue: Int
+  }
+
+  interface ExtendWithSubject : WithSubject {
+    @RdfValue("test:intValue")
+    override val intValue: Int
+  }
+
   @Test
-  fun `test primitive properties - int`() {
+  fun `inherit annotations`() {
+    data class PrimitiveModelClass @RdfModel("test://primitive-model-class") constructor(
+      override val subject: Resource,
+      override val intValue: Int,
+    ) : ExtendWithSubject
+
+    val subject = setupStatements {
+      val subject = createIRI("test://deadbeef")
+      add(
+        subject,
+        createIRI("http://test.example.com#intValue") to createLiteral(100),
+        createIRI("http://test.example.com#jintValue") to createLiteral(200),
+      )
+
+      subject
+    }
+
+    val expectedModel = PrimitiveModelClass(subject, 100)
+
+    val actualModel = queryModel<PrimitiveModelClass>(subject)
+
+    assertThat(actualModel).isEqualTo(expectedModel)
+  }
+
+  @Test
+  fun `primitive properties - int`() {
     data class PrimitiveModelClass @RdfModel("test://primitive-model-class") constructor(
       @RdfValue("test:intValue")
       val intValue: Int,

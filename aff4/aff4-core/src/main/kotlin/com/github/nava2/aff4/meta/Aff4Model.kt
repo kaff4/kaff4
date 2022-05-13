@@ -7,17 +7,20 @@ import okio.Path
 import org.eclipse.rdf4j.model.Resource
 import java.time.ZonedDateTime
 
-sealed interface Aff4Model
+sealed interface Aff4Model {
+  @RdfSubject
+  val arn: Resource
+}
 
 @RdfModel("aff4:BlockHashes")
 data class BlockHashes(
-  @RdfSubject val arn: Resource,
+  override val arn: Resource,
   val hash: Hash,
 ) : Aff4Model
 
 @RdfModel("aff4:ZipVolume")
 data class ZipVolume(
-  @RdfSubject val arn: Resource,
+  override val arn: Resource,
   val contains: List<Resource>,
   val creationTime: ZonedDateTime,
   @RdfValue("aff4:interface")
@@ -27,7 +30,7 @@ data class ZipVolume(
 
 @RdfModel("aff4:Map")
 data class Map(
-  @RdfSubject val arn: Resource,
+  override val arn: Resource,
   val blockMapHash: Hash,
   val dependentStream: Resource,
   val mapGapDefaultStream: Resource,
@@ -38,4 +41,16 @@ data class Map(
   val size: Long,
   val stored: Resource,
   val target: Resource,
+) : Aff4Model
+
+@RdfModel("aff4:CaseNotes")
+data class CaseNotes(
+  override val arn: Resource,
+  val caseNumber: String,
+  val evidenceNumber: String,
+  val examiner: String,
+  val notes: String,
+  val stored: Resource,
+  val target: Resource,
+  val timestamp: ZonedDateTime,
 ) : Aff4Model
