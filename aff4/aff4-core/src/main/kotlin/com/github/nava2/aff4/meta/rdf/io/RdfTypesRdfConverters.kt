@@ -5,13 +5,13 @@ import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.Resource
 import org.eclipse.rdf4j.model.Value
 
-internal object IriHandler : RdfValueConverter<IRI>(typeLiteral<IRI>()) {
+internal object IriHandler : ConcreteRdfValueConverter<IRI>(typeLiteral<IRI>()) {
   override fun convert(value: Value): IRI? {
     return value as? IRI
   }
 }
 
-internal object ResourceHandler : RdfValueConverter<Resource>(typeLiteral<Resource>()) {
+internal object ResourceHandler : ConcreteRdfValueConverter<Resource>(typeLiteral<Resource>()) {
   override fun convert(value: Value): Resource? {
     return value as? Resource
   }

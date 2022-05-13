@@ -32,6 +32,17 @@ internal val ZonedDateTimeConverter = literalConverter { value ->
   calendarValue.toGregorianCalendar().toZonedDateTime()
 }
 
+object EnumConverter : RdfValueConverter<Enum<*>>(typeLiteral<Enum<*>>()) {
+  override fun matches(clazz: Class<*>): Boolean = clazz.isEnum
+
+  override fun convert(clazz: Class<*>, value: Value): Enum<*>? {
+    val asString = StringRdfConverter.convert(String::class.java, value)
+    return clazz.enumConstants.asSequence()
+      .map { it as Enum<*> }
+      .find { it.name == asString }
+  }
+}
+
 private inline fun <reified KOTLIN, reified JAVA> primitiveConverter(
   noinline convertBlock: (value: Literal) -> KOTLIN?,
 ): RdfValueConverter<KOTLIN> {
@@ -40,18 +51,19 @@ private inline fun <reified KOTLIN, reified JAVA> primitiveConverter(
   val primitiveType = ClassUtils.wrapperToPrimitive(JAVA::class.java)?.let { TypeLiteral.get(it) }
   val types = setOfNotNull(kotlinType, javaType, primitiveType)
 
-  return literalConverter(types.toTypedArray(), convertBlock)
+  return literalConverter(types, convertBlock)
 }
 
 private inline fun <reified KOTLIN> literalConverter(
-  types: Array<TypeLiteral<*>> = arrayOf(typeLiteral<KOTLIN>()),
+  types: Set<TypeLiteral<*>> = setOf(typeLiteral<KOTLIN>()),
   noinline convertBlock: (value: Literal) -> KOTLIN?,
 ): RdfValueConverter<KOTLIN> {
-  return object : RdfValueConverter<KOTLIN>(types = types) {
-    override fun convert(value: Value): KOTLIN? = (value as Literal?)?.let { convertBlock(it) }
+  return ConcreteLiteralRdfValueConverter(types, convertBlock)
+}
 
-    override fun toString(): String {
-      return "${RdfValueConverter::class.simpleName}<${KOTLIN::class.simpleName}>"
-    }
-  }
+private data class ConcreteLiteralRdfValueConverter<KOTLIN>(
+  private val matchingTypes: Set<TypeLiteral<*>>,
+  private val convertBlock: (value: Literal) -> KOTLIN?
+) : ConcreteRdfValueConverter<KOTLIN>(types = matchingTypes.toTypedArray()) {
+  override fun convert(value: Value): KOTLIN? = (value as Literal?)?.let { convertBlock(it) }
 }

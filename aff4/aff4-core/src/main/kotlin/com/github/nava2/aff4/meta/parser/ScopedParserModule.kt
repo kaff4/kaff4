@@ -3,7 +3,7 @@ package com.github.nava2.aff4.meta.parser
 import com.github.nava2.aff4.ForImages
 import com.github.nava2.aff4.io.RelativeFileSystem
 import com.github.nava2.aff4.meta.Hash
-import com.github.nava2.aff4.meta.rdf.io.RdfValueConverter
+import com.github.nava2.aff4.meta.rdf.io.ConcreteRdfValueConverter
 import com.github.nava2.guice.KAbstractModule
 import com.github.nava2.guice.typeLiteral
 import com.google.inject.BindingAnnotation
@@ -40,14 +40,14 @@ internal class ScopedParserModule(
   }
 }
 
-internal object Aff4ImagePathRdfValueConverter : RdfValueConverter<Path>(typeLiteral<Path>()) {
+internal object Aff4ImagePathRdfValueConverter : ConcreteRdfValueConverter<Path>(typeLiteral<Path>()) {
   override fun convert(value: Value): Path? {
     val path = (value as? Literal)?.label ?: return null
     return path.toPath()
   }
 }
 
-internal object Aff4HashRdfValueConverter : RdfValueConverter<Hash>(typeLiteral<Hash>()) {
+internal object Aff4HashRdfValueConverter : ConcreteRdfValueConverter<Hash>(typeLiteral<Hash>()) {
   override fun convert(value: Value): Hash? {
     return (value as? Literal)?.let { Hash.fromLiteral(it) }
   }

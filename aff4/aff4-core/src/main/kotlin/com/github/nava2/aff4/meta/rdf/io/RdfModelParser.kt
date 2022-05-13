@@ -1,9 +1,7 @@
 package com.github.nava2.aff4.meta.rdf.io
 
 import com.github.nava2.aff4.meta.rdf.NamespacesProvider
-import com.google.inject.TypeLiteral
 import org.apache.commons.lang3.ClassUtils
-import org.checkerframework.checker.units.qual.A
 import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.Resource
 import org.eclipse.rdf4j.model.Statement
@@ -11,7 +9,6 @@ import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 import java.lang.reflect.WildcardType
 import javax.inject.Inject
-import javax.inject.Provider
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
@@ -24,9 +21,9 @@ import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaType
 
-class RdfModelParser @Inject constructor(
+class RdfModelParser @Inject internal constructor(
   private val namespacesProvider: NamespacesProvider,
-  private val handlersProvider: Provider<Map<TypeLiteral<*>, RdfValueConverter<*>>>,
+  private val valueConverterProvider: RdfValueConverterProvider,
 ) {
   private val constructionInfoMap: MutableMap<KClass<*>, ConstructionInfo<*>> = mutableMapOf()
 
@@ -66,14 +63,12 @@ class RdfModelParser @Inject constructor(
     subject: Resource,
     statements: List<Statement>,
   ): T {
-    val handlersMap = handlersProvider.get()
-
     val parameterMap = LinkedHashMap<KParameter, Any?>(constructionInfo.requiredParameters.size)
     for (subjectParam in constructionInfo.subjectParams) {
       parameterMap[subjectParam] = subject
     }
 
-    buildNonSubjectParamMap(parameterMap, constructionInfo, statements, handlersMap)
+    buildNonSubjectParamMap(parameterMap, constructionInfo, statements, valueConverterProvider)
 
     return constructionInfo.constructor.callBy(parameterMap)
   }
@@ -83,7 +78,7 @@ private fun <T : Any> buildNonSubjectParamMap(
   parameterMap: MutableMap<KParameter, Any?>,
   constructionInfo: ConstructionInfo<T>,
   statements: List<Statement>,
-  handlersMap: Map<TypeLiteral<*>, RdfValueConverter<*>>
+  valueConverterProvider: RdfValueConverterProvider
 ) {
   val aggregateValues = mutableMapOf<ParameterInfo, MutableList<Any?>>()
   for ((statement, parameters) in statements.associateWith { constructionInfo.parametersByPredicate[it.predicate] }) {
@@ -91,8 +86,8 @@ private fun <T : Any> buildNonSubjectParamMap(
 
     for (parameter in parameters) {
       val obj = statement.`object`
-      val handler = handlersMap.getValue(TypeLiteral.get(parameter.elementType))
-      val converted = handler.convert(obj)
+      val handler = valueConverterProvider.getConverter(parameter.elementType)
+      val converted = handler.convert(parameter.elementType, obj)
 
       val values = aggregateValues.getOrPut(parameter) { mutableListOf() }
       values.add(converted)
@@ -134,7 +129,7 @@ private data class ParameterInfo(
   val predicate: IRI,
 ) {
   val collectionType: Class<*>?
-  val elementType: Type
+  val elementType: Class<*>
 
   init {
     val javaType = parameter.type.javaType

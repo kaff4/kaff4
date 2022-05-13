@@ -158,6 +158,23 @@ class RdfProviderTest {
           target = arn("aff4://cf853d0b-5589-4c7c-8358-2ca1572b87eb"),
           timestamp = parseGMT("2016-12-07T03:40:14.127Z")
         ),
+        CaseDetails(
+          arn = arn("aff4://c1a6ab35-d46a-4c37-9bfe-0b3e4f0f1ca3"),
+          caseDescription = "Canonical Image Generation Test Case",
+          caseName = "Canonical Image Generation",
+          examiner = "Administrator",
+          stored = arn("aff4://685e15cc-d0fb-4dbc-ba47-48117fc77044"),
+          target = arn("aff4://cf853d0b-5589-4c7c-8358-2ca1572b87eb"),
+        ),
+        TimeStamps(
+          arn = arn("aff4://db69295f-70c3-4e82-9530-a39507f1447b"),
+          endTime = parseGMT("2016-12-07T03:40:09.28Z"),
+          operation = Aff4ImagingOperation.CAPTURE,
+          startTime = parseGMT("2016-12-07T03:40:09.131Z"),
+          stored = arn("aff4://685e15cc-d0fb-4dbc-ba47-48117fc77044"),
+          target = arn("aff4://cf853d0b-5589-4c7c-8358-2ca1572b87eb"),
+          timeSource = Aff4TimeSource.SINK,
+        ),
       )
   }
 

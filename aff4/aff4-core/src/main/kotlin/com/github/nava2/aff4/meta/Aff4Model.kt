@@ -54,3 +54,34 @@ data class CaseNotes(
   val target: Resource,
   val timestamp: ZonedDateTime,
 ) : Aff4Model
+
+@RdfModel("aff4:CaseDetails")
+data class CaseDetails(
+  override val arn: Resource,
+  val caseDescription: String,
+  val caseName: String,
+  val examiner: String,
+  val stored: Resource,
+  val target: Resource,
+) : Aff4Model
+
+enum class Aff4ImagingOperation {
+  CAPTURE,
+  ;
+}
+
+enum class Aff4TimeSource {
+  SINK,
+  ;
+}
+
+@RdfModel("aff4:TimeStamps")
+data class TimeStamps(
+  override val arn: Resource,
+  val endTime: ZonedDateTime,
+  val operation: Aff4ImagingOperation,
+  val startTime: ZonedDateTime,
+  val stored: Resource,
+  val target: Resource,
+  val timeSource: Aff4TimeSource,
+) : Aff4Model

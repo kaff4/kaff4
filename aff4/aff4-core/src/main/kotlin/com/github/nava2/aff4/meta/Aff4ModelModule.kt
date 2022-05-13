@@ -3,9 +3,7 @@ package com.github.nava2.aff4.meta
 import com.github.nava2.aff4.meta.parser.Aff4HashRdfValueConverter
 import com.github.nava2.aff4.meta.parser.Aff4ImagePathRdfValueConverter
 import com.github.nava2.aff4.meta.rdf.io.RdfValueConverter
-import com.github.nava2.aff4.meta.rdf.io.bindConverter
 import com.github.nava2.guice.KAbstractModule
-import com.google.inject.TypeLiteral
 import kotlin.reflect.KClass
 
 object Aff4ModelModule : KAbstractModule() {
@@ -16,9 +14,9 @@ object Aff4ModelModule : KAbstractModule() {
       }
     }
 
-    bindMap<TypeLiteral<*>, RdfValueConverter<*>> {
-      bindConverter(Aff4ImagePathRdfValueConverter)
-      bindConverter(Aff4HashRdfValueConverter)
+    bindSet<RdfValueConverter<*>> {
+      toInstance(Aff4ImagePathRdfValueConverter)
+      toInstance(Aff4HashRdfValueConverter)
     }
   }
 }
