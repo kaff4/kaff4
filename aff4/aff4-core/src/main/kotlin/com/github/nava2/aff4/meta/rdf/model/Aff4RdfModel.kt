@@ -99,7 +99,7 @@ data class ImageStream(
   val chunkSize: Int,
   val chunksInSegment: Int,
   val size: Long,
-  val compressionMethod: Resource, // TODO sealed
+  val compressionMethod: CompressionMethod,
   val hash: List<Hash>,
   val imageStreamHash: Hash,
   val imageStreamIndexHash: Hash,

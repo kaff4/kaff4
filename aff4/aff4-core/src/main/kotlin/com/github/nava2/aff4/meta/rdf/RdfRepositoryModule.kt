@@ -25,4 +25,3 @@ object RdfRepositoryModule : KAbstractModule() {
     return SailRepository(rdfRepositoryConfiguration.provideStore())
   }
 }
-

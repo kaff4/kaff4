@@ -78,4 +78,3 @@ private class ModelParsers @Inject constructor(
     }
   }
 }
-

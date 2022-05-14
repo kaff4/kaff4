@@ -3,10 +3,10 @@
 package com.github.nava2.aff4.meta.rdf.io
 
 import com.github.nava2.aff4.Aff4CoreModule
-import com.github.nava2.aff4.meta.rdf.RdfConnectionScoping
-import com.github.nava2.aff4.meta.rdf.ScopedConnection
 import com.github.nava2.aff4.meta.rdf.MemoryRdfRepositoryConfiguration
+import com.github.nava2.aff4.meta.rdf.RdfConnectionScoping
 import com.github.nava2.aff4.meta.rdf.RdfRepositoryConfiguration
+import com.github.nava2.aff4.meta.rdf.ScopedConnection
 import com.github.nava2.guice.KAbstractModule
 import com.github.nava2.test.GuiceTestRule
 import org.assertj.core.api.Assertions.assertThat

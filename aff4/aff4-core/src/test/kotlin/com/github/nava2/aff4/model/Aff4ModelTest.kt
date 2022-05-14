@@ -17,6 +17,8 @@ import com.github.nava2.aff4.meta.rdf.model.Image
 import com.github.nava2.aff4.meta.rdf.model.ImageStream
 import com.github.nava2.aff4.meta.rdf.model.TimeStamps
 import com.github.nava2.aff4.meta.rdf.model.ZipVolume
+import com.github.nava2.aff4.streams.compression.SnappyCompression
+import com.github.nava2.aff4.streams.compression.SnappyModule
 import com.github.nava2.guice.KAbstractModule
 import com.github.nava2.test.GuiceTestRule
 import com.google.inject.Provides
@@ -38,6 +40,7 @@ class Aff4ModelTest {
   @get:Rule
   val rule: GuiceTestRule = GuiceTestRule(
     Aff4CoreModule,
+    SnappyModule,
     object : KAbstractModule() {
       override fun configure() {
         bind<RdfRepositoryConfiguration>().toInstance(MemoryRdfRepositoryConfiguration)
@@ -61,6 +64,9 @@ class Aff4ModelTest {
 
   @Inject
   private lateinit var valueFactory: ValueFactory
+
+  @Inject
+  private lateinit var snappyCompression: SnappyCompression
 
   private lateinit var aff4Model: Aff4Model
 
@@ -151,7 +157,7 @@ class Aff4ModelTest {
         chunkSize = 32768,
         chunksInSegment = 2048,
         size = 3964928,
-        compressionMethod = arn("http://code.google.com/p/snappy/"),
+        compressionMethod = snappyCompression,
         hash = listOf(
           Hash.Sha1("fbac22cca549310bc5df03b7560afcf490995fbb".decodeHex()),
           Hash.Md5("d5825dc1152a42958c8219ff11ed01a3".decodeHex()),
@@ -196,6 +202,7 @@ class Aff4ModelTest {
     )
   }
 
+  @Suppress("LongMethod")
   @Test
   fun `loads aff4 metadata`() {
     assertThat(aff4Model.query(DiskImage::class)).containsExactly(

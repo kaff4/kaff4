@@ -28,35 +28,38 @@ class RdfModelParser @Inject internal constructor(
   private val constructionInfoMap: MutableMap<KClass<*>, ConstructionInfo<*>> = mutableMapOf()
 
   fun <T : Any> parse(type: KClass<T>, subject: Resource, statements: List<Statement>): T {
-    val constructionInfo = constructionInfoMap.getOrPut(type) {
-      val constructor = findRdfConstructor(type)
-
-      val memberProperties = type.memberProperties.associateBy { it.name }
-      val memoizedPropertyMaps = mutableMapOf<KClass<*>, Map<String, KProperty<*>>>(type to memberProperties)
-
-      val subjectParams = mutableSetOf<KParameter>()
-
-      val otherParams = mutableMapOf<KParameter, ParameterInfo>()
-      for (parameter in constructor.parameters) {
-        if (isAnnotationPresent<RdfSubject>(memoizedPropertyMaps, type, parameter)) {
-          subjectParams.add(parameter)
-          continue
-        }
-
-        val predicate = namespacesProvider.iriFromTurtle(
-          findAnnotation<RdfValue>(memoizedPropertyMaps, type, parameter)?.turtleRdfIri
-            ?: "aff4:${parameter.name}"
-        )
-
-        otherParams[parameter] = ParameterInfo(parameter, predicate)
-      }
-
-      val rdfType = (type.findAnnotation<RdfModel>() ?: constructor.findAnnotation())!!.rdfType
-      ConstructionInfo(type, constructor, namespacesProvider.iriFromTurtle(rdfType), subjectParams, otherParams)
-    } as ConstructionInfo<T>
+    val constructionInfo = getOrCreateConstructionInfo(type)
 
     return parse(constructionInfo, subject, statements)
   }
+
+  @Suppress("UNCHECKED_CAST")
+  private fun <T : Any> getOrCreateConstructionInfo(type: KClass<T>) = constructionInfoMap.getOrPut(type) {
+    val constructor = findRdfConstructor(type)
+
+    val memberProperties = type.memberProperties.associateBy { it.name }
+    val memoizedPropertyMaps = mutableMapOf<KClass<*>, Map<String, KProperty<*>>>(type to memberProperties)
+
+    val subjectParams = mutableSetOf<KParameter>()
+
+    val otherParams = mutableMapOf<KParameter, ParameterInfo>()
+    for (parameter in constructor.parameters) {
+      if (isAnnotationPresent<RdfSubject>(memoizedPropertyMaps, type, parameter)) {
+        subjectParams.add(parameter)
+        continue
+      }
+
+      val predicate = namespacesProvider.iriFromTurtle(
+        findAnnotation<RdfValue>(memoizedPropertyMaps, type, parameter)?.turtleRdfIri
+          ?: "aff4:${parameter.name}"
+      )
+
+      otherParams[parameter] = ParameterInfo(parameter, predicate)
+    }
+
+    val rdfType = (type.findAnnotation<RdfModel>() ?: constructor.findAnnotation())!!.rdfType
+    ConstructionInfo(type, constructor, namespacesProvider.iriFromTurtle(rdfType), subjectParams, otherParams)
+  } as ConstructionInfo<T>
 
   private fun <T : Any> parse(
     constructionInfo: ConstructionInfo<T>,

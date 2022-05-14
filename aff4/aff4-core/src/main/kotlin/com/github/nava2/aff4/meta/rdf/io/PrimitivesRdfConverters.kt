@@ -1,3 +1,5 @@
+@file:Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
+
 package com.github.nava2.aff4.meta.rdf.io
 
 import com.github.nava2.guice.typeLiteral

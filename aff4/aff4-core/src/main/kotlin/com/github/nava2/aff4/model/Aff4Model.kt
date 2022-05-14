@@ -7,7 +7,7 @@ import com.github.nava2.aff4.meta.rdf.io.RdfModel
 import com.github.nava2.aff4.meta.rdf.io.RdfModelParser
 import com.github.nava2.aff4.meta.rdf.model.Aff4RdfModel
 import com.github.nava2.aff4.meta.rdf.model.ZipVolume
-import com.github.nava2.aff4.meta.rdf.parser.ForImageFolder
+import com.github.nava2.aff4.meta.rdf.parser.ForImageRoot
 import com.github.nava2.aff4.meta.rdf.querySubjectsByType
 import com.github.nava2.guice.KAbstractModule
 import com.github.nava2.guice.getInstance
@@ -28,7 +28,7 @@ import kotlin.reflect.full.findAnnotation
 
 class Aff4Model @AssistedInject internal constructor(
   private val rdfConnectionScoping: RdfConnectionScoping,
-  @ForImageFolder private val fileSystem: FileSystem,
+  @ForImageRoot internal val imageRootFileSystem: FileSystem,
   @Assisted val containerArn: IRI,
   @Assisted("version") val version: String, // todo semver
   @Assisted("tool") val tool: String,
@@ -89,7 +89,7 @@ class Aff4Model @AssistedInject internal constructor(
         object : KAbstractModule() {
           override fun configure() {
             bind<FileSystem>()
-              .annotatedWith(ForImageFolder::class.java)
+              .annotatedWith(ForImageRoot::class.java)
               .toInstance(imageFileSystem)
             install(FactoryModuleBuilder().build(AssistedFactory::class.java))
           }
