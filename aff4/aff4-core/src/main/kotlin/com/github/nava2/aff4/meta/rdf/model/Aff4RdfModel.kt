@@ -7,7 +7,7 @@ import okio.Path
 import org.eclipse.rdf4j.model.Resource
 import java.time.ZonedDateTime
 
-sealed interface Aff4Model {
+sealed interface Aff4RdfModel {
   @RdfSubject
   val arn: Resource
 }
@@ -16,7 +16,7 @@ sealed interface Aff4Model {
 data class BlockHashes(
   override val arn: Resource,
   val hash: Hash,
-) : Aff4Model
+) : Aff4RdfModel
 
 @RdfModel("aff4:ZipVolume")
 data class ZipVolume(
@@ -26,7 +26,7 @@ data class ZipVolume(
   @RdfValue("aff4:interface")
   val interfaceType: Resource, // todo this should be an enum?
   val stored: Path,
-) : Aff4Model
+) : Aff4RdfModel
 
 @RdfModel("aff4:Map")
 data class Map(
@@ -41,7 +41,7 @@ data class Map(
   val size: Long,
   val stored: Resource,
   val target: Resource,
-) : Aff4Model
+) : Aff4RdfModel
 
 @RdfModel("aff4:CaseNotes")
 data class CaseNotes(
@@ -53,7 +53,7 @@ data class CaseNotes(
   val stored: Resource,
   val target: Resource,
   val timestamp: ZonedDateTime,
-) : Aff4Model
+) : Aff4RdfModel
 
 @RdfModel("aff4:CaseDetails")
 data class CaseDetails(
@@ -63,7 +63,7 @@ data class CaseDetails(
   val examiner: String,
   val stored: Resource,
   val target: Resource,
-) : Aff4Model
+) : Aff4RdfModel
 
 enum class Aff4ImagingOperation {
   CAPTURE,
@@ -84,14 +84,29 @@ data class TimeStamps(
   val stored: Resource,
   val target: Resource,
   val timeSource: Aff4TimeSource,
-) : Aff4Model
+) : Aff4RdfModel
 
 @RdfModel("aff4:Image")
 data class Image(
   override val arn: Resource,
   val dataStream: Resource,
   val size: Long,
-) : Aff4Model
+) : Aff4RdfModel
+
+@RdfModel("aff4:ImageStream")
+data class ImageStream(
+  override val arn: Resource,
+  val chunkSize: Int,
+  val chunksInSegment: Int,
+  val size: Long,
+  val compressionMethod: Resource, // TODO sealed
+  val hash: List<Hash>,
+  val imageStreamHash: Hash,
+  val imageStreamIndexHash: Hash,
+  val stored: Resource,
+  val target: Resource,
+  val version: Int,
+) : Aff4RdfModel
 
 @RdfModel("aff4:DiskImage")
 data class DiskImage(
@@ -110,4 +125,4 @@ data class DiskImage(
   val diskMake: String,
   val diskModel: String,
   val diskSerial: String,
-) : Aff4Model
+) : Aff4RdfModel

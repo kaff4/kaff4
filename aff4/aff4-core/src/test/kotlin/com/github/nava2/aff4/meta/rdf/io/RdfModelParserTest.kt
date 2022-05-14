@@ -3,9 +3,11 @@
 package com.github.nava2.aff4.meta.rdf.io
 
 import com.github.nava2.aff4.Aff4CoreModule
-import com.github.nava2.aff4.meta.parser.TestRdfRepositoryModule
 import com.github.nava2.aff4.meta.rdf.RdfConnectionScoping
 import com.github.nava2.aff4.meta.rdf.ScopedConnection
+import com.github.nava2.aff4.meta.rdf.MemoryRdfRepositoryConfiguration
+import com.github.nava2.aff4.meta.rdf.RdfRepositoryConfiguration
+import com.github.nava2.guice.KAbstractModule
 import com.github.nava2.test.GuiceTestRule
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.IRI
@@ -15,12 +17,20 @@ import org.eclipse.rdf4j.model.ValueFactory
 import org.junit.Rule
 import org.junit.Test
 import javax.inject.Inject
+import kotlin.Long
 import java.lang.Integer as JInteger
 import java.lang.Long as JLong
 
 class RdfModelParserTest {
   @get:Rule
-  val rule: GuiceTestRule = GuiceTestRule(Aff4CoreModule, TestRdfRepositoryModule)
+  val rule: GuiceTestRule = GuiceTestRule(
+    Aff4CoreModule,
+    object : KAbstractModule() {
+      override fun configure() {
+        bind<RdfRepositoryConfiguration>().toInstance(MemoryRdfRepositoryConfiguration)
+      }
+    },
+  )
 
   @Inject
   private lateinit var rdfConnectionScoping: RdfConnectionScoping

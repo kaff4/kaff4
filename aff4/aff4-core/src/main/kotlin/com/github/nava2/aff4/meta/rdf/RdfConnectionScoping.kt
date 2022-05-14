@@ -7,7 +7,9 @@ import com.google.inject.Key
 import org.eclipse.rdf4j.repository.Repository
 import javax.inject.Inject
 import javax.inject.Provider
+import javax.inject.Singleton
 
+@Singleton
 class RdfConnectionScoping @Inject constructor(
   private val rdfConnectionScopeProvider: Provider<RdfConnectionScope>,
   private val repository: Repository,

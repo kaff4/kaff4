@@ -1,20 +1,19 @@
-package com.github.nava2.aff4.meta.parser
+package com.github.nava2.aff4.meta.rdf.parser
 
 import com.github.nava2.aff4.io.SourceProvider
 import com.github.nava2.aff4.io.buffer
 import com.github.nava2.aff4.io.useAsInputStream
-import com.github.nava2.aff4.meta.rdf.model.Aff4Model
 import com.github.nava2.aff4.meta.rdf.RdfConnectionScoped
 import com.github.nava2.aff4.meta.rdf.RdfConnectionScoping
 import com.github.nava2.aff4.meta.rdf.ScopedConnection
 import com.github.nava2.aff4.meta.rdf.io.RdfModel
 import com.github.nava2.aff4.meta.rdf.io.RdfModelParser
+import com.github.nava2.aff4.meta.rdf.model.Aff4RdfModel
+import com.github.nava2.aff4.meta.rdf.querySubjectsByType
 import com.github.nava2.guice.getInstance
 import com.google.inject.Injector
 import okio.Path
 import okio.Source
-import org.eclipse.rdf4j.model.IRI
-import org.eclipse.rdf4j.model.Resource
 import org.eclipse.rdf4j.rio.RDFFormat
 import java.util.function.Consumer
 import javax.inject.Inject
@@ -30,7 +29,7 @@ class RdfProvider @Inject constructor(
   fun parseStream(
     imagePath: Path,
     sourceProvider: SourceProvider<Source>,
-    consumer: Consumer<Aff4Model>,
+    consumer: Consumer<Aff4RdfModel>,
   ) {
     rdfConnectionScoping.scoped { parser: Parser ->
       parser.parse(imagePath, sourceProvider, consumer)
@@ -45,7 +44,7 @@ class RdfProvider @Inject constructor(
     fun parse(
       imagePath: Path,
       sourceProvider: SourceProvider<Source>,
-      consumer: Consumer<Aff4Model>,
+      consumer: Consumer<Aff4RdfModel>,
     ) {
       sourceProvider.buffer().useAsInputStream { source ->
         connection.mutable.add(source, RDFFormat.TURTLE)
@@ -62,11 +61,11 @@ class RdfProvider @Inject constructor(
 }
 
 private class ModelParsers @Inject constructor(
-  private val models: Provider<Set<KClass<out Aff4Model>>>,
+  private val models: Provider<Set<KClass<out Aff4RdfModel>>>,
   private val rdfModelParser: RdfModelParser,
   private val connection: ScopedConnection,
 ) {
-  fun parseModels(consumer: Consumer<Aff4Model>) {
+  fun parseModels(consumer: Consumer<Aff4RdfModel>) {
     for (modelType in models.get()) {
       val modelRdfType = modelType.findAnnotation<RdfModel>()!!.rdfType
       val subjects = connection.querySubjectsByType(connection.namespaces.iriFromTurtle(modelRdfType))
@@ -80,9 +79,3 @@ private class ModelParsers @Inject constructor(
   }
 }
 
-private fun ScopedConnection.querySubjectsByType(type: IRI): List<Resource> {
-  val query = queryStatements(pred = namespaces.iriFromTurtle("rdf:type"), obj = type).apply {
-    enableDuplicateFilter()
-  }
-  return query.use { result -> result.map { it.subject } }
-}
