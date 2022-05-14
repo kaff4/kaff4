@@ -72,7 +72,7 @@ class BevyIndexReaderTest {
   }
 
   @Test
-  fun `open and read bevy stream`() {
+  fun `open and read index values`() {
     val bevy = bevyFactory.create(imageStreamIri, 0)
     BevyIndexReader(aff4Model.imageRootFileSystem, imageStreamConfig, bevy).use { bevyIndexReader ->
       val firstIndex = IndexValue(0L, 1974)
@@ -92,7 +92,7 @@ class BevyIndexReaderTest {
   }
 
   @Test
-  fun `random read stream`() {
+  fun `random read index locations`() {
     val bevy = bevyFactory.create(imageStreamIri, 0)
     BevyIndexReader(aff4Model.imageRootFileSystem, imageStreamConfig, bevy).use { bevyIndexReader ->
       val firstIndex = IndexValue(0L, 1974)

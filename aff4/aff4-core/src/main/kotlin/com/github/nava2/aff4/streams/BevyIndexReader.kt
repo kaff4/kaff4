@@ -1,5 +1,6 @@
 package com.github.nava2.aff4.streams
 
+import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.nava2.aff4.meta.rdf.model.ImageStream
 import okio.BufferedSource
 import okio.FileSystem
@@ -7,12 +8,16 @@ import okio.buffer
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
+private const val INDEX_CACHE_SIZE = 500L
+
 internal class BevyIndexReader(
   private val fileSystem: FileSystem,
   imageStream: ImageStream,
   private val config: Bevy,
 ) : AutoCloseable {
-  private val bevyIndexCache = mutableMapOf<Long, IndexValue?>()
+  private val bevyIndexCache = Caffeine.newBuilder()
+    .maximumSize(INDEX_CACHE_SIZE)
+    .build<Long, CacheValue>(::loadIndex)
 
   private val chunkSize = imageStream.chunkSize
 
@@ -40,13 +45,26 @@ internal class BevyIndexReader(
     // round down by chunk size to find the index to read
     val indexIndex = bevyPosition.floorDiv(chunkSize)
 
-    return bevyIndexCache.getOrPut(indexIndex) {
-      val indexFilePosition = indexIndex * IndexValue.SIZE_BYTES
-      val readResult = readIndexFile(indexFilePosition)
+    return bevyIndexCache[indexIndex]!!.indexValue
+  }
 
+  private fun loadIndex(indexIndex: Long): CacheValue {
+    val indexFilePosition = indexIndex * IndexValue.SIZE_BYTES
+    val readResult = readIndexFile(indexFilePosition)
+
+    return if (readResult == IndexValue.SIZE_BYTES) {
       val offset = offsetBuffer.get(0)
       val length = lengthBuffer.get(0)
-      IndexValue(offset, length).takeIf { readResult == IndexValue.SIZE_BYTES }
+      val result = IndexValue(offset, length).takeIf { readResult == IndexValue.SIZE_BYTES }
+      CacheValue(result)
+    } else {
+      CacheValue.NULL_INSTANCE
+    }
+  }
+
+  private data class CacheValue(val indexValue: IndexValue?) {
+    companion object {
+      val NULL_INSTANCE = CacheValue(null)
     }
   }
 
@@ -79,7 +97,7 @@ internal class BevyIndexReader(
 }
 
 internal data class IndexValue(
-  val bevyPosition: Long,
+  val dataPosition: Long,
   val compressedLength: Int,
 ) {
   companion object {
