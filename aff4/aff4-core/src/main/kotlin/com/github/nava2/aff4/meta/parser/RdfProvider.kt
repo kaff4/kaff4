@@ -3,7 +3,7 @@ package com.github.nava2.aff4.meta.parser
 import com.github.nava2.aff4.io.SourceProvider
 import com.github.nava2.aff4.io.buffer
 import com.github.nava2.aff4.io.useAsInputStream
-import com.github.nava2.aff4.meta.Aff4Model
+import com.github.nava2.aff4.meta.rdf.model.Aff4Model
 import com.github.nava2.aff4.meta.rdf.RdfConnectionScoped
 import com.github.nava2.aff4.meta.rdf.RdfConnectionScoping
 import com.github.nava2.aff4.meta.rdf.ScopedConnection

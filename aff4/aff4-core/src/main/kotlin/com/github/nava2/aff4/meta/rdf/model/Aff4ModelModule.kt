@@ -1,4 +1,4 @@
-package com.github.nava2.aff4.meta
+package com.github.nava2.aff4.meta.rdf.model
 
 import com.github.nava2.aff4.meta.parser.Aff4HashRdfValueConverter
 import com.github.nava2.aff4.meta.parser.Aff4ImagePathRdfValueConverter

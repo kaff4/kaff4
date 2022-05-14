@@ -1,5 +1,6 @@
 package com.github.nava2.aff4.meta
 
+import com.github.nava2.aff4.meta.rdf.model.Aff4Model
 import java.util.function.Consumer
 
 class CollectingModelConsumer : Consumer<Aff4Model> {

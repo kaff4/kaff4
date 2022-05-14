@@ -2,7 +2,7 @@ package com.github.nava2.aff4.meta.parser
 
 import com.github.nava2.aff4.ForImages
 import com.github.nava2.aff4.io.RelativeFileSystem
-import com.github.nava2.aff4.meta.Hash
+import com.github.nava2.aff4.meta.rdf.model.Hash
 import com.github.nava2.aff4.meta.rdf.io.ConcreteRdfValueConverter
 import com.github.nava2.guice.KAbstractModule
 import com.github.nava2.guice.typeLiteral

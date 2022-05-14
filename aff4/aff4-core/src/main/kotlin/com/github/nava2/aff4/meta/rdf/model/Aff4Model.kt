@@ -1,4 +1,4 @@
-package com.github.nava2.aff4.meta
+package com.github.nava2.aff4.meta.rdf.model
 
 import com.github.nava2.aff4.meta.rdf.io.RdfModel
 import com.github.nava2.aff4.meta.rdf.io.RdfSubject
@@ -84,4 +84,30 @@ data class TimeStamps(
   val stored: Resource,
   val target: Resource,
   val timeSource: Aff4TimeSource,
+) : Aff4Model
+
+@RdfModel("aff4:Image")
+data class Image(
+  override val arn: Resource,
+  val dataStream: Resource,
+  val size: Long,
+) : Aff4Model
+
+@RdfModel("aff4:DiskImage")
+data class DiskImage(
+  override val arn: Resource,
+  val size: Long,
+  val blockSize: Int,
+  val sectorCount: Long,
+  val acquisitionCompletionState: String,
+  val diskPartitionTableType: String,
+  val diskNumberOfPartitions: Int,
+  val diskDeviceName: String,
+  val diskDeviceRole: Int,
+  val diskDeviceType: String,
+  val diskFirmware: String,
+  val diskInterfaceType: String,
+  val diskMake: String,
+  val diskModel: String,
+  val diskSerial: String,
 ) : Aff4Model

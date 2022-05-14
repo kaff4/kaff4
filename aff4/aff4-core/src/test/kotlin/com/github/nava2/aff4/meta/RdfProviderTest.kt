@@ -5,6 +5,17 @@ import com.github.nava2.aff4.ForImages
 import com.github.nava2.aff4.ForResources
 import com.github.nava2.aff4.io.relativeTo
 import com.github.nava2.aff4.io.sourceProvider
+import com.github.nava2.aff4.meta.rdf.model.Aff4ImagingOperation
+import com.github.nava2.aff4.meta.rdf.model.Aff4TimeSource
+import com.github.nava2.aff4.meta.rdf.model.BlockHashes
+import com.github.nava2.aff4.meta.rdf.model.CaseDetails
+import com.github.nava2.aff4.meta.rdf.model.CaseNotes
+import com.github.nava2.aff4.meta.rdf.model.DiskImage
+import com.github.nava2.aff4.meta.rdf.model.Hash
+import com.github.nava2.aff4.meta.rdf.model.Image
+import com.github.nava2.aff4.meta.rdf.model.Map
+import com.github.nava2.aff4.meta.rdf.model.TimeStamps
+import com.github.nava2.aff4.meta.rdf.model.ZipVolume
 import com.github.nava2.aff4.meta.parser.RdfProvider
 import com.github.nava2.aff4.meta.parser.TestRdfRepositoryModule
 import com.github.nava2.guice.KAbstractModule
@@ -99,6 +110,28 @@ class RdfProviderTest {
             arn("aff4://fcbfdce7-4488-4677-abf6-08bc931e195b"),
             arn("aff4://cf853d0b-5589-4c7c-8358-2ca1572b87eb"),
           )
+        ),
+        Image(
+          arn = arn("aff4://cf853d0b-5589-4c7c-8358-2ca1572b87eb"),
+          dataStream = arn("aff4://fcbfdce7-4488-4677-abf6-08bc931e195b"),
+          size = 268435456L,
+        ),
+        DiskImage(
+          arn = arn("aff4://cf853d0b-5589-4c7c-8358-2ca1572b87eb"),
+          size = 268435456L,
+          blockSize = 512,
+          sectorCount = 524288L,
+          acquisitionCompletionState = "Completed Normally",
+          diskPartitionTableType = "MBR",
+          diskNumberOfPartitions = 1,
+          diskDeviceName = "/dev/sdz",
+          diskDeviceRole = 0,
+          diskDeviceType = "Disk",
+          diskFirmware = "1.02a",
+          diskInterfaceType = "ATA",
+          diskMake = "Seagate",
+          diskModel = "ST-506",
+          diskSerial = "SGAT5060001234",
         ),
         Map(
           arn = arn("aff4://fcbfdce7-4488-4677-abf6-08bc931e195b"),

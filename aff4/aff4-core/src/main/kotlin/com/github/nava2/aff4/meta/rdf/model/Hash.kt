@@ -1,4 +1,4 @@
-package com.github.nava2.aff4.meta
+package com.github.nava2.aff4.meta.rdf.model
 
 import okio.ByteString
 import okio.ByteString.Companion.decodeHex

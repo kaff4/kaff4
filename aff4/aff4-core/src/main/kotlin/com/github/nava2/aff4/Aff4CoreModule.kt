@@ -1,6 +1,6 @@
 package com.github.nava2.aff4
 
-import com.github.nava2.aff4.meta.Aff4ModelModule
+import com.github.nava2.aff4.meta.rdf.model.Aff4ModelModule
 import com.github.nava2.aff4.meta.rdf.io.RdfModelParserModule
 import com.github.nava2.guice.KAbstractModule
 import com.google.inject.BindingAnnotation
