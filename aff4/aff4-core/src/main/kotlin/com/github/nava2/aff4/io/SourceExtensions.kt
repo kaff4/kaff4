@@ -1,7 +1,11 @@
 package com.github.nava2.aff4.io
 
+import okio.Buffer
 import okio.BufferedSink
 import okio.BufferedSource
+import okio.ByteString
+import okio.Source
+import okio.Timeout
 
 internal fun BufferedSource.exhaust(sink: BufferedSink, byteCount: Long): Long {
   var firstRead = true
@@ -15,7 +19,87 @@ internal fun BufferedSource.exhaust(sink: BufferedSink, byteCount: Long): Long {
 
     bytesRemaining -= bytesRead
     firstRead = false
-  } while (bytesRemaining > 0 && bytesRead >= 0)
+  } while (bytesRemaining > 0 && bytesRead > 0)
 
   return byteCount - bytesRemaining
+}
+
+internal fun ByteString.source(timeout: Timeout = Timeout.NONE): Source {
+  return object : Source {
+    private val buffer = asByteBuffer()
+
+    override fun read(sink: Buffer, byteCount: Long): Long {
+      if (!buffer.hasRemaining()) return -1
+
+      val maxAvailableBytes = byteCount.toInt().coerceAtMost(buffer.remaining())
+      val slice = buffer.slice(buffer.position(), maxAvailableBytes)
+      val bytesRead = sink.write(slice)
+
+      buffer.position(buffer.position() + bytesRead)
+
+      return bytesRead.toLong()
+    }
+
+    override fun timeout(): Timeout = timeout
+    override fun close() = Unit
+  }
+}
+
+internal fun concatLazily(sources: List<() -> Source>, timeout: Timeout = Timeout.NONE): Source {
+  return LazyConcatSource(sources, timeout)
+}
+
+private class LazyConcatSource(
+  lazySources: List<() -> Source>,
+  private val timeout: Timeout,
+) : Source {
+  private val iter = lazySources.iterator()
+  private var current: Source = iter.next().invoke()
+
+  override fun read(sink: Buffer, byteCount: Long): Long {
+    val bytesRead = current.read(sink, byteCount)
+
+    return when {
+      bytesRead == -1L && !iter.hasNext() -> -1L
+      bytesRead == -1L && iter.hasNext() -> {
+        current.close()
+        current = iter.next().invoke()
+
+        read(sink, byteCount)
+      }
+      else -> bytesRead
+    }
+  }
+
+  override fun close() = current.close()
+  override fun timeout(): Timeout = timeout
+}
+
+internal fun Source.concat(vararg sources: Source, timeout: Timeout = timeout()): Source {
+  return ConcatSource(listOf(this, *sources), timeout)
+}
+
+private class ConcatSource(
+  sources: List<Source>,
+  private val timeout: Timeout,
+) : Source {
+  private val iter = sources.iterator()
+  private var current: Source = iter.next()
+
+  override fun read(sink: Buffer, byteCount: Long): Long {
+    val bytesRead = current.read(sink, byteCount)
+
+    return when {
+      bytesRead == -1L && !iter.hasNext() -> -1L
+      bytesRead == -1L && iter.hasNext() -> {
+        current = iter.next()
+
+        read(sink, byteCount)
+      }
+      else -> bytesRead
+    }
+  }
+
+  override fun close() = current.close()
+  override fun timeout(): Timeout = timeout
 }

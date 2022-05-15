@@ -103,8 +103,10 @@ data class ImageStream(
   val compressionMethod: CompressionMethod,
   @RdfValue("aff4:hash")
   val linearHashes: List<Hash>,
-  val imageStreamHash: Hash?,
-  val imageStreamIndexHash: Hash?,
+  @RdfValue("aff4:imageStreamHash")
+  val imageStreamHashes: List<Hash>,
+  @RdfValue("aff4:imageStreamIndexHash")
+  val imageStreamIndexHashes: List<Hash>,
   val stored: Resource,
   val target: Resource,
   val version: Int,

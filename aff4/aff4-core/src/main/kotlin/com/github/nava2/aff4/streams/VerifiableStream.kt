@@ -7,8 +7,10 @@ interface VerifiableStream {
   fun verify(): Result
 
   sealed interface Result {
-    object Success : Result
+    object Success : Result {
+      override fun toString(): String = javaClass.simpleName
+    }
 
-    class Failed(val reasons: List<Pair<String, Hash>>) : Result
+    data class Failed(val reasons: List<Pair<String, Hash>>) : Result
   }
 }

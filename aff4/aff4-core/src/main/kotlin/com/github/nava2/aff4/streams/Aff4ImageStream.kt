@@ -3,11 +3,13 @@ package com.github.nava2.aff4.streams
 import com.github.nava2.aff4.io.exhaust
 import com.github.nava2.aff4.meta.rdf.model.Hash
 import com.github.nava2.aff4.meta.rdf.model.ImageStream
+import com.github.nava2.aff4.meta.rdf.parser.ForImageRoot
+import com.github.nava2.aff4.streams.Hashing.computeLinearHashes
 import okio.Buffer
 import okio.BufferedSource
-import okio.ByteString
 import okio.FileSystem
 import okio.HashingSink
+import okio.Sink
 import okio.Source
 import okio.blackholeSink
 import okio.buffer
@@ -15,7 +17,7 @@ import java.io.Closeable
 
 class Aff4ImageStream internal constructor(
   bevyFactory: Bevy.Factory,
-  fileSystem: FileSystem,
+  @ForImageRoot private val fileSystem: FileSystem,
   private val imageStreamConfig: ImageStream,
 ) : VerifiableStream, AutoCloseable {
   private val sourceProviderWithRefCounts = SourceProviderWithRefCounts(::readAt)
@@ -33,25 +35,19 @@ class Aff4ImageStream internal constructor(
 
   private var verificationResult: VerifiableStream.Result? = null
 
-  private data class CurrentSourceInfo(
-    val bevyIndex: Int,
-    val source: BufferedSource,
-  ) : Closeable by source
-
   fun source(position: Long): Source {
     return sourceProviderWithRefCounts.source(position)
   }
 
   override fun verify(): VerifiableStream.Result {
-    // TODO parallelize
     if (verificationResult != null) {
       return verificationResult!!
     }
 
     val failedHashes = mutableListOf<Pair<String, Hash>>()
 
-    val linearHashes = source(0).buffer().use {
-      it.computeLinearHashes(imageStreamConfig.linearHashes, size)
+    val linearHashes = source(0).buffer().use { s ->
+      s.computeLinearHashes(imageStreamConfig.linearHashes)
     }
 
     for ((expectedHash, actualHash) in linearHashes) {
@@ -145,35 +141,18 @@ class Aff4ImageStream internal constructor(
 
     position = cappedPosition
   }
+
+  private data class CurrentSourceInfo(
+    val bevyIndex: Int,
+    val source: BufferedSource,
+  ) : Closeable by source
 }
 
-internal fun BufferedSource.computeLinearHashes(linearHashes: List<Hash>, byteCount: Long): Map<Hash, ByteString> {
-  var sinkMap: Map<Hash, HashingSink>? = null
-
-  try {
-    var wrappedSink = blackholeSink()
-
-    sinkMap = linearHashes.associateWith { hash ->
-      val hashingSink = when (hash) {
-        is Hash.Sha1 -> HashingSink.sha1(wrappedSink)
-        is Hash.Md5 -> HashingSink.md5(wrappedSink)
-        is Hash.Sha256 -> HashingSink.sha256(wrappedSink)
-        is Hash.Sha512 -> HashingSink.sha512(wrappedSink)
-      }
-      wrappedSink = hashingSink
-      hashingSink
-    }
-
-    wrappedSink.buffer().use { buffer ->
-      check(byteCount == exhaust(buffer, byteCount))
-    }
-
-    wrappedSink.close()
-
-    return sinkMap.mapValues { (_, sink) -> sink.hash }
-  } finally {
-    for (s in sinkMap?.values ?: listOf()) {
-      s.close()
-    }
+internal fun Hash.hashingSink(delegateSink: Sink = blackholeSink()): HashingSink {
+  return when (this) {
+    is Hash.Sha1 -> HashingSink.sha1(delegateSink)
+    is Hash.Md5 -> HashingSink.md5(delegateSink)
+    is Hash.Sha256 -> HashingSink.sha256(delegateSink)
+    is Hash.Sha512 -> HashingSink.sha512(delegateSink)
   }
 }

@@ -162,17 +162,21 @@ class Aff4ModelTest {
           Hash.Sha1("fbac22cca549310bc5df03b7560afcf490995fbb".decodeHex()),
           Hash.Md5("d5825dc1152a42958c8219ff11ed01a3".decodeHex()),
         ),
-        imageStreamHash = Hash.Sha512(
-          (
-            "7c909ad458a90ca083cf2d10848fb3aaee7d9ac008605f85aef1ac2db8249973ac7b6716f3250edb80219ff628d" +
-              "6fb4873c33c59de0a3e6c7657e234e7ba0db3"
-            ).decodeHex()
+        imageStreamHashes = listOf(
+          Hash.Sha512(
+            (
+              "7c909ad458a90ca083cf2d10848fb3aaee7d9ac008605f85aef1ac2db8249973ac7b6716f3250edb80219ff628d" +
+                "6fb4873c33c59de0a3e6c7657e234e7ba0db3"
+              ).decodeHex()
+          ),
         ),
-        imageStreamIndexHash = Hash.Sha512(
-          (
-            "c663bc90d996d2c9699e00dc1ea2c55b3724f1eaca2b92119bb7c764aad222eed321cb00ee67899c027f6837a3bd" +
-              "8f789a96adb6e9df51629b3cac0b6f9f0722"
-            ).decodeHex()
+        imageStreamIndexHashes = listOf(
+          Hash.Sha512(
+            (
+              "c663bc90d996d2c9699e00dc1ea2c55b3724f1eaca2b92119bb7c764aad222eed321cb00ee67899c027f6837a3bd" +
+                "8f789a96adb6e9df51629b3cac0b6f9f0722"
+              ).decodeHex()
+          ),
         ),
         stored = arn("aff4://685e15cc-d0fb-4dbc-ba47-48117fc77044"),
         target = arn("aff4://fcbfdce7-4488-4677-abf6-08bc931e195b"),
