@@ -7,9 +7,10 @@ import okio.Source
 import okio.Timeout
 
 fun BufferedSource.lineSequence(): Sequence<String> = sequence {
-  val targetLine = readUtf8Line()
+  var targetLine = readUtf8Line()
   while (targetLine != null) {
     yield(targetLine)
+    targetLine = readUtf8Line()
   }
 }
 
