@@ -107,7 +107,26 @@ data class ImageStream(
   val stored: Resource,
   val target: Resource,
   val version: Int,
-) : Aff4RdfModel
+) : Aff4RdfModel {
+  /** Maximum uncompressed size a bevy stores */
+  val bevyMaxSize: Long = chunkSize.toLong() * chunksInSegment
+
+  /** How many bevies are there in [this] */
+  val bevyCount: Int = size.floorDiv(bevyMaxSize).toInt() + 1
+
+  /** The index of the last bevy */
+  val lastBevyIndex: Int = size.floorDiv(bevyMaxSize).toInt()
+
+  /** Size of the last bevy as it is typically not full */
+  val lastBevySize: Long = size - (bevyCount - 1) * bevyMaxSize
+
+  /** Compute the bevy size of [index] via constant-time math */
+  fun bevySize(index: Int): Long = if (index != lastBevyIndex) {
+    bevyMaxSize
+  } else {
+    lastBevySize
+  }
+}
 
 @RdfModel("aff4:DiskImage")
 data class DiskImage(

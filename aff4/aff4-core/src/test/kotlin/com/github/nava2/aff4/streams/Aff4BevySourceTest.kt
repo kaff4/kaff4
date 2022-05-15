@@ -3,6 +3,7 @@ package com.github.nava2.aff4.streams
 import com.github.nava2.aff4.Aff4CoreModule
 import com.github.nava2.aff4.ForImages
 import com.github.nava2.aff4.ForResources
+import com.github.nava2.aff4.io.exhaust
 import com.github.nava2.aff4.io.relativeTo
 import com.github.nava2.aff4.meta.rdf.MemoryRdfRepositoryConfiguration
 import com.github.nava2.aff4.meta.rdf.RdfRepositoryConfiguration
@@ -109,14 +110,14 @@ class Aff4BevySourceTest {
       }
     }
 
-    assertThat(aff4Bevy.bevySize).isEqualTo(imageStreamConfig.size)
+    assertThat(aff4Bevy.uncompressedSize).isEqualTo(imageStreamConfig.size)
   }
 
   @Test
   fun `open and read multiple times has chunks cached`() {
     createSource().use { bevySource ->
       Buffer().use { readSink ->
-        assertThat(bevySource.read(readSink, chunkSize)).isEqualTo(chunkSize)
+        assertThat(bevySource.exhaust(readSink, chunkSize)).isEqualTo(chunkSize)
         assertThat(readSink.size).isEqualTo(chunkSize)
         assertThat(readSink.md5()).isEqualTo("af05fdbda3150e658948ba8b74f1fe82".decodeHex())
       }
@@ -124,7 +125,7 @@ class Aff4BevySourceTest {
 
     createSource().use { bevySource ->
       Buffer().use { readSink ->
-        assertThat(bevySource.read(readSink, chunkSize)).isEqualTo(chunkSize)
+        assertThat(bevySource.exhaust(readSink, chunkSize)).isEqualTo(chunkSize)
         assertThat(readSink.size).isEqualTo(chunkSize)
         assertThat(readSink.md5()).isEqualTo("af05fdbda3150e658948ba8b74f1fe82".decodeHex())
       }
@@ -137,7 +138,7 @@ class Aff4BevySourceTest {
   fun `open and read gt chunk size`() {
     createSource().use { bevySource ->
       Buffer().use { readSink ->
-        assertThat(bevySource.read(readSink, chunkSize * 2)).isEqualTo(chunkSize * 2)
+        assertThat(bevySource.exhaust(readSink, chunkSize * 2)).isEqualTo(chunkSize * 2)
         assertThat(readSink.size).isEqualTo(chunkSize * 2)
         assertThat(readSink.md5()).isEqualTo("866f93925759a39af236632470789234".decodeHex())
       }

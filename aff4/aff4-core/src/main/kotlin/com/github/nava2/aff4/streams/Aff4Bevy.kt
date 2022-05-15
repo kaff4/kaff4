@@ -33,21 +33,7 @@ internal class Aff4Bevy(
 
   private var lastDataSourcePosition = 0L
 
-  val bevySize: Long by lazy {
-    val currentPosition = position
-
-    try {
-      val indexValueCount = fileSystem.metadata(bevy.indexSegment).size!! / IndexValue.SIZE_BYTES
-      val lastChunkBevyIndex = (indexValueCount - 1) * chunkSize
-      position = lastChunkBevyIndex
-      readIntoBuffer()
-
-      lastChunkBevyIndex + chunkBuffer.limit()
-    } finally {
-      position = currentPosition
-      chunkBuffer.limit(0)
-    }
-  }
+  val uncompressedSize = imageStreamConfig.bevySize(bevy.index)
 
   private val dataSourceProvider = fileSystem.sourceProvider(bevy.dataSegment).buffer()
   private var dataSource: BufferedSource? = null
@@ -64,36 +50,26 @@ internal class Aff4Bevy(
   }
 
   private fun readAt(readPosition: Long, sink: Buffer, byteCount: Long): Long {
-    when {
-      position == bevySize -> return -1L
-      byteCount == 0L -> return 0L
-    }
-
     moveTo(readPosition)
 
-    val maxBytesToRead = byteCount.coerceAtMost(bevySize - position)
-    var remainingBytes = maxBytesToRead
+    if (position == uncompressedSize) return -1
 
-    do {
-      if (!chunkBuffer.hasRemaining()) {
-        readIntoBuffer()
+    val maxBytesToRead = byteCount.coerceAtMost(uncompressedSize - position)
 
-        if (!chunkBuffer.hasRemaining()) break
-      }
+    if (!chunkBuffer.hasRemaining()) {
+      readIntoBuffer()
+    }
 
-      val readSlice = chunkBuffer.slice(
-        chunkBuffer.position(),
-        remainingBytes.toInt().coerceAtMost(chunkBuffer.remaining()),
-      )
+    val readSlice = chunkBuffer.slice(
+      chunkBuffer.position(),
+      maxBytesToRead.toInt().coerceAtMost(chunkBuffer.remaining()),
+    )
 
-      val readIntoSink = sink.write(readSlice)
-      chunkBuffer.position(chunkBuffer.position() + readIntoSink)
+    val readIntoSink = sink.write(readSlice)
+    chunkBuffer.position(chunkBuffer.position() + readIntoSink)
 
-      remainingBytes -= readIntoSink
-      position += readIntoSink
-    } while (remainingBytes > 0 && readIntoSink > 0)
-
-    return maxBytesToRead - remainingBytes
+    position += readIntoSink
+    return readIntoSink.toLong()
   }
 
   private fun moveTo(newPosition: Long) {

@@ -7,6 +7,7 @@ import okio.BufferedSource
 import okio.FileSystem
 import okio.Source
 import okio.buffer
+import java.io.Closeable
 
 class Aff4ImageStream internal constructor(
   bevyFactory: Bevy.Factory,
@@ -24,7 +25,12 @@ class Aff4ImageStream internal constructor(
 
   private var position: Long = 0L
 
-  private var currentSource: BufferedSource? = null
+  private var currentSource: CurrentSourceInfo? = null
+
+  private data class CurrentSourceInfo(
+    val bevyIndex: Int,
+    val source: BufferedSource,
+  ) : Closeable by source
 
   fun source(position: Long): Source {
     return sourceProviderWithRefCounts.source(position)
@@ -39,48 +45,66 @@ class Aff4ImageStream internal constructor(
   }
 
   private fun readAt(readPosition: Long, sink: Buffer, byteCount: Long): Long {
-    val earlyReturn = when {
-      position == size -> -1L
-      byteCount == 0L -> 0L
-      else -> null
-    }
-    if (earlyReturn != null) return earlyReturn
-
     moveTo(readPosition)
 
-    var currentBevyIndex = position.floorDiv(bevySize).toInt()
+    if (position == size) return -1L
+
+    // we are exhausted
+    val nextBevyIndex = position.floorDiv(bevySize).toInt()
     val maxBytesToRead = byteCount.coerceAtMost(size - position)
-    var bytesRemaining = maxBytesToRead
 
-    do {
-      val nextBevyIndex = position.floorDiv(bevySize).toInt()
+    val readSource = getAndUpdateCurrentSourceIfChanged(nextBevyIndex)
 
-      currentSource = if (currentSource == null || currentBevyIndex != nextBevyIndex) {
-        currentSource?.close()
+    val bytesRead = readSource.exhaust(sink, maxBytesToRead)
 
-        val bevyPosition = position % bevySize
-        aff4ImageBevies.getOrLoadBevy(nextBevyIndex).source(bevyPosition).buffer()
-      } else {
-        currentSource
-      }
+    return if (position != size) {
+      position += bytesRead.coerceAtLeast(0)
 
-      val bytesRead = currentSource!!.exhaust(sink, bytesRemaining)
+      bytesRead
+    } else {
+      -1L
+    }
+  }
 
-      bytesRemaining -= bytesRead
-      position += bytesRead
+  private fun getAndUpdateCurrentSourceIfChanged(nextBevyIndex: Int): BufferedSource {
+    val currentSource = currentSource
 
-      currentBevyIndex = nextBevyIndex
-    } while (bytesRemaining > 0 && position < size)
+    if (currentSource?.bevyIndex == nextBevyIndex) {
+      return currentSource.source
+    }
 
-    return maxBytesToRead - bytesRemaining
+    currentSource?.close()
+    this.currentSource = null
+
+    val bevyPosition = position % bevySize
+
+    var nextSource: Source? = null
+    var nextBufferedSource: BufferedSource? = null
+
+    return try {
+      nextSource = aff4ImageBevies.getOrLoadBevy(nextBevyIndex).source(bevyPosition)
+      nextBufferedSource = nextSource.buffer()
+
+      val sourceInfo = CurrentSourceInfo(nextBevyIndex, nextBufferedSource)
+
+      this.currentSource = sourceInfo
+
+      nextBufferedSource
+    } catch (@Suppress("TooGenericExceptionCaught") ex: Exception) {
+      nextSource?.close()
+      nextBufferedSource?.close()
+
+      throw ex
+    }
   }
 
   private fun moveTo(newPosition: Long) {
+    val cappedPosition = newPosition.coerceAtMost(size)
     when {
-      newPosition == position -> return
-      newPosition > position && newPosition - position < chunkSize -> {
+      cappedPosition == position -> return
+      cappedPosition > position && cappedPosition - position < chunkSize -> {
         // try and skip forwards if its a small gap
-        currentSource?.skip(newPosition.coerceAtMost(size) - position)
+        currentSource?.source?.skip(cappedPosition - position)
       }
       else -> {
         currentSource?.close()
@@ -88,6 +112,6 @@ class Aff4ImageStream internal constructor(
       }
     }
 
-    position = newPosition
+    position = cappedPosition
   }
 }
