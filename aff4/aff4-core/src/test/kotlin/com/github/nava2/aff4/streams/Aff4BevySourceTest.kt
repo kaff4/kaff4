@@ -98,13 +98,13 @@ class Aff4BevySourceTest {
   fun `open and read bevy source`() {
     createSource().use { bevySource ->
       Buffer().use { readSink ->
-        assertThat(bevySource.read(readSink, chunkSize)).isEqualTo(chunkSize)
+        assertThat(bevySource.exhaust(readSink, chunkSize)).isEqualTo(chunkSize)
         assertThat(readSink.size).isEqualTo(chunkSize)
         assertThat(readSink.md5()).isEqualTo("af05fdbda3150e658948ba8b74f1fe82".decodeHex())
       }
 
       Buffer().use { readSink ->
-        assertThat(bevySource.read(readSink, chunkSize)).isEqualTo(chunkSize)
+        assertThat(bevySource.exhaust(readSink, chunkSize)).isEqualTo(chunkSize)
         assertThat(readSink.size).isEqualTo(chunkSize)
         assertThat(readSink.md5()).isEqualTo("86a8ec10b992e4b9236eb4eadca432d5".decodeHex())
       }
@@ -149,7 +149,7 @@ class Aff4BevySourceTest {
   fun `creating sources at location effectively seeks the stream`() {
     createSource(position = chunkSize).use { bevySource ->
       Buffer().use { readSink ->
-        assertThat(bevySource.read(readSink, chunkSize)).isEqualTo(chunkSize)
+        assertThat(bevySource.exhaust(readSink, chunkSize)).isEqualTo(chunkSize)
         assertThat(readSink.size).isEqualTo(chunkSize)
         assertThat(readSink.md5()).isEqualTo("86a8ec10b992e4b9236eb4eadca432d5".decodeHex())
       }
@@ -157,7 +157,7 @@ class Aff4BevySourceTest {
 
     createSource(position = 0).use { bevySource ->
       Buffer().use { readSink ->
-        assertThat(bevySource.read(readSink, chunkSize)).isEqualTo(chunkSize)
+        assertThat(bevySource.exhaust(readSink, chunkSize)).isEqualTo(chunkSize)
         assertThat(readSink.size).isEqualTo(chunkSize)
         assertThat(readSink.md5()).isEqualTo("af05fdbda3150e658948ba8b74f1fe82".decodeHex())
       }
@@ -166,7 +166,7 @@ class Aff4BevySourceTest {
 
   @Test
   fun `open and read skip bytes via buffering`() {
-    createSource().buffer().use { bevySource ->
+    createSource().use { bevySource ->
       bevySource.skip(1024)
 
       Buffer().use { readSink ->
@@ -189,5 +189,5 @@ class Aff4BevySourceTest {
     }
   }
 
-  private fun createSource(position: Long = 0) = aff4Bevy.source(position)
+  private fun createSource(position: Long = 0) = aff4Bevy.source(position).buffer()
 }

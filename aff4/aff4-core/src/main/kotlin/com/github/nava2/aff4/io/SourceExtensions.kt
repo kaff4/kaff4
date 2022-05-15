@@ -1,13 +1,13 @@
 package com.github.nava2.aff4.io
 
-import okio.Buffer
-import okio.Source
+import okio.BufferedSink
+import okio.BufferedSource
 
-internal fun Source.exhaust(sink: Buffer, byteCount: Long): Long {
+internal fun BufferedSource.exhaust(sink: BufferedSink, byteCount: Long): Long {
   var firstRead = true
   var bytesRemaining = byteCount
   do {
-    val bytesRead = read(sink, bytesRemaining)
+    val bytesRead = read(sink.buffer, bytesRemaining)
     if (bytesRead == -1L) {
       // On first read, we return -1 to follow the source pattern
       return if (firstRead) -1 else byteCount - bytesRemaining

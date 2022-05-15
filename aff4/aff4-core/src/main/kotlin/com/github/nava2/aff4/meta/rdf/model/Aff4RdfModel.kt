@@ -101,9 +101,10 @@ data class ImageStream(
   val chunksInSegment: Int,
   val size: Long,
   val compressionMethod: CompressionMethod,
-  val hash: List<Hash>,
-  val imageStreamHash: Hash,
-  val imageStreamIndexHash: Hash,
+  @RdfValue("aff4:hash")
+  val linearHashes: List<Hash>,
+  val imageStreamHash: Hash?,
+  val imageStreamIndexHash: Hash?,
   val stored: Resource,
   val target: Resource,
   val version: Int,

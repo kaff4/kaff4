@@ -5,6 +5,9 @@ import okio.ByteString.Companion.decodeHex
 import org.eclipse.rdf4j.model.Literal
 
 sealed interface Hash {
+  val name: String
+    get() = javaClass.simpleName
+
   val hash: ByteString
 
   data class Sha1(override val hash: ByteString) : Hash
