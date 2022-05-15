@@ -44,6 +44,7 @@ internal class Aff4Bevy(
 
   override fun close() {
     sourceProviderWithRefCounts.close()
+    bevyIndexReader.close()
 
     dataSource?.close()
     lastDataSourcePosition = 0
@@ -90,7 +91,7 @@ internal class Aff4Bevy(
   }
 
   private fun readIntoBuffer() {
-    val index = bevyIndexReader.readIndexContaining(bevy, position) ?: return
+    val index = bevyIndexReader.readIndexContaining(position) ?: return
     check(index.compressedLength <= chunkSize) {
       "Read invalid compressed chunk index.length: ${index.compressedLength}"
     }

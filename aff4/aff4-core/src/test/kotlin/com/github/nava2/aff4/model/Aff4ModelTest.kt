@@ -1,11 +1,6 @@
 package com.github.nava2.aff4.model
 
-import com.github.nava2.aff4.Aff4CoreModule
-import com.github.nava2.aff4.ForImages
-import com.github.nava2.aff4.ForResources
-import com.github.nava2.aff4.io.relativeTo
-import com.github.nava2.aff4.meta.rdf.MemoryRdfRepositoryConfiguration
-import com.github.nava2.aff4.meta.rdf.RdfRepositoryConfiguration
+import com.github.nava2.aff4.Aff4ImageTestRule
 import com.github.nava2.aff4.meta.rdf.model.Aff4ImagingOperation
 import com.github.nava2.aff4.meta.rdf.model.Aff4TimeSource
 import com.github.nava2.aff4.meta.rdf.model.BlockHashes
@@ -19,48 +14,21 @@ import com.github.nava2.aff4.meta.rdf.model.TimeStamps
 import com.github.nava2.aff4.meta.rdf.model.ZipVolume
 import com.github.nava2.aff4.streams.compression.SnappyCompression
 import com.github.nava2.aff4.streams.compression.SnappyModule
-import com.github.nava2.guice.KAbstractModule
 import com.github.nava2.test.GuiceTestRule
-import com.google.inject.Provides
 import okio.ByteString.Companion.decodeHex
-import okio.FileSystem
 import okio.Path.Companion.toPath
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import javax.inject.Inject
-import javax.inject.Singleton
 import com.github.nava2.aff4.meta.rdf.model.MapStream as AMap
 
 class Aff4ModelTest {
   @get:Rule
-  val rule: GuiceTestRule = GuiceTestRule(
-    Aff4CoreModule,
-    SnappyModule,
-    object : KAbstractModule() {
-      override fun configure() {
-        bind<RdfRepositoryConfiguration>().toInstance(MemoryRdfRepositoryConfiguration)
-      }
-
-      @Provides
-      @Singleton
-      @ForImages
-      fun providesFileSystemForImages(@ForResources resourcesFileSystem: FileSystem): FileSystem {
-        return resourcesFileSystem.relativeTo("images".toPath())
-      }
-    }
-  )
-
-  @Inject
-  @field:ForImages
-  private lateinit var imagesFileSystem: FileSystem
-
-  @Inject
-  private lateinit var aff4ModelLoader: Aff4Model.Loader
+  val rule: GuiceTestRule = Aff4ImageTestRule(SnappyModule)
 
   @Inject
   private lateinit var valueFactory: ValueFactory
@@ -68,12 +36,8 @@ class Aff4ModelTest {
   @Inject
   private lateinit var snappyCompression: SnappyCompression
 
+  @Inject
   private lateinit var aff4Model: Aff4Model
-
-  @Before
-  fun setup() {
-    aff4Model = aff4ModelLoader.load(imagesFileSystem, "Base-Linear.aff4".toPath())
-  }
 
   @Test
   fun `model loads correctly`() {

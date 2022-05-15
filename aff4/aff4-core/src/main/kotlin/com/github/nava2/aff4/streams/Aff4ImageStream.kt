@@ -2,26 +2,26 @@ package com.github.nava2.aff4.streams
 
 import com.github.nava2.aff4.meta.rdf.model.Hash
 import com.github.nava2.aff4.meta.rdf.model.ImageStream
-import com.github.nava2.aff4.meta.rdf.parser.ForImageRoot
 import com.github.nava2.aff4.streams.Hashing.computeLinearHashes
+import com.google.inject.assistedinject.Assisted
+import com.google.inject.assistedinject.AssistedInject
 import okio.Buffer
 import okio.BufferedSource
-import okio.FileSystem
-import okio.HashingSink
-import okio.Sink
 import okio.Source
-import okio.blackholeSink
 import okio.buffer
 import java.io.Closeable
 
-class Aff4ImageStream internal constructor(
-  bevyFactory: Bevy.Factory,
-  @ForImageRoot private val fileSystem: FileSystem,
-  private val imageStreamConfig: ImageStream,
+class Aff4ImageStream @AssistedInject internal constructor(
+  aff4ImageBeviesFactory: Aff4ImageBevies.Factory,
+  @Assisted private val imageStreamConfig: ImageStream,
 ) : VerifiableStream, AutoCloseable {
+  interface Factory {
+    fun create(imageStreamConfig: ImageStream): Aff4ImageStream
+  }
+
   private val sourceProviderWithRefCounts = SourceProviderWithRefCounts(::readAt)
 
-  private val aff4ImageBevies = Aff4ImageBevies(bevyFactory, fileSystem, imageStreamConfig)
+  private val aff4ImageBevies = aff4ImageBeviesFactory.create(imageStreamConfig)
   private val chunksInSegment = imageStreamConfig.chunksInSegment
   private val chunkSize = imageStreamConfig.chunkSize
   private val bevySize = chunksInSegment * chunkSize
@@ -145,13 +145,4 @@ class Aff4ImageStream internal constructor(
     val bevyIndex: Int,
     val source: BufferedSource,
   ) : Closeable by source
-}
-
-internal fun Hash.hashingSink(delegateSink: Sink = blackholeSink()): HashingSink {
-  return when (this) {
-    is Hash.Sha1 -> HashingSink.sha1(delegateSink)
-    is Hash.Md5 -> HashingSink.md5(delegateSink)
-    is Hash.Sha256 -> HashingSink.sha256(delegateSink)
-    is Hash.Sha512 -> HashingSink.sha512(delegateSink)
-  }
 }

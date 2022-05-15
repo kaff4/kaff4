@@ -1,21 +1,11 @@
 package com.github.nava2.aff4.streams
 
-import com.github.nava2.aff4.Aff4CoreModule
-import com.github.nava2.aff4.ForImages
-import com.github.nava2.aff4.ForResources
-import com.github.nava2.aff4.io.relativeTo
-import com.github.nava2.aff4.meta.rdf.MemoryRdfRepositoryConfiguration
-import com.github.nava2.aff4.meta.rdf.RdfRepositoryConfiguration
+import com.github.nava2.aff4.Aff4ImageTestRule
 import com.github.nava2.aff4.meta.rdf.model.ImageStream
 import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.streams.compression.SnappyModule
-import com.github.nava2.guice.KAbstractModule
-import com.github.nava2.test.GuiceTestRule
-import com.google.inject.Provides
 import okio.Buffer
 import okio.ByteString.Companion.decodeHex
-import okio.FileSystem
-import okio.Path.Companion.toPath
 import okio.buffer
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -25,41 +15,18 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import javax.inject.Inject
-import javax.inject.Singleton
 
 class Aff4BevySourceTest {
   @get:Rule
-  val rule: GuiceTestRule = GuiceTestRule(
-    Aff4CoreModule,
-    Aff4StreamsModule,
-    SnappyModule,
-    object : KAbstractModule() {
-      override fun configure() {
-        bind<RdfRepositoryConfiguration>().toInstance(MemoryRdfRepositoryConfiguration)
-      }
-
-      @Provides
-      @Singleton
-      @ForImages
-      fun providesFileSystemForImages(@ForResources resourcesFileSystem: FileSystem): FileSystem {
-        return resourcesFileSystem.relativeTo("images".toPath())
-      }
-    }
-  )
-
-  @Inject
-  @field:ForImages
-  private lateinit var imagesFileSystem: FileSystem
-
-  @Inject
-  private lateinit var aff4ModelLoader: Aff4Model.Loader
+  val rule: Aff4ImageTestRule = Aff4ImageTestRule(SnappyModule)
 
   @Inject
   private lateinit var valueFactory: ValueFactory
 
   @Inject
-  private lateinit var bevyFactory: Bevy.Factory
+  private lateinit var aff4ImageBeviesFactory: Aff4ImageBevies.Factory
 
+  @Inject
   private lateinit var aff4Model: Aff4Model
 
   private lateinit var imageStreamConfig: ImageStream
@@ -72,18 +39,12 @@ class Aff4BevySourceTest {
 
   @Before
   fun setup() {
-    aff4Model = aff4ModelLoader.load(imagesFileSystem, "Base-Linear.aff4".toPath())
     val imageStreamIri = valueFactory.createIRI("aff4://c215ba20-5648-4209-a793-1f918c723610")
     imageStreamConfig = aff4Model.get(imageStreamIri, ImageStream::class)
 
     bevyChunkCache = BevyChunkCache(imageStreamConfig.chunkSize)
 
-    aff4ImageBevies = Aff4ImageBevies(
-      bevyFactory = bevyFactory,
-      fileSystem = aff4Model.imageRootFileSystem,
-      imageStreamConfig = imageStreamConfig,
-      bevyChunkCache = bevyChunkCache,
-    )
+    aff4ImageBevies = aff4ImageBeviesFactory.create(imageStreamConfig, bevyChunkCache)
 
     aff4Bevy = aff4ImageBevies.getOrLoadBevy(0)
   }

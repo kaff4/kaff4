@@ -1,13 +1,8 @@
 package com.github.nava2.aff4.streams.symbolics
 
-import com.github.nava2.aff4.Aff4CoreModule
-import com.github.nava2.aff4.meta.rdf.MemoryRdfRepositoryConfiguration
-import com.github.nava2.aff4.meta.rdf.RdfRepositoryConfiguration
+import com.github.nava2.aff4.Aff4ImageTestRule
 import com.github.nava2.aff4.meta.rdf.createAff4Iri
-import com.github.nava2.aff4.streams.Aff4StreamsModule
 import com.github.nava2.aff4.streams.repeatByteString
-import com.github.nava2.guice.KAbstractModule
-import com.github.nava2.test.GuiceTestRule
 import okio.Buffer
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
@@ -17,15 +12,7 @@ import javax.inject.Inject
 
 class SymbolicsTest {
   @get:Rule
-  val rule: GuiceTestRule = GuiceTestRule(
-    Aff4CoreModule,
-    Aff4StreamsModule,
-    object : KAbstractModule() {
-      override fun configure() {
-        bind<RdfRepositoryConfiguration>().toInstance(MemoryRdfRepositoryConfiguration)
-      }
-    }
-  )
+  val rule: Aff4ImageTestRule = Aff4ImageTestRule()
 
   @Inject
   private lateinit var symbolics: Symbolics

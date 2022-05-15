@@ -1,47 +1,18 @@
 package com.github.nava2.aff4.streams.symbolics
 
-import com.github.nava2.aff4.Aff4CoreModule
-import com.github.nava2.aff4.ForImages
-import com.github.nava2.aff4.ForResources
-import com.github.nava2.aff4.io.relativeTo
-import com.github.nava2.aff4.meta.rdf.MemoryRdfRepositoryConfiguration
-import com.github.nava2.aff4.meta.rdf.RdfRepositoryConfiguration
-import com.github.nava2.aff4.streams.Aff4StreamsModule
-import com.github.nava2.aff4.streams.compression.SnappyModule
+import com.github.nava2.aff4.Aff4ImageTestRule
 import com.github.nava2.aff4.streams.repeatByteString
-import com.github.nava2.guice.KAbstractModule
-import com.github.nava2.test.GuiceTestRule
-import com.google.inject.Provides
 import okio.Buffer
-import okio.FileSystem
-import okio.Path.Companion.toPath
 import okio.buffer
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
 import org.junit.Rule
 import org.junit.Test
 import javax.inject.Inject
-import javax.inject.Singleton
 
 class SymbolicSourceProviderTest {
   @get:Rule
-  val rule: GuiceTestRule = GuiceTestRule(
-    Aff4CoreModule,
-    Aff4StreamsModule,
-    SnappyModule,
-    object : KAbstractModule() {
-      override fun configure() {
-        bind<RdfRepositoryConfiguration>().toInstance(MemoryRdfRepositoryConfiguration)
-      }
-
-      @Provides
-      @Singleton
-      @ForImages
-      fun providesFileSystemForImages(@ForResources resourcesFileSystem: FileSystem): FileSystem {
-        return resourcesFileSystem.relativeTo("images".toPath())
-      }
-    }
-  )
+  val rule: Aff4ImageTestRule = Aff4ImageTestRule()
 
   @Inject
   private lateinit var valueFactory: ValueFactory

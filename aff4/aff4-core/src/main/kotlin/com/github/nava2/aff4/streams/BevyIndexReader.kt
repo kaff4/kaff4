@@ -1,122 +1,95 @@
 package com.github.nava2.aff4.streams
 
-import com.github.benmanes.caffeine.cache.Caffeine
-import com.github.benmanes.caffeine.cache.RemovalCause
+import com.github.nava2.aff4.io.availableRange
 import com.github.nava2.aff4.meta.rdf.model.ImageStream
+import com.github.nava2.aff4.meta.rdf.parser.ForImageRoot
+import com.google.inject.assistedinject.Assisted
+import com.google.inject.assistedinject.AssistedInject
 import okio.BufferedSource
 import okio.FileSystem
 import okio.buffer
-import org.eclipse.rdf4j.model.IRI
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.time.Duration
 
-private const val INDEX_CACHE_SIZE = 500L
-private const val SOURCE_CACHE_SIZE = 5L
+private const val INDEX_BUFFER_VALUE_COUNT: Int = 20
 
-internal class BevyIndexReader(
-  private val fileSystem: FileSystem,
-  imageStream: ImageStream,
+internal class BevyIndexReader @AssistedInject constructor(
+  private val bevyIndexCache: BevyIndexCache,
+  @ForImageRoot private val fileSystem: FileSystem,
+  @Assisted imageStream: ImageStream,
+  @Assisted private val bevy: Bevy,
 ) : AutoCloseable {
-  private val bevyIndexCache = Caffeine.newBuilder()
-    .maximumSize(INDEX_CACHE_SIZE)
-    .build<CacheKey, CacheValue>()
-
-  private val bevyIndexSourceCache = Caffeine.newBuilder()
-    .maximumSize(SOURCE_CACHE_SIZE)
-    .evictionListener<Bevy, BufferedSourceInfo> { _, value, removalCause ->
-      if (removalCause != RemovalCause.REPLACED) {
-        value?.close()
-      }
-    }
-    .expireAfterWrite(Duration.ofMinutes(1))
-    .build<Bevy, BufferedSourceInfo> { BufferedSourceInfo(fileSystem.source(it.indexSegment).buffer(), 0) }
 
   private val chunkSize = imageStream.chunkSize
 
-  private val bufferArray = ByteBuffer.allocate(IndexValue.SIZE_BYTES)
-  private val offsetBuffer = bufferArray.slice(0, ULong.SIZE_BYTES)
+  private val bufferArray = ByteBuffer.allocate(IndexValue.SIZE_BYTES * INDEX_BUFFER_VALUE_COUNT)
     .order(ByteOrder.LITTLE_ENDIAN)
-    .asLongBuffer()
-    .asReadOnlyBuffer()
+    .limit(0)
 
-  private val lengthBuffer = bufferArray.slice(ULong.SIZE_BYTES, UInt.SIZE_BYTES)
-    .order(ByteOrder.LITTLE_ENDIAN)
-    .asIntBuffer()
-    .asReadOnlyBuffer()
+  private var position: Long = 0L
+  private var currentSource: BufferedSource? = null
 
-  fun readIndexContaining(bevy: Bevy, bevyPosition: Long): IndexValue? {
+  fun readIndexContaining(bevyPosition: Long): IndexValue? {
     require(bevyPosition >= 0L) { "bevyPosition must be positive" }
 
     // round down by chunk size to find the index to read
     val indexIndex = bevyPosition.floorDiv(chunkSize)
 
-    return bevyIndexCache.get(CacheKey(bevy.arn, indexIndex)) {
+    return bevyIndexCache.getOrLoad(bevy, indexIndex) {
       loadIndex(bevy, indexIndex)
-    }.indexValue
+    }
   }
 
   override fun close() {
-    bevyIndexSourceCache.invalidateAll()
-    bevyIndexSourceCache.cleanUp()
+    resetSource()
   }
 
-  private fun loadIndex(bevy: Bevy, indexIndex: Long): CacheValue {
+  private fun loadIndex(bevy: Bevy, indexIndex: Long): IndexValue? {
     val indexFilePosition = indexIndex * IndexValue.SIZE_BYTES
-    val readResult = readIndexFile(bevy, indexFilePosition)
 
-    return if (readResult == IndexValue.SIZE_BYTES) {
-      val offset = offsetBuffer.get(0)
-      val length = lengthBuffer.get(0)
-      val result = IndexValue(offset, length).takeIf { readResult == IndexValue.SIZE_BYTES }
-      CacheValue(result)
+    if (indexFilePosition in bufferArray.availableRange(position)) {
+      if (position != indexFilePosition) {
+        bufferArray.position(bufferArray.position() + (indexFilePosition - position).toInt())
+        position = indexFilePosition
+      }
     } else {
-      CacheValue.NULL_INSTANCE
+      resetSource()
+      position = indexFilePosition
     }
+
+    if (!bufferArray.hasRemaining()) {
+      val source = currentSource ?: run {
+        val nextSource = fileSystem.source(bevy.indexSegment).buffer()
+        currentSource = nextSource
+
+        nextSource.skip(position)
+        nextSource
+      }
+
+      bufferArray.limit(bufferArray.capacity())
+      val bytesRead = source.read(bufferArray)
+      bufferArray.rewind()
+      bufferArray.limit(bytesRead)
+
+      if (bytesRead == 0) return null
+    }
+
+    val offset = bufferArray.long
+    val length = bufferArray.int
+
+    position += IndexValue.SIZE_BYTES
+    return IndexValue(offset, length)
   }
 
-  @Synchronized
-  private fun readIndexFile(bevy: Bevy, position: Long): Int {
-    val bufferedSourceInfo = bevyIndexSourceCache.get(bevy)
-
-    var bufferedSource = bufferedSourceInfo.source
-    var lastReadPosition = bufferedSourceInfo.position
-
-    if (lastReadPosition < 0 || lastReadPosition > position) {
-      // back tracking, which is fine but need to get a new stream
-      bufferedSource.close()
-
-      bufferedSource = fileSystem.source(bevy.indexSegment).buffer()
-      lastReadPosition = 0
-    }
-
-    val bytesRead = bufferedSource.run {
-      skip(position - lastReadPosition)
-
-      lastReadPosition = position + bufferArray.limit()
-      read(bufferArray.array())
-    }
-
-    bevyIndexSourceCache.put(bevy, bufferedSourceInfo.copy(source = bufferedSource, position = lastReadPosition))
-
-    return bytesRead
+  private fun resetSource() {
+    bufferArray.limit(0)
+    currentSource?.close()
+    currentSource = null
   }
 
-  private data class CacheKey(
-    val bevyArn: IRI,
-    val indexIndex: Long,
-  )
-
-  private data class CacheValue(val indexValue: IndexValue?) {
-    companion object {
-      val NULL_INSTANCE = CacheValue(null)
-    }
+  interface Factory {
+    fun create(imageStream: ImageStream, bevy: Bevy): BevyIndexReader
   }
-
-  private data class BufferedSourceInfo(
-    val source: BufferedSource,
-    val position: Long,
-  ) : AutoCloseable by source
 }
 
 internal data class IndexValue(
