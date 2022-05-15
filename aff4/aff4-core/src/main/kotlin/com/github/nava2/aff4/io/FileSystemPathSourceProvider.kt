@@ -3,6 +3,7 @@ package com.github.nava2.aff4.io
 import okio.FileSystem
 import okio.Path
 import okio.Source
+import okio.Timeout
 
 class FileSystemPathSourceProvider internal constructor(
   private val fileSystem: FileSystem,
@@ -14,7 +15,7 @@ class FileSystemPathSourceProvider internal constructor(
     }
   }
 
-  override fun get(): Source = fileSystem.source(path)
+  override fun get(timeout: Timeout): Source = fileSystem.source(path)
 
   override fun toString(): String {
     return "${javaClass.simpleName}($path)"

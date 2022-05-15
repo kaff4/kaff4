@@ -1,9 +1,10 @@
 package com.github.nava2.aff4.io
 
 import okio.Source
+import okio.Timeout
 
 interface SourceProvider<out SOURCE : Source> {
-  fun get(): SOURCE
+  fun get(timeout: Timeout = Timeout.NONE): SOURCE
 
   fun <TRANSFORMED : Source> transform(transformer: Transformer<SOURCE, TRANSFORMED>): SourceProvider<TRANSFORMED> {
     return TransformedSourceProvider(this, transformer)
@@ -18,7 +19,7 @@ private class TransformedSourceProvider<IN : Source, TRANSFORMED : Source>(
   private val sourceProvider: SourceProvider<IN>,
   private val transformer: SourceProvider.Transformer<IN, TRANSFORMED>,
 ) : SourceProvider<TRANSFORMED> {
-  override fun get(): TRANSFORMED {
-    return transformer.transform(sourceProvider.get())
+  override fun get(timeout: Timeout): TRANSFORMED {
+    return transformer.transform(sourceProvider.get(timeout))
   }
 }

@@ -45,6 +45,28 @@ internal fun ByteString.source(timeout: Timeout = Timeout.NONE): Source {
   }
 }
 
+internal fun Source.fixedLength(length: Long): Source {
+  return object : Source by this@fixedLength {
+    private val delegate = this@fixedLength
+
+    private var position = 0L
+
+    override fun read(sink: Buffer, byteCount: Long): Long {
+      if (position == length) return -1L
+
+      val remainingBytes = byteCount.coerceAtMost(length - position)
+      val readBytes = delegate.read(sink, remainingBytes)
+
+      return if (readBytes == -1L) {
+        -1L
+      } else {
+        position += readBytes
+        readBytes
+      }
+    }
+  }
+}
+
 internal fun concatLazily(sources: List<() -> Source>, timeout: Timeout = Timeout.NONE): Source {
   return LazyConcatSource(sources, timeout)
 }

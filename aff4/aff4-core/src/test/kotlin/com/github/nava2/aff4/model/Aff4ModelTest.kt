@@ -34,7 +34,7 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
-import com.github.nava2.aff4.meta.rdf.model.Map as AMap
+import com.github.nava2.aff4.meta.rdf.model.MapStream as AMap
 
 class Aff4ModelTest {
   @get:Rule

@@ -30,7 +30,7 @@ data class ZipVolume(
 ) : Aff4RdfModel
 
 @RdfModel("aff4:Map")
-data class Map(
+data class MapStream(
   override val arn: IRI,
   val blockMapHash: Hash,
   val dependentStream: Resource,

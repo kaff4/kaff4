@@ -32,6 +32,7 @@ class Aff4ImageStreamTest {
   @get:Rule
   val rule: GuiceTestRule = GuiceTestRule(
     Aff4CoreModule,
+    Aff4StreamsModule,
     SnappyModule,
     object : KAbstractModule() {
       override fun configure() {
