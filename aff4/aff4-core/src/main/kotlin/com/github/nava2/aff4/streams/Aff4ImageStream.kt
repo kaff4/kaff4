@@ -1,6 +1,5 @@
 package com.github.nava2.aff4.streams
 
-import com.github.nava2.aff4.io.exhaust
 import com.github.nava2.aff4.meta.rdf.model.Hash
 import com.github.nava2.aff4.meta.rdf.model.ImageStream
 import com.github.nava2.aff4.meta.rdf.parser.ForImageRoot
@@ -74,15 +73,15 @@ class Aff4ImageStream internal constructor(
   private fun readAt(readPosition: Long, sink: Buffer, byteCount: Long): Long {
     moveTo(readPosition)
 
+    // we are exhausted
     if (position == size) return -1L
 
-    // we are exhausted
     val nextBevyIndex = position.floorDiv(bevySize).toInt()
     val maxBytesToRead = byteCount.coerceAtMost(size - position)
 
     val readSource = getAndUpdateCurrentSourceIfChanged(nextBevyIndex)
 
-    val bytesRead = readSource.exhaust(sink, maxBytesToRead)
+    val bytesRead = readSource.read(sink, maxBytesToRead)
 
     return if (position != size) {
       position += bytesRead.coerceAtLeast(0)

@@ -87,13 +87,13 @@ class Aff4ImageStreamTest {
   fun `open and read bevy source`() {
     createSource().use { imageStreamSource ->
       Buffer().use { readSink ->
-        assertThat(imageStreamSource.read(readSink, chunkSize)).isEqualTo(chunkSize)
+        imageStreamSource.readFully(readSink, chunkSize)
         assertThat(readSink.size).isEqualTo(chunkSize)
         assertThat(readSink.md5()).isEqualTo("af05fdbda3150e658948ba8b74f1fe82".decodeHex())
       }
 
       Buffer().use { readSink ->
-        assertThat(imageStreamSource.read(readSink, chunkSize)).isEqualTo(chunkSize)
+        imageStreamSource.readFully(readSink, chunkSize)
         assertThat(readSink.size).isEqualTo(chunkSize)
         assertThat(readSink.md5()).isEqualTo("86a8ec10b992e4b9236eb4eadca432d5".decodeHex())
       }
@@ -104,7 +104,7 @@ class Aff4ImageStreamTest {
   fun `open and read multiple times has same read`() {
     createSource().use { imageStreamSource ->
       Buffer().use { readSink ->
-        assertThat(imageStreamSource.read(readSink, chunkSize)).isEqualTo(chunkSize)
+        imageStreamSource.readFully(readSink, chunkSize)
         assertThat(readSink.size).isEqualTo(chunkSize)
         assertThat(readSink.md5()).isEqualTo("af05fdbda3150e658948ba8b74f1fe82".decodeHex())
       }
@@ -112,7 +112,7 @@ class Aff4ImageStreamTest {
 
     createSource().use { imageStreamSource ->
       Buffer().use { readSink ->
-        assertThat(imageStreamSource.read(readSink, chunkSize)).isEqualTo(chunkSize)
+        imageStreamSource.readFully(readSink, chunkSize)
         assertThat(readSink.size).isEqualTo(chunkSize)
         assertThat(readSink.md5()).isEqualTo("af05fdbda3150e658948ba8b74f1fe82".decodeHex())
       }
@@ -123,7 +123,7 @@ class Aff4ImageStreamTest {
   fun `open and read gt chunk size`() {
     createSource().use { imageStreamSource ->
       Buffer().use { readSink ->
-        assertThat(imageStreamSource.read(readSink, chunkSize * 2)).isEqualTo(chunkSize * 2)
+        imageStreamSource.readFully(readSink, chunkSize * 2)
         assertThat(readSink.size).isEqualTo(chunkSize * 2)
         assertThat(readSink.md5()).isEqualTo("866f93925759a39af236632470789234".decodeHex())
       }
@@ -134,7 +134,7 @@ class Aff4ImageStreamTest {
   fun `creating sources at location effectively seeks the stream`() {
     createSource(position = chunkSize).use { imageStreamSource ->
       Buffer().use { readSink ->
-        assertThat(imageStreamSource.read(readSink, chunkSize)).isEqualTo(chunkSize)
+        imageStreamSource.readFully(readSink, chunkSize)
         assertThat(readSink.size).isEqualTo(chunkSize)
         assertThat(readSink.md5()).isEqualTo("86a8ec10b992e4b9236eb4eadca432d5".decodeHex())
       }
@@ -142,7 +142,7 @@ class Aff4ImageStreamTest {
 
     createSource(position = 0).use { imageStreamSource ->
       Buffer().use { readSink ->
-        assertThat(imageStreamSource.read(readSink, chunkSize)).isEqualTo(chunkSize)
+        imageStreamSource.readFully(readSink, chunkSize)
         assertThat(readSink.size).isEqualTo(chunkSize)
         assertThat(readSink.md5()).isEqualTo("af05fdbda3150e658948ba8b74f1fe82".decodeHex())
       }
@@ -151,7 +151,7 @@ class Aff4ImageStreamTest {
 
   @Test
   fun `open and read skip bytes via buffering`() {
-    createSource().buffer().use { imageStreamSource ->
+    createSource().use { imageStreamSource ->
       imageStreamSource.skip(1024)
 
       Buffer().use { readSink ->
@@ -166,7 +166,7 @@ class Aff4ImageStreamTest {
   fun `reading past end truncates`() {
     createSource(imageStreamConfig.size - 100).use { imageStreamSource ->
       Buffer().use { readSink ->
-        assertThat(imageStreamSource.read(readSink, chunkSize)).isEqualTo(100)
+        assertThat(imageStreamSource.readAll(readSink)).isEqualTo(100)
         assertThat(readSink.size).isEqualTo(100)
         assertThat(readSink.md5()).isEqualTo("6d0bb00954ceb7fbee436bb55a8397a9".decodeHex())
       }
@@ -175,7 +175,7 @@ class Aff4ImageStreamTest {
 
   @Test
   fun `hashes match`() {
-    createSource().buffer().use { imageStreamSource ->
+    createSource().use { imageStreamSource ->
       Buffer().use { readSink ->
         assertThat(imageStreamSource.readAll(readSink)).isEqualTo(imageStreamConfig.size)
         assertThat(readSink.md5()).isEqualTo(imageStreamConfig.linearHashes.single { it is Hash.Md5 }.hash)
@@ -198,5 +198,5 @@ class Aff4ImageStreamTest {
     }
   }
 
-  private fun createSource(position: Long = 0) = aff4ImageStream.source(position)
+  private fun createSource(position: Long = 0) = aff4ImageStream.source(position).buffer()
 }
