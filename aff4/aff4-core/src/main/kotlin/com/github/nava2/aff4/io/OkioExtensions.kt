@@ -1,9 +1,17 @@
 package com.github.nava2.aff4.io
 
 import okio.Buffer
+import okio.BufferedSource
 import okio.ByteString
 import okio.Source
 import okio.Timeout
+
+fun BufferedSource.lineSequence(): Sequence<String> = sequence {
+  val targetLine = readUtf8Line()
+  while (targetLine != null) {
+    yield(targetLine)
+  }
+}
 
 internal fun ByteString.source(timeout: Timeout = Timeout.NONE): Source {
   return object : Source {

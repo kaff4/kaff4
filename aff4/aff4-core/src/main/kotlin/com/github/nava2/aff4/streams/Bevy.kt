@@ -1,10 +1,9 @@
 package com.github.nava2.aff4.streams
 
+import com.github.nava2.aff4.meta.rdf.toAff4Path
 import okio.Path
-import okio.Path.Companion.toPath
 import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.ValueFactory
-import java.net.URLEncoder
 import javax.inject.Inject
 
 private const val BEVY_FILENAME_PADDING_LENGTH = 8
@@ -24,7 +23,7 @@ internal data class Bevy(
     ): Bevy {
       val indexId = indexId(index)
       val arn = valueFactory.createIRI("$imageArn/$indexId")
-      val imagePath = URLEncoder.encode(imageArn.stringValue(), Charsets.UTF_8).toPath()
+      val imagePath = imageArn.toAff4Path()
       return Bevy(
         arn = arn,
         index = index,
