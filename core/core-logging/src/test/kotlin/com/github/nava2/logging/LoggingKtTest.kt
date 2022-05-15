@@ -4,10 +4,10 @@ import org.apache.logging.log4j.LogManager
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
-private val fileLogger by Logging
+private val fileLogger = Logging.getLogger()
 
 class LoggingKtTest {
-  private val logger by Logging
+  private val logger = Logging.getLogger()
 
   @Test
   fun `logging delegate pulls correct class`() {
@@ -31,5 +31,5 @@ class LoggingKtTest {
 }
 
 private class TestLogger0 {
-  val logger by Logging
+  val logger = Logging.getLogger()
 }

@@ -10,3 +10,8 @@ style:
     active: true
     imports: [ 'com.google.inject.Inject', 'com.google.inject.Provider', 'com.google.inject.Singleton' ]
     forbiddenPatterns: ''
+
+complexity:
+  LongMethod:
+    excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
+
