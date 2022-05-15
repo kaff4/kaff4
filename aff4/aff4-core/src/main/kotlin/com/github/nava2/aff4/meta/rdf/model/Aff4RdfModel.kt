@@ -4,23 +4,24 @@ import com.github.nava2.aff4.meta.rdf.io.RdfModel
 import com.github.nava2.aff4.meta.rdf.io.RdfSubject
 import com.github.nava2.aff4.meta.rdf.io.RdfValue
 import okio.Path
+import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.Resource
 import java.time.ZonedDateTime
 
 sealed interface Aff4RdfModel {
   @RdfSubject
-  val arn: Resource
+  val arn: IRI
 }
 
 @RdfModel("aff4:BlockHashes")
 data class BlockHashes(
-  override val arn: Resource,
+  override val arn: IRI,
   val hash: Hash,
 ) : Aff4RdfModel
 
 @RdfModel("aff4:ZipVolume")
 data class ZipVolume(
-  override val arn: Resource,
+  override val arn: IRI,
   val contains: List<Resource>,
   val creationTime: ZonedDateTime,
   @RdfValue("aff4:interface")
@@ -30,7 +31,7 @@ data class ZipVolume(
 
 @RdfModel("aff4:Map")
 data class Map(
-  override val arn: Resource,
+  override val arn: IRI,
   val blockMapHash: Hash,
   val dependentStream: Resource,
   val mapGapDefaultStream: Resource,
@@ -45,7 +46,7 @@ data class Map(
 
 @RdfModel("aff4:CaseNotes")
 data class CaseNotes(
-  override val arn: Resource,
+  override val arn: IRI,
   val caseNumber: String,
   val evidenceNumber: String,
   val examiner: String,
@@ -57,7 +58,7 @@ data class CaseNotes(
 
 @RdfModel("aff4:CaseDetails")
 data class CaseDetails(
-  override val arn: Resource,
+  override val arn: IRI,
   val caseDescription: String,
   val caseName: String,
   val examiner: String,
@@ -77,7 +78,7 @@ enum class Aff4TimeSource {
 
 @RdfModel("aff4:TimeStamps")
 data class TimeStamps(
-  override val arn: Resource,
+  override val arn: IRI,
   val endTime: ZonedDateTime,
   val operation: Aff4ImagingOperation,
   val startTime: ZonedDateTime,
@@ -88,14 +89,14 @@ data class TimeStamps(
 
 @RdfModel("aff4:Image")
 data class Image(
-  override val arn: Resource,
+  override val arn: IRI,
   val dataStream: Resource,
   val size: Long,
 ) : Aff4RdfModel
 
 @RdfModel("aff4:ImageStream")
 data class ImageStream(
-  override val arn: Resource,
+  override val arn: IRI,
   val chunkSize: Int,
   val chunksInSegment: Int,
   val size: Long,
@@ -110,7 +111,7 @@ data class ImageStream(
 
 @RdfModel("aff4:DiskImage")
 data class DiskImage(
-  override val arn: Resource,
+  override val arn: IRI,
   val size: Long,
   val blockSize: Int,
   val sectorCount: Long,

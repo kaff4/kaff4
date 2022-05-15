@@ -6,6 +6,7 @@ import com.github.nava2.aff4.ForResources
 import com.github.nava2.aff4.io.relativeTo
 import com.github.nava2.aff4.meta.rdf.MemoryRdfRepositoryConfiguration
 import com.github.nava2.aff4.meta.rdf.RdfRepositoryConfiguration
+import com.github.nava2.aff4.meta.rdf.model.Hash
 import com.github.nava2.aff4.meta.rdf.model.ImageStream
 import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.streams.compression.SnappyModule
@@ -27,7 +28,7 @@ import org.junit.Test
 import javax.inject.Inject
 import javax.inject.Singleton
 
-class Aff4BevySourceTest {
+class Aff4ImageStreamTest {
   @get:Rule
   val rule: GuiceTestRule = GuiceTestRule(
     Aff4CoreModule,
@@ -62,9 +63,7 @@ class Aff4BevySourceTest {
   private lateinit var aff4Model: Aff4Model
 
   private lateinit var imageStreamConfig: ImageStream
-  private lateinit var aff4ImageBevies: Aff4ImageBevies
-  private lateinit var bevyChunkCache: BevyChunkCache
-  private lateinit var aff4Bevy: Aff4Bevy
+  private lateinit var aff4ImageStream: Aff4ImageStream
 
   private val chunkSize: Long
     get() = imageStreamConfig.chunkSize.toLong()
@@ -75,69 +74,55 @@ class Aff4BevySourceTest {
     val imageStreamIri = valueFactory.createIRI("aff4://c215ba20-5648-4209-a793-1f918c723610")
     imageStreamConfig = aff4Model.get(imageStreamIri, ImageStream::class)
 
-    bevyChunkCache = BevyChunkCache(imageStreamConfig.chunkSize)
-
-    aff4ImageBevies = Aff4ImageBevies(
-      bevyFactory = bevyFactory,
-      fileSystem = aff4Model.imageRootFileSystem,
-      imageStreamConfig = imageStreamConfig,
-      bevyChunkCache = bevyChunkCache,
-    )
-
-    aff4Bevy = aff4ImageBevies.getOrLoadBevy(0)
+    aff4ImageStream = Aff4ImageStream(bevyFactory, aff4Model.imageRootFileSystem, imageStreamConfig)
   }
 
   @After
   fun after() {
-    aff4ImageBevies.close()
-    aff4Bevy.close()
+    aff4ImageStream.close()
   }
 
   @Test
   fun `open and read bevy source`() {
-    createSource().use { bevySource ->
+    createSource().use { imageStreamSource ->
       Buffer().use { readSink ->
-        assertThat(bevySource.read(readSink, chunkSize)).isEqualTo(chunkSize)
+        assertThat(imageStreamSource.read(readSink, chunkSize)).isEqualTo(chunkSize)
         assertThat(readSink.size).isEqualTo(chunkSize)
         assertThat(readSink.md5()).isEqualTo("af05fdbda3150e658948ba8b74f1fe82".decodeHex())
       }
 
       Buffer().use { readSink ->
-        assertThat(bevySource.read(readSink, chunkSize)).isEqualTo(chunkSize)
+        assertThat(imageStreamSource.read(readSink, chunkSize)).isEqualTo(chunkSize)
         assertThat(readSink.size).isEqualTo(chunkSize)
         assertThat(readSink.md5()).isEqualTo("86a8ec10b992e4b9236eb4eadca432d5".decodeHex())
       }
     }
-
-    assertThat(aff4Bevy.bevySize).isEqualTo(imageStreamConfig.size)
   }
 
   @Test
-  fun `open and read multiple times has chunks cached`() {
-    createSource().use { bevySource ->
+  fun `open and read multiple times has same read`() {
+    createSource().use { imageStreamSource ->
       Buffer().use { readSink ->
-        assertThat(bevySource.read(readSink, chunkSize)).isEqualTo(chunkSize)
+        assertThat(imageStreamSource.read(readSink, chunkSize)).isEqualTo(chunkSize)
         assertThat(readSink.size).isEqualTo(chunkSize)
         assertThat(readSink.md5()).isEqualTo("af05fdbda3150e658948ba8b74f1fe82".decodeHex())
       }
     }
 
-    createSource().use { bevySource ->
+    createSource().use { imageStreamSource ->
       Buffer().use { readSink ->
-        assertThat(bevySource.read(readSink, chunkSize)).isEqualTo(chunkSize)
+        assertThat(imageStreamSource.read(readSink, chunkSize)).isEqualTo(chunkSize)
         assertThat(readSink.size).isEqualTo(chunkSize)
         assertThat(readSink.md5()).isEqualTo("af05fdbda3150e658948ba8b74f1fe82".decodeHex())
       }
     }
-
-    assertThat(bevyChunkCache.stats().hitRate()).isEqualTo(0.5)
   }
 
   @Test
   fun `open and read gt chunk size`() {
-    createSource().use { bevySource ->
+    createSource().use { imageStreamSource ->
       Buffer().use { readSink ->
-        assertThat(bevySource.read(readSink, chunkSize * 2)).isEqualTo(chunkSize * 2)
+        assertThat(imageStreamSource.read(readSink, chunkSize * 2)).isEqualTo(chunkSize * 2)
         assertThat(readSink.size).isEqualTo(chunkSize * 2)
         assertThat(readSink.md5()).isEqualTo("866f93925759a39af236632470789234".decodeHex())
       }
@@ -146,17 +131,17 @@ class Aff4BevySourceTest {
 
   @Test
   fun `creating sources at location effectively seeks the stream`() {
-    createSource(position = chunkSize).use { bevySource ->
+    createSource(position = chunkSize).use { imageStreamSource ->
       Buffer().use { readSink ->
-        assertThat(bevySource.read(readSink, chunkSize)).isEqualTo(chunkSize)
+        assertThat(imageStreamSource.read(readSink, chunkSize)).isEqualTo(chunkSize)
         assertThat(readSink.size).isEqualTo(chunkSize)
         assertThat(readSink.md5()).isEqualTo("86a8ec10b992e4b9236eb4eadca432d5".decodeHex())
       }
     }
 
-    createSource(position = 0).use { bevySource ->
+    createSource(position = 0).use { imageStreamSource ->
       Buffer().use { readSink ->
-        assertThat(bevySource.read(readSink, chunkSize)).isEqualTo(chunkSize)
+        assertThat(imageStreamSource.read(readSink, chunkSize)).isEqualTo(chunkSize)
         assertThat(readSink.size).isEqualTo(chunkSize)
         assertThat(readSink.md5()).isEqualTo("af05fdbda3150e658948ba8b74f1fe82".decodeHex())
       }
@@ -165,11 +150,11 @@ class Aff4BevySourceTest {
 
   @Test
   fun `open and read skip bytes via buffering`() {
-    createSource().buffer().use { bevySource ->
-      bevySource.skip(1024)
+    createSource().buffer().use { imageStreamSource ->
+      imageStreamSource.skip(1024)
 
       Buffer().use { readSink ->
-        bevySource.readFully(readSink, chunkSize)
+        imageStreamSource.readFully(readSink, chunkSize)
         assertThat(readSink.size).isEqualTo(chunkSize)
         assertThat(readSink.md5()).isEqualTo("fea53f346a83f6fca5d4fa89ac96e758".decodeHex())
       }
@@ -177,16 +162,38 @@ class Aff4BevySourceTest {
   }
 
   @Test
+  fun `reading past end truncates`() {
+    createSource(imageStreamConfig.size - 100).use { imageStreamSource ->
+      Buffer().use { readSink ->
+        assertThat(imageStreamSource.read(readSink, chunkSize)).isEqualTo(100)
+        assertThat(readSink.size).isEqualTo(100)
+        assertThat(readSink.md5()).isEqualTo("6d0bb00954ceb7fbee436bb55a8397a9".decodeHex())
+      }
+    }
+  }
+
+  @Test
+  fun `hashes match`() {
+    createSource().buffer().use { imageStreamSource ->
+      Buffer().use { readSink ->
+        assertThat(imageStreamSource.readAll(readSink)).isEqualTo(imageStreamConfig.size)
+        assertThat(readSink.md5()).isEqualTo(imageStreamConfig.hash.single { it is Hash.Md5 }.hash)
+        assertThat(readSink.sha1()).isEqualTo(imageStreamConfig.hash.single { it is Hash.Sha1 }.hash)
+      }
+    }
+  }
+
+  @Test
   fun `having open sources causes close() to throw`() {
     createSource().use { source ->
-      assertThatThrownBy { aff4Bevy.close() }
+      assertThatThrownBy { aff4ImageStream.close() }
         .isInstanceOf(IllegalStateException::class.java)
         .hasMessage("Sources were created and not freed: 1")
 
       source.close()
-      aff4Bevy.close() // no throw
+      aff4ImageStream.close() // no throw
     }
   }
 
-  private fun createSource(position: Long = 0) = aff4Bevy.source(position)
+  private fun createSource(position: Long = 0) = aff4ImageStream.source(position)
 }

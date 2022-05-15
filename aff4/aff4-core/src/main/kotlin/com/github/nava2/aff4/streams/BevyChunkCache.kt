@@ -44,8 +44,8 @@ internal class BevyChunkCache(
 
     uncompressedBuffer.mark()
 
-    uncompressedBuffer.put(cachedData.uncompressedData)
     uncompressedBuffer.limit(chunkSize)
+    uncompressedBuffer.put(cachedData.uncompressedData)
 
     uncompressedBuffer.reset()
   }

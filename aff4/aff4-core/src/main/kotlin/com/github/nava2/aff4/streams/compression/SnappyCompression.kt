@@ -19,6 +19,8 @@ internal class SnappyCompression @Inject constructor(
   }
 
   override fun uncompress(compressed: ByteBuffer, uncompressed: ByteBuffer): Int {
+    if (!Snappy.isValidCompressedBuffer(compressed)) return 0
+
     return Snappy.uncompress(compressed, uncompressed)
   }
 }

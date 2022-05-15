@@ -74,19 +74,19 @@ class BevyIndexReaderTest {
   @Test
   fun `open and read index values`() {
     val bevy = bevyFactory.create(imageStreamIri, 0)
-    BevyIndexReader(aff4Model.imageRootFileSystem, imageStreamConfig, bevy).use { bevyIndexReader ->
+    BevyIndexReader(aff4Model.imageRootFileSystem, imageStreamConfig).use { bevyIndexReader ->
       val firstIndex = IndexValue(0L, 1974)
 
-      assertThat(bevyIndexReader.readIndexContaining(0)).isEqualTo(firstIndex)
-      assertThat(bevyIndexReader.readIndexContaining(1024)).isEqualTo(firstIndex)
-      assertThat(bevyIndexReader.readIndexContaining(chunkSize - 1)).isEqualTo(firstIndex)
+      assertThat(bevyIndexReader.readIndexContaining(bevy, 0)).isEqualTo(firstIndex)
+      assertThat(bevyIndexReader.readIndexContaining(bevy, 1024)).isEqualTo(firstIndex)
+      assertThat(bevyIndexReader.readIndexContaining(bevy, chunkSize - 1)).isEqualTo(firstIndex)
 
       val secondIndex = IndexValue(1974L, 24_668)
-      assertThat(bevyIndexReader.readIndexContaining(chunkSize)).isEqualTo(secondIndex)
-      assertThat(bevyIndexReader.readIndexContaining(chunkSize + 128)).isEqualTo(secondIndex)
-      assertThat(bevyIndexReader.readIndexContaining(chunkSize * 2 - 1)).isEqualTo(secondIndex)
+      assertThat(bevyIndexReader.readIndexContaining(bevy, chunkSize)).isEqualTo(secondIndex)
+      assertThat(bevyIndexReader.readIndexContaining(bevy, chunkSize + 128)).isEqualTo(secondIndex)
+      assertThat(bevyIndexReader.readIndexContaining(bevy, chunkSize * 2 - 1)).isEqualTo(secondIndex)
 
-      assertThat(bevyIndexReader.readIndexContaining(70 * chunkSize))
+      assertThat(bevyIndexReader.readIndexContaining(bevy, 70 * chunkSize))
         .isEqualTo(IndexValue(2_126_894L, 24_321))
     }
   }
@@ -94,28 +94,28 @@ class BevyIndexReaderTest {
   @Test
   fun `random read index locations`() {
     val bevy = bevyFactory.create(imageStreamIri, 0)
-    BevyIndexReader(aff4Model.imageRootFileSystem, imageStreamConfig, bevy).use { bevyIndexReader ->
+    BevyIndexReader(aff4Model.imageRootFileSystem, imageStreamConfig).use { bevyIndexReader ->
       val firstIndex = IndexValue(0L, 1974)
 
-      assertThat(bevyIndexReader.readIndexContaining(0)).isEqualTo(firstIndex)
+      assertThat(bevyIndexReader.readIndexContaining(bevy, 0)).isEqualTo(firstIndex)
 
-      assertThat(bevyIndexReader.readIndexContaining(70 * chunkSize))
+      assertThat(bevyIndexReader.readIndexContaining(bevy, 70 * chunkSize))
         .isEqualTo(IndexValue(2_126_894L, 24_321))
 
       // back track read, hits cache
-      assertThat(bevyIndexReader.readIndexContaining(0)).isEqualTo(firstIndex)
+      assertThat(bevyIndexReader.readIndexContaining(bevy, 0)).isEqualTo(firstIndex)
 
       // cache miss, causes us to need a new stream
       val secondIndex = IndexValue(1974L, 24_668)
-      assertThat(bevyIndexReader.readIndexContaining(chunkSize)).isEqualTo(secondIndex)
+      assertThat(bevyIndexReader.readIndexContaining(bevy, chunkSize)).isEqualTo(secondIndex)
     }
   }
 
   @Test
   fun `invalid positions throw`() {
     val bevy = bevyFactory.create(imageStreamIri, 0)
-    BevyIndexReader(aff4Model.imageRootFileSystem, imageStreamConfig, bevy).use { bevyIndexReader ->
-      assertThatThrownBy { bevyIndexReader.readIndexContaining(-1) }
+    BevyIndexReader(aff4Model.imageRootFileSystem, imageStreamConfig).use { bevyIndexReader ->
+      assertThatThrownBy { bevyIndexReader.readIndexContaining(bevy, -1) }
         .isInstanceOf(IllegalArgumentException::class.java)
         .hasMessage("bevyPosition must be positive")
     }

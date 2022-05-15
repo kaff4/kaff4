@@ -7,9 +7,7 @@ import okio.Buffer
 import okio.BufferedSource
 import okio.FileSystem
 import okio.Source
-import okio.Timeout
 import java.nio.ByteBuffer
-import kotlin.math.min
 
 internal class Aff4Bevy(
   fileSystem: FileSystem,
@@ -18,14 +16,14 @@ internal class Aff4Bevy(
   private val bevyChunkCache: BevyChunkCache,
   private val bevy: Bevy,
 ) : AutoCloseable {
+  private val sourceProviderWithRefCounts = SourceProviderWithRefCounts(::readAt)
+
   private val compressionMethod = imageStreamConfig.compressionMethod
   private val chunkSize = imageStreamConfig.chunkSize
 
   private var position: Long = 0L
 
   private val chunkBuffer = ByteBuffer.allocateDirect(chunkSize)
-
-  private var sourcesOutstanding: Long = 0
 
   init {
     chunkBuffer.limit(0)
@@ -34,58 +32,48 @@ internal class Aff4Bevy(
   private val compressedChunkBuffer = ByteBuffer.allocateDirect(chunkSize)
 
   private var lastDataSourcePosition = 0L
+
+  val bevySize: Long by lazy {
+    val currentPosition = position
+
+    try {
+      val indexValueCount = fileSystem.metadata(bevy.indexSegment).size!! / IndexValue.SIZE_BYTES
+      val lastChunkBevyIndex = (indexValueCount - 1) * chunkSize
+      position = lastChunkBevyIndex
+      readIntoBuffer()
+
+      lastChunkBevyIndex + chunkBuffer.limit()
+    } finally {
+      position = currentPosition
+      chunkBuffer.limit(0)
+    }
+  }
+
   private val dataSourceProvider = fileSystem.sourceProvider(bevy.dataSegment).buffer()
   private var dataSource: BufferedSource? = null
 
-  @Synchronized
   fun source(position: Long): Source {
-    require(position >= 0)
-
-    sourcesOutstanding += 1
-    return BevySource(this, position)
+    return sourceProviderWithRefCounts.source(position)
   }
 
-  @Synchronized
   override fun close() {
-    check(sourcesOutstanding == 0L) {
-      "Sources were created and not freed: $sourcesOutstanding"
-    }
+    sourceProviderWithRefCounts.close()
 
     dataSource?.close()
     lastDataSourcePosition = 0
   }
 
-  private class BevySource(
-    private val aff4Bevy: Aff4Bevy,
-    private var sourcePosition: Long,
-  ) : Source {
-    private var closed = false
-
-    override fun close() {
-      synchronized(aff4Bevy) {
-        if (closed) return
-        closed = true
-        aff4Bevy.sourcesOutstanding -= 1
-      }
-    }
-
-    override fun read(sink: Buffer, byteCount: Long): Long {
-      check(!closed)
-
-      val bytesRead = aff4Bevy.readAt(sourcePosition, sink, byteCount)
-      sourcePosition += bytesRead
-      return bytesRead
-    }
-
-    override fun timeout(): Timeout = Timeout.NONE
-  }
-
   private fun readAt(readPosition: Long, sink: Buffer, byteCount: Long): Long {
-    if (byteCount == 0L) return 0
+    when {
+      position == bevySize -> return -1L
+      byteCount == 0L -> return 0L
+    }
 
     moveTo(readPosition)
 
-    var remainingBytes = byteCount
+    val maxBytesToRead = byteCount.coerceAtMost(bevySize - position)
+    var remainingBytes = maxBytesToRead
+
     do {
       if (!chunkBuffer.hasRemaining()) {
         readIntoBuffer()
@@ -93,7 +81,10 @@ internal class Aff4Bevy(
         if (!chunkBuffer.hasRemaining()) break
       }
 
-      val readSlice = chunkBuffer.slice(chunkBuffer.position(), min(remainingBytes.toInt(), chunkBuffer.remaining()))
+      val readSlice = chunkBuffer.slice(
+        chunkBuffer.position(),
+        remainingBytes.toInt().coerceAtMost(chunkBuffer.remaining()),
+      )
 
       val readIntoSink = sink.write(readSlice)
       chunkBuffer.position(chunkBuffer.position() + readIntoSink)
@@ -102,7 +93,7 @@ internal class Aff4Bevy(
       position += readIntoSink
     } while (remainingBytes > 0 && readIntoSink > 0)
 
-    return byteCount - remainingBytes
+    return maxBytesToRead - remainingBytes
   }
 
   private fun moveTo(newPosition: Long) {
@@ -116,14 +107,14 @@ internal class Aff4Bevy(
       chunkBuffer.position(newPositionInChunk)
     } else {
       // set our selves to be "zeroed"
-      chunkBuffer.position(chunkBuffer.limit())
+      chunkBuffer.limit(0)
     }
 
     position = newPosition
   }
 
   private fun readIntoBuffer() {
-    val index = bevyIndexReader.readIndexContaining(position) ?: return
+    val index = bevyIndexReader.readIndexContaining(bevy, position) ?: return
     check(index.compressedLength <= chunkSize) {
       "Read invalid compressed chunk index.length: ${index.compressedLength}"
     }
@@ -140,11 +131,14 @@ internal class Aff4Bevy(
       if (chunkBufferLength <= index.compressedLength) {
         // data wasn't compressed, so 1-1 copy it
         chunkBuffer.rewind()
+        chunkBuffer.limit(compressedChunkBuffer.limit())
         chunkBuffer.put(compressedChunkBuffer)
       }
 
       chunkBuffer.rewind()
     }
+
+    chunkBuffer.position((position % chunkSize).toInt())
   }
 
   private fun readCompressedBuffer(dataPosition: Long, byteCount: Int) {
