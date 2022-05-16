@@ -34,7 +34,7 @@ data class MapStream(
   override val arn: IRI,
   val blockMapHash: Hash,
   val dependentStream: Resource,
-  val mapGapDefaultStream: Resource,
+  val mapGapDefaultStream: IRI,
   val mapHash: Hash,
   val mapIdxHash: Hash,
   val mapPathHash: Hash,

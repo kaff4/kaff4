@@ -30,7 +30,7 @@ interface Interval : Comparable<Interval> {
   /**
    * Returns the starting point of this.
    */
-  val start: Int
+  val start: Long
 
   /**
    * Returns the ending point of this.
@@ -38,14 +38,13 @@ interface Interval : Comparable<Interval> {
    *
    * The interval does not include this point.
    */
-  val end: Int
+  val end: Long
 
   /**
    * Returns the length of this.
    */
-  fun length(): Int {
-    return end - start
-  }
+  val length: Long
+    get() = end - start
 
   /**
    * Returns if this interval is adjacent to the specified interval.
@@ -75,5 +74,9 @@ interface Interval : Comparable<Interval> {
     } else {
       0
     }
+  }
+
+  data class Simple(override val start: Long, override val length: Long) : Interval {
+    override val end: Long = start + length
   }
 }

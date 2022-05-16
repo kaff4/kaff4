@@ -1,0 +1,125 @@
+package com.github.nava2.aff4.streams.map_stream
+
+import com.github.nava2.aff4.streams.map_stream.tree.Interval
+import com.github.nava2.aff4.streams.map_stream.tree.IntervalTree
+import com.google.common.base.MoreObjects
+import org.eclipse.rdf4j.model.IRI
+import java.util.SortedSet
+
+class MapMap {
+  private val gapTargetStream: IRI
+
+  private val entrySet: SortedSet<MapStreamEntry>
+  private val entryTree: IntervalTree<IntervalEntry>
+
+  constructor(gapTargetStream: IRI, entrySet: SortedSet<MapStreamEntry>) {
+    this.gapTargetStream = gapTargetStream
+    this.entrySet = entrySet
+    this.entryTree = IntervalTree()
+
+    // insert in random order to avoid worst case inserts
+    val shuffledEntries = entrySet.shuffled()
+    for (entry in shuffledEntries) {
+      entryTree.insert(IntervalEntry(entry))
+    }
+  }
+
+  internal constructor(gapTargetStream: IRI, entryTree: IntervalTree<IntervalEntry>) {
+    this.gapTargetStream = gapTargetStream
+    this.entrySet = entryTree.asSequence().map { it.entry }.toSortedSet()
+    this.entryTree = entryTree
+  }
+
+  /**
+   * Queries the set of map stream entries that cover the requested interval.
+   *
+   * Gaps are populated as needed and the result sequence is always contiguous.
+   */
+  fun query(mappedOffset: Long, length: Long): Sequence<MapStreamEntry> = sequence {
+    val treeEntries = entryTree.overlappers(mappedOffset, length)
+      .asSequence()
+      .map { it.entry }
+
+    val finalOffset = mappedOffset + length
+
+    var prevEntry: MapStreamEntry? = null
+    for (entry in treeEntries) {
+      // Check for synthetic gaps
+      if (prevEntry == null) {
+        if (entry.mappedOffset > mappedOffset) {
+          // Requested a gap for first read
+          yield(
+            generateGapEntry(mappedOffset, length = entry.mappedOffset - mappedOffset)
+          )
+        }
+      } else if (prevEntry.mappedEndOffset != entry.mappedOffset) {
+        yield(
+          generateGapEntry(
+            mappedOffset = prevEntry.mappedEndOffset,
+            length = entry.mappedOffset - prevEntry.mappedEndOffset
+          )
+        )
+      }
+
+      var nextEntry = entry
+
+      // truncate as needed
+      if (nextEntry.mappedOffset < mappedOffset) {
+        // move the entry fowards to return an easier-to-use slice
+        nextEntry = nextEntry.copy(mappedOffset = mappedOffset)
+      }
+
+      if (nextEntry.mappedEndOffset > finalOffset) {
+        nextEntry = nextEntry.copy(length = finalOffset - nextEntry.mappedOffset)
+      }
+
+      yield(nextEntry)
+
+      prevEntry = entry
+    }
+
+    // special case where there were _no_ matching entries so the loop never iterated
+    if (prevEntry == null) {
+      yield(
+        generateGapEntry(mappedOffset, length)
+      )
+    } else if (prevEntry.mappedEndOffset != finalOffset) {
+      // Gap at the end of the request
+      yield(
+        generateGapEntry(prevEntry.mappedEndOffset, finalOffset - prevEntry.mappedEndOffset)
+      )
+    }
+  }
+
+  private fun generateGapEntry(mappedOffset: Long, length: Long): MapStreamEntry {
+    return MapStreamEntry(
+      mappedOffset = mappedOffset,
+      length = length,
+      targetOffset = 0,
+      targetIRI = gapTargetStream,
+    )
+  }
+
+  override fun toString(): String {
+    return MoreObjects.toStringHelper(this)
+      .add("entries", entrySet)
+      .toString()
+  }
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is MapMap) return false
+
+    return entrySet == other.entrySet
+  }
+
+  override fun hashCode(): Int {
+    return entrySet.hashCode()
+  }
+
+  data class IntervalEntry(val entry: MapStreamEntry) : Interval {
+    override val start: Long = entry.mappedOffset
+    override val end: Long = entry.mappedOffset + entry.length
+    override val length: Long = entry.length
+  }
+}

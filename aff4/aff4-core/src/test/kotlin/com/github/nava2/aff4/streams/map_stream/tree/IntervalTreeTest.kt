@@ -49,13 +49,13 @@ class IntervalTreeTest {
   private val randomTree = IntervalTree<Impl>()
   private val randomIntervals = TreeSet<Impl>()
 
-  private val randomUpperBound = 3000
+  private val randomUpperBound = 3000L
   private val numRandomIntervals = 5000
 
   // A tree with a dead-zone in the middle to test overlap methods in each section
   private val gappedTree = IntervalTree<Impl>()
-  private val gappedUpperBound = 3000
-  private val gappedLowerBound = 4000
+  private val gappedUpperBound = 3000L
+  private val gappedLowerBound = 4000L
   private val numGappedIntervals = 2500
 
   private val gappedIntervals = mutableSetOf<Impl>()
@@ -63,37 +63,19 @@ class IntervalTreeTest {
   @Before
   fun initRandom() {
     val rand = Random()
-    repeat(numRandomIntervals) {
-      var r = 0
-      var s = 0
-      while (s <= r) {
-        r = rand.nextInt(randomUpperBound)
-        s = rand.nextInt(randomUpperBound)
-      }
-      randomIntervals.add(Impl(r, s))
-      randomTree.insert(Impl(r, s))
+    for (i in generateIntervals(numRandomIntervals, randomUpperBound, rand = rand)) {
+      randomIntervals.add(i)
+      randomTree.insert(i)
     }
 
-    repeat(numGappedIntervals) {
-      var r = 0
-      var s = 0
-      while (s <= r) {
-        r = rand.nextInt(gappedUpperBound)
-        s = rand.nextInt(gappedUpperBound)
-      }
-      gappedIntervals.add(Impl(r, s))
-      gappedTree.insert(Impl(r, s))
+    for (i in generateIntervals(numGappedIntervals, gappedUpperBound, rand = rand)) {
+      gappedIntervals.add(i)
+      gappedTree.insert(i)
     }
 
-    repeat(numGappedIntervals) {
-      var r = 0
-      var s = 0
-      while (s <= r) {
-        r = rand.nextInt(gappedUpperBound) + gappedLowerBound
-        s = rand.nextInt(gappedUpperBound) + gappedLowerBound
-      }
-      gappedIntervals.add(Impl(r, s))
-      gappedTree.insert(Impl(r, s))
+    for (i in generateIntervals(numGappedIntervals, gappedUpperBound, lowerBound = gappedLowerBound, rand = rand)) {
+      gappedIntervals.add(i)
+      gappedTree.insert(i)
     }
   }
 
@@ -322,61 +304,32 @@ class IntervalTreeTest {
 
   @Test
   fun testEmptyTreeIsValidBSTAfterRepeatedInsertions() {
-    val rand = Random()
-    repeat(numRandomIntervals) {
-      var r = 0
-      var s = 0
-      while (s <= r) {
-        r = rand.nextInt(randomUpperBound)
-        s = rand.nextInt(randomUpperBound)
-      }
-      emptyTree.insert(Impl(r, s))
-
+    for (i in generateIntervals(numRandomIntervals, randomUpperBound)) {
+      emptyTree.insert(i)
       assertThat(emptyTree.isBST()).isTrue()
     }
   }
 
   @Test
   fun testEmptyTreeIsBalancedAfterRepeatedInsertions() {
-    val rand = Random()
-    repeat(numRandomIntervals) {
-      var r = 0
-      var s = 0
-      while (s <= r) {
-        r = rand.nextInt(randomUpperBound)
-        s = rand.nextInt(randomUpperBound)
-      }
-      emptyTree.insert(Impl(r, s))
+    for (i in generateIntervals(numRandomIntervals, randomUpperBound)) {
+      emptyTree.insert(i)
       assertThat(emptyTree.isBalanced()).isTrue()
     }
   }
 
   @Test
   fun testEmptyTreeHasValidRedColoringAfterRepeatedInsertions() {
-    val rand = Random()
-    repeat(numRandomIntervals) {
-      var r = 0
-      var s = 0
-      while (s <= r) {
-        r = rand.nextInt(randomUpperBound)
-        s = rand.nextInt(randomUpperBound)
-      }
-      emptyTree.insert(Impl(r, s))
+    for (i in generateIntervals(numRandomIntervals, randomUpperBound)) {
+      emptyTree.insert(i)
       assertThat(emptyTree.hasValidRedColoring()).isTrue()
     }
   }
 
   @Test
   fun testEmptyTreeHasConsistentMaxEndsAfterRepeatedInsertions() {
-    val rand = Random()
-    repeat(numRandomIntervals) {
-      var r = 0
-      var s = 0
-      while (s <= r) {
-        r = rand.nextInt(randomUpperBound)
-        s = rand.nextInt(randomUpperBound)
-      }
-      emptyTree.insert(Impl(r, s))
+    for (i in generateIntervals(numRandomIntervals, randomUpperBound)) {
+      emptyTree.insert(i)
       assertThat(emptyTree.hasConsistentMaxEnds()).isTrue()
     }
   }
@@ -813,7 +766,7 @@ class IntervalTreeTest {
   @Test
   fun testRandomTreeNumOverlappers() {
     val i = Impl(1000, 2000)
-    val count = randomTree.count { it.overlaps(i) }
+    val count = randomTree.count { it.overlaps(i) }.toLong()
     assertThat(randomTree.numOverlappers(i)).isEqualTo(count)
   }
 
@@ -920,12 +873,32 @@ class IntervalTreeTest {
     assertThat(gappedTree.deleteOverlappers(interval)).isFalse()
   }
 
+  private fun generateIntervals(
+    intervals: Int,
+    upperBound: Long,
+    lowerBound: Long = 0L,
+    rand: Random = Random(),
+  ): Sequence<Impl> = sequence {
+    repeat(intervals) {
+      var r = 0L
+      var s = 0L
+      while (s <= r) {
+        r = lowerBound + rand.nextLong(upperBound)
+        s = lowerBound + rand.nextLong(upperBound)
+      }
+
+      yield(Impl(r, s))
+    }
+  }
+
   /**
    * Simple implementation of Interval for testing
    */
-  private data class Impl(override val start: Int, override val end: Int) : Interval {
+  private data class Impl(override val start: Long, override val end: Long) : Interval {
 
     constructor(i: Impl) : this(i.start, i.end)
+
+    override val length = end - start
 
     override fun toString(): String {
       return "start: $start end: $end"
