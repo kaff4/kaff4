@@ -1,4 +1,4 @@
-package com.github.nava2.aff4.streams
+package com.github.nava2.aff4.streams.image_stream
 
 import com.github.benmanes.caffeine.cache.Caffeine
 import org.eclipse.rdf4j.model.IRI

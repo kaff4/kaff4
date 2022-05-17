@@ -1,9 +1,10 @@
-package com.github.nava2.aff4.streams
+package com.github.nava2.aff4.streams.image_stream
 
 import com.github.nava2.aff4.Aff4ImageTestRule
 import com.github.nava2.aff4.meta.rdf.model.Hash
 import com.github.nava2.aff4.meta.rdf.model.ImageStream
 import com.github.nava2.aff4.model.Aff4Model
+import com.github.nava2.aff4.streams.VerifiableStream
 import com.github.nava2.aff4.streams.compression.SnappyModule
 import okio.Buffer
 import okio.ByteString.Companion.decodeHex
@@ -22,7 +23,7 @@ class Aff4ImageStreamTest {
   val rule: Aff4ImageTestRule = Aff4ImageTestRule(SnappyModule)
 
   @Inject
-  private lateinit var aff4ImageStreamFactory: Aff4ImageStream.Factory
+  private lateinit var aff4ImageStreamLoader: Aff4ImageStream.Loader
 
   @Inject
   private lateinit var valueFactory: ValueFactory
@@ -41,7 +42,7 @@ class Aff4ImageStreamTest {
     val imageStreamIri = valueFactory.createIRI("aff4://c215ba20-5648-4209-a793-1f918c723610")
     imageStreamConfig = aff4Model.get(imageStreamIri, ImageStream::class)
 
-    aff4ImageStream = aff4ImageStreamFactory.create(imageStreamConfig)
+    aff4ImageStream = aff4ImageStreamLoader.load(imageStreamConfig)
   }
 
   @After

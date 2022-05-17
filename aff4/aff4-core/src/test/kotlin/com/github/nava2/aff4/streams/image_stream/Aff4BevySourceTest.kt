@@ -1,4 +1,4 @@
-package com.github.nava2.aff4.streams
+package com.github.nava2.aff4.streams.image_stream
 
 import com.github.nava2.aff4.Aff4ImageTestRule
 import com.github.nava2.aff4.meta.rdf.model.ImageStream

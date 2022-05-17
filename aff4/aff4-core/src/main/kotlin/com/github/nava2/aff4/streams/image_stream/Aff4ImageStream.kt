@@ -1,8 +1,11 @@
-package com.github.nava2.aff4.streams
+package com.github.nava2.aff4.streams.image_stream
 
 import com.github.nava2.aff4.meta.rdf.model.Hash
 import com.github.nava2.aff4.meta.rdf.model.ImageStream
+import com.github.nava2.aff4.streams.Aff4Stream
 import com.github.nava2.aff4.streams.Hashing.computeLinearHashes
+import com.github.nava2.aff4.streams.SourceProviderWithRefCounts
+import com.github.nava2.aff4.streams.VerifiableStream
 import com.google.inject.assistedinject.Assisted
 import com.google.inject.assistedinject.AssistedInject
 import okio.Buffer
@@ -14,10 +17,7 @@ import java.io.Closeable
 class Aff4ImageStream @AssistedInject internal constructor(
   aff4ImageBeviesFactory: Aff4ImageBevies.Factory,
   @Assisted private val imageStreamConfig: ImageStream,
-) : VerifiableStream, AutoCloseable {
-  interface Factory {
-    fun create(imageStreamConfig: ImageStream): Aff4ImageStream
-  }
+) : VerifiableStream, Aff4Stream {
 
   private val sourceProviderWithRefCounts = SourceProviderWithRefCounts(::readAt)
 
@@ -34,7 +34,7 @@ class Aff4ImageStream @AssistedInject internal constructor(
 
   private var verificationResult: VerifiableStream.Result? = null
 
-  fun source(position: Long): Source {
+  override fun source(position: Long): Source {
     return sourceProviderWithRefCounts.source(position)
   }
 
@@ -145,4 +145,6 @@ class Aff4ImageStream @AssistedInject internal constructor(
     val bevyIndex: Int,
     val source: BufferedSource,
   ) : Closeable by source
+
+  interface Loader : Aff4Stream.Loader<ImageStream, Aff4ImageStream>
 }
