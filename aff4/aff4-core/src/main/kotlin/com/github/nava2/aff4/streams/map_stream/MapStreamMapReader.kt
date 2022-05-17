@@ -15,16 +15,16 @@ internal class MapStreamMapReader @Inject constructor(
   @ForImageRoot private val imageRootFileSystem: FileSystem,
   private val mapIdxFileReader: MapIdxFileReader,
 ) {
-  fun loadMap(mapStream: MapStream): MapMap {
+  fun loadMap(mapStream: MapStream): MapStreamMap {
     val index = mapIdxFileReader.loadTargets(mapStream)
 
-    val entryTree = IntervalTree<MapMap.IntervalEntry>()
+    val entryTree = IntervalTree<MapStreamMap.IntervalEntry>()
 
     for (entries in streamEntries(mapStream, index).chunked(ENTRIES_INSERT_CHUNK_SIZE)) {
-      entryTree.insertAll(entries.map { MapMap.IntervalEntry(it) })
+      entryTree.insertAll(entries.map { MapStreamMap.IntervalEntry(it) })
     }
 
-    return MapMap(mapStream.mapGapDefaultStream, entryTree)
+    return MapStreamMap(mapStream.mapGapDefaultStream, entryTree)
   }
 
   private fun streamEntries(

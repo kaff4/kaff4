@@ -6,29 +6,12 @@ import com.google.common.base.MoreObjects
 import org.eclipse.rdf4j.model.IRI
 import java.util.SortedSet
 
-class MapMap {
-  private val gapTargetStream: IRI
+internal class MapStreamMap(
+  private val gapTargetStream: IRI,
+  private val entryTree: IntervalTree<IntervalEntry>,
+) {
 
-  private val entrySet: SortedSet<MapStreamEntry>
-  private val entryTree: IntervalTree<IntervalEntry>
-
-  constructor(gapTargetStream: IRI, entrySet: SortedSet<MapStreamEntry>) {
-    this.gapTargetStream = gapTargetStream
-    this.entrySet = entrySet
-    this.entryTree = IntervalTree()
-
-    // insert in random order to avoid worst case inserts
-    val shuffledEntries = entrySet.shuffled()
-    for (entry in shuffledEntries) {
-      entryTree.insert(IntervalEntry(entry))
-    }
-  }
-
-  internal constructor(gapTargetStream: IRI, entryTree: IntervalTree<IntervalEntry>) {
-    this.gapTargetStream = gapTargetStream
-    this.entrySet = entryTree.asSequence().map { it.entry }.toSortedSet()
-    this.entryTree = entryTree
-  }
+  private val entrySet: SortedSet<MapStreamEntry> = entryTree.asSequence().map { it.entry }.toSortedSet()
 
   /**
    * Queries the set of map stream entries that cover the requested interval.
@@ -108,7 +91,7 @@ class MapMap {
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
-    if (other !is MapMap) return false
+    if (other !is MapStreamMap) return false
 
     return entrySet == other.entrySet
   }
