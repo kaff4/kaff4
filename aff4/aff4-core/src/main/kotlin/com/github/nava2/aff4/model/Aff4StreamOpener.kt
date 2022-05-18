@@ -25,12 +25,10 @@ class Aff4StreamOpener @Inject internal constructor(
   @Volatile
   private var closed = false
 
-  private val modelKlassesByRdfType by lazy {
-    rdfConnectionScoping.scoped { namespaces: NamespacesProvider ->
-      modelKlasses.associateBy { klass ->
-        val rdfModelType = klass.findAnnotation<RdfModel>()!!.rdfType
-        namespaces.iriFromTurtle(rdfModelType)
-      }
+  private val modelKlassesByRdfType = rdfConnectionScoping.scoped { namespaces: NamespacesProvider ->
+    modelKlasses.associateBy { klass ->
+      val rdfModelType = klass.findAnnotation<RdfModel>()!!.rdfType
+      namespaces.iriFromTurtle(rdfModelType)
     }
   }
 

@@ -45,7 +45,7 @@ class Aff4MapStream @AssistedInject internal constructor(
 
     val nextEntry = map.query(position, byteCount).firstOrNull() ?: return -1
 
-    val maxBytesToRead = byteCount.coerceAtMost(nextEntry.length)
+    val maxBytesToRead = byteCount.coerceAtMost(nextEntry.length - (position - nextEntry.mappedOffset))
 
     val readSource = getAndUpdateCurrentSourceIfChanged(nextEntry)
 

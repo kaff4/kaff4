@@ -9,6 +9,8 @@ import javax.inject.Inject
 import javax.inject.Provider
 import javax.inject.Singleton
 
+private val isScoped = ThreadLocal.withInitial { false }
+
 @Singleton
 class RdfConnectionScoping @Inject constructor(
   private val rdfConnectionScopeProvider: Provider<RdfConnectionScope>,
@@ -16,11 +18,22 @@ class RdfConnectionScoping @Inject constructor(
   private val injector: Injector,
 ) {
   fun <T : Any, R> scoped(key: Key<T>, block: (instance: T) -> R): R {
+    // nested scopes are fun
+    if (isScoped.get()) {
+      val instance = injector.getInstance(key)
+      return block(instance)
+    }
+
     // TODO Pool connections
     return repository.connection.use { connection ->
       rdfConnectionScopeProvider.get().enterConnectionScope(connection).use {
-        val instance = injector.getInstance(key)
-        block(instance)
+        isScoped.set(true)
+        try {
+          val instance = injector.getInstance(key)
+          block(instance)
+        } finally {
+          isScoped.set(false)
+        }
       }
     }
   }

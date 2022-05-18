@@ -44,20 +44,7 @@ internal class MapStreamMap(
         )
       }
 
-      var nextEntry = entry
-
-      // truncate as needed
-      if (nextEntry.mappedOffset < mappedOffset) {
-        // move the entry fowards to return an easier-to-use slice
-        nextEntry = nextEntry.copy(mappedOffset = mappedOffset)
-      }
-
-      if (nextEntry.mappedEndOffset > finalOffset) {
-        nextEntry = nextEntry.copy(length = finalOffset - nextEntry.mappedOffset)
-      }
-
-      yield(nextEntry)
-
+      yield(entry)
       prevEntry = entry
     }
 

@@ -7,7 +7,7 @@ import okio.Source
 import org.eclipse.rdf4j.model.IRI
 import java.nio.ByteBuffer
 
-private const val BUFFER_SIZE: Int = 1 * 1024 // 1KiB
+private const val BUFFER_SIZE: Int = 16 * 1024 // 16KiB
 
 data class SymbolicSourceProvider(
   val arn: IRI,
