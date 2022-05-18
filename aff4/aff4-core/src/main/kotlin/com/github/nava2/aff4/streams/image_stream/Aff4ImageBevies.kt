@@ -1,7 +1,7 @@
 package com.github.nava2.aff4.streams.image_stream
 
+import com.github.nava2.aff4.meta.rdf.ForImageRoot
 import com.github.nava2.aff4.meta.rdf.model.ImageStream
-import com.github.nava2.aff4.meta.rdf.parser.ForImageRoot
 import com.google.inject.assistedinject.Assisted
 import com.google.inject.assistedinject.AssistedInject
 import okio.FileSystem

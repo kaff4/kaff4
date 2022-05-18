@@ -14,8 +14,8 @@ internal abstract class AbstractAff4StreamModule<C : Aff4RdfModel, S : Aff4Strea
   final override fun configure() {
     configureModule()
 
-    bindMap<TypeLiteral<out Aff4RdfModel>, Aff4Stream.Loader<*, Aff4Stream>> {
-      addBinding(configTypeLiteral).to(loaderKey)
+    bindSet<Aff4StreamLoaderContext> {
+      toInstance(Aff4StreamLoaderContext(configTypeLiteral, binder().getProvider(loaderKey)))
     }
   }
 }

@@ -41,10 +41,7 @@ class Aff4ModelTest {
 
   @Test
   fun `model loads correctly`() {
-    assertThat(aff4Model.version).isEqualTo("1.0")
-    assertThat(aff4Model.tool).isEqualTo("Evimetry 2.2.0")
-
-    assertThat(aff4Model.containerArn).isEqualTo(arn("aff4://685e15cc-d0fb-4dbc-ba47-48117fc77044"))
+    assertThat(aff4Model.metadata).isEqualTo(Aff4Model.Metadata("1.0", "Evimetry 2.2.0"))
     assertThat(aff4Model.container).isEqualTo(
       ZipVolume(
         arn = arn("aff4://685e15cc-d0fb-4dbc-ba47-48117fc77044"),

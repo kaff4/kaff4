@@ -11,6 +11,10 @@ data class MapStreamEntry(
 
   val mappedEndOffset: Long = mappedOffset + length
 
+  operator fun contains(mappedOffset: Long): Boolean {
+    return mappedOffset in (this.mappedOffset until this.mappedEndOffset)
+  }
+
   override fun compareTo(other: MapStreamEntry): Int = COMPARATOR.compare(this, other)
 
   companion object {

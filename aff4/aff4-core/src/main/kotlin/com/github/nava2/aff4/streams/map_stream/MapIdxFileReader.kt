@@ -2,8 +2,8 @@ package com.github.nava2.aff4.streams.map_stream
 
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.nava2.aff4.io.lineSequence
+import com.github.nava2.aff4.meta.rdf.ForImageRoot
 import com.github.nava2.aff4.meta.rdf.model.MapStream
-import com.github.nava2.aff4.meta.rdf.parser.ForImageRoot
 import com.github.nava2.aff4.meta.rdf.toAff4Path
 import okio.FileSystem
 import okio.buffer

@@ -11,8 +11,9 @@ internal object Aff4ImageStreamModule : AbstractAff4StreamModule<ImageStream, Af
   loaderKey = typeLiteral<Aff4ImageStream.Loader>().key,
 ) {
   override fun configureModule() {
+    install(FactoryModuleBuilder().build(Aff4ImageStream.Loader::class.java))
+
     install(FactoryModuleBuilder().build(BevyIndexReader.Factory::class.java))
     install(FactoryModuleBuilder().build(Aff4ImageBevies.Factory::class.java))
-    install(FactoryModuleBuilder().build(Aff4ImageStream.Loader::class.java))
   }
 }

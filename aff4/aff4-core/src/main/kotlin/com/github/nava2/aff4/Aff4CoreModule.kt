@@ -2,7 +2,7 @@ package com.github.nava2.aff4
 
 import com.github.nava2.aff4.meta.rdf.RdfRepositoryModule
 import com.github.nava2.aff4.meta.rdf.io.RdfModelParserModule
-import com.github.nava2.aff4.meta.rdf.model.Aff4ModelModule
+import com.github.nava2.aff4.meta.rdf.model.Aff4RdfModelModule
 import com.github.nava2.guice.KAbstractModule
 import com.google.inject.BindingAnnotation
 import okio.FileSystem
@@ -33,6 +33,6 @@ object Aff4CoreModule : KAbstractModule() {
 
     install(RdfRepositoryModule)
     install(RdfModelParserModule)
-    install(Aff4ModelModule)
+    install(Aff4RdfModelModule)
   }
 }

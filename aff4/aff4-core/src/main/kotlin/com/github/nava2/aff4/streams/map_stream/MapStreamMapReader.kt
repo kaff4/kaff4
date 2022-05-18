@@ -1,7 +1,7 @@
 package com.github.nava2.aff4.streams.map_stream
 
+import com.github.nava2.aff4.meta.rdf.ForImageRoot
 import com.github.nava2.aff4.meta.rdf.model.MapStream
-import com.github.nava2.aff4.meta.rdf.parser.ForImageRoot
 import com.github.nava2.aff4.meta.rdf.toAff4Path
 import com.github.nava2.aff4.streams.map_stream.tree.IntervalTree
 import okio.FileSystem

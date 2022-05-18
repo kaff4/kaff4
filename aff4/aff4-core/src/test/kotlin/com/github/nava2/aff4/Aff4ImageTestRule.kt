@@ -1,7 +1,8 @@
 package com.github.nava2.aff4
 
-import com.github.nava2.aff4.meta.rdf.parser.ForImageRoot
+import com.github.nava2.aff4.meta.rdf.ForImageRoot
 import com.github.nava2.aff4.model.Aff4Model
+import com.github.nava2.aff4.model.Aff4ModelModule
 import com.github.nava2.aff4.streams.image_stream.Aff4ImageStreamModule
 import com.github.nava2.aff4.streams.map_stream.Aff4MapStreamModule
 import com.github.nava2.guice.KAbstractModule
@@ -29,6 +30,7 @@ class Aff4ImageTestRule(vararg modules: Module, val imageName: String = "Base-Li
     }
 
     return injector.createChildInjector(
+      Aff4ModelModule,
       Aff4ImageStreamModule,
       Aff4MapStreamModule,
       object : KAbstractModule() {

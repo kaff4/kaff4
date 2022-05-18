@@ -34,9 +34,7 @@ class Aff4ImageStream @AssistedInject internal constructor(
 
   private var verificationResult: VerifiableStream.Result? = null
 
-  override fun source(position: Long): Source {
-    return sourceProviderWithRefCounts.source(position)
-  }
+  override fun source(position: Long): Source = sourceProviderWithRefCounts.source(position)
 
   override fun verify(): VerifiableStream.Result {
     if (verificationResult != null) {
@@ -82,14 +80,15 @@ class Aff4ImageStream @AssistedInject internal constructor(
     val readSource = getAndUpdateCurrentSourceIfChanged(nextBevyIndex)
 
     val bytesRead = readSource.read(sink, maxBytesToRead)
-
-    return if (position != size) {
-      position += bytesRead.coerceAtLeast(0)
-
-      bytesRead
-    } else {
-      -1L
+    check(bytesRead >= 0) {
+      // because of how we read these bevies by capping their read sizes, we should never read them when they
+      // are exhausted but do a full read to their end point.
+      "Read too much of bevy [$nextBevyIndex] - $imageStreamConfig"
     }
+
+    position += bytesRead.coerceAtLeast(0)
+
+    return bytesRead
   }
 
   private fun getAndUpdateCurrentSourceIfChanged(nextBevyIndex: Int): BufferedSource {
