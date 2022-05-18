@@ -2,7 +2,6 @@ package com.github.nava2.aff4.model
 
 import com.github.nava2.aff4.meta.rdf.model.Aff4RdfModel
 import com.github.nava2.aff4.meta.rdf.model.ZipVolume
-import com.github.nava2.aff4.streams.Aff4Stream
 import okio.FileSystem
 import okio.Path
 import org.eclipse.rdf4j.model.IRI
@@ -13,9 +12,8 @@ interface Aff4Model : AutoCloseable {
   val container: ZipVolume
   val metadata: Metadata
 
-  fun openStream(iri: IRI): Aff4Stream
-
   fun <T : Aff4RdfModel> query(modelType: KClass<T>): List<T>
+
   fun <T : Aff4RdfModel> get(subject: IRI, modelType: KClass<T>): T
 
   interface Loader {

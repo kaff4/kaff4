@@ -2,7 +2,7 @@ package com.github.nava2.aff4.streams.map_stream
 
 import com.github.nava2.aff4.io.fixedLength
 import com.github.nava2.aff4.meta.rdf.model.MapStream
-import com.github.nava2.aff4.model.Aff4Model
+import com.github.nava2.aff4.model.Aff4StreamOpener
 import com.github.nava2.aff4.streams.Aff4Stream
 import com.github.nava2.aff4.streams.SourceProviderWithRefCounts
 import com.google.inject.assistedinject.Assisted
@@ -14,7 +14,7 @@ import okio.buffer
 import java.io.Closeable
 
 class Aff4MapStream @AssistedInject internal constructor(
-  private val aff4Model: Aff4Model,
+  private val aff4StreamOpener: Aff4StreamOpener,
   private val mapStreamMapReader: MapStreamMapReader,
   @Assisted val mapStream: MapStream,
 ) : Aff4Stream {
@@ -70,7 +70,7 @@ class Aff4MapStream @AssistedInject internal constructor(
 
     resetCurrentSource()
 
-    val targetStream = aff4Model.openStream(nextEntry.targetIRI)
+    val targetStream = aff4StreamOpener.openStream(nextEntry.targetIRI)
     return targetStream.source(nextEntry.targetOffset)
       .fixedLength(nextEntry.length)
       .buffer()
