@@ -21,21 +21,25 @@ fun Int.repeatByteString(length: Int): ByteString {
 }
 
 fun ObjectAssert<BufferedSource>.md5(byteCount: Long, md5: String): ObjectAssert<BufferedSource> {
-  return satisfies(Consumer { source: BufferedSource ->
-    Buffer().use { readSink ->
-      source.readFully(readSink, byteCount)
-      assertThat(readSink.size).isEqualTo(byteCount)
-      assertThat(readSink.md5()).isEqualTo(md5.decodeHex())
+  return satisfies(
+    Consumer { source: BufferedSource ->
+      Buffer().use { readSink ->
+        source.readFully(readSink, byteCount)
+        assertThat(readSink.size).isEqualTo(byteCount)
+        assertThat(readSink.md5()).isEqualTo(md5.decodeHex())
+      }
     }
-  })
+  )
 }
 
 fun ObjectAssert<BufferedSource>.sha1(byteCount: Long, sha1: String): ObjectAssert<BufferedSource> {
-  return satisfies(Consumer { source: BufferedSource ->
-    Buffer().use { readSink ->
-      source.readFully(readSink, byteCount)
-      assertThat(readSink.size).isEqualTo(byteCount)
-      assertThat(readSink.sha1()).isEqualTo(sha1.decodeHex())
+  return satisfies(
+    Consumer { source: BufferedSource ->
+      Buffer().use { readSink ->
+        source.readFully(readSink, byteCount)
+        assertThat(readSink.size).isEqualTo(byteCount)
+        assertThat(readSink.sha1()).isEqualTo(sha1.decodeHex())
+      }
     }
-  })
+  )
 }

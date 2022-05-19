@@ -5,10 +5,12 @@ import com.github.nava2.aff4.meta.rdf.model.MapStream
 import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.streams.map_stream.tree.Interval
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.ObjectAssert
 import org.eclipse.rdf4j.model.ValueFactory
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import java.util.function.Consumer
 import javax.inject.Inject
 
 class MapStreamMapReaderTest {
@@ -44,27 +46,49 @@ class MapStreamMapReaderTest {
   fun `query is always contiguous`() {
     val mapMap = mapStreamMapReader.loadMap(mapStream)
 
-    assertContiguous(0, mapStream.size, mapMap.query(0, mapStream.size))
+    assertThat(mapMap).isContiguousQuery(start = 0, length = mapStream.size)
+  }
+
+  @Test
+  fun `query truncates to max size`() {
+    val mapMap = mapStreamMapReader.loadMap(mapStream)
+
+    val offset = mapStream.size - 1024
+    assertThat(mapMap.query(offset, 4 * 1024)).isContiguous(offset, 1024)
   }
 
   @Test
   fun `querying not at start and end truncates and fills in entries to be contiguous`() {
     val mapMap = mapStreamMapReader.loadMap(mapStream)
 
-    assertContiguous(
-      start = mapStream.size / 2,
-      length = mapStream.size - 8 * 1024,
-      entries = mapMap.query(mapStream.size / 2, mapStream.size - 8 * 1024),
+    assertThat(mapMap).isContiguousQuery(start = mapStream.size / 2, length = mapStream.size / 2 - 8 * 1024)
+  }
+
+  private fun ObjectAssert<MapStreamMap>.isContiguousQuery(start: Long, length: Long): ObjectAssert<MapStreamMap> {
+    return satisfies(
+      Consumer { mapMap ->
+        assertThat(mapMap.query(start, length)).isContiguous(start, length)
+      }
     )
   }
 
-  private fun assertContiguous(start: Long, length: Long, entries: Sequence<MapStreamEntry>) {
-    var mergingInterval = Interval.Simple(start, 0)
-    for (entry in entries) {
-      assertThat(entry.mappedOffset).isEqualTo(mergingInterval.end)
-      mergingInterval = mergingInterval.copy(length = entry.mappedEndOffset - mergingInterval.start)
-    }
+  private fun ObjectAssert<Sequence<MapStreamEntry>>.isContiguous(
+    start: Long,
+    length: Long,
+  ): ObjectAssert<Sequence<MapStreamEntry>> {
+    return satisfies(
+      Consumer { results ->
+        var mergingInterval = Interval.Simple(start, 0)
 
-    assertThat(mergingInterval).isEqualTo(Interval.Simple(start, length))
+        assertThat(results.asIterable()).allSatisfy(
+          Consumer { entry ->
+            assertThat(entry.mappedOffset).isEqualTo(mergingInterval.end)
+            mergingInterval = mergingInterval.copy(length = entry.mappedEndOffset - mergingInterval.start)
+          }
+        )
+
+        assertThat(mergingInterval).isEqualTo(Interval.Simple(start, length))
+      }
+    )
   }
 }

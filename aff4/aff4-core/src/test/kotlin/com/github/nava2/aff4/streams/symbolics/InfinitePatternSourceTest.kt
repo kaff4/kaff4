@@ -1,6 +1,7 @@
 package com.github.nava2.aff4.streams.symbolics
 
 import com.github.nava2.aff4.streams.repeatByteString
+import okio.ByteString
 import okio.ByteString.Companion.encode
 import okio.buffer
 import org.assertj.core.api.Assertions.assertThat
@@ -24,11 +25,13 @@ class InfinitePatternSourceTest {
   }
 
   private fun patternSource(pattern: String, boundary: Int) = InfinitePatternSource(
+    pattern = pattern.encode(Charsets.US_ASCII),
     patternBuffer = pattern.encode(Charsets.US_ASCII).asByteBuffer(),
     repetitionBoundary = boundary,
   ).buffer()
 
   private fun byteSource(byte: Byte, bufferSize: Int) = InfinitePatternSource(
+    pattern = ByteString.of(byte),
     patternBuffer = byte.repeatByteString(bufferSize).asByteBuffer(),
     repetitionBoundary = bufferSize,
   ).buffer()

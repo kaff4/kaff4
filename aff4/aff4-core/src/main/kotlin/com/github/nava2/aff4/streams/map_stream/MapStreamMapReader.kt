@@ -24,7 +24,7 @@ internal class MapStreamMapReader @Inject constructor(
       entryTree.insertAll(entries.map { MapStreamMap.IntervalEntry(it) })
     }
 
-    return MapStreamMap(mapStream.mapGapDefaultStream, entryTree)
+    return MapStreamMap(mapStream.mapGapDefaultStream, mapStream.size, entryTree)
   }
 
   private fun streamEntries(
@@ -47,7 +47,7 @@ internal class MapStreamMapReader @Inject constructor(
         val targetIri = index[targetId]
 
         // We avoid keeping the gap stream in memory as its wasteful
-        if (targetIri == mapStream.mapGapDefaultStream) continue
+        if (targetIri == mapStream.mapGapDefaultStream && targetOffset == mappedOffset) continue
 
         val entry = MapStreamEntry(
           mappedOffset = mappedOffset,

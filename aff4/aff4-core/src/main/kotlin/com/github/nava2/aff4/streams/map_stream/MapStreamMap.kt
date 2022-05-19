@@ -8,6 +8,7 @@ import java.util.SortedSet
 
 internal class MapStreamMap(
   private val gapTargetStream: IRI,
+  private val size: Long,
   private val entryTree: IntervalTree<IntervalEntry>,
 ) {
 
@@ -19,11 +20,14 @@ internal class MapStreamMap(
    * Gaps are populated as needed and the result sequence is always contiguous.
    */
   fun query(mappedOffset: Long, length: Long): Sequence<MapStreamEntry> = sequence {
+    check(mappedOffset >= 0)
+    check(length >= 0)
+
     val treeEntries = entryTree.overlappers(mappedOffset, length)
       .asSequence()
       .map { it.entry }
 
-    val finalOffset = mappedOffset + length
+    val finalOffset = (mappedOffset + length).coerceAtMost(size)
 
     var prevEntry: MapStreamEntry? = null
     for (entry in treeEntries) {
@@ -44,7 +48,7 @@ internal class MapStreamMap(
         )
       }
 
-      yield(entry)
+      yield(entry.truncateEntry())
       prevEntry = entry
     }
 
@@ -65,9 +69,13 @@ internal class MapStreamMap(
     return MapStreamEntry(
       mappedOffset = mappedOffset,
       length = length,
-      targetOffset = 0,
+      targetOffset = mappedOffset,
       targetIRI = gapTargetStream,
-    )
+    ).truncateEntry()
+  }
+
+  private fun MapStreamEntry.truncateEntry(): MapStreamEntry {
+    return copy(length = length.coerceAtMost(size - mappedOffset))
   }
 
   override fun toString(): String {

@@ -38,5 +38,5 @@ data class SymbolicSourceProvider(
 
   fun fixed(length: Long): Source = infinite().fixedLength(length)
 
-  fun infinite(): Source = InfinitePatternSource(patternBuffer.asReadOnlyBuffer(), chunkBoundary)
+  fun infinite(): Source = InfinitePatternSource(pattern, patternBuffer.asReadOnlyBuffer(), chunkBoundary)
 }

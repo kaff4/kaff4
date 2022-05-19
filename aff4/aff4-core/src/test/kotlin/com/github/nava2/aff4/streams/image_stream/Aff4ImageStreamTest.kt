@@ -8,6 +8,7 @@ import com.github.nava2.aff4.streams.VerifiableStream
 import com.github.nava2.aff4.streams.compression.SnappyModule
 import com.github.nava2.aff4.streams.md5
 import okio.Buffer
+import okio.ByteString.Companion.decodeHex
 import okio.buffer
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -99,7 +100,11 @@ class Aff4ImageStreamTest {
   @Test
   fun `reading past end truncates`() {
     createSource(imageStreamConfig.size - 100).use { imageStreamSource ->
-      assertThat(imageStreamSource).md5(100, "6d0bb00954ceb7fbee436bb55a8397a9")
+      Buffer().use { readSink ->
+        assertThat(imageStreamSource.readAll(readSink)).isEqualTo(100)
+        assertThat(readSink.size).isEqualTo(100)
+        assertThat(readSink.md5()).isEqualTo("6d0bb00954ceb7fbee436bb55a8397a9".decodeHex())
+      }
     }
   }
 

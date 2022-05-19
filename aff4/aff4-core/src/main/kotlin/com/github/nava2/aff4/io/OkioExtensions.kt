@@ -15,44 +15,60 @@ fun BufferedSource.lineSequence(): Sequence<String> = sequence {
 }
 
 internal fun ByteString.source(timeout: Timeout = Timeout.NONE): Source {
-  return object : Source {
-    private val buffer = asByteBuffer()
+  return ByteStringSource(this, timeout)
+}
 
-    override fun read(sink: Buffer, byteCount: Long): Long {
-      if (!buffer.hasRemaining()) return -1
+private class ByteStringSource(
+  private val byteString: ByteString,
+  private val timeout: Timeout,
+) : Source {
+  private val buffer = byteString.asByteBuffer()
 
-      val maxAvailableBytes = byteCount.toInt().coerceAtMost(buffer.remaining())
-      val slice = buffer.slice(buffer.position(), maxAvailableBytes)
-      val bytesRead = sink.write(slice)
+  override fun read(sink: Buffer, byteCount: Long): Long {
+    if (!buffer.hasRemaining()) return -1
 
-      buffer.position(buffer.position() + bytesRead)
+    val maxAvailableBytes = byteCount.toInt().coerceAtMost(buffer.remaining())
+    val slice = buffer.slice(buffer.position(), maxAvailableBytes)
+    val bytesRead = sink.write(slice)
 
-      return bytesRead.toLong()
-    }
+    buffer.position(buffer.position() + bytesRead)
 
-    override fun timeout(): Timeout = timeout
-    override fun close() = Unit
+    return bytesRead.toLong()
   }
+
+  override fun timeout(): Timeout = timeout
+  override fun close() = Unit
+
+  override fun toString(): String = "byteString($byteString)"
 }
 
 internal fun Source.fixedLength(length: Long): Source {
-  return object : Source by this@fixedLength {
-    private val delegate = this@fixedLength
+  return FixedLength(this, length)
+}
 
-    private var position = 0L
+private class FixedLength(
+  private val delegate: Source,
+  private val length: Long,
+) : Source {
+  private var position = 0L
 
-    override fun read(sink: Buffer, byteCount: Long): Long {
-      if (position == length) return -1L
+  override fun read(sink: Buffer, byteCount: Long): Long {
+    if (position == length) return -1L
 
-      val remainingBytes = byteCount.coerceAtMost(length - position)
-      val readBytes = delegate.read(sink, remainingBytes)
+    val remainingBytes = byteCount.coerceAtMost(length - position)
+    val readBytes = delegate.read(sink, remainingBytes)
 
-      return if (readBytes == -1L) {
-        -1L
-      } else {
-        position += readBytes
-        readBytes
-      }
+    return if (readBytes == -1L) {
+      -1L
+    } else {
+      position += readBytes
+      readBytes
     }
   }
+
+  override fun close() = delegate.close()
+
+  override fun timeout(): Timeout = delegate.timeout()
+
+  override fun toString(): String = "fixedLength($delegate, $length)"
 }
