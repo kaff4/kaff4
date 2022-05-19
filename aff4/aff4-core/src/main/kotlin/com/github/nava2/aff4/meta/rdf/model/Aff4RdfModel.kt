@@ -3,6 +3,7 @@ package com.github.nava2.aff4.meta.rdf.model
 import com.github.nava2.aff4.meta.rdf.io.RdfModel
 import com.github.nava2.aff4.meta.rdf.io.RdfSubject
 import com.github.nava2.aff4.meta.rdf.io.RdfValue
+import com.github.nava2.aff4.model.Aff4Model
 import okio.Path
 import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.Resource
@@ -17,7 +18,9 @@ sealed interface Aff4RdfModel {
 data class BlockHashes(
   override val arn: IRI,
   val hash: Hash,
-) : Aff4RdfModel
+) : Aff4RdfModel {
+  val forHashType: HashType = HashType.valueOf(arn.localName.substringAfterLast('.').uppercase())
+}
 
 @RdfModel("aff4:ZipVolume")
 data class ZipVolume(
@@ -128,6 +131,10 @@ data class ImageStream(
     bevyMaxSize
   } else {
     lastBevySize
+  }
+
+  fun queryBlockHashes(aff4Model: Aff4Model): List<BlockHashes> {
+    return aff4Model.querySubjectStartsWith("$arn/blockhash.", BlockHashes::class)
   }
 }
 

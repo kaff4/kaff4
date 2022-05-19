@@ -1,7 +1,10 @@
 package com.github.nava2.aff4.streams.image_stream
 
+import com.github.nava2.aff4.io.concatLazily
+import com.github.nava2.aff4.meta.rdf.ForImageRoot
 import com.github.nava2.aff4.meta.rdf.model.Hash
 import com.github.nava2.aff4.meta.rdf.model.ImageStream
+import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.streams.Aff4Stream
 import com.github.nava2.aff4.streams.Hashing.computeLinearHashes
 import com.github.nava2.aff4.streams.SourceProviderWithRefCounts
@@ -10,23 +13,26 @@ import com.google.inject.assistedinject.Assisted
 import com.google.inject.assistedinject.AssistedInject
 import okio.Buffer
 import okio.BufferedSource
+import okio.FileSystem
 import okio.Source
 import okio.buffer
 import java.io.Closeable
 
 class Aff4ImageStream @AssistedInject internal constructor(
   aff4ImageBeviesFactory: Aff4ImageBevies.Factory,
+  @ForImageRoot private val imageFileSystem: FileSystem,
   @Assisted private val imageStreamConfig: ImageStream,
 ) : VerifiableStream, Aff4Stream {
 
   private val sourceProviderWithRefCounts = SourceProviderWithRefCounts(::readAt)
 
   private val aff4ImageBevies = aff4ImageBeviesFactory.create(imageStreamConfig)
-  private val chunksInSegment = imageStreamConfig.chunksInSegment
   private val chunkSize = imageStreamConfig.chunkSize
-  private val bevySize = chunksInSegment * chunkSize
+  private val bevyMaxSize = imageStreamConfig.bevyMaxSize
+  private val bevyCount = imageStreamConfig.bevyCount
 
   val size: Long = imageStreamConfig.size
+
 
   private var position: Long = 0L
 
@@ -36,22 +42,40 @@ class Aff4ImageStream @AssistedInject internal constructor(
 
   override fun source(position: Long): Source = sourceProviderWithRefCounts.source(position)
 
-  override fun verify(): VerifiableStream.Result {
+  override fun verify(aff4Model: Aff4Model): VerifiableStream.Result {
     if (verificationResult != null) {
       return verificationResult!!
     }
 
     val failedHashes = mutableListOf<Pair<String, Hash>>()
 
-    val linearHashes = source(0).buffer().use { s ->
-      s.computeLinearHashes(imageStreamConfig.linearHashes)
+    val calculatedLinearHashes = source(0).buffer().use { s ->
+      s.computeLinearHashes(imageStreamConfig.linearHashes.map { it.hashType })
     }
 
-    for ((expectedHash, actualHash) in linearHashes) {
+    val linearHashesByHashType = imageStreamConfig.linearHashes.associateBy { it.hashType }
+    for ((hashType, actualHash) in calculatedLinearHashes) {
+      val expectedHash = linearHashesByHashType.getValue(hashType)
       if (expectedHash.hash != actualHash) {
-        failedHashes += "Linear ${expectedHash.name}" to expectedHash
+        failedHashes += "Linear $hashType" to expectedHash
       }
     }
+
+    val blockHashes = imageStreamConfig.queryBlockHashes(aff4Model)
+    val blockHashSources = (0..bevyCount).asSequence().map { aff4ImageBevies.getOrLoadBevy(it).bevy }
+      .fold(
+        blockHashes.associate { it.forHashType to mutableListOf<() -> Source>() }.toMutableMap(),
+      ) { acc, bevy ->
+        for ((hashType, blockHashPath) in bevy.blockHashes) {
+          val sources = acc.getValue(hashType)
+          sources += { imageFileSystem.source(blockHashPath) }
+        }
+
+        acc
+      }
+      .mapValues { (_, sources) -> concatLazily(sources) }
+
+    TODO("be sure to close block hash sources, compare against blockHashes sha512")
 
     return if (failedHashes.isNotEmpty()) {
       VerifiableStream.Result.Failed(failedHashes)
@@ -74,7 +98,7 @@ class Aff4ImageStream @AssistedInject internal constructor(
     // we are exhausted
     if (position == size) return -1L
 
-    val nextBevyIndex = position.floorDiv(bevySize).toInt()
+    val nextBevyIndex = position.floorDiv(bevyMaxSize).toInt()
     val maxBytesToRead = byteCount.coerceAtMost(size - position)
 
     val readSource = getAndUpdateCurrentSourceIfChanged(nextBevyIndex)
@@ -101,7 +125,7 @@ class Aff4ImageStream @AssistedInject internal constructor(
     currentSource?.close()
     this.currentSource = null
 
-    val bevyPosition = position % bevySize
+    val bevyPosition = position % bevyMaxSize
 
     var nextSource: Source? = null
     var nextBufferedSource: BufferedSource? = null

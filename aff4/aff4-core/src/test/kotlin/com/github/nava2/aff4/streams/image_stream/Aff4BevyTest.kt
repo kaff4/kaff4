@@ -16,7 +16,7 @@ import org.junit.Rule
 import org.junit.Test
 import javax.inject.Inject
 
-class Aff4BevySourceTest {
+class Aff4BevyTest {
   @get:Rule
   val rule: Aff4ImageTestRule = Aff4ImageTestRule(SnappyModule)
 

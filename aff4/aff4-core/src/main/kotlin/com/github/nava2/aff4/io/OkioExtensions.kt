@@ -5,6 +5,7 @@ import okio.BufferedSource
 import okio.ByteString
 import okio.Source
 import okio.Timeout
+import java.nio.ByteBuffer
 
 fun BufferedSource.lineSequence(): Sequence<String> = sequence {
   var targetLine = readUtf8Line()
@@ -14,16 +15,14 @@ fun BufferedSource.lineSequence(): Sequence<String> = sequence {
   }
 }
 
-internal fun ByteString.source(timeout: Timeout = Timeout.NONE): Source {
-  return ByteStringSource(this, timeout)
+internal fun ByteBuffer.source(timeout: Timeout = Timeout.NONE): Source {
+  return ByteBufferSource(this.asReadOnlyBuffer(), timeout)
 }
 
-private class ByteStringSource(
-  private val byteString: ByteString,
+private class ByteBufferSource(
+  private val buffer: ByteBuffer,
   private val timeout: Timeout,
 ) : Source {
-  private val buffer = byteString.asByteBuffer()
-
   override fun read(sink: Buffer, byteCount: Long): Long {
     if (!buffer.hasRemaining()) return -1
 
@@ -38,6 +37,26 @@ private class ByteStringSource(
 
   override fun timeout(): Timeout = timeout
   override fun close() = Unit
+
+  override fun toString(): String = "byteBuffer($buffer)"
+}
+
+internal fun ByteString.source(timeout: Timeout = Timeout.NONE): Source {
+  return ByteStringSource(this, timeout)
+}
+
+private class ByteStringSource(
+  private val byteString: ByteString,
+  private val timeout: Timeout,
+) : Source {
+  private val delegate = byteString.asByteBuffer().source(timeout)
+
+  override fun read(sink: Buffer, byteCount: Long): Long {
+    return delegate.read(sink, byteCount)
+  }
+
+  override fun timeout(): Timeout = timeout
+  override fun close() = delegate.close()
 
   override fun toString(): String = "byteString($byteString)"
 }
@@ -71,4 +90,34 @@ private class FixedLength(
   override fun timeout(): Timeout = delegate.timeout()
 
   override fun toString(): String = "fixedLength($delegate, $length)"
+}
+
+internal fun concatLazily(sources: List<() -> Source>, timeout: Timeout = Timeout.NONE): Source {
+  return LazyConcatSource(sources, timeout)
+}
+
+private class LazyConcatSource(
+  lazySources: List<() -> Source>,
+  private val timeout: Timeout,
+) : Source {
+  private val iter = lazySources.iterator()
+  private var current: Source = iter.next().invoke()
+
+  override fun read(sink: Buffer, byteCount: Long): Long {
+    val bytesRead = current.read(sink, byteCount)
+
+    return when {
+      bytesRead == -1L && !iter.hasNext() -> -1L
+      bytesRead == -1L && iter.hasNext() -> {
+        current.close()
+        current = iter.next().invoke()
+
+        read(sink, byteCount)
+      }
+      else -> bytesRead
+    }
+  }
+
+  override fun close() = current.close()
+  override fun timeout(): Timeout = timeout
 }

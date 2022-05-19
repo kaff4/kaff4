@@ -27,7 +27,7 @@ class RdfModelParser @Inject internal constructor(
 ) {
   private val constructionInfoMap: MutableMap<KClass<*>, ConstructionInfo<*>> = mutableMapOf()
 
-  fun <T : Any> parse(type: KClass<T>, subject: Resource, statements: List<Statement>): T {
+  fun <T : Any> parse(type: KClass<T>, subject: Resource, statements: Collection<Statement>): T {
     val constructionInfo = getOrCreateConstructionInfo(type)
 
     return parse(constructionInfo, subject, statements)
@@ -64,7 +64,7 @@ class RdfModelParser @Inject internal constructor(
   private fun <T : Any> parse(
     constructionInfo: ConstructionInfo<T>,
     subject: Resource,
-    statements: List<Statement>,
+    statements: Collection<Statement>,
   ): T {
     val parameterMap = LinkedHashMap<KParameter, Any?>(constructionInfo.requiredParameters.size)
     for (subjectParam in constructionInfo.subjectParams) {
@@ -80,7 +80,7 @@ class RdfModelParser @Inject internal constructor(
 private fun <T : Any> buildNonSubjectParamMap(
   parameterMap: MutableMap<KParameter, Any?>,
   constructionInfo: ConstructionInfo<T>,
-  statements: List<Statement>,
+  statements: Collection<Statement>,
   valueConverterProvider: RdfValueConverterProvider
 ) {
   val aggregateValues = mutableMapOf<ParameterInfo, MutableList<Any?>>()
