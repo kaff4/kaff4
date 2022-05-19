@@ -1,5 +1,6 @@
 package com.github.nava2.aff4.streams.symbolics
 
+import com.github.nava2.aff4.meta.rdf.Aff4Schema
 import com.github.nava2.aff4.meta.rdf.createAff4Iri
 import okio.ByteString
 import okio.ByteString.Companion.decodeHex
@@ -12,6 +13,12 @@ import javax.inject.Singleton
 // https://github.com/aff4/Standard/blob/master/inprogress/AFF4StandardSpecification-v1.0a.md#44-symbolic-streams
 private const val AFF4_SYMBOLIC_CHUNK_BOUNDARY = 1 * 1024 * 1024
 
+private val SPECIAL_STREAM_LOCAL_NAMES = setOf(
+  "Zero",
+  "UnknownData",
+  "UnreadableData",
+)
+
 @Singleton
 class Symbolics @Inject constructor(
   private val valueFactory: ValueFactory,
@@ -21,7 +28,10 @@ class Symbolics @Inject constructor(
   private val byteMapping = mutableMapOf<Byte, IRI>()
 
   fun provider(streamIri: IRI): SymbolicSourceProvider {
-    return getOrCreate(streamIri)
+    val normalized = requireNotNull(normalize(streamIri)) {
+      "Requested invalid stream: $streamIri"
+    }
+    return getOrCreate(normalized)
   }
 
   fun provider(byte: Byte): SymbolicSourceProvider {
@@ -34,29 +44,46 @@ class Symbolics @Inject constructor(
     return provider(streamIri)
   }
 
+  fun maybeGetProvider(streamIri: IRI): SymbolicSourceProvider? {
+    val normalized = normalize(streamIri) ?: return null
+    return getOrCreate(normalized)
+  }
+
+  private fun normalize(streamIri: IRI): IRI? {
+    if (streamIri.namespace != Aff4Schema.SCHEMA) return null
+
+    val localName = streamIri.localName
+    return when {
+      localName == "SymbolicStream00" -> valueFactory.createAff4Iri("Zero")
+      localName in SPECIAL_STREAM_LOCAL_NAMES -> streamIri
+      localName.startsWith("SymbolicStream") -> streamIri
+      else -> null
+    }
+  }
+
   private fun getOrCreate(streamIri: IRI): SymbolicSourceProvider {
-    return loadedSymbolics.getOrPut(streamIri) {
-      when {
-        streamIri == valueFactory.createAff4Iri("Zero") ->
-          SymbolicSourceProvider(streamIri, ByteString.of(0), AFF4_SYMBOLIC_CHUNK_BOUNDARY)
+    return loadedSymbolics.getOrPut(streamIri) { createSourceProvider(streamIri) }
+  }
 
-        streamIri.localName.startsWith("SymbolicStream") -> {
-          val byteHex = streamIri.localName.takeLast(2)
-          val pattern = byteHex.decodeHex()
+  private fun createSourceProvider(streamIri: IRI): SymbolicSourceProvider {
+    return when {
+      streamIri == valueFactory.createAff4Iri("Zero") ->
+        SymbolicSourceProvider(streamIri, ByteString.of(0), AFF4_SYMBOLIC_CHUNK_BOUNDARY)
 
-          if (pattern[0] == 0.toByte()) {
-            getOrCreate(valueFactory.createAff4Iri("Zero"))
-          } else {
-            SymbolicSourceProvider(streamIri, pattern, AFF4_SYMBOLIC_CHUNK_BOUNDARY)
-          }
-        }
+      streamIri.localName.startsWith("SymbolicStream") -> {
+        val byteHex = streamIri.localName.takeLast(2)
+        val pattern = byteHex.decodeHex()
 
-        streamIri == valueFactory.createAff4Iri("UnknownData") ->
-          SymbolicSourceProvider(streamIri, "UNKNOWN".encode(Charsets.US_ASCII), AFF4_SYMBOLIC_CHUNK_BOUNDARY)
-        streamIri == valueFactory.createAff4Iri("UnreadableData") ->
-          SymbolicSourceProvider(streamIri, "UNREADABLEDATA".encode(Charsets.US_ASCII), AFF4_SYMBOLIC_CHUNK_BOUNDARY)
-        else -> error("Unknown iri: $streamIri")
+        check(pattern.size == 1 && pattern[0] != 0.toByte())
+        SymbolicSourceProvider(streamIri, pattern, AFF4_SYMBOLIC_CHUNK_BOUNDARY)
       }
+
+      streamIri == valueFactory.createAff4Iri("UnknownData") ->
+        SymbolicSourceProvider(streamIri, "UNKNOWN".encode(Charsets.US_ASCII), AFF4_SYMBOLIC_CHUNK_BOUNDARY)
+      streamIri == valueFactory.createAff4Iri("UnreadableData") ->
+        SymbolicSourceProvider(streamIri, "UNREADABLEDATA".encode(Charsets.US_ASCII), AFF4_SYMBOLIC_CHUNK_BOUNDARY)
+
+      else -> error("Invalid IRI specified: $streamIri")
     }
   }
 }

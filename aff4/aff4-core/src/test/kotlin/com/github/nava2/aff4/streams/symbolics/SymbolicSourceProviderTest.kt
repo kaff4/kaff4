@@ -2,7 +2,6 @@ package com.github.nava2.aff4.streams.symbolics
 
 import com.github.nava2.aff4.Aff4ImageTestRule
 import com.github.nava2.aff4.streams.repeatByteString
-import okio.Buffer
 import okio.buffer
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
@@ -22,10 +21,7 @@ class SymbolicSourceProviderTest {
     val iri = valueFactory.createIRI("http://aff4.org/schema", "Zero")
     val sourceProvider = SymbolicSourceProvider(iri, 0.repeatByteString(1), 1024)
     sourceProvider.fixed(10).buffer().use { source ->
-      Buffer().use { buffer ->
-        source.readAll(buffer)
-        assertThat(buffer.readByteString()).isEqualTo(0.repeatByteString(10))
-      }
+      assertThat(source.readByteString()).isEqualTo(0.repeatByteString(10))
     }
   }
 
@@ -36,11 +32,8 @@ class SymbolicSourceProviderTest {
 
     val reasonableButAlsoWayBiggerThanBufferWouldEverBeSize = 1 * 1024 * 1024 // 1MiB
     sourceProvider.infinite().buffer().use { source ->
-      Buffer().use { buffer ->
-        source.readFully(buffer, reasonableButAlsoWayBiggerThanBufferWouldEverBeSize.toLong())
-        assertThat(buffer.readByteString())
-          .isEqualTo(0xff.repeatByteString(reasonableButAlsoWayBiggerThanBufferWouldEverBeSize))
-      }
+      assertThat(source.readByteString(reasonableButAlsoWayBiggerThanBufferWouldEverBeSize.toLong()))
+        .isEqualTo(0xff.repeatByteString(reasonableButAlsoWayBiggerThanBufferWouldEverBeSize))
     }
   }
 }

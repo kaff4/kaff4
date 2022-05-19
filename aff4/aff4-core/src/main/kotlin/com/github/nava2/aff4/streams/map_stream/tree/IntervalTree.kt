@@ -166,34 +166,40 @@ class IntervalTree<T : Interval> : Iterable<T> {
   /**
    * An Iterator which traverses the tree in ascending order.
    */
-  override fun iterator(): Iterator<T> {
-    return TreeIterator(root)
-  }
+  override fun iterator(): Iterator<T> = TreeIterator(root)
 
   /**
    * An Iterator over the Intervals in this IntervalTree that overlap the
    * given Interval
    * @param t - the overlapping Interval
    */
-  fun overlappers(t: T): Iterator<T> {
-    return root.overlappers(t)
-  }
+  fun overlappers(t: Interval): Iterator<T> = root.overlappers(t)
+
+  /**
+   * An Iterator over the Intervals in this IntervalTree that overlap the
+   * given Interval
+   */
+  fun overlappers(start: Long, length: Long): Iterator<T> = overlappers(Interval.Simple(start, length))
 
   /**
    * Whether or not any of the Intervals in this IntervalTree overlap the given
    * Interval
    * @param t - the potentially overlapping Interval
    */
-  fun overlaps(t: T): Boolean {
-    return !root.anyOverlappingNode(t).isNil
-  }
+  fun overlaps(t: Interval): Boolean = !root.anyOverlappingNode(t).isNil
+
+  /**
+   * An Iterator over the Intervals in this IntervalTree that overlap the
+   * given Interval
+   */
+  fun overlaps(start: Long, length: Long): Boolean = overlaps(Interval.Simple(start, length))
 
   /**
    * The number of Intervals in this IntervalTree that overlap the given
    * Interval
    * @param t - the overlapping Interval
    */
-  fun numOverlappers(t: T): Int {
+  fun numOverlappers(t: Interval): Long {
     return root.numOverlappingNodes(t)
   }
 
@@ -204,7 +210,7 @@ class IntervalTree<T : Interval> : Iterable<T> {
    * IntervalTree that overlaps the given Interval; otherwise (i.e., if there
    * is no overlap), an empty Optional
    */
-  fun minimumOverlapper(t: T): Optional<T> {
+  fun minimumOverlapper(t: Interval): Optional<T> {
     val n: Node = root.minimumOverlappingNode(t)
     return if (n.isNil) Optional.empty() else Optional.of(n.interval!!)
   }
@@ -261,6 +267,15 @@ class IntervalTree<T : Interval> : Iterable<T> {
     size++
     return true
   }
+
+  fun insertAll(entries: Iterable<T>) {
+    // we intentionally shuffle the entries to insert them randomly to try to avoid the
+    // worst case insert performance
+    for (entry in entries.shuffled()) {
+      insert(entry)
+    }
+  }
+
   // ////////////////////////////
   // Tree -- Deletion methods //
   // ////////////////////////////
@@ -337,7 +352,7 @@ class IntervalTree<T : Interval> : Iterable<T> {
     var isBlack = false
       private set
 
-    var maxEnd = 0
+    var maxEnd = 0L
 
     /**
      * Constructs a Node with no data.
@@ -370,18 +385,14 @@ class IntervalTree<T : Interval> : Iterable<T> {
     /**
      * The start of the Interval in this Node
      */
-    override val start: Int
-      get() {
-        return interval!!.start
-      }
+    override val start: Long
+      get() = interval!!.start
 
     /**
      * The end of the Interval in this Node
      */
-    override val end: Int
-      get() {
-        return interval!!.end
-      }
+    override val end: Long
+      get() = interval!!.end
 
     // /////////////////////////////////
     // Node -- General query methods //
@@ -480,7 +491,7 @@ class IntervalTree<T : Interval> : Iterable<T> {
      * @return an overlapping Node from this Node's subtree, if one exists;
      * otherwise the sentinel Node
      */
-    fun anyOverlappingNode(t: T): Node {
+    fun anyOverlappingNode(t: Interval): Node {
       var x: Node = this
       while (!x.isNil && !t.overlaps(x.interval!!)) {
         x = if (!x.left.isNil && x.left.maxEnd > t.start) x.left else x.right
@@ -495,7 +506,7 @@ class IntervalTree<T : Interval> : Iterable<T> {
      * @return the minimum Node from this Node's subtree that overlaps the
      * Interval t, if one exists; otherwise, the sentinel Node
      */
-    fun minimumOverlappingNode(t: T): Node {
+    fun minimumOverlappingNode(t: Interval): Node {
       var result: Node = nil
       var n: Node = this
       if (!n.isNil && n.maxEnd > t.start) {
@@ -543,7 +554,7 @@ class IntervalTree<T : Interval> : Iterable<T> {
      * given Interval t.
      * @param t - the overlapping Interval
      */
-    fun overlappers(t: T): Iterator<T> {
+    fun overlappers(t: Interval): Iterator<T> {
       return OverlapperIterator(this, t)
     }
 
@@ -554,7 +565,7 @@ class IntervalTree<T : Interval> : Iterable<T> {
      * @return the next Node that overlaps the Interval t, if one exists;
      * otherwise, the sentinel Node
      */
-    fun nextOverlappingNode(t: T): Node {
+    fun nextOverlappingNode(t: Interval): Node {
       var x: Node = this
       var rtrn: Node = nil
 
@@ -586,8 +597,8 @@ class IntervalTree<T : Interval> : Iterable<T> {
      * @param t - the overlapping Interval
      * @return the number of overlapping Nodes
      */
-    fun numOverlappingNodes(t: T): Int {
-      var count = 0
+    fun numOverlappingNodes(t: Interval): Long {
+      var count = 0L
       val iter = OverlappingNodeIterator(this, t)
       while (iter.hasNext()) {
         iter.next()
@@ -1100,7 +1111,7 @@ class IntervalTree<T : Interval> : Iterable<T> {
    * An Iterator which walks along this IntervalTree's Nodes that overlap
    * a given Interval in ascending order.
    */
-  private inner class OverlappingNodeIterator(root: Node, private val interval: T) : Iterator<Node> {
+  private inner class OverlappingNodeIterator(root: Node, private val interval: Interval) : Iterator<Node> {
     private var next: Node = root.minimumOverlappingNode(interval)
 
     override fun hasNext(): Boolean {
@@ -1112,9 +1123,9 @@ class IntervalTree<T : Interval> : Iterable<T> {
         throw NoSuchElementException("Interval tree has no more overlapping elements.")
       }
 
-      val rtrn = next
-      next = rtrn.nextOverlappingNode(interval)
-      return rtrn
+      val result = next
+      next = result.nextOverlappingNode(interval)
+      return result
     }
   }
 
@@ -1126,7 +1137,7 @@ class IntervalTree<T : Interval> : Iterable<T> {
    * This class just wraps an OverlappingNodeIterator and extracts each Node's
    * Interval.
    */
-  private inner class OverlapperIterator(root: Node, t: T) : Iterator<T> {
+  private inner class OverlapperIterator(root: Node, t: Interval) : Iterator<T> {
     private val nodeIter = OverlappingNodeIterator(root, t)
 
     override fun hasNext(): Boolean {

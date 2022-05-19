@@ -1,11 +1,13 @@
 package com.github.nava2.aff4.streams.symbolics
 
 import okio.Buffer
+import okio.ByteString
 import okio.Source
 import okio.Timeout
 import java.nio.ByteBuffer
 
 internal class InfinitePatternSource(
+  private val pattern: ByteString,
   patternBuffer: ByteBuffer,
   private val repetitionBoundary: Int,
 ) : Source {
@@ -38,4 +40,6 @@ internal class InfinitePatternSource(
 
   override fun close() = Unit
   override fun timeout(): Timeout = Timeout.NONE
+
+  override fun toString(): String = "infinite($pattern)"
 }

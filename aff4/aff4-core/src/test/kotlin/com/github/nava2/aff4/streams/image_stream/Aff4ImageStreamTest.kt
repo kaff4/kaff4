@@ -1,10 +1,12 @@
-package com.github.nava2.aff4.streams
+package com.github.nava2.aff4.streams.image_stream
 
 import com.github.nava2.aff4.Aff4ImageTestRule
 import com.github.nava2.aff4.meta.rdf.model.Hash
 import com.github.nava2.aff4.meta.rdf.model.ImageStream
 import com.github.nava2.aff4.model.Aff4Model
+import com.github.nava2.aff4.streams.VerifiableStream
 import com.github.nava2.aff4.streams.compression.SnappyModule
+import com.github.nava2.aff4.streams.md5
 import okio.Buffer
 import okio.ByteString.Companion.decodeHex
 import okio.buffer
@@ -22,7 +24,7 @@ class Aff4ImageStreamTest {
   val rule: Aff4ImageTestRule = Aff4ImageTestRule(SnappyModule)
 
   @Inject
-  private lateinit var aff4ImageStreamFactory: Aff4ImageStream.Factory
+  private lateinit var aff4ImageStreamLoader: Aff4ImageStream.Loader
 
   @Inject
   private lateinit var valueFactory: ValueFactory
@@ -41,7 +43,7 @@ class Aff4ImageStreamTest {
     val imageStreamIri = valueFactory.createIRI("aff4://c215ba20-5648-4209-a793-1f918c723610")
     imageStreamConfig = aff4Model.get(imageStreamIri, ImageStream::class)
 
-    aff4ImageStream = aff4ImageStreamFactory.create(imageStreamConfig)
+    aff4ImageStream = aff4ImageStreamLoader.load(imageStreamConfig)
   }
 
   @After
@@ -50,68 +52,39 @@ class Aff4ImageStreamTest {
   }
 
   @Test
-  fun `open and read bevy source`() {
+  fun `open and chunks`() {
     createSource().use { imageStreamSource ->
-      Buffer().use { readSink ->
-        imageStreamSource.readFully(readSink, chunkSize)
-        assertThat(readSink.size).isEqualTo(chunkSize)
-        assertThat(readSink.md5()).isEqualTo("af05fdbda3150e658948ba8b74f1fe82".decodeHex())
-      }
-
-      Buffer().use { readSink ->
-        imageStreamSource.readFully(readSink, chunkSize)
-        assertThat(readSink.size).isEqualTo(chunkSize)
-        assertThat(readSink.md5()).isEqualTo("86a8ec10b992e4b9236eb4eadca432d5".decodeHex())
-      }
+      assertThat(imageStreamSource).md5(chunkSize, "af05fdbda3150e658948ba8b74f1fe82")
+      assertThat(imageStreamSource).md5(chunkSize, "86a8ec10b992e4b9236eb4eadca432d5")
     }
   }
 
   @Test
   fun `open and read multiple times has same read`() {
     createSource().use { imageStreamSource ->
-      Buffer().use { readSink ->
-        imageStreamSource.readFully(readSink, chunkSize)
-        assertThat(readSink.size).isEqualTo(chunkSize)
-        assertThat(readSink.md5()).isEqualTo("af05fdbda3150e658948ba8b74f1fe82".decodeHex())
-      }
+      assertThat(imageStreamSource).md5(chunkSize, "af05fdbda3150e658948ba8b74f1fe82")
     }
 
     createSource().use { imageStreamSource ->
-      Buffer().use { readSink ->
-        imageStreamSource.readFully(readSink, chunkSize)
-        assertThat(readSink.size).isEqualTo(chunkSize)
-        assertThat(readSink.md5()).isEqualTo("af05fdbda3150e658948ba8b74f1fe82".decodeHex())
-      }
+      assertThat(imageStreamSource).md5(chunkSize, "af05fdbda3150e658948ba8b74f1fe82")
     }
   }
 
   @Test
   fun `open and read gt chunk size`() {
     createSource().use { imageStreamSource ->
-      Buffer().use { readSink ->
-        imageStreamSource.readFully(readSink, chunkSize * 2)
-        assertThat(readSink.size).isEqualTo(chunkSize * 2)
-        assertThat(readSink.md5()).isEqualTo("866f93925759a39af236632470789234".decodeHex())
-      }
+      assertThat(imageStreamSource).md5(chunkSize * 2, "866f93925759a39af236632470789234")
     }
   }
 
   @Test
   fun `creating sources at location effectively seeks the stream`() {
     createSource(position = chunkSize).use { imageStreamSource ->
-      Buffer().use { readSink ->
-        imageStreamSource.readFully(readSink, chunkSize)
-        assertThat(readSink.size).isEqualTo(chunkSize)
-        assertThat(readSink.md5()).isEqualTo("86a8ec10b992e4b9236eb4eadca432d5".decodeHex())
-      }
+      assertThat(imageStreamSource).md5(chunkSize, "86a8ec10b992e4b9236eb4eadca432d5")
     }
 
     createSource(position = 0).use { imageStreamSource ->
-      Buffer().use { readSink ->
-        imageStreamSource.readFully(readSink, chunkSize)
-        assertThat(readSink.size).isEqualTo(chunkSize)
-        assertThat(readSink.md5()).isEqualTo("af05fdbda3150e658948ba8b74f1fe82".decodeHex())
-      }
+      assertThat(imageStreamSource).md5(chunkSize, "af05fdbda3150e658948ba8b74f1fe82")
     }
   }
 
@@ -120,11 +93,7 @@ class Aff4ImageStreamTest {
     createSource().use { imageStreamSource ->
       imageStreamSource.skip(1024)
 
-      Buffer().use { readSink ->
-        imageStreamSource.readFully(readSink, chunkSize)
-        assertThat(readSink.size).isEqualTo(chunkSize)
-        assertThat(readSink.md5()).isEqualTo("fea53f346a83f6fca5d4fa89ac96e758".decodeHex())
-      }
+      assertThat(imageStreamSource).md5(chunkSize, "fea53f346a83f6fca5d4fa89ac96e758")
     }
   }
 
