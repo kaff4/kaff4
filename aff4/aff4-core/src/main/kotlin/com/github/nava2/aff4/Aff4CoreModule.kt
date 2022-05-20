@@ -1,8 +1,8 @@
 package com.github.nava2.aff4
 
-import com.github.nava2.aff4.meta.rdf.RdfRepositoryModule
-import com.github.nava2.aff4.meta.rdf.io.RdfModelParserModule
-import com.github.nava2.aff4.meta.rdf.model.Aff4RdfModelModule
+import com.github.nava2.aff4.model.rdf.Aff4RdfModelModule
+import com.github.nava2.aff4.rdf.RdfRepositoryModule
+import com.github.nava2.aff4.rdf.io.RdfModelParserModule
 import com.github.nava2.guice.KAbstractModule
 import com.google.inject.BindingAnnotation
 import okio.FileSystem

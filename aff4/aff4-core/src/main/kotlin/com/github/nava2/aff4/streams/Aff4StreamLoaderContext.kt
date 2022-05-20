@@ -1,6 +1,7 @@
 package com.github.nava2.aff4.streams
 
-import com.github.nava2.aff4.meta.rdf.model.Aff4RdfModel
+import com.github.nava2.aff4.model.Aff4Stream
+import com.github.nava2.aff4.model.rdf.Aff4RdfModel
 import com.google.inject.TypeLiteral
 import javax.inject.Provider
 

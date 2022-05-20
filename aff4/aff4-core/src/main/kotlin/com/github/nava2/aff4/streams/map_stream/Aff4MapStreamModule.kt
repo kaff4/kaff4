@@ -1,7 +1,7 @@
 package com.github.nava2.aff4.streams.map_stream
 
-import com.github.nava2.aff4.meta.rdf.model.MapStream
 import com.github.nava2.aff4.model.Aff4StreamOpener
+import com.github.nava2.aff4.model.rdf.MapStream
 import com.github.nava2.aff4.streams.AbstractAff4StreamModule
 import com.github.nava2.guice.key
 import com.github.nava2.guice.typeLiteral

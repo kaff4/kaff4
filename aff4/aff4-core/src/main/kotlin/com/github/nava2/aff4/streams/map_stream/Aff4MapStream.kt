@@ -3,14 +3,14 @@ package com.github.nava2.aff4.streams.map_stream
 import com.github.nava2.aff4.io.concatLazily
 import com.github.nava2.aff4.io.fixedLength
 import com.github.nava2.aff4.meta.rdf.ForImageRoot
-import com.github.nava2.aff4.meta.rdf.model.Hash
-import com.github.nava2.aff4.meta.rdf.model.MapStream
 import com.github.nava2.aff4.model.Aff4Model
+import com.github.nava2.aff4.model.Aff4Stream
 import com.github.nava2.aff4.model.Aff4StreamOpener
-import com.github.nava2.aff4.streams.Aff4Stream
+import com.github.nava2.aff4.model.VerifiableStream
+import com.github.nava2.aff4.model.rdf.Hash
+import com.github.nava2.aff4.model.rdf.MapStream
 import com.github.nava2.aff4.streams.Hashing.computeLinearHash
 import com.github.nava2.aff4.streams.SourceProviderWithRefCounts
-import com.github.nava2.aff4.streams.VerifiableStream
 import com.github.nava2.aff4.yieldNotNull
 import com.google.inject.assistedinject.Assisted
 import com.google.inject.assistedinject.AssistedInject
@@ -79,6 +79,10 @@ class Aff4MapStream @AssistedInject internal constructor(
       verificationResult = result
       result
     }
+  }
+
+  override fun toString(): String {
+    return "Aff4MapStream(${mapStream.arn})"
   }
 
   // https://github.com/aff4/Standard/blob/master/inprogress/AFF4StandardSpecification-v1.0a.md#map-hashes

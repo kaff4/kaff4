@@ -1,10 +1,10 @@
 package com.github.nava2.aff4.streams.image_stream
 
 import com.github.nava2.aff4.meta.rdf.ForImageRoot
-import com.github.nava2.aff4.meta.rdf.model.HashType
-import com.github.nava2.aff4.meta.rdf.model.ImageStream
-import com.github.nava2.aff4.meta.rdf.toAff4Path
 import com.github.nava2.aff4.model.Aff4Model
+import com.github.nava2.aff4.model.rdf.HashType
+import com.github.nava2.aff4.model.rdf.ImageStream
+import com.github.nava2.aff4.model.rdf.toAff4Path
 import okio.FileSystem
 import okio.Path
 import org.eclipse.rdf4j.model.IRI

@@ -1,6 +1,6 @@
 package com.github.nava2.aff4.streams
 
-import com.github.nava2.aff4.meta.rdf.model.HashType
+import com.github.nava2.aff4.model.rdf.HashType
 import okio.ByteString
 import okio.HashingSink
 import okio.Sink

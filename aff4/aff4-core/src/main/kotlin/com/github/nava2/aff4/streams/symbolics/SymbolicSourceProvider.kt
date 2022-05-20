@@ -1,7 +1,7 @@
 package com.github.nava2.aff4.streams.symbolics
 
 import com.github.nava2.aff4.io.fixedLength
-import com.github.nava2.aff4.streams.Aff4Stream
+import com.github.nava2.aff4.model.Aff4Stream
 import okio.ByteString
 import okio.Source
 import org.eclipse.rdf4j.model.IRI

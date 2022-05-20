@@ -1,12 +1,12 @@
 package com.github.nava2.aff4.streams.map_stream
 
 import com.github.nava2.aff4.Aff4ImageTestRule
-import com.github.nava2.aff4.meta.rdf.model.HashType
-import com.github.nava2.aff4.meta.rdf.model.MapStream
 import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.model.Aff4StreamOpener
+import com.github.nava2.aff4.model.VerifiableStream
+import com.github.nava2.aff4.model.rdf.HashType
+import com.github.nava2.aff4.model.rdf.MapStream
 import com.github.nava2.aff4.streams.Hashing.hashingSink
-import com.github.nava2.aff4.streams.VerifiableStream
 import com.github.nava2.aff4.streams.compression.SnappyModule
 import com.github.nava2.aff4.streams.md5
 import com.github.nava2.aff4.streams.repeatByteString
@@ -49,7 +49,6 @@ class Aff4MapStreamTest {
 
   @After
   fun close() {
-    aff4StreamOpener.close()
     aff4MapStream.close()
   }
 
