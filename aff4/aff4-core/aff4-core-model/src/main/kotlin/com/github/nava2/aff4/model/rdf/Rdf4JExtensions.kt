@@ -7,5 +7,10 @@ import java.net.URLEncoder
 
 fun IRI.toAff4Path(containerArn: IRI): Path {
   val cleanedPath = stringValue().substringAfter(containerArn.stringValue())
-  return URLEncoder.encode(cleanedPath, Charsets.UTF_8).toPath()
+  val parts = cleanedPath.split('/')
+  val encoded = parts.joinToString("/") {
+    URLEncoder.encode(it, Charsets.UTF_8)
+  }
+
+  return encoded.toPath()
 }

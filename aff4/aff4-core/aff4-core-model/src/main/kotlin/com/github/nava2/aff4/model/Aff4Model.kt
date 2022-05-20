@@ -9,7 +9,8 @@ import kotlin.reflect.KClass
 
 interface Aff4Model : AutoCloseable {
   val imageRootFileSystem: FileSystem
-  val container: ZipVolume
+  val containerArn: IRI
+  val container: ZipVolume?
   val metadata: Metadata
 
   fun <T : Aff4RdfModel> query(modelType: KClass<T>): List<T>

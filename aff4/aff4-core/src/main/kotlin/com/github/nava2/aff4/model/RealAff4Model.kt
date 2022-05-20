@@ -33,7 +33,7 @@ internal class RealAff4Model @AssistedInject constructor(
   private val rdfConnectionScoping: RdfConnectionScoping,
   private val valueFactory: ValueFactory,
   @Assisted override val imageRootFileSystem: FileSystem,
-  @Assisted private val containerArn: IRI,
+  @Assisted override val containerArn: IRI,
   @Assisted override val metadata: Metadata,
 ) : Aff4Model {
   @Volatile
@@ -41,11 +41,11 @@ internal class RealAff4Model @AssistedInject constructor(
 
   private val modelIris = mutableMapOf<KClass<*>, String>()
 
-  private val _container: ZipVolume by lazy {
+  private val _container: ZipVolume? by lazy {
     get(containerArn, ZipVolume::class)
   }
 
-  override val container: ZipVolume
+  override val container: ZipVolume?
     get() {
       check(!closed) { "Closed" }
       return _container
