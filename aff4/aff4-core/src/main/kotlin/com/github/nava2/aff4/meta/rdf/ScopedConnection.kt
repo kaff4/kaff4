@@ -14,6 +14,7 @@ import org.eclipse.rdf4j.repository.RepositoryConnection
 import org.eclipse.rdf4j.repository.RepositoryResult
 import org.eclipse.rdf4j.rio.ParserConfig
 import org.eclipse.rdf4j.rio.RDFFormat
+import org.intellij.lang.annotations.Language
 import java.io.InputStream
 
 @RdfConnectionScoped
@@ -34,19 +35,19 @@ class ScopedConnection(
   fun queryNamespaces(): RepositoryResult<Namespace> = connection.namespaces
 
   /** @see [RepositoryConnection.prepareQuery] */
-  fun prepareQuery(query: String): Query = connection.prepareQuery(query)
+  fun prepareQuery(@Language("SPARQL") query: String): Query = connection.prepareQuery(query)
 
   /** @see [RepositoryConnection.prepareQuery] */
   fun prepareQuery(ql: QueryLanguage, query: String): Query = connection.prepareQuery(ql, query)
 
   /** @see [RepositoryConnection.prepareTupleQuery] */
-  fun prepareTupleQuery(query: String): TupleQuery = connection.prepareTupleQuery(query)
+  fun prepareTupleQuery(@Language("SPARQL") query: String): TupleQuery = connection.prepareTupleQuery(query)
 
   /** @see [RepositoryConnection.prepareTupleQuery] */
   fun prepareTupleQuery(ql: QueryLanguage, query: String): TupleQuery = connection.prepareTupleQuery(ql, query)
 
   /** @see [RepositoryConnection.prepareGraphQuery] */
-  fun prepareGraphQuery(query: String): GraphQuery = connection.prepareGraphQuery(query)
+  fun prepareGraphQuery(@Language("SPARQL") query: String): GraphQuery = connection.prepareGraphQuery(query)
 
   /** @see [RepositoryConnection.prepareTupleQuery] */
   fun prepareGraphQuery(ql: QueryLanguage, query: String): GraphQuery = connection.prepareGraphQuery(ql, query)

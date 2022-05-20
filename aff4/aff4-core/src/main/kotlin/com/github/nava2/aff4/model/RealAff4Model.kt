@@ -31,6 +31,7 @@ import kotlin.reflect.full.findAnnotation
 
 internal class RealAff4Model @AssistedInject constructor(
   private val rdfConnectionScoping: RdfConnectionScoping,
+  private val valueFactory: ValueFactory,
   @Assisted override val imageRootFileSystem: FileSystem,
   @Assisted private val containerArn: IRI,
   @Assisted override val metadata: Metadata,
@@ -66,6 +67,29 @@ internal class RealAff4Model @AssistedInject constructor(
     return query { connection, rdfModelParser ->
       val statements = connection.queryStatements(subj = subject).use { it.toList() }
       rdfModelParser.parse(modelType, subject, statements)
+    }
+  }
+
+  override fun <T : Aff4RdfModel> querySubjectStartsWith(subjectPrefix: String, modelType: KClass<T>): List<T> {
+    return query { connection, rdfModelParser ->
+      val q = connection.prepareGraphQuery(
+        """
+          CONSTRUCT { ?s ?p ?o }
+          WHERE {
+              ?s ?p ?o .
+            FILTER (strstarts(str(?s), ?q))
+          }
+          LIMIT 1000
+        """.trimIndent()
+      )
+
+      q.setBinding("q", valueFactory.createLiteral(subjectPrefix))
+
+      val statementsBySubject = q.evaluate().use { r -> r.toList() }.groupBy { it.subject }
+
+      statementsBySubject.entries.map { (subject, statements) ->
+        rdfModelParser.parse(modelType, subject, statements)
+      }
     }
   }
 

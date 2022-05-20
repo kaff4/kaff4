@@ -1,14 +1,23 @@
 package com.github.nava2.aff4.streams.map_stream
 
+import com.github.nava2.aff4.io.concatLazily
 import com.github.nava2.aff4.io.fixedLength
+import com.github.nava2.aff4.meta.rdf.ForImageRoot
+import com.github.nava2.aff4.meta.rdf.model.Hash
 import com.github.nava2.aff4.meta.rdf.model.MapStream
+import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.model.Aff4StreamOpener
 import com.github.nava2.aff4.streams.Aff4Stream
+import com.github.nava2.aff4.streams.Hashing.computeLinearHash
 import com.github.nava2.aff4.streams.SourceProviderWithRefCounts
+import com.github.nava2.aff4.streams.VerifiableStream
+import com.github.nava2.aff4.yieldNotNull
 import com.google.inject.assistedinject.Assisted
 import com.google.inject.assistedinject.AssistedInject
 import okio.Buffer
 import okio.BufferedSource
+import okio.FileSystem
+import okio.Path
 import okio.Source
 import okio.buffer
 import java.io.Closeable
@@ -16,8 +25,9 @@ import java.io.Closeable
 class Aff4MapStream @AssistedInject internal constructor(
   private val aff4StreamOpener: Aff4StreamOpener,
   private val mapStreamMapReader: MapStreamMapReader,
+  @ForImageRoot private val imageFileSystem: FileSystem,
   @Assisted val mapStream: MapStream,
-) : Aff4Stream {
+) : Aff4Stream, VerifiableStream {
   private val sourceProviderWithRefCounts = SourceProviderWithRefCounts(::readAt)
 
   private val map by lazy { mapStreamMapReader.loadMap(mapStream) }
@@ -27,6 +37,7 @@ class Aff4MapStream @AssistedInject internal constructor(
   private var position: Long = 0L
 
   private var currentSource: CurrentSourceInfo? = null
+  private var verificationResult: VerifiableStream.Result? = null
 
   override fun source(position: Long): Source = sourceProviderWithRefCounts.source(position)
 
@@ -35,6 +46,83 @@ class Aff4MapStream @AssistedInject internal constructor(
     currentSource = null
 
     sourceProviderWithRefCounts.close()
+  }
+
+  override fun verify(aff4Model: Aff4Model): VerifiableStream.Result {
+    val previousResult = verificationResult
+    if (previousResult != null) {
+      return previousResult
+    }
+
+    return synchronized(this) {
+      val doubleChecked = verificationResult
+      if (doubleChecked != null) return doubleChecked
+
+      val failedHashes = mutableListOf<Pair<String, Hash>>()
+
+      failedHashes += computeMapComponentHashes()
+
+      val imageStreamResult = mapStream.dependentStream
+        ?.let { aff4StreamOpener.openStream(it) as VerifiableStream }
+        ?.verify(aff4Model)
+        ?: VerifiableStream.Result.Success
+      failedHashes += imageStreamResult.failureReasons
+
+      // TODO Map block hash
+
+      val result = if (failedHashes.isNotEmpty()) {
+        VerifiableStream.Result.Failed(failedHashes)
+      } else {
+        VerifiableStream.Result.Success
+      }
+
+      verificationResult = result
+      result
+    }
+  }
+
+  // https://github.com/aff4/Standard/blob/master/inprogress/AFF4StandardSpecification-v1.0a.md#map-hashes
+  private fun computeMapComponentHashes(): Sequence<Pair<String, Hash>> = sequence {
+    yieldNotNull(
+      maybeValidateHashComponent("idx", mapStream.idxPath, mapStream.mapIdxHash),
+    )
+    yieldNotNull(
+      maybeValidateHashComponent("mapPoint", mapStream.mapPath, mapStream.mapPointHash),
+    )
+    yieldNotNull(
+      maybeValidateHashComponent("mapPath", mapStream.mapPathPath, mapStream.mapPathHash),
+    )
+
+    val mapHash = mapStream.mapHash
+    if (mapHash != null) {
+      val maybeFailure = concatLazily(
+        // H( map || idx || [mapPath] )
+        sources = listOfNotNull(
+          mapStream.mapPath,
+          mapStream.idxPath,
+          mapStream.mapPathPath.takeIf { imageFileSystem.exists(it) },
+        ).map { { imageFileSystem.source(it) } },
+      ).use { source ->
+        val actualHash = source.computeLinearHash(mapHash.hashType)
+        ("map" to mapHash).takeIf { actualHash != mapHash.value }
+      }
+
+      yieldNotNull(maybeFailure)
+    }
+  }
+
+  private fun maybeValidateHashComponent(
+    key: String,
+    path: Path,
+    hash: Hash?
+  ): Pair<String, Hash>? {
+    if (hash == null) return null
+
+    val actualHash = imageFileSystem.source(path).use { source ->
+      source.computeLinearHash(hash.hashType)
+    }
+
+    return (key to hash).takeIf { actualHash != hash.value }
   }
 
   private fun readAt(readPosition: Long, sink: Buffer, byteCount: Long): Long {

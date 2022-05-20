@@ -15,5 +15,6 @@ internal object Aff4ImageStreamModule : AbstractAff4StreamModule<ImageStream, Af
 
     install(FactoryModuleBuilder().build(BevyIndexReader.Factory::class.java))
     install(FactoryModuleBuilder().build(Aff4ImageBevies.Factory::class.java))
+    install(FactoryModuleBuilder().build(Aff4Bevy.AssistedFactory::class.java))
   }
 }

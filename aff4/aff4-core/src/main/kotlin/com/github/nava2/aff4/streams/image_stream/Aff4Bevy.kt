@@ -2,20 +2,24 @@ package com.github.nava2.aff4.streams.image_stream
 
 import com.github.nava2.aff4.io.buffer
 import com.github.nava2.aff4.io.sourceProvider
+import com.github.nava2.aff4.meta.rdf.ForImageRoot
 import com.github.nava2.aff4.meta.rdf.model.ImageStream
 import com.github.nava2.aff4.streams.SourceProviderWithRefCounts
+import com.google.inject.assistedinject.Assisted
+import com.google.inject.assistedinject.AssistedInject
 import okio.Buffer
 import okio.BufferedSource
 import okio.FileSystem
 import okio.Source
 import java.nio.ByteBuffer
 
-internal class Aff4Bevy(
-  fileSystem: FileSystem,
-  imageStreamConfig: ImageStream,
-  private val bevyIndexReader: BevyIndexReader,
-  private val bevyChunkCache: BevyChunkCache,
-  private val bevy: Bevy,
+internal class Aff4Bevy @AssistedInject constructor(
+  private val imageBlockHashVerification: ImageBlockHashVerification,
+  @ForImageRoot fileSystem: FileSystem,
+  @Assisted imageStreamConfig: ImageStream,
+  @Assisted private val bevyIndexReader: BevyIndexReader,
+  @Assisted private val bevyChunkCache: BevyChunkCache,
+  @Assisted val bevy: Bevy,
 ) : AutoCloseable {
   private val sourceProviderWithRefCounts = SourceProviderWithRefCounts(::readAt)
 
@@ -114,6 +118,8 @@ internal class Aff4Bevy(
       }
 
       chunkBuffer.rewind()
+
+      imageBlockHashVerification.verifyBlock(bevy, position.floorDiv(chunkSize), chunkBuffer)
     }
 
     chunkBuffer.position((position % chunkSize).toInt())
@@ -145,5 +151,14 @@ internal class Aff4Bevy(
     check(!compressedChunkBuffer.hasRemaining())
 
     compressedChunkBuffer.rewind()
+  }
+
+  interface AssistedFactory {
+    fun create(
+      imageStreamConfig: ImageStream,
+      bevyIndexReader: BevyIndexReader,
+      bevyChunkCache: BevyChunkCache,
+      bevy: Bevy,
+    ): Aff4Bevy
   }
 }

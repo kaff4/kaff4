@@ -1,22 +1,22 @@
 package com.github.nava2.aff4.streams
 
-import com.github.nava2.aff4.meta.rdf.model.Hash
-import okio.BufferedSource
+import com.github.nava2.aff4.meta.rdf.model.HashType
 import okio.ByteString
 import okio.HashingSink
 import okio.Sink
+import okio.Source
 import okio.blackholeSink
 import okio.buffer
 
 internal object Hashing {
 
-  fun BufferedSource.computeLinearHashes(linearHashes: List<Hash>): Map<Hash, ByteString> {
-    var sinkMap: Map<Hash, HashingSink>? = null
+  fun Source.computeLinearHashes(linearHashTypes: Collection<HashType>): Map<HashType, ByteString> {
+    var sinkMap: Map<HashType, HashingSink>? = null
 
     try {
       var wrappedSink = blackholeSink()
 
-      sinkMap = linearHashes.associateWith { hash ->
+      sinkMap = linearHashTypes.associateWith { hash ->
         // turtles all the way down
         val hashingSink = hash.hashingSink(wrappedSink)
         wrappedSink = hashingSink
@@ -24,7 +24,7 @@ internal object Hashing {
       }
 
       wrappedSink.buffer().use { buffer ->
-        readAll(buffer)
+        buffer.writeAll(this)
       }
 
       wrappedSink.close()
@@ -37,12 +37,17 @@ internal object Hashing {
     }
   }
 
-  fun Hash.hashingSink(delegateSink: Sink = blackholeSink()): HashingSink {
+  fun Source.computeLinearHash(linearHashType: HashType): ByteString {
+    val linearHashes = computeLinearHashes(listOf(linearHashType))
+    return linearHashes.getValue(linearHashType)
+  }
+
+  fun HashType.hashingSink(delegateSink: Sink = blackholeSink()): HashingSink {
     return when (this) {
-      is Hash.Sha1 -> HashingSink.sha1(delegateSink)
-      is Hash.Md5 -> HashingSink.md5(delegateSink)
-      is Hash.Sha256 -> HashingSink.sha256(delegateSink)
-      is Hash.Sha512 -> HashingSink.sha512(delegateSink)
+      HashType.SHA1 -> HashingSink.sha1(delegateSink)
+      HashType.MD5 -> HashingSink.md5(delegateSink)
+      HashType.SHA256 -> HashingSink.sha256(delegateSink)
+      HashType.SHA512 -> HashingSink.sha512(delegateSink)
     }
   }
 }

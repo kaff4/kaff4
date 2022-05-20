@@ -3,6 +3,8 @@ package com.github.nava2.aff4.meta.rdf.model
 import com.github.nava2.aff4.meta.rdf.io.RdfModel
 import com.github.nava2.aff4.meta.rdf.io.RdfSubject
 import com.github.nava2.aff4.meta.rdf.io.RdfValue
+import com.github.nava2.aff4.meta.rdf.toAff4Path
+import com.github.nava2.aff4.model.Aff4Model
 import okio.Path
 import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.Resource
@@ -17,7 +19,9 @@ sealed interface Aff4RdfModel {
 data class BlockHashes(
   override val arn: IRI,
   val hash: Hash,
-) : Aff4RdfModel
+) : Aff4RdfModel {
+  val forHashType: HashType = HashType.valueOf(arn.localName.substringAfterLast('.').uppercase())
+}
 
 @RdfModel("aff4:ZipVolume")
 data class ZipVolume(
@@ -32,60 +36,21 @@ data class ZipVolume(
 @RdfModel("aff4:Map")
 data class MapStream(
   override val arn: IRI,
-  val blockMapHash: Hash,
-  val dependentStream: Resource,
+  val dependentStream: IRI?,
   val mapGapDefaultStream: IRI,
-  val mapHash: Hash,
-  val mapIdxHash: Hash,
-  val mapPathHash: Hash,
-  val mapPointHash: Hash,
+  val mapHash: Hash?,
+  val blockMapHash: Hash?,
+  val mapIdxHash: Hash?,
+  val mapPathHash: Hash?,
+  val mapPointHash: Hash?,
   val size: Long,
   val stored: Resource,
   val target: Resource,
-) : Aff4RdfModel
-
-@RdfModel("aff4:CaseNotes")
-data class CaseNotes(
-  override val arn: IRI,
-  val caseNumber: String,
-  val evidenceNumber: String,
-  val examiner: String,
-  val notes: String,
-  val stored: Resource,
-  val target: Resource,
-  val timestamp: ZonedDateTime,
-) : Aff4RdfModel
-
-@RdfModel("aff4:CaseDetails")
-data class CaseDetails(
-  override val arn: IRI,
-  val caseDescription: String,
-  val caseName: String,
-  val examiner: String,
-  val stored: Resource,
-  val target: Resource,
-) : Aff4RdfModel
-
-enum class Aff4ImagingOperation {
-  CAPTURE,
-  ;
+) : Aff4RdfModel {
+  val idxPath = arn.toAff4Path() / "idx"
+  val mapPathPath = arn.toAff4Path() / "mapPath"
+  val mapPath = arn.toAff4Path() / "map"
 }
-
-enum class Aff4TimeSource {
-  SINK,
-  ;
-}
-
-@RdfModel("aff4:TimeStamps")
-data class TimeStamps(
-  override val arn: IRI,
-  val endTime: ZonedDateTime,
-  val operation: Aff4ImagingOperation,
-  val startTime: ZonedDateTime,
-  val stored: Resource,
-  val target: Resource,
-  val timeSource: Aff4TimeSource,
-) : Aff4RdfModel
 
 @RdfModel("aff4:Image")
 data class Image(
@@ -129,7 +94,54 @@ data class ImageStream(
   } else {
     lastBevySize
   }
+
+  fun queryBlockHashes(aff4Model: Aff4Model): List<BlockHashes> {
+    return aff4Model.querySubjectStartsWith("$arn/blockhash.", BlockHashes::class)
+  }
 }
+
+@RdfModel("aff4:CaseNotes")
+data class CaseNotes(
+  override val arn: IRI,
+  val caseNumber: String,
+  val evidenceNumber: String,
+  val examiner: String,
+  val notes: String,
+  val stored: Resource,
+  val target: Resource,
+  val timestamp: ZonedDateTime,
+) : Aff4RdfModel
+
+@RdfModel("aff4:CaseDetails")
+data class CaseDetails(
+  override val arn: IRI,
+  val caseDescription: String,
+  val caseName: String,
+  val examiner: String,
+  val stored: Resource,
+  val target: Resource,
+) : Aff4RdfModel
+
+enum class Aff4ImagingOperation {
+  CAPTURE,
+  ;
+}
+
+enum class Aff4TimeSource {
+  SINK,
+  ;
+}
+
+@RdfModel("aff4:TimeStamps")
+data class TimeStamps(
+  override val arn: IRI,
+  val endTime: ZonedDateTime,
+  val operation: Aff4ImagingOperation,
+  val startTime: ZonedDateTime,
+  val stored: Resource,
+  val target: Resource,
+  val timeSource: Aff4TimeSource,
+) : Aff4RdfModel
 
 @RdfModel("aff4:DiskImage")
 data class DiskImage(

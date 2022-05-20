@@ -16,6 +16,8 @@ interface Aff4Model : AutoCloseable {
 
   fun <T : Aff4RdfModel> get(subject: IRI, modelType: KClass<T>): T
 
+  fun <T : Aff4RdfModel> querySubjectStartsWith(subjectPrefix: String, modelType: KClass<T>): List<T>
+
   interface Loader {
     fun load(fileSystem: FileSystem, path: Path): Aff4Model
   }

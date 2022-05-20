@@ -2,20 +2,19 @@ package com.github.nava2.aff4.streams.map_stream
 
 import com.github.nava2.aff4.Aff4ImageTestRule
 import com.github.nava2.aff4.meta.rdf.model.MapStream
+import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.model.Aff4StreamOpener
+import com.github.nava2.aff4.streams.VerifiableStream
 import com.github.nava2.aff4.streams.compression.SnappyModule
 import com.github.nava2.aff4.streams.md5
 import com.github.nava2.aff4.streams.repeatByteString
 import okio.Buffer
-import okio.FileSystem
-import okio.Path.Companion.toPath
 import okio.buffer
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.eclipse.rdf4j.model.ValueFactory
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import javax.inject.Inject
@@ -31,6 +30,9 @@ class Aff4MapStreamTest {
 
   @Inject
   private lateinit var aff4StreamOpener: Aff4StreamOpener
+
+  @Inject
+  private lateinit var aff4Model: Aff4Model
 
   private lateinit var aff4MapStream: Aff4MapStream
   private lateinit var mapStream: MapStream
@@ -49,58 +51,47 @@ class Aff4MapStreamTest {
   }
 
   @Test
-  @Ignore
-  fun `open and read bevy source`() {
+  fun `open and read map`() {
     createSource().use { mapStreamSource ->
-      assertThat(mapStreamSource).md5(CHUNK_SIZE, "af05fdbda3150e658948ba8b74f1fe82")
-      assertThat(mapStreamSource).md5(CHUNK_SIZE, "86a8ec10b992e4b9236eb4eadca432d5")
+      assertThat(mapStreamSource).md5(CHUNK_SIZE, "1f11e90ee7959d2da6cb0b6067ba1a05")
+      assertThat(mapStreamSource).md5(CHUNK_SIZE, "bb7df04e1b0a2570657527a7e108ae23")
     }
   }
 
   @Test
-  @Ignore
   fun `open and read multiple times has same read`() {
     createSource().use { mapStreamSource ->
-      assertThat(mapStreamSource).md5(CHUNK_SIZE, "af05fdbda3150e658948ba8b74f1fe82")
+      assertThat(mapStreamSource).md5(CHUNK_SIZE, "1f11e90ee7959d2da6cb0b6067ba1a05")
     }
 
     createSource().use { mapStreamSource ->
-      assertThat(mapStreamSource).md5(CHUNK_SIZE, "af05fdbda3150e658948ba8b74f1fe82")
+      assertThat(mapStreamSource).md5(CHUNK_SIZE, "1f11e90ee7959d2da6cb0b6067ba1a05")
     }
   }
 
   @Test
-  @Ignore
   fun `open and read gt chunk size`() {
     createSource().use { mapStreamSource ->
-      assertThat(mapStreamSource).md5(CHUNK_SIZE * 100, "866f93925759a39af236632470789234")
+      assertThat(mapStreamSource).md5(CHUNK_SIZE * 100, "f047e55361bd52d073df651b7acf4509")
     }
   }
 
   @Test
-  @Ignore
   fun `creating sources at location effectively seeks the stream`() {
-    createSource().use { s ->
-      FileSystem.SYSTEM.appendingSink("./dumped.bin".toPath()).buffer().use {
-        s.readAll(it)
-      }
-    }
-
     createSource(position = CHUNK_SIZE * 12).use { mapStreamSource ->
-      assertThat(mapStreamSource).md5(CHUNK_SIZE, "86a8ec10b992e4b9236eb4eadca432d5")
+      assertThat(mapStreamSource).md5(CHUNK_SIZE, "bb7df04e1b0a2570657527a7e108ae23")
     }
 
     createSource(position = 0).use { mapStreamSource ->
-      assertThat(mapStreamSource).md5(CHUNK_SIZE, "af05fdbda3150e658948ba8b74f1fe82")
+      assertThat(mapStreamSource).md5(CHUNK_SIZE, "1f11e90ee7959d2da6cb0b6067ba1a05")
     }
   }
 
   @Test
-  @Ignore
   fun `open and read skip bytes via buffering`() {
     createSource().use { mapStreamSource ->
       mapStreamSource.skip(1024)
-      assertThat(mapStreamSource).md5(CHUNK_SIZE, "fea53f346a83f6fca5d4fa89ac96e758")
+      assertThat(mapStreamSource).md5(CHUNK_SIZE, "018634489419068058d745ea1645705d")
     }
   }
 
@@ -115,23 +106,15 @@ class Aff4MapStreamTest {
     }
   }
 
-//  @Test
-//  fun `hashes match`() {
-//    createSource().use { mapStreamSource ->
-//      Buffer().use { readSink ->
-//        assertThat(mapStreamSource.readAll(readSink)).isEqualTo(mapStream.size)
-//        assertThat(readSink.md5()).isEqualTo(mapStream.linearHashes.single { it is Hash.Md5 }.hash)
-//        assertThat(readSink.sha1()).isEqualTo(mapStream.linearHashes.single { it is Hash.Sha1 }.hash)
-//      }
-//    }
-//
-//    Assertions.assertThat(aff4ImageStream.verify()).isEqualTo(VerifiableStream.Result.Success)
-//  }
+  @Test
+  fun `hashes match`() {
+    assertThat(aff4MapStream.verify(aff4Model)).isEqualTo(VerifiableStream.Result.Success)
+  }
 
   @Test
   fun `having open sources causes close() to throw`() {
     createSource().use { source ->
-      Assertions.assertThatThrownBy { aff4MapStream.close() }
+      assertThatThrownBy { aff4MapStream.close() }
         .isInstanceOf(IllegalStateException::class.java)
         .hasMessage("Sources were created and not freed: 1")
 
