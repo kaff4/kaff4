@@ -5,6 +5,7 @@ import okio.Path.Companion.toPath
 import org.eclipse.rdf4j.model.IRI
 import java.net.URLEncoder
 
-fun IRI.toAff4Path(): Path {
-  return URLEncoder.encode(stringValue(), Charsets.UTF_8).toPath()
+fun IRI.toAff4Path(containerArn: IRI): Path {
+  val cleanedPath = stringValue().substringAfter(containerArn.stringValue())
+  return URLEncoder.encode(cleanedPath, Charsets.UTF_8).toPath()
 }

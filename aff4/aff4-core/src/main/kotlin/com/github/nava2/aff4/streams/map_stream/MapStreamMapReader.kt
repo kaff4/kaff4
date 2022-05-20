@@ -3,7 +3,6 @@ package com.github.nava2.aff4.streams.map_stream
 import com.github.nava2.aff4.interval_tree.IntervalTree
 import com.github.nava2.aff4.meta.rdf.ForImageRoot
 import com.github.nava2.aff4.model.rdf.MapStream
-import com.github.nava2.aff4.model.rdf.toAff4Path
 import okio.FileSystem
 import okio.buffer
 import org.eclipse.rdf4j.model.IRI
@@ -31,7 +30,7 @@ internal class MapStreamMapReader @Inject constructor(
     mapStream: MapStream,
     index: List<IRI>
   ): Sequence<MapStreamEntry> = sequence {
-    val mapMapFile = mapStream.arn.toAff4Path() / "map"
+    val mapMapFile = mapStream.mapPath
 
     val requiredBytes = MapStreamEntry.SIZE_BYTES.toLong()
 

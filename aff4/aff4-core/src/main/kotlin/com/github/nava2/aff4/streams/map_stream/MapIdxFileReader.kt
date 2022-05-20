@@ -19,12 +19,17 @@ internal class MapIdxFileReader @Inject constructor(
 ) {
   private val targetsCache = Caffeine.newBuilder()
     .maximumSize(MAP_TARGETS_CACHE_SIZE)
-    .build<IRI, List<IRI>> { mapStreamArn ->
-      val targetFile = mapStreamArn.toAff4Path() / "idx"
+    .build<CacheKey, List<IRI>> { key ->
+      val targetFile = key.mapStreamArn.toAff4Path(key.storedArn) / "idx"
       imageRootFileSystem.source(targetFile).buffer().use { s ->
         s.lineSequence().map { valueFactory.createIRI(it) }.toList()
       }
     }
 
-  fun loadTargets(mapStream: MapStream): List<IRI> = targetsCache.get(mapStream.arn)!!
+  fun loadTargets(mapStream: MapStream): List<IRI> = targetsCache.get(CacheKey(mapStream.arn, mapStream.stored))!!
+
+  private data class CacheKey(
+    val mapStreamArn: IRI,
+    val storedArn: IRI,
+  )
 }
