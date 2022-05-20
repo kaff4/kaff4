@@ -7,7 +7,6 @@ import com.github.nava2.aff4.meta.rdf.model.HashType
 import com.github.nava2.aff4.streams.Hashing.computeLinearHashes
 import okio.ByteString
 import okio.FileSystem
-import okio.buffer
 import org.eclipse.rdf4j.model.IRI
 import java.nio.ByteBuffer
 import javax.inject.Inject
@@ -44,7 +43,7 @@ internal class ImageBlockHashVerification @Inject constructor(
 
     chunkBuffer.position(0)
 
-    val actualHashes = chunkBuffer.source().buffer().use {
+    val actualHashes = chunkBuffer.source().use {
       it.computeLinearHashes(expectedHashes.keys)
     }
 

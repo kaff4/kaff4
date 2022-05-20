@@ -38,24 +38,33 @@ class Aff4ImageStream @AssistedInject internal constructor(
 
   private var currentSource: CurrentSourceInfo? = null
 
+  @Volatile
   private var verificationResult: VerifiableStream.Result? = null
 
   override fun source(position: Long): Source = sourceProviderWithRefCounts.source(position)
 
   override fun verify(aff4Model: Aff4Model): VerifiableStream.Result {
-    if (verificationResult != null) {
-      return verificationResult!!
+    val previousResult = verificationResult
+    if (previousResult != null) {
+      return previousResult
     }
 
-    val failedHashes = mutableListOf<Pair<String, Hash>>()
+    return synchronized(this) {
+      val doubleChecked = verificationResult
+      if (doubleChecked != null) return doubleChecked
 
-    verifyLinearHashes(failedHashes)
-    verifyBlockHashes(aff4Model, failedHashes)
+      val failedHashes = mutableListOf<Pair<String, Hash>>()
+      failedHashes += verifyLinearHashes()
+      failedHashes += verifyBlockHashes(aff4Model)
 
-    return if (failedHashes.isNotEmpty()) {
-      VerifiableStream.Result.Failed(failedHashes)
-    } else {
-      VerifiableStream.Result.Success
+      val result = if (failedHashes.isNotEmpty()) {
+        VerifiableStream.Result.Failed(failedHashes)
+      } else {
+        VerifiableStream.Result.Success
+      }
+
+      verificationResult = result
+      result
     }
   }
 
@@ -139,8 +148,8 @@ class Aff4ImageStream @AssistedInject internal constructor(
     position = cappedPosition
   }
 
-  private fun verifyLinearHashes(failedHashes: MutableList<Pair<String, Hash>>) {
-    val calculatedLinearHashes = source(0).buffer().use { s ->
+  private fun verifyLinearHashes(): Sequence<Pair<String, Hash>> = sequence {
+    val calculatedLinearHashes = source(0).use { s ->
       s.computeLinearHashes(imageStreamConfig.linearHashes.map { it.hashType })
     }
 
@@ -148,15 +157,12 @@ class Aff4ImageStream @AssistedInject internal constructor(
     for ((hashType, actualHash) in calculatedLinearHashes) {
       val expectedHash = linearHashesByHashType.getValue(hashType)
       if (expectedHash.value != actualHash) {
-        failedHashes += "Linear $hashType" to expectedHash
+        yield("ImageStream ${imageStreamConfig.arn} - Linear $hashType" to expectedHash)
       }
     }
   }
 
-  private fun verifyBlockHashes(
-    aff4Model: Aff4Model,
-    failedHashes: MutableList<Pair<String, Hash>>
-  ) {
+  private fun verifyBlockHashes(aff4Model: Aff4Model): Sequence<Pair<String, Hash>> = sequence {
     val blockHashes = imageStreamConfig.queryBlockHashes(aff4Model)
     val blockHashSources = (0 until bevyCount).asSequence().map { aff4ImageBevies.getOrLoadBevy(it).bevy }
       .fold(blockHashes.associateWith { mutableListOf<() -> Source>() }) { acc, bevy ->
@@ -176,7 +182,7 @@ class Aff4ImageStream @AssistedInject internal constructor(
       }
 
       if (blockHash.hash.value != actualHash) {
-        failedHashes += "BlochHash ${blockHash.forHashType}" to blockHash.hash
+        yield("ImageStream ${imageStreamConfig.arn} - BlockHash ${blockHash.forHashType}" to blockHash.hash)
       }
     }
   }

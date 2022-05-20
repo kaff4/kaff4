@@ -1,16 +1,16 @@
 package com.github.nava2.aff4.streams
 
 import com.github.nava2.aff4.meta.rdf.model.HashType
-import okio.BufferedSource
 import okio.ByteString
 import okio.HashingSink
 import okio.Sink
+import okio.Source
 import okio.blackholeSink
 import okio.buffer
 
 internal object Hashing {
 
-  fun BufferedSource.computeLinearHashes(linearHashTypes: Collection<HashType>): Map<HashType, ByteString> {
+  fun Source.computeLinearHashes(linearHashTypes: Collection<HashType>): Map<HashType, ByteString> {
     var sinkMap: Map<HashType, HashingSink>? = null
 
     try {
@@ -24,7 +24,7 @@ internal object Hashing {
       }
 
       wrappedSink.buffer().use { buffer ->
-        readAll(buffer)
+        buffer.writeAll(this)
       }
 
       wrappedSink.close()
@@ -35,6 +35,11 @@ internal object Hashing {
         s.close()
       }
     }
+  }
+
+  fun Source.computeLinearHash(linearHashType: HashType): ByteString {
+    val linearHashes = computeLinearHashes(listOf(linearHashType))
+    return linearHashes.getValue(linearHashType)
   }
 
   fun HashType.hashingSink(delegateSink: Sink = blackholeSink()): HashingSink {

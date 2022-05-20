@@ -1,13 +1,12 @@
 package com.github.nava2.aff4.streams
 
 import okio.Buffer
-import okio.BufferedSource
 import okio.ByteString
 import okio.ByteString.Companion.decodeHex
 import okio.ByteString.Companion.toByteString
+import okio.Source
+import org.assertj.core.api.AbstractObjectAssert
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.ObjectAssert
-import java.util.function.Consumer
 
 fun Byte.repeatByteString(length: Int): ByteString {
   val bytes = ByteArray(length) { this }
@@ -20,26 +19,30 @@ fun Int.repeatByteString(length: Int): ByteString {
   return toByte().repeatByteString(length)
 }
 
-fun ObjectAssert<BufferedSource>.md5(byteCount: Long, md5: String): ObjectAssert<BufferedSource> {
-  return satisfies(
-    Consumer { source: BufferedSource ->
-      Buffer().use { readSink ->
-        source.readFully(readSink, byteCount)
-        assertThat(readSink.size).isEqualTo(byteCount)
-        assertThat(readSink.md5()).isEqualTo(md5.decodeHex())
-      }
-    }
-  )
+fun <SELF : AbstractObjectAssert<SELF, T>, T : Source> SELF.md5(byteCount: Long, md5: String): SELF {
+  computeHashAssert(byteCount, Buffer::md5)
+    .`as` { "md5(source[$byteCount])" }
+    .isEqualTo(md5.decodeHex())
+
+  return this
 }
 
-fun ObjectAssert<BufferedSource>.sha1(byteCount: Long, sha1: String): ObjectAssert<BufferedSource> {
-  return satisfies(
-    Consumer { source: BufferedSource ->
-      Buffer().use { readSink ->
-        source.readFully(readSink, byteCount)
-        assertThat(readSink.size).isEqualTo(byteCount)
-        assertThat(readSink.sha1()).isEqualTo(sha1.decodeHex())
-      }
-    }
-  )
+fun <SELF : AbstractObjectAssert<SELF, T>, T : Source> SELF.sha1(byteCount: Long, sha1: String): SELF {
+  computeHashAssert(byteCount, Buffer::sha1)
+    .`as` { "sha1(source[$byteCount])" }
+    .isEqualTo(sha1.decodeHex())
+
+  return this
+}
+
+private fun <SELF, T> SELF.computeHashAssert(
+  byteCount: Long,
+  computeHash: (Buffer) -> ByteString,
+): AbstractObjectAssert<*, ByteString>
+  where SELF : AbstractObjectAssert<SELF, T>, T : Source = extracting { source: T ->
+  Buffer().use { readSink ->
+    readSink.write(source, byteCount)
+    assertThat(readSink.size).isEqualTo(byteCount)
+    computeHash(readSink)
+  }
 }

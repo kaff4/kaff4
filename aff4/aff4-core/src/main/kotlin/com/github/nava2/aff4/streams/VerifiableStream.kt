@@ -8,10 +8,14 @@ interface VerifiableStream {
   fun verify(aff4Model: Aff4Model): Result
 
   sealed interface Result {
+    val failureReasons: List<Pair<String, Hash>>
+
     object Success : Result {
+      override val failureReasons: List<Pair<String, Hash>> = listOf()
+
       override fun toString(): String = javaClass.simpleName
     }
 
-    data class Failed(val reasons: List<Pair<String, Hash>>) : Result
+    data class Failed(override val failureReasons: List<Pair<String, Hash>>) : Result
   }
 }
