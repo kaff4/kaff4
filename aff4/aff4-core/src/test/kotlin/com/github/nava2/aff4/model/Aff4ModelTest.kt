@@ -1,17 +1,17 @@
 package com.github.nava2.aff4.model
 
 import com.github.nava2.aff4.Aff4ImageTestRule
-import com.github.nava2.aff4.meta.rdf.model.Aff4ImagingOperation
-import com.github.nava2.aff4.meta.rdf.model.Aff4TimeSource
-import com.github.nava2.aff4.meta.rdf.model.BlockHashes
-import com.github.nava2.aff4.meta.rdf.model.CaseDetails
-import com.github.nava2.aff4.meta.rdf.model.CaseNotes
-import com.github.nava2.aff4.meta.rdf.model.DiskImage
-import com.github.nava2.aff4.meta.rdf.model.Hash
-import com.github.nava2.aff4.meta.rdf.model.Image
-import com.github.nava2.aff4.meta.rdf.model.ImageStream
-import com.github.nava2.aff4.meta.rdf.model.TimeStamps
-import com.github.nava2.aff4.meta.rdf.model.ZipVolume
+import com.github.nava2.aff4.model.rdf.Aff4ImagingOperation
+import com.github.nava2.aff4.model.rdf.Aff4TimeSource
+import com.github.nava2.aff4.model.rdf.BlockHashes
+import com.github.nava2.aff4.model.rdf.CaseDetails
+import com.github.nava2.aff4.model.rdf.CaseNotes
+import com.github.nava2.aff4.model.rdf.DiskImage
+import com.github.nava2.aff4.model.rdf.Hash
+import com.github.nava2.aff4.model.rdf.Image
+import com.github.nava2.aff4.model.rdf.ImageStream
+import com.github.nava2.aff4.model.rdf.TimeStamps
+import com.github.nava2.aff4.model.rdf.ZipVolume
 import com.github.nava2.aff4.streams.compression.SnappyCompression
 import com.github.nava2.aff4.streams.compression.SnappyModule
 import com.github.nava2.test.GuiceTestRule
@@ -24,7 +24,7 @@ import org.junit.Test
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import javax.inject.Inject
-import com.github.nava2.aff4.meta.rdf.model.MapStream as AMap
+import com.github.nava2.aff4.model.rdf.MapStream as AMap
 
 class Aff4ModelTest {
   @get:Rule

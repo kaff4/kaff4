@@ -2,10 +2,10 @@ package com.github.nava2.aff4.streams.image_stream
 
 import com.github.nava2.aff4.io.concatLazily
 import com.github.nava2.aff4.meta.rdf.ForImageRoot
-import com.github.nava2.aff4.meta.rdf.model.Hash
-import com.github.nava2.aff4.meta.rdf.model.ImageStream
 import com.github.nava2.aff4.model.Aff4Model
-import com.github.nava2.aff4.streams.Aff4Stream
+import com.github.nava2.aff4.model.Aff4Stream
+import com.github.nava2.aff4.model.rdf.Hash
+import com.github.nava2.aff4.model.rdf.ImageStream
 import com.github.nava2.aff4.streams.Hashing.computeLinearHashes
 import com.github.nava2.aff4.streams.Hashing.hashingSink
 import com.github.nava2.aff4.streams.SourceProviderWithRefCounts
@@ -76,6 +76,10 @@ class Aff4ImageStream @AssistedInject internal constructor(
     aff4ImageBevies.close()
   }
 
+  override fun toString(): String {
+    return "Aff4ImageStream(${imageStreamConfig.arn})"
+  }
+
   private fun readAt(readPosition: Long, sink: Buffer, byteCount: Long): Long {
     moveTo(readPosition)
 
@@ -94,7 +98,7 @@ class Aff4ImageStream @AssistedInject internal constructor(
       "Read too much of bevy [$nextBevyIndex] - $imageStreamConfig"
     }
 
-    position += bytesRead.coerceAtLeast(0)
+    position += bytesRead
 
     return bytesRead
   }

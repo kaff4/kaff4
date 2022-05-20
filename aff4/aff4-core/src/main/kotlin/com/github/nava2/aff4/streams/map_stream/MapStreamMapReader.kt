@@ -1,9 +1,9 @@
 package com.github.nava2.aff4.streams.map_stream
 
+import com.github.nava2.aff4.interval_tree.IntervalTree
 import com.github.nava2.aff4.meta.rdf.ForImageRoot
-import com.github.nava2.aff4.meta.rdf.model.MapStream
-import com.github.nava2.aff4.meta.rdf.toAff4Path
-import com.github.nava2.aff4.streams.map_stream.tree.IntervalTree
+import com.github.nava2.aff4.model.rdf.MapStream
+import com.github.nava2.aff4.model.rdf.toAff4Path
 import okio.FileSystem
 import okio.buffer
 import org.eclipse.rdf4j.model.IRI

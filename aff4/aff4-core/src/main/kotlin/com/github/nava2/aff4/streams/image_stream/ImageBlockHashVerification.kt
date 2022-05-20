@@ -3,7 +3,7 @@ package com.github.nava2.aff4.streams.image_stream
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.nava2.aff4.io.source
 import com.github.nava2.aff4.meta.rdf.ForImageRoot
-import com.github.nava2.aff4.meta.rdf.model.HashType
+import com.github.nava2.aff4.model.rdf.HashType
 import com.github.nava2.aff4.streams.Hashing.computeLinearHashes
 import okio.ByteString
 import okio.FileSystem

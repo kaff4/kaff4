@@ -1,9 +1,9 @@
 package com.github.nava2.aff4.streams.map_stream
 
 import com.github.nava2.aff4.Aff4ImageTestRule
-import com.github.nava2.aff4.meta.rdf.Aff4Schema
-import com.github.nava2.aff4.meta.rdf.model.MapStream
 import com.github.nava2.aff4.model.Aff4Model
+import com.github.nava2.aff4.model.rdf.Aff4Schema
+import com.github.nava2.aff4.model.rdf.MapStream
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
 import org.junit.Before

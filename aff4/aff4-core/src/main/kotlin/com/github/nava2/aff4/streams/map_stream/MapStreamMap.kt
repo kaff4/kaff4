@@ -1,7 +1,7 @@
 package com.github.nava2.aff4.streams.map_stream
 
-import com.github.nava2.aff4.streams.map_stream.tree.Interval
-import com.github.nava2.aff4.streams.map_stream.tree.IntervalTree
+import com.github.nava2.aff4.interval_tree.Interval
+import com.github.nava2.aff4.interval_tree.IntervalTree
 import com.google.common.base.MoreObjects
 import org.eclipse.rdf4j.model.IRI
 import java.util.SortedSet
@@ -53,14 +53,21 @@ internal class MapStreamMap(
     }
 
     // special case where there were _no_ matching entries so the loop never iterated
+    val nextEntryStart by lazy(LazyThreadSafetyMode.NONE) {
+      val checkInterval = prevEntry?.asInterval() ?: Interval.Simple(mappedOffset, 0)
+      entryTree.closestSuccessor(checkInterval)
+        .map { it.start }
+        .orElse(finalOffset)
+    }
+
     if (prevEntry == null) {
       yield(
-        generateGapEntry(mappedOffset, length)
+        generateGapEntry(mappedOffset, nextEntryStart - mappedOffset)
       )
     } else if (prevEntry.mappedEndOffset != finalOffset) {
       // Gap at the end of the request
       yield(
-        generateGapEntry(prevEntry.mappedEndOffset, finalOffset - prevEntry.mappedEndOffset)
+        generateGapEntry(prevEntry.mappedEndOffset, nextEntryStart - prevEntry.mappedEndOffset)
       )
     }
   }

@@ -2,14 +2,14 @@ package com.github.nava2.aff4.model
 
 import com.github.nava2.aff4.io.relativeTo
 import com.github.nava2.aff4.meta.rdf.ForImageRoot
-import com.github.nava2.aff4.meta.rdf.RdfConnectionScoping
-import com.github.nava2.aff4.meta.rdf.ScopedConnection
-import com.github.nava2.aff4.meta.rdf.io.RdfModel
-import com.github.nava2.aff4.meta.rdf.io.RdfModelParser
-import com.github.nava2.aff4.meta.rdf.model.Aff4RdfModel
-import com.github.nava2.aff4.meta.rdf.model.ZipVolume
-import com.github.nava2.aff4.meta.rdf.querySubjectsByType
 import com.github.nava2.aff4.model.Aff4Model.Metadata
+import com.github.nava2.aff4.model.rdf.Aff4RdfModel
+import com.github.nava2.aff4.model.rdf.ZipVolume
+import com.github.nava2.aff4.rdf.RdfConnectionScoping
+import com.github.nava2.aff4.rdf.ScopedConnection
+import com.github.nava2.aff4.rdf.io.RdfModel
+import com.github.nava2.aff4.rdf.io.RdfModelParser
+import com.github.nava2.aff4.rdf.querySubjectsByType
 import com.github.nava2.guice.KAbstractModule
 import com.github.nava2.guice.getInstance
 import com.google.inject.Injector

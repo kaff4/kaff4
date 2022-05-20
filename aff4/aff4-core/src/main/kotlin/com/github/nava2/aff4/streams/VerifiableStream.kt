@@ -1,7 +1,7 @@
 package com.github.nava2.aff4.streams
 
-import com.github.nava2.aff4.meta.rdf.model.Hash
 import com.github.nava2.aff4.model.Aff4Model
+import com.github.nava2.aff4.model.rdf.Hash
 
 interface VerifiableStream {
   /** Verifies `this` streams content. This may recompute on each call or may reuse previous results. */

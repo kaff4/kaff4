@@ -3,11 +3,11 @@ package com.github.nava2.aff4.streams.map_stream
 import com.github.nava2.aff4.io.concatLazily
 import com.github.nava2.aff4.io.fixedLength
 import com.github.nava2.aff4.meta.rdf.ForImageRoot
-import com.github.nava2.aff4.meta.rdf.model.Hash
-import com.github.nava2.aff4.meta.rdf.model.MapStream
 import com.github.nava2.aff4.model.Aff4Model
-import com.github.nava2.aff4.model.Aff4StreamOpener
-import com.github.nava2.aff4.streams.Aff4Stream
+import com.github.nava2.aff4.model.Aff4Stream
+import com.github.nava2.aff4.model.RealAff4StreamOpener
+import com.github.nava2.aff4.model.rdf.Hash
+import com.github.nava2.aff4.model.rdf.MapStream
 import com.github.nava2.aff4.streams.Hashing.computeLinearHash
 import com.github.nava2.aff4.streams.SourceProviderWithRefCounts
 import com.github.nava2.aff4.streams.VerifiableStream
@@ -23,7 +23,7 @@ import okio.buffer
 import java.io.Closeable
 
 class Aff4MapStream @AssistedInject internal constructor(
-  private val aff4StreamOpener: Aff4StreamOpener,
+  private val aff4StreamOpener: RealAff4StreamOpener,
   private val mapStreamMapReader: MapStreamMapReader,
   @ForImageRoot private val imageFileSystem: FileSystem,
   @Assisted val mapStream: MapStream,
@@ -131,37 +131,46 @@ class Aff4MapStream @AssistedInject internal constructor(
     // we are exhausted
     if (position == size) return -1L
 
-    val nextEntry = map.query(position, byteCount).firstOrNull() ?: return -1
+    val entryToRead = map.query(position, byteCount).firstOrNull() ?: return -1
 
-    val maxBytesToRead = byteCount.coerceAtMost(nextEntry.length - (position - nextEntry.mappedOffset))
+    val maxBytesToRead = byteCount.coerceAtMost(entryToRead.length - (position - entryToRead.mappedOffset))
 
-    val readSource = getAndUpdateCurrentSourceIfChanged(nextEntry)
+    val readSource = getAndUpdateCurrentSourceIfChanged(position, entryToRead)
 
     val bytesRead = readSource.read(sink, maxBytesToRead)
     check(bytesRead >= 0) {
       // because of how we read these targets by capping their read size to the entry.length, we *should* never read
       // them when they are exhausted.
-      "Read too much of target [${nextEntry.targetIRI}] - $nextEntry - $mapStream"
+      "Read too much of target [${entryToRead.targetIRI}] - $entryToRead - $mapStream"
     }
 
-    position += bytesRead.coerceAtLeast(0)
+    position += bytesRead
 
     return bytesRead
   }
 
-  private fun getAndUpdateCurrentSourceIfChanged(nextEntry: MapStreamEntry): BufferedSource {
+  private fun getAndUpdateCurrentSourceIfChanged(nextPosition: Long, entryToRead: MapStreamEntry): BufferedSource {
     val currentSource = currentSource
 
-    if (currentSource?.entry == nextEntry) {
+    if (currentSource?.entry == entryToRead) {
       return currentSource.source
     }
 
     resetCurrentSource()
 
-    val targetStream = aff4StreamOpener.openStream(nextEntry.targetIRI)
-    return targetStream.source(nextEntry.targetOffset)
-      .fixedLength(nextEntry.length)
+    val targetStream = aff4StreamOpener.openStream(entryToRead.targetIRI)
+    val targetSource = targetStream.source(entryToRead.targetOffset)
+      .fixedLength(entryToRead.length)
       .buffer()
+      .apply {
+        if (nextPosition != entryToRead.mappedOffset) {
+          skip(entryToRead.mappedOffset - nextPosition)
+        }
+      }
+
+    this.currentSource = CurrentSourceInfo(entryToRead, targetSource)
+
+    return targetSource
   }
 
   private fun moveTo(newPosition: Long) {

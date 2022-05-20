@@ -3,7 +3,7 @@ package com.github.nava2.aff4.streams.image_stream
 import com.github.nava2.aff4.io.buffer
 import com.github.nava2.aff4.io.sourceProvider
 import com.github.nava2.aff4.meta.rdf.ForImageRoot
-import com.github.nava2.aff4.meta.rdf.model.ImageStream
+import com.github.nava2.aff4.model.rdf.ImageStream
 import com.github.nava2.aff4.streams.SourceProviderWithRefCounts
 import com.google.inject.assistedinject.Assisted
 import com.google.inject.assistedinject.AssistedInject

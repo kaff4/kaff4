@@ -1,5 +1,6 @@
 package com.github.nava2.aff4.streams.map_stream
 
+import com.github.nava2.aff4.interval_tree.Interval
 import org.eclipse.rdf4j.model.IRI
 
 data class MapStreamEntry(
@@ -10,6 +11,8 @@ data class MapStreamEntry(
 ) : Comparable<MapStreamEntry> {
 
   val mappedEndOffset: Long = mappedOffset + length
+
+  internal fun asInterval(): Interval = Interval.Simple(mappedOffset, length)
 
   operator fun contains(mappedOffset: Long): Boolean {
     return mappedOffset in (this.mappedOffset until this.mappedEndOffset)

@@ -1,6 +1,6 @@
 package com.github.nava2.aff4.streams.image_stream
 
-import com.github.nava2.aff4.meta.rdf.model.ImageStream
+import com.github.nava2.aff4.model.rdf.ImageStream
 import com.github.nava2.aff4.streams.AbstractAff4StreamModule
 import com.github.nava2.guice.key
 import com.github.nava2.guice.typeLiteral

@@ -20,9 +20,13 @@ fun Int.repeatByteString(length: Int): ByteString {
 }
 
 fun <SELF : AbstractObjectAssert<SELF, T>, T : Source> SELF.md5(byteCount: Long, md5: String): SELF {
+  return md5(byteCount, md5.decodeHex())
+}
+
+fun <SELF : AbstractObjectAssert<SELF, T>, T : Source> SELF.md5(byteCount: Long, md5: ByteString): SELF {
   computeHashAssert(byteCount, Buffer::md5)
     .`as` { "md5(source[$byteCount])" }
-    .isEqualTo(md5.decodeHex())
+    .isEqualTo(md5)
 
   return this
 }

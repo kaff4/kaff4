@@ -71,5 +71,9 @@ internal class SourceProviderWithRefCounts(
     }
 
     override fun timeout(): Timeout = Timeout.NONE
+
+    override fun toString(): String {
+      return "offsetSource($sourceDelegate)"
+    }
   }
 }
