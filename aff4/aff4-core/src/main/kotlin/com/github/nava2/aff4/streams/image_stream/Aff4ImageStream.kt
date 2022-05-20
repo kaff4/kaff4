@@ -76,6 +76,10 @@ class Aff4ImageStream @AssistedInject internal constructor(
     aff4ImageBevies.close()
   }
 
+  override fun toString(): String {
+    return "Aff4ImageStream(${imageStreamConfig.arn})"
+  }
+
   private fun readAt(readPosition: Long, sink: Buffer, byteCount: Long): Long {
     moveTo(readPosition)
 
@@ -94,7 +98,7 @@ class Aff4ImageStream @AssistedInject internal constructor(
       "Read too much of bevy [$nextBevyIndex] - $imageStreamConfig"
     }
 
-    position += bytesRead.coerceAtLeast(0)
+    position += bytesRead
 
     return bytesRead
   }
