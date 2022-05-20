@@ -59,7 +59,7 @@ internal data class Bevy(
         when {
           imageFileSystem.exists(shortPath) -> hashType to shortPath
           imageFileSystem.exists(longPath) -> hashType to longPath
-          else -> error("BlockHash $hashType defined but no blockhash found: $bevyArn")
+          else -> error("BlockHash $hashType defined but no blockHash found: $bevyArn")
         }
       }
     }

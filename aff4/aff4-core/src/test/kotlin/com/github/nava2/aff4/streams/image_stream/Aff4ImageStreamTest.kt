@@ -113,12 +113,12 @@ class Aff4ImageStreamTest {
     createSource().use { imageStreamSource ->
       Buffer().use { readSink ->
         assertThat(imageStreamSource.readAll(readSink)).isEqualTo(imageStreamConfig.size)
-        assertThat(readSink.md5()).isEqualTo(imageStreamConfig.linearHashes.single { it is Hash.Md5 }.hash)
-        assertThat(readSink.sha1()).isEqualTo(imageStreamConfig.linearHashes.single { it is Hash.Sha1 }.hash)
+        assertThat(readSink.md5()).isEqualTo(imageStreamConfig.linearHashes.single { it is Hash.Md5 }.value)
+        assertThat(readSink.sha1()).isEqualTo(imageStreamConfig.linearHashes.single { it is Hash.Sha1 }.value)
       }
     }
 
-    assertThat(aff4ImageStream.verify()).isEqualTo(VerifiableStream.Result.Success)
+    assertThat(aff4ImageStream.verify(aff4Model)).isEqualTo(VerifiableStream.Result.Success)
   }
 
   @Test

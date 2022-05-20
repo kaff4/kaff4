@@ -23,13 +23,13 @@ sealed class Hash(val hashType: HashType) {
   val name: String
     get() = javaClass.simpleName
 
-  abstract val hash: ByteString
+  abstract val value: ByteString
 
-  data class Sha1(override val hash: ByteString) : Hash(HashType.SHA1)
-  data class Sha256(override val hash: ByteString) : Hash(HashType.SHA256)
-  data class Sha512(override val hash: ByteString) : Hash(HashType.SHA512)
+  data class Sha1(override val value: ByteString) : Hash(HashType.SHA1)
+  data class Sha256(override val value: ByteString) : Hash(HashType.SHA256)
+  data class Sha512(override val value: ByteString) : Hash(HashType.SHA512)
 
-  data class Md5(override val hash: ByteString) : Hash(HashType.MD5)
+  data class Md5(override val value: ByteString) : Hash(HashType.MD5)
 
   companion object {
     fun fromLiteral(literal: Literal): Hash {

@@ -97,7 +97,7 @@ internal fun concatLazily(sources: List<() -> Source>, timeout: Timeout = Timeou
 }
 
 private class LazyConcatSource(
-  lazySources: List<() -> Source>,
+  private val lazySources: List<() -> Source>,
   private val timeout: Timeout,
 ) : Source {
   private val iter = lazySources.iterator()
@@ -120,4 +120,6 @@ private class LazyConcatSource(
 
   override fun close() = current.close()
   override fun timeout(): Timeout = timeout
+
+  override fun toString(): String = "lazyConcatSource(Sources(${lazySources.size}))"
 }

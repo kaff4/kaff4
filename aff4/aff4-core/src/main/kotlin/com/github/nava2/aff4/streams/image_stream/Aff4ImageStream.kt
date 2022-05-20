@@ -7,6 +7,7 @@ import com.github.nava2.aff4.meta.rdf.model.ImageStream
 import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.streams.Aff4Stream
 import com.github.nava2.aff4.streams.Hashing.computeLinearHashes
+import com.github.nava2.aff4.streams.Hashing.hashingSink
 import com.github.nava2.aff4.streams.SourceProviderWithRefCounts
 import com.github.nava2.aff4.streams.VerifiableStream
 import com.google.inject.assistedinject.Assisted
@@ -33,7 +34,6 @@ class Aff4ImageStream @AssistedInject internal constructor(
 
   val size: Long = imageStreamConfig.size
 
-
   private var position: Long = 0L
 
   private var currentSource: CurrentSourceInfo? = null
@@ -49,33 +49,8 @@ class Aff4ImageStream @AssistedInject internal constructor(
 
     val failedHashes = mutableListOf<Pair<String, Hash>>()
 
-    val calculatedLinearHashes = source(0).buffer().use { s ->
-      s.computeLinearHashes(imageStreamConfig.linearHashes.map { it.hashType })
-    }
-
-    val linearHashesByHashType = imageStreamConfig.linearHashes.associateBy { it.hashType }
-    for ((hashType, actualHash) in calculatedLinearHashes) {
-      val expectedHash = linearHashesByHashType.getValue(hashType)
-      if (expectedHash.hash != actualHash) {
-        failedHashes += "Linear $hashType" to expectedHash
-      }
-    }
-
-    val blockHashes = imageStreamConfig.queryBlockHashes(aff4Model)
-    val blockHashSources = (0..bevyCount).asSequence().map { aff4ImageBevies.getOrLoadBevy(it).bevy }
-      .fold(
-        blockHashes.associate { it.forHashType to mutableListOf<() -> Source>() }.toMutableMap(),
-      ) { acc, bevy ->
-        for ((hashType, blockHashPath) in bevy.blockHashes) {
-          val sources = acc.getValue(hashType)
-          sources += { imageFileSystem.source(blockHashPath) }
-        }
-
-        acc
-      }
-      .mapValues { (_, sources) -> concatLazily(sources) }
-
-    TODO("be sure to close block hash sources, compare against blockHashes sha512")
+    verifyLinearHashes(failedHashes)
+    verifyBlockHashes(aff4Model, failedHashes)
 
     return if (failedHashes.isNotEmpty()) {
       VerifiableStream.Result.Failed(failedHashes)
@@ -162,6 +137,48 @@ class Aff4ImageStream @AssistedInject internal constructor(
     }
 
     position = cappedPosition
+  }
+
+  private fun verifyLinearHashes(failedHashes: MutableList<Pair<String, Hash>>) {
+    val calculatedLinearHashes = source(0).buffer().use { s ->
+      s.computeLinearHashes(imageStreamConfig.linearHashes.map { it.hashType })
+    }
+
+    val linearHashesByHashType = imageStreamConfig.linearHashes.associateBy { it.hashType }
+    for ((hashType, actualHash) in calculatedLinearHashes) {
+      val expectedHash = linearHashesByHashType.getValue(hashType)
+      if (expectedHash.value != actualHash) {
+        failedHashes += "Linear $hashType" to expectedHash
+      }
+    }
+  }
+
+  private fun verifyBlockHashes(
+    aff4Model: Aff4Model,
+    failedHashes: MutableList<Pair<String, Hash>>
+  ) {
+    val blockHashes = imageStreamConfig.queryBlockHashes(aff4Model)
+    val blockHashSources = (0 until bevyCount).asSequence().map { aff4ImageBevies.getOrLoadBevy(it).bevy }
+      .fold(blockHashes.associateWith { mutableListOf<() -> Source>() }) { acc, bevy ->
+        for ((hash, blockHashPath) in bevy.blockHashes) {
+          val sources = acc.entries.single { it.key.forHashType == hash }.value
+          sources += { imageFileSystem.source(blockHashPath) }
+        }
+
+        acc
+      }
+
+    for ((blockHash, sources) in blockHashSources) {
+      val actualHash = concatLazily(sources).buffer().use { source ->
+        val hashSink = blockHash.hash.hashType.hashingSink()
+        source.readAll(hashSink)
+        hashSink.hash
+      }
+
+      if (blockHash.hash.value != actualHash) {
+        failedHashes += "BlochHash ${blockHash.forHashType}" to blockHash.hash
+      }
+    }
   }
 
   private data class CurrentSourceInfo(
