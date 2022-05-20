@@ -12,15 +12,17 @@ import com.google.inject.TypeLiteral
 import org.eclipse.rdf4j.model.IRI
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 
-class RealAff4StreamOpener @Inject internal constructor(
+@Singleton
+internal class RealAff4StreamOpener @Inject constructor(
   private val rdfConnectionScoping: RdfConnectionScoping,
   private val modelKlasses: Set<KClass<out Aff4RdfModel>>,
   aff4StreamLoaderContexts: Set<Aff4StreamLoaderContext>,
   private val symbolics: Symbolics,
-) : AutoCloseable, Aff4StreamOpener {
+) : Aff4StreamOpener {
   @Volatile
   private var closed = false
 

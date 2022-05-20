@@ -10,6 +10,7 @@ object Aff4ModelModule : KAbstractModule() {
     bind(RealAff4Model.Loader::class.java)
 
     bind<Aff4Model.Loader>().to<RealAff4Model.Loader>()
+    bind<Aff4StreamOpener>().to<RealAff4StreamOpener>()
 
     bindSet<Aff4StreamLoaderContext> { }
   }

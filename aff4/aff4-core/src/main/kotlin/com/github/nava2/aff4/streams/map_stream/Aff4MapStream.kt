@@ -5,12 +5,12 @@ import com.github.nava2.aff4.io.fixedLength
 import com.github.nava2.aff4.meta.rdf.ForImageRoot
 import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.model.Aff4Stream
-import com.github.nava2.aff4.model.RealAff4StreamOpener
+import com.github.nava2.aff4.model.Aff4StreamOpener
+import com.github.nava2.aff4.model.VerifiableStream
 import com.github.nava2.aff4.model.rdf.Hash
 import com.github.nava2.aff4.model.rdf.MapStream
 import com.github.nava2.aff4.streams.Hashing.computeLinearHash
 import com.github.nava2.aff4.streams.SourceProviderWithRefCounts
-import com.github.nava2.aff4.streams.VerifiableStream
 import com.github.nava2.aff4.yieldNotNull
 import com.google.inject.assistedinject.Assisted
 import com.google.inject.assistedinject.AssistedInject
@@ -23,7 +23,7 @@ import okio.buffer
 import java.io.Closeable
 
 class Aff4MapStream @AssistedInject internal constructor(
-  private val aff4StreamOpener: RealAff4StreamOpener,
+  private val aff4StreamOpener: Aff4StreamOpener,
   private val mapStreamMapReader: MapStreamMapReader,
   @ForImageRoot private val imageFileSystem: FileSystem,
   @Assisted val mapStream: MapStream,
@@ -79,6 +79,10 @@ class Aff4MapStream @AssistedInject internal constructor(
       verificationResult = result
       result
     }
+  }
+
+  override fun toString(): String {
+    return "Aff4MapStream(${mapStream.arn})"
   }
 
   // https://github.com/aff4/Standard/blob/master/inprogress/AFF4StandardSpecification-v1.0a.md#map-hashes

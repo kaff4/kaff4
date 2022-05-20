@@ -1,6 +1,5 @@
-package com.github.nava2.aff4.streams
+package com.github.nava2.aff4.model
 
-import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.model.rdf.Hash
 
 interface VerifiableStream {

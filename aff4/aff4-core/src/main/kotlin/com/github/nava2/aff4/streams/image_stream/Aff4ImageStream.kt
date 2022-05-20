@@ -4,12 +4,12 @@ import com.github.nava2.aff4.io.concatLazily
 import com.github.nava2.aff4.meta.rdf.ForImageRoot
 import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.model.Aff4Stream
+import com.github.nava2.aff4.model.VerifiableStream
 import com.github.nava2.aff4.model.rdf.Hash
 import com.github.nava2.aff4.model.rdf.ImageStream
 import com.github.nava2.aff4.streams.Hashing.computeLinearHashes
 import com.github.nava2.aff4.streams.Hashing.hashingSink
 import com.github.nava2.aff4.streams.SourceProviderWithRefCounts
-import com.github.nava2.aff4.streams.VerifiableStream
 import com.google.inject.assistedinject.Assisted
 import com.google.inject.assistedinject.AssistedInject
 import okio.Buffer
