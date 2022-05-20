@@ -57,7 +57,7 @@ class Aff4MapStreamTest {
   fun `open and read map`() {
     createSource().use { mapStreamSource ->
       assertThat(mapStreamSource).md5(CHUNK_SIZE, "af05fdbda3150e658948ba8b74f1fe82")
-      assertThat(mapStreamSource).md5(CHUNK_SIZE, "bb7df04e1b0a2570657527a7e108ae23")
+      assertThat(mapStreamSource).md5(CHUNK_SIZE, 0.repeatByteString(CHUNK_SIZE.toInt()).md5())
     }
   }
 
@@ -82,7 +82,7 @@ class Aff4MapStreamTest {
   @Test
   fun `creating sources at location effectively seeks the stream`() {
     createSource(position = CHUNK_SIZE).use { mapStreamSource ->
-      assertThat(mapStreamSource).md5(CHUNK_SIZE, "bb7df04e1b0a2570657527a7e108ae23")
+      assertThat(mapStreamSource).md5(CHUNK_SIZE, 0.repeatByteString(CHUNK_SIZE.toInt()).md5())
     }
 
     createSource(position = 0).use { mapStreamSource ->
