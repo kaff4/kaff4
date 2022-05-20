@@ -58,10 +58,13 @@ class MapStreamMapReaderTest {
   }
 
   @Test
-  fun `querying not at start and end truncates and fills in entries to be contiguous`() {
+  fun `querying not at start and end fills in entries to be contiguous to next valid entry`() {
     val mapMap = mapStreamMapReader.loadMap(mapStream)
 
-    assertThat(mapMap).isContiguousQuery(start = mapStream.size / 2, length = mapStream.size / 2 - 8 * 1024)
+    val start = mapStream.size / 2
+    val length = mapStream.size / 2 - 8 * 1024
+    val extendedLength = 134_209_536L
+    assertThat(mapMap.query(start, length)).isContiguous(start, extendedLength)
   }
 
   private fun ObjectAssert<MapStreamMap>.isContiguousQuery(start: Long, length: Long): ObjectAssert<MapStreamMap> {

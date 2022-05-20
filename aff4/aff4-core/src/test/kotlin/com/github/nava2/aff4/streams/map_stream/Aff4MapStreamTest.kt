@@ -1,14 +1,17 @@
 package com.github.nava2.aff4.streams.map_stream
 
 import com.github.nava2.aff4.Aff4ImageTestRule
+import com.github.nava2.aff4.meta.rdf.model.HashType
 import com.github.nava2.aff4.meta.rdf.model.MapStream
 import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.model.Aff4StreamOpener
+import com.github.nava2.aff4.streams.Hashing.hashingSink
 import com.github.nava2.aff4.streams.VerifiableStream
 import com.github.nava2.aff4.streams.compression.SnappyModule
 import com.github.nava2.aff4.streams.md5
 import com.github.nava2.aff4.streams.repeatByteString
 import okio.Buffer
+import okio.ByteString.Companion.decodeHex
 import okio.buffer
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -53,37 +56,37 @@ class Aff4MapStreamTest {
   @Test
   fun `open and read map`() {
     createSource().use { mapStreamSource ->
-      assertThat(mapStreamSource).md5(CHUNK_SIZE, "1f11e90ee7959d2da6cb0b6067ba1a05")
-      assertThat(mapStreamSource).md5(CHUNK_SIZE, "bb7df04e1b0a2570657527a7e108ae23")
+      assertThat(mapStreamSource).md5(CHUNK_SIZE, "af05fdbda3150e658948ba8b74f1fe82")
+      assertThat(mapStreamSource).md5(CHUNK_SIZE, 0.repeatByteString(CHUNK_SIZE.toInt()).md5())
     }
   }
 
   @Test
   fun `open and read multiple times has same read`() {
     createSource().use { mapStreamSource ->
-      assertThat(mapStreamSource).md5(CHUNK_SIZE, "1f11e90ee7959d2da6cb0b6067ba1a05")
+      assertThat(mapStreamSource).md5(CHUNK_SIZE, "af05fdbda3150e658948ba8b74f1fe82")
     }
 
     createSource().use { mapStreamSource ->
-      assertThat(mapStreamSource).md5(CHUNK_SIZE, "1f11e90ee7959d2da6cb0b6067ba1a05")
+      assertThat(mapStreamSource).md5(CHUNK_SIZE, "af05fdbda3150e658948ba8b74f1fe82")
     }
   }
 
   @Test
   fun `open and read gt chunk size`() {
     createSource().use { mapStreamSource ->
-      assertThat(mapStreamSource).md5(CHUNK_SIZE * 100, "f047e55361bd52d073df651b7acf4509")
+      assertThat(mapStreamSource).md5(CHUNK_SIZE * 100, "036b865ad3b624bf29ed27e53d3e86ee")
     }
   }
 
   @Test
   fun `creating sources at location effectively seeks the stream`() {
-    createSource(position = CHUNK_SIZE * 12).use { mapStreamSource ->
-      assertThat(mapStreamSource).md5(CHUNK_SIZE, "bb7df04e1b0a2570657527a7e108ae23")
+    createSource(position = CHUNK_SIZE).use { mapStreamSource ->
+      assertThat(mapStreamSource).md5(CHUNK_SIZE, 0.repeatByteString(CHUNK_SIZE.toInt()).md5())
     }
 
     createSource(position = 0).use { mapStreamSource ->
-      assertThat(mapStreamSource).md5(CHUNK_SIZE, "1f11e90ee7959d2da6cb0b6067ba1a05")
+      assertThat(mapStreamSource).md5(CHUNK_SIZE, "af05fdbda3150e658948ba8b74f1fe82")
     }
   }
 
@@ -91,7 +94,12 @@ class Aff4MapStreamTest {
   fun `open and read skip bytes via buffering`() {
     createSource().use { mapStreamSource ->
       mapStreamSource.skip(1024)
-      assertThat(mapStreamSource).md5(CHUNK_SIZE, "018634489419068058d745ea1645705d")
+      assertThat(mapStreamSource).md5(CHUNK_SIZE - 1024, "50615dd05bb46aafc9490a7c48391314")
+    }
+
+    createSource().use { mapStreamSource ->
+      mapStreamSource.skip(1024)
+      assertThat(mapStreamSource).md5(CHUNK_SIZE, 0.repeatByteString(CHUNK_SIZE.toInt()).md5())
     }
   }
 
@@ -109,6 +117,14 @@ class Aff4MapStreamTest {
   @Test
   fun `hashes match`() {
     assertThat(aff4MapStream.verify(aff4Model)).isEqualTo(VerifiableStream.Result.Success)
+
+    createSource().use { source ->
+      val md5Sink = HashType.MD5.hashingSink()
+      val sha1Sink = HashType.SHA1.hashingSink(md5Sink)
+      source.readAll(sha1Sink)
+      assertThat(sha1Sink.hash).isEqualTo("7d3d27f667f95f7ec5b9d32121622c0f4b60b48d".decodeHex())
+      assertThat(md5Sink.hash).isEqualTo("dd6dbda282e27fd0d196abd95f5c3e58".decodeHex())
+    }
   }
 
   @Test

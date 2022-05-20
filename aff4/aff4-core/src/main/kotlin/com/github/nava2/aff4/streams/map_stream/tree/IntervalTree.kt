@@ -93,7 +93,7 @@ class IntervalTree<T : Interval> : Iterable<T> {
    * This method returns the nil Node if the Interval t cannot be found.
    * @param t - the Interval to search for.
    */
-  private fun search(t: T): Node {
+  private fun search(t: Interval): Node {
     return root.search(t)
   }
 
@@ -130,8 +130,8 @@ class IntervalTree<T : Interval> : Iterable<T> {
    * IntervalTree; otherwise (if t is the maximum Interval, or if this
    * IntervalTree does not contain t), an empty Optional.
    */
-  fun successor(t: T): Optional<T> {
-    var n: Node = search(t)
+  fun successor(t: Interval): Optional<T> {
+    var n = search(t)
     if (n.isNil) {
       return Optional.empty()
     }
@@ -139,7 +139,19 @@ class IntervalTree<T : Interval> : Iterable<T> {
     return if (n.isNil) {
       Optional.empty()
     } else {
-      Optional.of(n.interval!!)
+      Optional.ofNullable(n.interval)
+    }
+  }
+
+  /** @see [successor] */
+  fun successor(start: Long, length: Long): Optional<T> = successor(Interval.Simple(start, length))
+
+  fun closestSuccessor(t: Interval): Optional<T> {
+    val n = root.closestSuccessor(t)
+    return if (n.isNil) {
+      Optional.empty()
+    } else {
+      Optional.ofNullable(n.interval)
     }
   }
 
@@ -150,8 +162,8 @@ class IntervalTree<T : Interval> : Iterable<T> {
    * this IntervalTree; otherwise (if t is the minimum Interval, or if this
    * IntervalTree does not contain t), an empty Optional.
    */
-  fun predecessor(t: T): Optional<T> {
-    var n: Node = search(t)
+  fun predecessor(t: Interval): Optional<T> {
+    var n = search(t)
     if (n.isNil) {
       return Optional.empty()
     }
@@ -162,6 +174,9 @@ class IntervalTree<T : Interval> : Iterable<T> {
       Optional.of(n.interval!!)
     }
   }
+
+  /** @see [successor] */
+  fun predecessor(start: Long, length: Long): Optional<T> = predecessor(Interval.Simple(start, length))
 
   /**
    * An Iterator which traverses the tree in ascending order.
@@ -403,12 +418,33 @@ class IntervalTree<T : Interval> : Iterable<T> {
      * @return the Node with the given Interval, if it exists; otherwise,
      * the sentinel Node
      */
-    fun search(t: T): Node {
-      var n: Node = this
+    fun search(t: Interval): Node {
+      var n = this
       while (!n.isNil && t.compareTo(n) != 0) {
         n = if (t.compareTo(n) == -1) n.left else n.right
       }
       return n
+    }
+
+    /**
+     * Searches the subtree rooted at this Node for the given Interval.
+     * @param t - the Interval to search for
+     * @return the Node with the given Interval, if it exists; otherwise,
+     * the sentinel Node
+     */
+    fun closestSuccessor(t: Interval): Node {
+      var n = this
+      var closestSuccessor = if (n.compareTo(t) == 1) n else nil
+      while (!n.isNil && t.compareTo(n) != 0) {
+        val compare = t.compareTo(n)
+        if (compare == -1) {
+          closestSuccessor = if (closestSuccessor == nil) n else minOf(closestSuccessor, n)
+        }
+
+        n = if (compare == -1) n.left else n.right
+      }
+
+      return closestSuccessor
     }
 
     /**
