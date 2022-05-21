@@ -11,8 +11,8 @@ import com.github.nava2.aff4.streams.md5
 import okio.ByteString.Companion.decodeHex
 import okio.ByteString.Companion.encodeUtf8
 import okio.buffer
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.eclipse.rdf4j.model.ValueFactory
 import org.junit.After
 import org.junit.Before
@@ -111,7 +111,7 @@ class Aff4ZipSegmentTest {
   @Test
   fun `having open sources causes close() to throw`() {
     createSource().use { source ->
-      Assertions.assertThatThrownBy { aff4ZipSegment.close() }
+      assertThatThrownBy { aff4ZipSegment.close() }
         .isInstanceOf(IllegalStateException::class.java)
         .hasMessage("Sources were created and not freed: 1")
 
