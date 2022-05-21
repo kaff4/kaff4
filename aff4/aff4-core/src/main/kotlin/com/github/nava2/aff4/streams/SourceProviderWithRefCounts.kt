@@ -36,7 +36,7 @@ internal class SourceProviderWithRefCounts(
     closed = true
   }
 
-  fun interface SourceDelegate {
+  internal interface SourceDelegate {
     fun readAt(readPosition: Long, sink: Buffer, byteCount: Long): Long
   }
 

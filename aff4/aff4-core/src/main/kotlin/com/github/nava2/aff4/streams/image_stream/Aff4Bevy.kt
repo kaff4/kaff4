@@ -20,8 +20,8 @@ internal class Aff4Bevy @AssistedInject constructor(
   @Assisted private val bevyIndexReader: BevyIndexReader,
   @Assisted private val bevyChunkCache: BevyChunkCache,
   @Assisted val bevy: Bevy,
-) : AutoCloseable {
-  private val sourceProviderWithRefCounts = SourceProviderWithRefCounts(::readAt)
+) : AutoCloseable, SourceProviderWithRefCounts.SourceDelegate {
+  private val sourceProviderWithRefCounts = SourceProviderWithRefCounts(this)
 
   private val compressionMethod = imageStreamConfig.compressionMethod
   private val chunkSize = imageStreamConfig.chunkSize
@@ -47,15 +47,7 @@ internal class Aff4Bevy @AssistedInject constructor(
     return sourceProviderWithRefCounts.source(position)
   }
 
-  override fun close() {
-    sourceProviderWithRefCounts.close()
-    bevyIndexReader.close()
-
-    dataSource?.close()
-    lastDataSourcePosition = 0
-  }
-
-  private fun readAt(readPosition: Long, sink: Buffer, byteCount: Long): Long {
+  override fun readAt(readPosition: Long, sink: Buffer, byteCount: Long): Long {
     moveTo(readPosition)
 
     if (position == uncompressedSize) return -1
@@ -76,6 +68,14 @@ internal class Aff4Bevy @AssistedInject constructor(
 
     position += readIntoSink
     return readIntoSink.toLong()
+  }
+
+  override fun close() {
+    sourceProviderWithRefCounts.close()
+    bevyIndexReader.close()
+
+    dataSource?.close()
+    lastDataSourcePosition = 0
   }
 
   private fun moveTo(newPosition: Long) {

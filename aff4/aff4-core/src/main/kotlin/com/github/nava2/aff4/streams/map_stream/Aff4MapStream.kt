@@ -7,6 +7,7 @@ import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.model.Aff4Stream
 import com.github.nava2.aff4.model.Aff4StreamOpener
 import com.github.nava2.aff4.model.VerifiableStream
+import com.github.nava2.aff4.model.VerifiableStream.Result.FailedHash
 import com.github.nava2.aff4.model.rdf.Hash
 import com.github.nava2.aff4.model.rdf.MapStream
 import com.github.nava2.aff4.streams.Hashing.computeLinearHash
@@ -27,8 +28,8 @@ class Aff4MapStream @AssistedInject internal constructor(
   private val mapStreamMapReader: MapStreamMapReader,
   @ForImageRoot private val imageFileSystem: FileSystem,
   @Assisted val mapStream: MapStream,
-) : Aff4Stream, VerifiableStream {
-  private val sourceProviderWithRefCounts = SourceProviderWithRefCounts(::readAt)
+) : Aff4Stream, VerifiableStream, SourceProviderWithRefCounts.SourceDelegate {
+  private val sourceProviderWithRefCounts = SourceProviderWithRefCounts(this)
 
   private val map by lazy { mapStreamMapReader.loadMap(mapStream) }
 
@@ -37,14 +38,14 @@ class Aff4MapStream @AssistedInject internal constructor(
   private var position: Long = 0L
 
   private var currentSource: CurrentSourceInfo? = null
+
+  @Volatile
   private var verificationResult: VerifiableStream.Result? = null
 
   override fun source(position: Long): Source = sourceProviderWithRefCounts.source(position)
 
   override fun close() {
-    currentSource?.close()
-    currentSource = null
-
+    resetCurrentSource()
     sourceProviderWithRefCounts.close()
   }
 
@@ -58,7 +59,7 @@ class Aff4MapStream @AssistedInject internal constructor(
       val doubleChecked = verificationResult
       if (doubleChecked != null) return doubleChecked
 
-      val failedHashes = mutableListOf<Pair<String, Hash>>()
+      val failedHashes = mutableListOf<FailedHash>()
 
       failedHashes += computeMapComponentHashes()
 
@@ -66,16 +67,11 @@ class Aff4MapStream @AssistedInject internal constructor(
         ?.let { aff4StreamOpener.openStream(it) as VerifiableStream }
         ?.verify(aff4Model)
         ?: VerifiableStream.Result.Success
-      failedHashes += imageStreamResult.failureReasons
+      failedHashes += imageStreamResult.failedHashes
 
       // TODO Map block hash
 
-      val result = if (failedHashes.isNotEmpty()) {
-        VerifiableStream.Result.Failed(failedHashes)
-      } else {
-        VerifiableStream.Result.Success
-      }
-
+      val result = VerifiableStream.Result.fromFailedHashes(failedHashes)
       verificationResult = result
       result
     }
@@ -86,7 +82,7 @@ class Aff4MapStream @AssistedInject internal constructor(
   }
 
   // https://github.com/aff4/Standard/blob/master/inprogress/AFF4StandardSpecification-v1.0a.md#map-hashes
-  private fun computeMapComponentHashes(): Sequence<Pair<String, Hash>> = sequence {
+  private fun computeMapComponentHashes(): Sequence<FailedHash> = sequence {
     yieldNotNull(
       maybeValidateHashComponent("idx", mapStream.idxPath, mapStream.mapIdxHash),
     )
@@ -108,7 +104,7 @@ class Aff4MapStream @AssistedInject internal constructor(
         ).map { { imageFileSystem.source(it) } },
       ).use { source ->
         val actualHash = source.computeLinearHash(mapHash.hashType)
-        ("map" to mapHash).takeIf { actualHash != mapHash.value }
+        FailedHash(mapStream, "map", mapHash).takeIf { actualHash != mapHash.value }
       }
 
       yieldNotNull(maybeFailure)
@@ -119,17 +115,17 @@ class Aff4MapStream @AssistedInject internal constructor(
     key: String,
     path: Path,
     hash: Hash?
-  ): Pair<String, Hash>? {
+  ): FailedHash? {
     if (hash == null) return null
 
     val actualHash = imageFileSystem.source(path).use { source ->
       source.computeLinearHash(hash.hashType)
     }
 
-    return (key to hash).takeIf { actualHash != hash.value }
+    return FailedHash(mapStream, key, hash).takeIf { actualHash != hash.value }
   }
 
-  private fun readAt(readPosition: Long, sink: Buffer, byteCount: Long): Long {
+  override fun readAt(readPosition: Long, sink: Buffer, byteCount: Long): Long {
     moveTo(readPosition)
 
     // we are exhausted

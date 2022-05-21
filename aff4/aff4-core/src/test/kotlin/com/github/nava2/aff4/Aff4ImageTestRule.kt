@@ -4,8 +4,6 @@ import com.github.nava2.aff4.meta.rdf.ForImageRoot
 import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.model.Aff4ModelModule
 import com.github.nava2.aff4.model.Aff4StreamOpener
-import com.github.nava2.aff4.streams.image_stream.Aff4ImageStreamModule
-import com.github.nava2.aff4.streams.map_stream.Aff4MapStreamModule
 import com.github.nava2.guice.KAbstractModule
 import com.github.nava2.guice.getInstance
 import com.github.nava2.guice.typeLiteral
@@ -22,11 +20,13 @@ import javax.inject.Named
 import javax.inject.Provider
 import javax.inject.Singleton
 
-class Aff4ImageTestRule(vararg modules: Module, val imageName: String = "Base-Linear.aff4") : GuiceTestRule(
+open class Aff4ImageTestRule(vararg modules: Module, val imageName: String = "Base-Linear.aff4") : GuiceTestRule(
   Aff4CoreModule,
   TestImagesModule,
   *modules,
 ) {
+  open val imageModules: List<Module> = listOf()
+
   override fun setupInjector(injector: Injector, cleanupActions: CleanupActions): Injector {
     val imagesFileSystem = injector.getInstance(Key.get(typeLiteral<FileSystem>(), ForImages::class.java))
     check(imagesFileSystem.exists(imageName.toPath())) {
@@ -35,8 +35,8 @@ class Aff4ImageTestRule(vararg modules: Module, val imageName: String = "Base-Li
 
     val childInjector = injector.createChildInjector(
       Aff4ModelModule,
-      Aff4ImageStreamModule,
-      Aff4MapStreamModule,
+      Aff4BaseStreamModule,
+      *(imageModules.toTypedArray()),
       object : KAbstractModule() {
         override fun configure() {
           bind<Aff4Model>().toProvider(Aff4ModelProvider::class.java).asEagerSingleton()
