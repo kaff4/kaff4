@@ -20,7 +20,7 @@ internal class Aff4ZipSegment @AssistedInject constructor(
   @ForImageRoot private val imageFileSystem: FileSystem,
   @Assisted val zipSegment: ZipSegment,
 ) : Aff4Stream, VerifiableStream, SourceProviderWithRefCounts.SourceDelegate {
-  val size = zipSegment.size
+  override val size = zipSegment.size
 
   private val sourceProviderWithRefCounts = SourceProviderWithRefCounts(this)
 

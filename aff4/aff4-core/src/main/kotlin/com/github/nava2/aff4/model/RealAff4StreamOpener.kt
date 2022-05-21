@@ -7,9 +7,12 @@ import com.github.nava2.aff4.rdf.ScopedConnection
 import com.github.nava2.aff4.rdf.io.RdfModel
 import com.github.nava2.aff4.rdf.io.RdfModelParser
 import com.github.nava2.aff4.streams.Aff4StreamLoaderContext
+import com.github.nava2.aff4.streams.BoundedAff4Stream
 import com.github.nava2.aff4.streams.symbolics.Symbolics
 import com.google.inject.TypeLiteral
 import org.eclipse.rdf4j.model.IRI
+import org.eclipse.rdf4j.model.Statement
+import org.eclipse.rdf4j.model.ValueFactory
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -48,19 +51,54 @@ internal class RealAff4StreamOpener @Inject constructor(
       rdfConnectionScoping.scoped { connection: ScopedConnection, rdfModelParser: RdfModelParser ->
         val namespaces = connection.namespaces
         val statements = connection.queryStatements(subj = key).use { it.toList() }
-        val rdfTypes = statements.asSequence()
-          .filter { it.predicate == namespaces.iriFromTurtle("rdf:type") }
-          .mapNotNull { it.`object` as? IRI }
-          .toSet()
 
-        val modelType = rdfTypes.asSequence().mapNotNull { type -> modelKlassesByRdfType[type] }
-          .first { TypeLiteral.get(it.java) in aff4StreamLoaderContexts }
-
-        val rdfModel = rdfModelParser.parse(modelType, iri, statements)
-        val streamLoader = aff4StreamLoaderContexts.getValue(TypeLiteral.get(modelType.java)).get()
-        streamLoader.load(rdfModel)
+        if (isIriHashDedupe(key)) {
+          val statement = statements.single()
+          loadHashDedupedStream(connection.valueFactory, statement.`object` as IRI)
+        } else {
+          loadStreamFromRdf(namespaces, rdfModelParser, iri, statements)
+        }
       }
     }
+  }
+
+  private fun loadStreamFromRdf(
+    namespaces: NamespacesProvider,
+    rdfModelParser: RdfModelParser,
+    streamIri: IRI,
+    statements: List<Statement>
+  ): Aff4Stream {
+    val rdfTypes = statements.asSequence()
+      .filter { it.predicate == namespaces.iriFromTurtle("rdf:type") }
+      .mapNotNull { it.`object` as? IRI }
+      .toSet()
+
+    val modelType = rdfTypes.asSequence().mapNotNull { type -> modelKlassesByRdfType[type] }
+      .first { TypeLiteral.get(it.java) in aff4StreamLoaderContexts }
+
+    val rdfModel = rdfModelParser.parse(modelType, streamIri, statements)
+    val streamLoader = aff4StreamLoaderContexts.getValue(TypeLiteral.get(modelType.java)).get()
+    return streamLoader.load(rdfModel)
+  }
+
+  private fun isIriHashDedupe(key: IRI): Boolean {
+    val iriValue = key.stringValue()
+    return iriValue.startsWith("aff4:") &&
+      iriValue.endsWith("==") &&
+      iriValue.indexOf(':', startIndex = "aff4:".length) != -1
+  }
+
+  private fun loadHashDedupedStream(
+    valueFactory: ValueFactory,
+    obj: IRI,
+  ): Aff4Stream {
+    val (dataStreamIri, indexNotation) = obj.stringValue().split("[")
+    val (startIndexHex, lengthHex) = indexNotation.substringBeforeLast(']').split(':')
+    val startIndex = startIndexHex.substringAfter("0x").toLong(radix = 16)
+    val length = lengthHex.substringAfter("0x").toLong(radix = 16)
+
+    val dataStream = openStream(valueFactory.createIRI(dataStreamIri))
+    return BoundedAff4Stream(dataStream, startIndex, length)
   }
 
   override fun close() {

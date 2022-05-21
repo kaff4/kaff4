@@ -2,7 +2,9 @@ package com.github.nava2.aff4.streams.map_stream
 
 import com.github.nava2.aff4.interval_tree.IntervalTree
 import com.github.nava2.aff4.meta.rdf.ForImageRoot
+import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.model.rdf.MapStream
+import com.github.nava2.aff4.streams.symbolics.Symbolics
 import okio.FileSystem
 import okio.buffer
 import org.eclipse.rdf4j.model.IRI
@@ -12,7 +14,9 @@ private const val ENTRIES_INSERT_CHUNK_SIZE = 50
 
 internal class MapStreamMapReader @Inject constructor(
   @ForImageRoot private val imageRootFileSystem: FileSystem,
+  private val aff4Model: Aff4Model,
   private val mapIdxFileReader: MapIdxFileReader,
+  private val symbolics: Symbolics,
 ) {
   fun loadMap(mapStream: MapStream): MapStreamMap {
     val index = mapIdxFileReader.loadTargets(mapStream)
@@ -23,14 +27,15 @@ internal class MapStreamMapReader @Inject constructor(
       entryTree.insertAll(entries.map { MapStreamMap.IntervalEntry(it) })
     }
 
-    return MapStreamMap(mapStream.mapGapDefaultStream, mapStream.size, entryTree)
+    return MapStreamMap(mapStream.mapGapDefaultStream ?: symbolics.zero.arn, mapStream.size, entryTree)
   }
 
   private fun streamEntries(
     mapStream: MapStream,
     index: List<IRI>
   ): Sequence<MapStreamEntry> = sequence {
-    val mapMapFile = mapStream.mapPath
+    val mapMapFile = mapStream.mapPath(aff4Model.containerArn)
+    val gapDefaultStream = mapStream.mapGapDefaultStream ?: symbolics.zero.arn
 
     val requiredBytes = MapStreamEntry.SIZE_BYTES.toLong()
 
@@ -46,7 +51,7 @@ internal class MapStreamMapReader @Inject constructor(
         val targetIri = index[targetId]
 
         // We avoid keeping the gap stream in memory as its wasteful
-        if (targetIri == mapStream.mapGapDefaultStream && targetOffset == mappedOffset) continue
+        if (targetIri == gapDefaultStream && targetOffset == mappedOffset) continue
 
         val entry = MapStreamEntry(
           mappedOffset = mappedOffset,

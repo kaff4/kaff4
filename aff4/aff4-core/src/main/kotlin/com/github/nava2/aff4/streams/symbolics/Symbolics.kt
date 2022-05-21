@@ -27,6 +27,8 @@ class Symbolics @Inject constructor(
 
   private val byteMapping = mutableMapOf<Byte, IRI>()
 
+  val zero by lazy { provider(0) }
+
   fun provider(streamIri: IRI): SymbolicSourceProvider {
     val normalized = requireNotNull(normalize(streamIri)) {
       "Requested invalid stream: $streamIri"

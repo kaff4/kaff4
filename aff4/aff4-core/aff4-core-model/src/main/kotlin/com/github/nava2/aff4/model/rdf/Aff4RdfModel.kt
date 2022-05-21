@@ -25,7 +25,7 @@ data class BlockHashes(
 @RdfModel("aff4:ZipVolume")
 data class ZipVolume(
   override val arn: IRI,
-  val contains: List<Resource>,
+  val contains: List<Resource> = listOf(),
   val creationTime: ZonedDateTime,
   @RdfValue("aff4:interface")
   val interfaceType: Resource, // todo this should be an enum?
@@ -35,26 +35,26 @@ data class ZipVolume(
 @RdfModel("aff4:Map")
 data class MapStream(
   override val arn: IRI,
-  val dependentStream: IRI?,
-  val mapGapDefaultStream: IRI,
-  val mapHash: Hash?,
-  val blockMapHash: Hash?,
-  val mapIdxHash: Hash?,
-  val mapPathHash: Hash?,
-  val mapPointHash: Hash?,
+  val dependentStream: IRI? = null,
+  val mapGapDefaultStream: IRI? = null,
+  val mapHash: Hash? = null,
+  val blockMapHash: Hash? = null,
+  val mapIdxHash: Hash? = null,
+  val mapPathHash: Hash? = null,
+  val mapPointHash: Hash? = null,
   val size: Long,
-  val stored: IRI,
-  val target: Resource,
+  val stored: IRI? = null,
+  val target: IRI? = null,
 ) : Aff4RdfModel {
-  val idxPath = arn.toAff4Path(stored) / "idx"
-  val mapPathPath = arn.toAff4Path(stored) / "mapPath"
-  val mapPath = arn.toAff4Path(stored) / "map"
+  fun idxPath(containerIRI: IRI) = arn.toAff4Path(stored ?: containerIRI) / "idx"
+  fun mapPathPath(containerIRI: IRI) = arn.toAff4Path(stored ?: containerIRI) / "mapPath"
+  fun mapPath(containerIRI: IRI) = arn.toAff4Path(stored ?: containerIRI) / "map"
 }
 
 @RdfModel("aff4:Image")
 data class Image(
   override val arn: IRI,
-  val dataStream: Resource,
+  val dataStream: IRI,
   val size: Long,
 ) : Aff4RdfModel
 
@@ -66,14 +66,14 @@ data class ImageStream(
   val size: Long,
   val compressionMethod: CompressionMethod,
   @RdfValue("aff4:hash")
-  val linearHashes: List<Hash>,
+  val linearHashes: List<Hash> = listOf(),
   @RdfValue("aff4:imageStreamHash")
-  val imageStreamHashes: List<Hash>,
+  val imageStreamHashes: List<Hash> = listOf(),
   @RdfValue("aff4:imageStreamIndexHash")
-  val imageStreamIndexHashes: List<Hash>,
-  val stored: IRI,
-  val target: Resource,
-  val version: Int,
+  val imageStreamIndexHashes: List<Hash> = listOf(),
+  val stored: IRI? = null,
+  val target: IRI? = null,
+  val version: Int = 1,
 ) : Aff4RdfModel {
   /** Maximum uncompressed size a bevy stores */
   val bevyMaxSize: Long = chunkSize.toLong() * chunksInSegment
@@ -102,23 +102,23 @@ data class ImageStream(
 @RdfModel("aff4:CaseNotes")
 data class CaseNotes(
   override val arn: IRI,
-  val caseNumber: String,
-  val evidenceNumber: String,
-  val examiner: String,
-  val notes: String,
-  val stored: Resource,
-  val target: Resource,
+  val caseNumber: String? = null,
+  val evidenceNumber: String? = null,
+  val examiner: String? = null,
+  val notes: String? = null,
+  val stored: IRI? = null,
+  val target: IRI? = null,
   val timestamp: ZonedDateTime,
 ) : Aff4RdfModel
 
 @RdfModel("aff4:CaseDetails")
 data class CaseDetails(
   override val arn: IRI,
-  val caseDescription: String,
-  val caseName: String,
-  val examiner: String,
-  val stored: Resource,
-  val target: Resource,
+  val caseDescription: String? = null,
+  val caseName: String? = null,
+  val examiner: String? = null,
+  val stored: IRI? = null,
+  val target: IRI? = null,
 ) : Aff4RdfModel
 
 enum class Aff4ImagingOperation {
@@ -137,8 +137,8 @@ data class TimeStamps(
   val endTime: ZonedDateTime,
   val operation: Aff4ImagingOperation,
   val startTime: ZonedDateTime,
-  val stored: Resource,
-  val target: Resource,
+  val stored: IRI? = null,
+  val target: IRI? = null,
   val timeSource: Aff4TimeSource,
 ) : Aff4RdfModel
 
@@ -159,4 +159,26 @@ data class DiskImage(
   val diskMake: String,
   val diskModel: String,
   val diskSerial: String,
+) : Aff4RdfModel
+
+@RdfModel("aff4:zip_segment")
+data class ZipSegment(
+  override val arn: IRI,
+  val size: Long,
+  @RdfValue("aff4:hash")
+  val linearHashes: List<Hash> = listOf(),
+  val stored: IRI,
+) : Aff4RdfModel {
+  val segmentPath = arn.toAff4Path(stored)
+}
+
+@RdfModel("aff4:FileImage")
+data class FileImage(
+  override val arn: IRI,
+  val originalFileName: Path,
+  val size: Long,
+  val birthTime: ZonedDateTime? = null,
+  val lastAccessed: ZonedDateTime? = null,
+  val lastWritten: ZonedDateTime? = null,
+  val recordChanged: ZonedDateTime? = null,
 ) : Aff4RdfModel

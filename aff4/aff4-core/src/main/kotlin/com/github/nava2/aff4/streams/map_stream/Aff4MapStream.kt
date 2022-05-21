@@ -21,6 +21,7 @@ import okio.FileSystem
 import okio.Path
 import okio.Source
 import okio.buffer
+import org.eclipse.rdf4j.model.IRI
 import java.io.Closeable
 
 class Aff4MapStream @AssistedInject internal constructor(
@@ -33,7 +34,7 @@ class Aff4MapStream @AssistedInject internal constructor(
 
   private val map by lazy { mapStreamMapReader.loadMap(mapStream) }
 
-  val size: Long = mapStream.size
+  override val size: Long = mapStream.size
 
   private var position: Long = 0L
 
@@ -61,7 +62,7 @@ class Aff4MapStream @AssistedInject internal constructor(
 
       val failedHashes = mutableListOf<FailedHash>()
 
-      failedHashes += computeMapComponentHashes()
+      failedHashes += computeMapComponentHashes(aff4Model.containerArn)
 
       val imageStreamResult = mapStream.dependentStream
         ?.let { aff4StreamOpener.openStream(it) as VerifiableStream }
@@ -82,15 +83,15 @@ class Aff4MapStream @AssistedInject internal constructor(
   }
 
   // https://github.com/aff4/Standard/blob/master/inprogress/AFF4StandardSpecification-v1.0a.md#map-hashes
-  private fun computeMapComponentHashes(): Sequence<FailedHash> = sequence {
+  private fun computeMapComponentHashes(containerArn: IRI): Sequence<FailedHash> = sequence {
     yieldNotNull(
-      maybeValidateHashComponent("idx", mapStream.idxPath, mapStream.mapIdxHash),
+      maybeValidateHashComponent("idx", mapStream.idxPath(containerArn), mapStream.mapIdxHash),
     )
     yieldNotNull(
-      maybeValidateHashComponent("mapPoint", mapStream.mapPath, mapStream.mapPointHash),
+      maybeValidateHashComponent("mapPoint", mapStream.mapPath(containerArn), mapStream.mapPointHash),
     )
     yieldNotNull(
-      maybeValidateHashComponent("mapPath", mapStream.mapPathPath, mapStream.mapPathHash),
+      maybeValidateHashComponent("mapPath", mapStream.mapPathPath(containerArn), mapStream.mapPathHash),
     )
 
     val mapHash = mapStream.mapHash
@@ -98,9 +99,9 @@ class Aff4MapStream @AssistedInject internal constructor(
       val maybeFailure = concatLazily(
         // H( map || idx || [mapPath] )
         sources = listOfNotNull(
-          mapStream.mapPath,
-          mapStream.idxPath,
-          mapStream.mapPathPath.takeIf { imageFileSystem.exists(it) },
+          mapStream.mapPath(containerArn),
+          mapStream.idxPath(containerArn),
+          mapStream.mapPathPath(containerArn).takeIf { imageFileSystem.exists(it) },
         ).map { { imageFileSystem.source(it) } },
       ).use { source ->
         val actualHash = source.computeLinearHash(mapHash.hashType)

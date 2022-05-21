@@ -32,23 +32,23 @@ internal data class Bevy(
       val imageArn = imageStream.arn
       val indexId = indexId(index)
       val arn = valueFactory.createIRI("$imageArn/$indexId")
-      val imagePath = imageArn.toAff4Path(imageStream.stored)
+      val imagePath = imageArn.toAff4Path(imageStream.stored ?: aff4Model.containerArn)
       return Bevy(
         arn = arn,
         index = index,
         dataSegment = imagePath / indexId,
         indexSegment = imagePath / "$indexId.index",
-        blockHashes = computeBlockHashPaths(imageStream, arn, indexId)
+        blockHashes = computeBlockHashPaths(imageStream, imagePath, arn, indexId)
       )
     }
 
     private fun computeBlockHashPaths(
       imageStream: ImageStream,
+      imagePath: Path,
       bevyArn: IRI,
       indexId: String
     ): Map<HashType, Path> {
       val blockHashes = imageStream.queryBlockHashes(aff4Model)
-      val imagePath = imageStream.arn.toAff4Path(imageStream.stored)
 
       return blockHashes.associate { hash ->
         val hashTypeExtension = hash.arn.localName.substringAfterLast('.').uppercase()

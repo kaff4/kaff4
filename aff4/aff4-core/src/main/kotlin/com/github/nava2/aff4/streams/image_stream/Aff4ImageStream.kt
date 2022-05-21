@@ -32,7 +32,7 @@ class Aff4ImageStream @AssistedInject internal constructor(
   private val bevyMaxSize = imageStreamConfig.bevyMaxSize
   private val bevyCount = imageStreamConfig.bevyCount
 
-  val size: Long = imageStreamConfig.size
+  override val size: Long = imageStreamConfig.size
 
   private var position: Long = 0L
 

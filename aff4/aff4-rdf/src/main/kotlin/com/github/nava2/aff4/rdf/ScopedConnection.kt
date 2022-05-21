@@ -12,8 +12,11 @@ import org.eclipse.rdf4j.query.QueryLanguage
 import org.eclipse.rdf4j.query.TupleQuery
 import org.eclipse.rdf4j.repository.RepositoryConnection
 import org.eclipse.rdf4j.repository.RepositoryResult
+import org.eclipse.rdf4j.repository.util.RDFInserter
 import org.eclipse.rdf4j.rio.ParserConfig
 import org.eclipse.rdf4j.rio.RDFFormat
+import org.eclipse.rdf4j.rio.helpers.BasicParserSettings
+import org.eclipse.rdf4j.rio.turtle.TurtleParser
 import org.intellij.lang.annotations.Language
 import java.io.InputStream
 
@@ -64,6 +67,30 @@ class ScopedConnection(
   class Mutable internal constructor(
     private val connection: RepositoryConnection,
   ) {
+    fun addTurtle(input: InputStream) {
+      val turtleParser = TurtleParser(connection.valueFactory)
+      turtleParser.set(BasicParserSettings.VERIFY_URI_SYNTAX, false)
+
+      turtleParser.rdfHandler = object : RDFInserter(connection) {
+        override fun startRDF() {
+          connection.begin()
+          super.startRDF()
+        }
+
+        override fun endRDF() {
+          super.endRDF()
+          connection.commit()
+        }
+      }
+
+      try {
+        turtleParser.parse(input)
+      } catch (@Suppress("TooGenericExceptionCaught") ex: Exception) {
+        connection.rollback()
+        throw ex
+      }
+    }
+
     /** @see [RepositoryConnection.add] */
     fun add(input: InputStream, dataFormat: RDFFormat, vararg contexts: Resource) {
       connection.add(input, dataFormat, *contexts)

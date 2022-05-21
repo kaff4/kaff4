@@ -23,7 +23,6 @@ import okio.Path.Companion.toPath
 import okio.openZip
 import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.ValueFactory
-import org.eclipse.rdf4j.rio.RDFFormat
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.reflect.KClass
@@ -176,7 +175,7 @@ internal class RealAff4Model @AssistedInject constructor(
     private fun loadTurtle(rdfConnectionScoping: RdfConnectionScoping, imageFileSystem: FileSystem) {
       rdfConnectionScoping.scoped { scopedConnection: ScopedConnection ->
         imageFileSystem.read("information.turtle".toPath()) {
-          scopedConnection.mutable.add(inputStream(), RDFFormat.TURTLE)
+          inputStream().use { scopedConnection.mutable.addTurtle(it) }
         }
       }
     }

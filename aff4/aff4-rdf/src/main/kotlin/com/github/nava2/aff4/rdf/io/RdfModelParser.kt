@@ -71,6 +71,12 @@ class RdfModelParser @Inject internal constructor(
       parameterMap[subjectParam] = subject
     }
 
+    for (param in constructionInfo.otherParams.keys) {
+      if (param.type.isMarkedNullable) {
+        parameterMap[param] = null
+      }
+    }
+
     buildNonSubjectParamMap(parameterMap, constructionInfo, statements, valueConverterProvider)
 
     return constructionInfo.constructor.callBy(parameterMap)

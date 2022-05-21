@@ -14,6 +14,8 @@ data class SymbolicSourceProvider(
   val pattern: ByteString,
   val chunkBoundary: Int,
 ) : Aff4Stream {
+  override val size: Long = Long.MAX_VALUE
+
   private val patternBuffer: ByteBuffer
 
   init {
