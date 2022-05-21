@@ -21,12 +21,10 @@ import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
 import org.junit.Rule
 import org.junit.Test
-import java.time.ZoneId
-import java.time.ZonedDateTime
 import javax.inject.Inject
 import com.github.nava2.aff4.model.rdf.MapStream as AMap
 
-class Aff4ModelTest {
+class Aff4ModelBaseLinearTest {
   @get:Rule
   val rule: GuiceTestRule = Aff4ImageTestRule(SnappyModule)
 
@@ -45,7 +43,7 @@ class Aff4ModelTest {
     assertThat(aff4Model.container).isEqualTo(
       ZipVolume(
         arn = arn("aff4://685e15cc-d0fb-4dbc-ba47-48117fc77044"),
-        creationTime = parseGMT("2016-12-07T03:40:09.126Z"),
+        creationTime = parseZonedDateTime("2016-12-07T03:40:09.126Z"),
         interfaceType = aff4Type("Volume"),
         stored = "Base-Linear.aff4".toPath(),
         contains = listOf(
@@ -199,7 +197,7 @@ class Aff4ModelTest {
         notes = "This is an appended case note",
         stored = arn("aff4://685e15cc-d0fb-4dbc-ba47-48117fc77044"),
         target = arn("aff4://cf853d0b-5589-4c7c-8358-2ca1572b87eb"),
-        timestamp = parseGMT("2016-12-07T03:40:09.127Z")
+        timestamp = parseZonedDateTime("2016-12-07T03:40:09.127Z")
       ),
       CaseNotes(
         arn = arn("aff4://c21070c3-6d57-4f3b-9276-f83b6bfed5ae"),
@@ -209,7 +207,7 @@ class Aff4ModelTest {
         notes = "This is another appended case note",
         stored = arn("aff4://685e15cc-d0fb-4dbc-ba47-48117fc77044"),
         target = arn("aff4://cf853d0b-5589-4c7c-8358-2ca1572b87eb"),
-        timestamp = parseGMT("2016-12-07T03:40:14.127Z")
+        timestamp = parseZonedDateTime("2016-12-07T03:40:14.127Z")
       ),
     )
 
@@ -227,17 +225,15 @@ class Aff4ModelTest {
     assertThat(aff4Model.query(TimeStamps::class)).containsExactly(
       TimeStamps(
         arn = arn("aff4://db69295f-70c3-4e82-9530-a39507f1447b"),
-        endTime = parseGMT("2016-12-07T03:40:09.28Z"),
+        endTime = parseZonedDateTime("2016-12-07T03:40:09.28Z"),
         operation = Aff4ImagingOperation.CAPTURE,
-        startTime = parseGMT("2016-12-07T03:40:09.131Z"),
+        startTime = parseZonedDateTime("2016-12-07T03:40:09.131Z"),
         stored = arn("aff4://685e15cc-d0fb-4dbc-ba47-48117fc77044"),
         target = arn("aff4://cf853d0b-5589-4c7c-8358-2ca1572b87eb"),
         timeSource = Aff4TimeSource.SINK,
       ),
     )
   }
-
-  private fun parseGMT(parse: String) = ZonedDateTime.parse(parse).withZoneSameLocal(ZoneId.of("GMT"))
 
   private fun arn(namespace: String, localName: String) = valueFactory.createIRI(namespace, localName)
   private fun arn(iri: String) = valueFactory.createIRI(iri)

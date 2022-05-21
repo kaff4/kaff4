@@ -106,7 +106,7 @@ class Aff4MapStreamTest {
   fun `reading past end truncates`() {
     createSource(mapStream.size - 2048).use { mapStreamSource ->
       Buffer().use { readSink ->
-        assertThat(mapStreamSource.readAll(readSink)).isEqualTo(2048)
+        assertThat(mapStreamSource.read(readSink, 4096)).isEqualTo(2048)
         assertThat(readSink.size).isEqualTo(2048)
         assertThat(readSink.md5()).isEqualTo(0.repeatByteString(2048).md5())
       }

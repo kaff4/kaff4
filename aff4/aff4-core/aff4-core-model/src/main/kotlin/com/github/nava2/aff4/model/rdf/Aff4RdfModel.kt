@@ -43,12 +43,12 @@ data class MapStream(
   val mapPathHash: Hash?,
   val mapPointHash: Hash?,
   val size: Long,
-  val stored: Resource,
+  val stored: IRI,
   val target: Resource,
 ) : Aff4RdfModel {
-  val idxPath = arn.toAff4Path() / "idx"
-  val mapPathPath = arn.toAff4Path() / "mapPath"
-  val mapPath = arn.toAff4Path() / "map"
+  val idxPath = arn.toAff4Path(stored) / "idx"
+  val mapPathPath = arn.toAff4Path(stored) / "mapPath"
+  val mapPath = arn.toAff4Path(stored) / "map"
 }
 
 @RdfModel("aff4:Image")
@@ -71,7 +71,7 @@ data class ImageStream(
   val imageStreamHashes: List<Hash>,
   @RdfValue("aff4:imageStreamIndexHash")
   val imageStreamIndexHashes: List<Hash>,
-  val stored: Resource,
+  val stored: IRI,
   val target: Resource,
   val version: Int,
 ) : Aff4RdfModel {
