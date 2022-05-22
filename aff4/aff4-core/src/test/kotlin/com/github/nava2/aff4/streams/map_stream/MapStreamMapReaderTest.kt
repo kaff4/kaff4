@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 class MapStreamMapReaderTest {
   @get:Rule
-  val rule: Aff4ImageTestRule = Aff4ImageTestRule()
+  val rule: Aff4ImageTestRule = Aff4ImageTestRule("Base-Linear.aff4")
 
   @Inject
   private lateinit var aff4Model: Aff4Model

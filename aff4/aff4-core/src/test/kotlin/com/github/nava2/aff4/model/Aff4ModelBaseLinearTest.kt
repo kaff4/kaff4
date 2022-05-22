@@ -26,7 +26,7 @@ import com.github.nava2.aff4.model.rdf.MapStream as AMap
 
 class Aff4ModelBaseLinearTest {
   @get:Rule
-  val rule: GuiceTestRule = Aff4ImageTestRule(SnappyModule)
+  val rule: GuiceTestRule = Aff4ImageTestRule("Base-Linear.aff4", SnappyModule)
 
   @Inject
   private lateinit var valueFactory: ValueFactory

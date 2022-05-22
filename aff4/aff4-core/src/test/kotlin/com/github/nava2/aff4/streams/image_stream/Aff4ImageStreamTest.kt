@@ -21,7 +21,7 @@ import javax.inject.Inject
 
 class Aff4ImageStreamTest {
   @get:Rule
-  val rule: Aff4ImageTestRule = Aff4ImageTestRule(SnappyModule)
+  val rule: Aff4ImageTestRule = Aff4ImageTestRule("Base-Linear.aff4", SnappyModule)
 
   @Inject
   private lateinit var aff4ImageStreamLoader: Aff4ImageStream.Loader

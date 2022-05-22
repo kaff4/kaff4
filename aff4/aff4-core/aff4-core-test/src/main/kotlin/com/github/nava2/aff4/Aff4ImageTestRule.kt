@@ -20,10 +20,11 @@ import javax.inject.Named
 import javax.inject.Provider
 import javax.inject.Singleton
 
-open class Aff4ImageTestRule(vararg modules: Module, val imageName: String = "Base-Linear.aff4") : GuiceTestRule(
-  Aff4CoreModule,
-  TestImagesModule,
-  *modules,
+open class Aff4ImageTestRule(val imageName: String, vararg modules: Module) : GuiceTestRule(
+  providedModules = listOf(
+    Aff4CoreModule,
+    TestImagesModule,
+  ) + modules,
 ) {
   open val imageModules: List<Module> = listOf()
 
@@ -33,23 +34,23 @@ open class Aff4ImageTestRule(vararg modules: Module, val imageName: String = "Ba
       "Image path does not exist: ${imagesFileSystem.canonicalize(imageName.toPath())}"
     }
 
-    val childInjector = injector.createChildInjector(
-      Aff4ModelModule,
-      Aff4BaseStreamModule,
-      *(imageModules.toTypedArray()),
-      object : KAbstractModule() {
-        override fun configure() {
-          bind<Aff4Model>().toProvider(Aff4ModelProvider::class.java).asEagerSingleton()
+    val childModules =
+      listOf(Aff4ModelModule, Aff4BaseStreamModule) +
+        imageModules +
+        object : KAbstractModule() {
+          override fun configure() {
+            bind<Aff4Model>().toProvider(Aff4ModelProvider::class.java).asEagerSingleton()
 
-          bind<String>().annotatedWith(Names.named("test-image-name")).toInstance(imageName)
+            bind<String>().annotatedWith(Names.named("test-image-name")).toInstance(imageName)
+          }
+
+          @Provides
+          @Singleton
+          @ForImageRoot
+          fun providesImageRootFileSystem(aff4Model: Aff4Model) = aff4Model.imageRootFileSystem
         }
 
-        @Provides
-        @Singleton
-        @ForImageRoot
-        fun providesImageRootFileSystem(aff4Model: Aff4Model) = aff4Model.imageRootFileSystem
-      },
-    )
+    val childInjector = injector.createChildInjector(childModules)
 
     cleanupActions.register { childInjector.getInstance<Aff4Model>().close() }
     cleanupActions.register { childInjector.getInstance<Aff4StreamOpener>().close() }

@@ -9,12 +9,13 @@ import org.junit.rules.MethodRule
 import org.junit.runners.model.FrameworkMethod
 import org.junit.runners.model.Statement
 
-open class GuiceTestRule(vararg modules: Module) : MethodRule {
+open class GuiceTestRule(providedModules: Collection<Module>) : MethodRule {
+
   private val baseModules = listOf(
     TestConfigProviderModule,
   )
 
-  private val modules = baseModules + modules.toList()
+  private val modules = baseModules + providedModules
 
   protected open fun setupInjector(
     injector: Injector,
@@ -49,4 +50,6 @@ open class GuiceTestRule(vararg modules: Module) : MethodRule {
       }
     }
   }
+
+  constructor(vararg modules: Module) : this(modules.toList())
 }

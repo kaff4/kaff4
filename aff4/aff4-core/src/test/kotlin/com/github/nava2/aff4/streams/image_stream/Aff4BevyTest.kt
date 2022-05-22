@@ -18,7 +18,7 @@ import javax.inject.Inject
 
 class Aff4BevyTest {
   @get:Rule
-  val rule: Aff4ImageTestRule = Aff4ImageTestRule(SnappyModule)
+  val rule: Aff4ImageTestRule = Aff4ImageTestRule("Base-Linear.aff4", SnappyModule)
 
   @Inject
   private lateinit var valueFactory: ValueFactory

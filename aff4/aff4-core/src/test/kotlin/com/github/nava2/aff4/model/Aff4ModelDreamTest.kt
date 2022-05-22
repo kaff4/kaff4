@@ -17,7 +17,7 @@ import javax.inject.Inject
 
 class Aff4ModelDreamTest {
   @get:Rule
-  val rule: GuiceTestRule = Aff4ImageTestRule(imageName = "dream.aff4")
+  val rule: GuiceTestRule = Aff4ImageTestRule("dream.aff4")
 
   @Inject
   private lateinit var valueFactory: ValueFactory

@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 class SymbolicsTest {
   @get:Rule
-  val rule: Aff4ImageTestRule = Aff4ImageTestRule()
+  val rule: Aff4ImageTestRule = Aff4ImageTestRule("Base-Linear.aff4")
 
   @Inject
   private lateinit var symbolics: Symbolics

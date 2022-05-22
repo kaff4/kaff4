@@ -26,7 +26,7 @@ private const val CHUNK_SIZE: Long = 32 * 1024
 
 class Aff4MapStreamTest {
   @get:Rule
-  val rule: Aff4ImageTestRule = Aff4ImageTestRule(SnappyModule)
+  val rule: Aff4ImageTestRule = Aff4ImageTestRule("Base-Linear.aff4", SnappyModule)
 
   @Inject
   private lateinit var valueFactory: ValueFactory

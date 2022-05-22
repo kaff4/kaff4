@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 class Aff4ModelNestedLogicalImagesTest {
   @get:Rule
-  val rule: GuiceTestRule = Aff4LogicalImageTestRule(SnappyModule, imageName = "nested_logical_images.aff4")
+  val rule: GuiceTestRule = Aff4LogicalImageTestRule("nested_logical_images.aff4", SnappyModule)
 
   @Inject
   private lateinit var valueFactory: ValueFactory

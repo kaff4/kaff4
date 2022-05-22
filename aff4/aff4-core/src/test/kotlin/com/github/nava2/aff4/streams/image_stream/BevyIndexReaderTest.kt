@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 class BevyIndexReaderTest {
   @get:Rule
-  val rule = Aff4ImageTestRule(SnappyModule)
+  val rule = Aff4ImageTestRule("Base-Linear.aff4", SnappyModule)
 
   @Inject
   private lateinit var valueFactory: ValueFactory
