@@ -1,6 +1,5 @@
-package com.github.nava2.aff4.streams.image_stream
+package com.github.nava2.aff4.io
 
-import com.github.nava2.aff4.io.relativeTo
 import com.google.common.collect.HashBiMap
 import okio.Buffer
 import okio.ByteString.Companion.encodeUtf8
@@ -10,13 +9,16 @@ import okio.Path
 import okio.Path.Companion.toPath
 
 class Sha256FileSystemFactory {
-  fun create(baseDirectory: Path): FileSystem {
+  fun create(baseDirectory: Path): MappedFileSystem {
     val writingFileSystem = FileSystem.SYSTEM.relativeTo(baseDirectory)
     return MappedFileSystem(writingFileSystem)
   }
 
-  private class MappedFileSystem(delegate: FileSystem) : ForwardingFileSystem(delegate) {
+  class MappedFileSystem internal constructor(delegate: FileSystem) : ForwardingFileSystem(delegate) {
     private val mappings = HashBiMap.create<Path, Path>()
+
+    val mappingsView: HashBiMap<Path, Path>
+      get() = HashBiMap.create(mappings)
 
     override fun onPathParameter(path: Path, functionName: String, parameterName: String): Path {
       val normalized = path.normalized()

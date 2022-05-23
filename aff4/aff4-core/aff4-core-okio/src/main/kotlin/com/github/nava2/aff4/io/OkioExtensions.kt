@@ -5,7 +5,6 @@ import okio.BufferedSource
 import okio.ByteString
 import okio.Source
 import okio.Timeout
-import java.nio.ByteBuffer
 
 fun BufferedSource.lineSequence(): Sequence<String> = sequence {
   var targetLine = readUtf8Line()
@@ -15,33 +14,7 @@ fun BufferedSource.lineSequence(): Sequence<String> = sequence {
   }
 }
 
-internal fun ByteBuffer.source(timeout: Timeout = Timeout.NONE): Source {
-  return ByteBufferSource(this.asReadOnlyBuffer(), timeout)
-}
-
-private class ByteBufferSource(
-  private val buffer: ByteBuffer,
-  private val timeout: Timeout,
-) : Source {
-  override fun read(sink: Buffer, byteCount: Long): Long {
-    if (!buffer.hasRemaining()) return -1
-
-    val maxAvailableBytes = byteCount.toInt().coerceAtMost(buffer.remaining())
-    val slice = buffer.slice(buffer.position(), maxAvailableBytes)
-    val bytesRead = sink.write(slice)
-
-    buffer.position(buffer.position() + bytesRead)
-
-    return bytesRead.toLong()
-  }
-
-  override fun timeout(): Timeout = timeout
-  override fun close() = Unit
-
-  override fun toString(): String = "byteBuffer($buffer)"
-}
-
-internal fun ByteString.source(timeout: Timeout = Timeout.NONE): Source {
+fun ByteString.source(timeout: Timeout = Timeout.NONE): Source {
   return ByteStringSource(this, timeout)
 }
 
@@ -61,7 +34,7 @@ private class ByteStringSource(
   override fun toString(): String = "byteString($byteString)"
 }
 
-internal fun Source.fixedLength(length: Long): Source {
+fun Source.fixedLength(length: Long): Source {
   return FixedLength(this, length)
 }
 
@@ -92,7 +65,7 @@ private class FixedLength(
   override fun toString(): String = "fixedLength($delegate, $length)"
 }
 
-internal fun concatLazily(sources: List<() -> Source>, timeout: Timeout = Timeout.NONE): Source {
+fun concatLazily(sources: List<() -> Source>, timeout: Timeout = Timeout.NONE): Source {
   return LazyConcatSource(sources, timeout)
 }
 
@@ -104,6 +77,8 @@ private class LazyConcatSource(
   private var current: Source = iter.next().invoke()
 
   override fun read(sink: Buffer, byteCount: Long): Long {
+    timeout.throwIfReached()
+
     val bytesRead = current.read(sink, byteCount)
 
     return when {

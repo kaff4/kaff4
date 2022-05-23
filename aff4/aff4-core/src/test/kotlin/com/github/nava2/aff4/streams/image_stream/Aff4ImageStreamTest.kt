@@ -1,12 +1,12 @@
 package com.github.nava2.aff4.streams.image_stream
 
 import com.github.nava2.aff4.Aff4ImageTestRule
+import com.github.nava2.aff4.io.md5
 import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.model.VerifiableStream
 import com.github.nava2.aff4.model.rdf.Hash
 import com.github.nava2.aff4.model.rdf.ImageStream
 import com.github.nava2.aff4.streams.compression.SnappyModule
-import com.github.nava2.aff4.streams.md5
 import okio.Buffer
 import okio.ByteString.Companion.decodeHex
 import okio.buffer

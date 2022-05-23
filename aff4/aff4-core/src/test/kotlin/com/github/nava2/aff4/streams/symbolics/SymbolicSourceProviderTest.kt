@@ -1,7 +1,7 @@
 package com.github.nava2.aff4.streams.symbolics
 
 import com.github.nava2.aff4.Aff4ImageTestRule
-import com.github.nava2.aff4.streams.repeatByteString
+import com.github.nava2.aff4.io.repeatByteString
 import okio.buffer
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory

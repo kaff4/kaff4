@@ -10,8 +10,8 @@ import com.github.nava2.aff4.model.VerifiableStream
 import com.github.nava2.aff4.model.VerifiableStream.Result.FailedHash
 import com.github.nava2.aff4.model.rdf.Hash
 import com.github.nava2.aff4.model.rdf.MapStream
-import com.github.nava2.aff4.streams.Hashing.computeLinearHash
 import com.github.nava2.aff4.streams.SourceProviderWithRefCounts
+import com.github.nava2.aff4.streams.computeLinearHash
 import com.github.nava2.aff4.yieldNotNull
 import com.google.inject.assistedinject.Assisted
 import com.google.inject.assistedinject.AssistedInject

@@ -1,23 +1,11 @@
-package com.github.nava2.aff4.streams
+package com.github.nava2.aff4.io
 
 import okio.Buffer
 import okio.ByteString
 import okio.ByteString.Companion.decodeHex
-import okio.ByteString.Companion.toByteString
 import okio.Source
 import org.assertj.core.api.AbstractObjectAssert
 import org.assertj.core.api.Assertions.assertThat
-
-fun Byte.repeatByteString(length: Int): ByteString {
-  val bytes = ByteArray(length) { this }
-  return bytes.toByteString()
-}
-
-fun Int.repeatByteString(length: Int): ByteString {
-  check(this.toUByte() in UByte.MIN_VALUE..UByte.MAX_VALUE)
-
-  return toByte().repeatByteString(length)
-}
 
 fun <SELF : AbstractObjectAssert<SELF, T>, T : Source> SELF.md5(byteCount: Long, md5: String): SELF {
   return md5(byteCount, md5.decodeHex())

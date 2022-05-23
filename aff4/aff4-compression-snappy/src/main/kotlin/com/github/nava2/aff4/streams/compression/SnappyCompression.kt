@@ -12,7 +12,7 @@ import javax.inject.Singleton
 class SnappyCompression @Inject constructor(
   valueFactory: ValueFactory,
 ) : CompressionMethod {
-  override val method: IRI = valueFactory.createIRI("http://code.google.com/p/snappy/")
+  override val method: IRI? = valueFactory.createIRI("http://code.google.com/p/snappy/")
 
   override fun compress(uncompressed: ByteBuffer, compressed: ByteBuffer): Int {
     return Snappy.compress(uncompressed, compressed)

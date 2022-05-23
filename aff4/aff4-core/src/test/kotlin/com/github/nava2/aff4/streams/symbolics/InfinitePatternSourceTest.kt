@@ -1,6 +1,6 @@
 package com.github.nava2.aff4.streams.symbolics
 
-import com.github.nava2.aff4.streams.repeatByteString
+import com.github.nava2.aff4.io.repeatByteString
 import okio.ByteString
 import okio.ByteString.Companion.encode
 import okio.buffer

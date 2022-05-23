@@ -4,7 +4,7 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.nava2.aff4.io.source
 import com.github.nava2.aff4.meta.rdf.ForImageRoot
 import com.github.nava2.aff4.model.rdf.HashType
-import com.github.nava2.aff4.streams.Hashing.computeLinearHashes
+import com.github.nava2.aff4.streams.computeLinearHashes
 import okio.ByteString
 import okio.FileSystem
 import org.eclipse.rdf4j.model.IRI
@@ -28,7 +28,7 @@ internal class ImageBlockHashVerification @Inject constructor(
         val byHashType = bevy.blockHashes.mapValues { (hashType, file) ->
           fileSystem.read(file) {
             skip(chunkIndex * hashType.byteCount)
-            readByteString(hashType.byteCount)
+            readByteString(hashType.byteCount.toLong())
           }
         }
         if (byHashType.isEmpty()) {

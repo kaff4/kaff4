@@ -1,8 +1,8 @@
 package com.github.nava2.aff4.model
 
 import com.github.nava2.aff4.Aff4LogicalImageTestRule
+import com.github.nava2.aff4.io.md5
 import com.github.nava2.aff4.streams.compression.SnappyModule
-import com.github.nava2.aff4.streams.md5
 import com.github.nava2.test.GuiceTestRule
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory

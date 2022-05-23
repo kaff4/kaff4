@@ -1,5 +1,6 @@
-package com.github.nava2.aff4.streams.image_stream
+package com.github.nava2.aff4.streams
 
+import com.github.nava2.aff4.io.Sha256FileSystemFactory
 import com.github.nava2.guice.KAbstractModule
 import com.google.inject.Provides
 import okio.FileSystem

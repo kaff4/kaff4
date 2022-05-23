@@ -21,7 +21,7 @@ class BevyIndexReaderTest {
   private lateinit var valueFactory: ValueFactory
 
   @Inject
-  private lateinit var bevyFactory: Bevy.Factory
+  private lateinit var bevyOpener: Bevy.Opener
 
   @Inject
   private lateinit var bevyIndexReaderFactory: BevyIndexReader.Factory
@@ -43,7 +43,7 @@ class BevyIndexReaderTest {
 
   @Test
   fun `open and read index values`() {
-    val bevy = bevyFactory.create(imageStreamConfig, 0)
+    val bevy = bevyOpener.open(imageStreamConfig, 0)
     bevyIndexReaderFactory.create(imageStreamConfig, bevy).use { bevyIndexReader ->
       val firstIndex = IndexValue(0L, 1974)
 
@@ -66,7 +66,7 @@ class BevyIndexReaderTest {
 
   @Test
   fun `random read index locations`() {
-    val bevy = bevyFactory.create(imageStreamConfig, 0)
+    val bevy = bevyOpener.open(imageStreamConfig, 0)
     bevyIndexReaderFactory.create(imageStreamConfig, bevy).use { bevyIndexReader ->
       val firstIndex = IndexValue(0L, 1974)
 
@@ -86,7 +86,7 @@ class BevyIndexReaderTest {
 
   @Test
   fun `invalid positions throw`() {
-    val bevy = bevyFactory.create(imageStreamConfig, 0)
+    val bevy = bevyOpener.open(imageStreamConfig, 0)
     bevyIndexReaderFactory.create(imageStreamConfig, bevy).use { bevyIndexReader ->
       assertThatThrownBy { bevyIndexReader.readIndexContaining(-1) }
         .isInstanceOf(IllegalArgumentException::class.java)

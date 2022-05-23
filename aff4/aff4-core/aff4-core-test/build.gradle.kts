@@ -2,8 +2,9 @@ dependencies {
   api(project(":core:core-guice"))
   api(project(":core:core-test"))
 
-  implementation(Dependencies.GUICE)
-  implementation(Dependencies.OKIO)
+  api(Dependencies.ASSERTJ_CORE)
+  api(Dependencies.GUICE)
+  api(Dependencies.OKIO)
 
   implementation(project(":aff4:aff4-core"))
   implementation(project(":aff4:aff4-core:aff4-core-model"))

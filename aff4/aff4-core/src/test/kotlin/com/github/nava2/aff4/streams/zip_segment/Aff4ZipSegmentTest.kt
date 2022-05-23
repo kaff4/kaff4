@@ -1,13 +1,13 @@
 package com.github.nava2.aff4.streams.zip_segment
 
 import com.github.nava2.aff4.Aff4LogicalImageTestRule
+import com.github.nava2.aff4.io.md5
 import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.model.Aff4StreamOpener
 import com.github.nava2.aff4.model.VerifiableStream
 import com.github.nava2.aff4.model.rdf.HashType
 import com.github.nava2.aff4.model.rdf.ZipSegment
-import com.github.nava2.aff4.streams.Hashing.hashingSink
-import com.github.nava2.aff4.streams.md5
+import com.github.nava2.aff4.streams.hashingSink
 import okio.ByteString.Companion.decodeHex
 import okio.ByteString.Companion.encodeUtf8
 import okio.buffer

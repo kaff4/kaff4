@@ -8,46 +8,43 @@ import okio.Source
 import okio.blackholeSink
 import okio.buffer
 
-internal object Hashing {
+fun Source.computeLinearHashes(linearHashTypes: Collection<HashType>): Map<HashType, ByteString> {
+  var sinkMap: Map<HashType, HashingSink>? = null
 
-  fun Source.computeLinearHashes(linearHashTypes: Collection<HashType>): Map<HashType, ByteString> {
-    var sinkMap: Map<HashType, HashingSink>? = null
+  try {
+    var wrappedSink = blackholeSink()
 
-    try {
-      var wrappedSink = blackholeSink()
+    sinkMap = linearHashTypes.associateWith { hash ->
+      // turtles all the way down
+      val hashingSink = hash.hashingSink(wrappedSink)
+      wrappedSink = hashingSink
+      hashingSink
+    }
 
-      sinkMap = linearHashTypes.associateWith { hash ->
-        // turtles all the way down
-        val hashingSink = hash.hashingSink(wrappedSink)
-        wrappedSink = hashingSink
-        hashingSink
-      }
+    wrappedSink.buffer().use { buffer ->
+      buffer.writeAll(this)
+    }
 
-      wrappedSink.buffer().use { buffer ->
-        buffer.writeAll(this)
-      }
+    wrappedSink.close()
 
-      wrappedSink.close()
-
-      return sinkMap.mapValues { (_, sink) -> sink.hash }
-    } finally {
-      for (s in sinkMap?.values ?: listOf()) {
-        s.close()
-      }
+    return sinkMap.mapValues { (_, sink) -> sink.hash }
+  } finally {
+    for (s in sinkMap?.values ?: listOf()) {
+      s.close()
     }
   }
+}
 
-  fun Source.computeLinearHash(linearHashType: HashType): ByteString {
-    val linearHashes = computeLinearHashes(listOf(linearHashType))
-    return linearHashes.getValue(linearHashType)
-  }
+fun Source.computeLinearHash(linearHashType: HashType): ByteString {
+  val linearHashes = computeLinearHashes(listOf(linearHashType))
+  return linearHashes.getValue(linearHashType)
+}
 
-  fun HashType.hashingSink(delegateSink: Sink = blackholeSink()): HashingSink {
-    return when (this) {
-      HashType.SHA1 -> HashingSink.sha1(delegateSink)
-      HashType.MD5 -> HashingSink.md5(delegateSink)
-      HashType.SHA256 -> HashingSink.sha256(delegateSink)
-      HashType.SHA512 -> HashingSink.sha512(delegateSink)
-    }
+fun HashType.hashingSink(delegateSink: Sink = blackholeSink()): HashingSink {
+  return when (this) {
+    HashType.SHA1 -> HashingSink.sha1(delegateSink)
+    HashType.MD5 -> HashingSink.md5(delegateSink)
+    HashType.SHA256 -> HashingSink.sha256(delegateSink)
+    HashType.SHA512 -> HashingSink.sha512(delegateSink)
   }
 }

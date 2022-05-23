@@ -4,7 +4,7 @@ import okio.ByteString
 import okio.ByteString.Companion.decodeHex
 import org.eclipse.rdf4j.model.Literal
 
-enum class HashType(val byteCount: Long) {
+enum class HashType(val byteCount: Int) {
   SHA1(byteCount = 20),
   SHA256(byteCount = 32),
   SHA512(byteCount = 64),
@@ -17,6 +17,13 @@ enum class HashType(val byteCount: Long) {
     SHA512 -> Hash.Sha512(hash)
     MD5 -> Hash.Md5(hash)
   }
+}
+
+fun ByteString.hash(hashType: HashType): ByteString = when (hashType) {
+  HashType.SHA1 -> sha1()
+  HashType.SHA256 -> sha256()
+  HashType.SHA512 -> sha512()
+  HashType.MD5 -> md5()
 }
 
 sealed class Hash(val hashType: HashType) {
