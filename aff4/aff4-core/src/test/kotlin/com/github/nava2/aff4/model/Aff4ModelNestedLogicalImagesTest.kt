@@ -2,6 +2,7 @@ package com.github.nava2.aff4.model
 
 import com.github.nava2.aff4.Aff4LogicalImageTestRule
 import com.github.nava2.aff4.io.md5
+import com.github.nava2.aff4.io.use
 import com.github.nava2.aff4.streams.compression.SnappyModule
 import com.github.nava2.test.GuiceTestRule
 import org.assertj.core.api.Assertions.assertThat
@@ -34,35 +35,32 @@ class Aff4ModelNestedLogicalImagesTest {
     val unicodeTxt = arn(
       "aff4://2872342b-8aff-4747-9325-6cd5f50bcff5/test_images.zip/test_images/AFF4-L/ネコ.txt"
     )
-    aff4StreamOpener.openStream(unicodeTxt).use { stream ->
-      stream.source(0).use {
-        assertThat(it).md5(4, "d3b07384d113edec49eaa6238ad5ff00")
-      }
-
-      (stream as VerifiableStream).verify(aff4Model)
+    val unicodeTxtStreamProvider = aff4StreamOpener.openStream(unicodeTxt)
+    unicodeTxtStreamProvider.use {
+      assertThat(it).md5(4, "d3b07384d113edec49eaa6238ad5ff00")
     }
+
+    (unicodeTxtStreamProvider as VerifiableStreamProvider).verify(aff4Model)
 
     val dreamTxtIri = arn(
       "aff4://2872342b-8aff-4747-9325-6cd5f50bcff5/test_images.zip/test_images/AFF4-L/dream.txt"
     )
-    aff4StreamOpener.openStream(dreamTxtIri).use { mapStream ->
-      mapStream.source(0).use {
-        assertThat(it).md5(8688, "75d83773f8d431a3ca91bfb8859e486d")
-      }
-
-      (mapStream as VerifiableStream).verify(aff4Model)
+    val dreamTxtStreamProvider = aff4StreamOpener.openStream(dreamTxtIri)
+    dreamTxtStreamProvider.use {
+      assertThat(it).md5(8688, "75d83773f8d431a3ca91bfb8859e486d")
     }
+
+    (dreamTxtStreamProvider as VerifiableStreamProvider).verify(aff4Model)
 
     val dreamAff4Iri = arn(
       "aff4://2872342b-8aff-4747-9325-6cd5f50bcff5/test_images.zip/test_images/AFF4-L/dream.aff4"
     )
-    aff4StreamOpener.openStream(dreamAff4Iri).use { mapStream ->
-      mapStream.source(0).use {
-        assertThat(it).md5(4542, "082d02390c1c4de5af617afa4f467258")
-      }
-
-      (mapStream as VerifiableStream).verify(aff4Model)
+    val dreamAff4StreamProvider = aff4StreamOpener.openStream(dreamAff4Iri)
+    dreamAff4StreamProvider.use {
+      assertThat(it).md5(4542, "082d02390c1c4de5af617afa4f467258")
     }
+
+    (dreamAff4StreamProvider as VerifiableStreamProvider).verify(aff4Model)
   }
 
   private fun arn(iri: String) = valueFactory.createIRI(iri)

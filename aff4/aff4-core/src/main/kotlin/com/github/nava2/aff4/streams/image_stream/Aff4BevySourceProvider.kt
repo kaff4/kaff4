@@ -1,5 +1,6 @@
 package com.github.nava2.aff4.streams.image_stream
 
+import com.github.nava2.aff4.io.SourceProvider
 import com.github.nava2.aff4.io.buffer
 import com.github.nava2.aff4.io.sourceProvider
 import com.github.nava2.aff4.meta.rdf.ForImageRoot
@@ -11,16 +12,17 @@ import okio.Buffer
 import okio.BufferedSource
 import okio.FileSystem
 import okio.Source
+import okio.Timeout
 import java.nio.ByteBuffer
 
-internal class Aff4Bevy @AssistedInject constructor(
+internal class Aff4BevySourceProvider @AssistedInject constructor(
   private val imageBlockHashVerification: ImageBlockHashVerification,
   @ForImageRoot fileSystem: FileSystem,
   @Assisted imageStreamConfig: ImageStream,
   @Assisted private val bevyIndexReader: BevyIndexReader,
   @Assisted private val bevyChunkCache: BevyChunkCache,
   @Assisted val bevy: Bevy,
-) : AutoCloseable, SourceProviderWithRefCounts.SourceDelegate {
+) : SourceProvider<Source>, AutoCloseable, SourceProviderWithRefCounts.SourceDelegate {
   private val sourceProviderWithRefCounts = SourceProviderWithRefCounts(this)
 
   private val compressionMethod = imageStreamConfig.compressionMethod
@@ -43,11 +45,16 @@ internal class Aff4Bevy @AssistedInject constructor(
   private val dataSourceProvider = fileSystem.sourceProvider(bevy.dataSegment).buffer()
   private var dataSource: BufferedSource? = null
 
-  fun source(position: Long): Source {
-    return sourceProviderWithRefCounts.source(position)
+  override fun source(position: Long, timeout: Timeout): Source {
+    return sourceProviderWithRefCounts.source(position, timeout)
   }
 
-  override fun readAt(readPosition: Long, sink: Buffer, byteCount: Long): Long {
+  override fun readAt(readPosition: Long, timeout: Timeout, sink: Buffer, byteCount: Long): Long {
+    require(readPosition >= 0L)
+    require(byteCount >= 0L)
+
+    timeout.throwIfReached()
+
     moveTo(readPosition)
 
     if (position == uncompressedSize) return -1
@@ -55,7 +62,7 @@ internal class Aff4Bevy @AssistedInject constructor(
     val maxBytesToRead = byteCount.coerceAtMost(uncompressedSize - position)
 
     if (!chunkBuffer.hasRemaining()) {
-      readIntoBuffer()
+      readIntoBuffer(timeout)
     }
 
     val readSlice = chunkBuffer.slice(
@@ -95,16 +102,18 @@ internal class Aff4Bevy @AssistedInject constructor(
     position = newPosition
   }
 
-  private fun readIntoBuffer() {
-    val index = bevyIndexReader.readIndexContaining(position) ?: return
+  private fun readIntoBuffer(timeout: Timeout) {
+    val index = bevyIndexReader.readIndexContaining(position, timeout) ?: return
     check(index.compressedLength <= chunkSize) {
       "Read invalid compressed chunk index.length: ${index.compressedLength}"
     }
 
+    timeout.throwIfReached()
+
     chunkBuffer.rewind()
 
     bevyChunkCache.getOrPutInto(bevy, index, chunkBuffer) {
-      readCompressedBuffer(index.dataPosition, index.compressedLength)
+      readCompressedBuffer(timeout, index.dataPosition, index.compressedLength)
 
       val chunkBufferLength = compressionMethod.uncompress(compressedChunkBuffer, chunkBuffer)
 
@@ -119,16 +128,16 @@ internal class Aff4Bevy @AssistedInject constructor(
 
       chunkBuffer.rewind()
 
-      imageBlockHashVerification.verifyBlock(bevy, position.floorDiv(chunkSize), chunkBuffer)
+      imageBlockHashVerification.verifyBlock(timeout, bevy, position.floorDiv(chunkSize), chunkBuffer)
     }
 
     chunkBuffer.position((position % chunkSize).toInt())
   }
 
-  private fun readCompressedBuffer(dataPosition: Long, byteCount: Int) {
+  private fun readCompressedBuffer(timeout: Timeout, dataPosition: Long, byteCount: Int) {
     if (dataSource == null || dataPosition < lastDataSourcePosition) {
       dataSource?.close()
-      dataSource = dataSourceProvider.get()
+      dataSource = dataSourceProvider.source(timeout)
       lastDataSourcePosition = 0
     }
 
@@ -159,6 +168,6 @@ internal class Aff4Bevy @AssistedInject constructor(
       bevyIndexReader: BevyIndexReader,
       bevyChunkCache: BevyChunkCache,
       bevy: Bevy,
-    ): Aff4Bevy
+    ): Aff4BevySourceProvider
   }
 }

@@ -4,7 +4,9 @@ import okio.Source
 import okio.Timeout
 
 interface SourceProvider<out SOURCE : Source> {
-  fun get(timeout: Timeout = Timeout.NONE): SOURCE
+  fun source(timeout: Timeout): SOURCE = source(position = 0L, timeout)
+
+  fun source(position: Long, timeout: Timeout): SOURCE
 
   fun <TRANSFORMED : Source> transform(transformer: Transformer<SOURCE, TRANSFORMED>): SourceProvider<TRANSFORMED> {
     return TransformedSourceProvider(this, transformer)
@@ -19,7 +21,8 @@ private class TransformedSourceProvider<IN : Source, TRANSFORMED : Source>(
   private val sourceProvider: SourceProvider<IN>,
   private val transformer: SourceProvider.Transformer<IN, TRANSFORMED>,
 ) : SourceProvider<TRANSFORMED> {
-  override fun get(timeout: Timeout): TRANSFORMED {
-    return transformer.transform(sourceProvider.get(timeout))
+  override fun source(position: Long, timeout: Timeout): TRANSFORMED {
+    return sourceProvider.source(position, timeout)
+      .runAndCloseOnThrow { transformer.transform(this) }
   }
 }

@@ -30,7 +30,7 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import javax.inject.Inject
 
-class Aff4BevySinkTest {
+class Aff4BevySourceProviderSinkTest {
   @get:Rule
   var tempDirectoryRule: TemporaryFolder = TemporaryFolder()
 

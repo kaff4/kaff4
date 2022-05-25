@@ -1,9 +1,9 @@
 package com.github.nava2.aff4.streams.symbolics
 
-import com.github.nava2.aff4.io.fixedLength
-import com.github.nava2.aff4.model.Aff4Stream
+import com.github.nava2.aff4.model.Aff4StreamSourceProvider
 import okio.ByteString
 import okio.Source
+import okio.Timeout
 import org.eclipse.rdf4j.model.IRI
 import java.nio.ByteBuffer
 
@@ -13,7 +13,7 @@ data class SymbolicSourceProvider(
   val arn: IRI,
   val pattern: ByteString,
   val chunkBoundary: Int,
-) : Aff4Stream {
+) : Aff4StreamSourceProvider {
   override val size: Long = Long.MAX_VALUE
 
   private val patternBuffer: ByteBuffer
@@ -34,11 +34,12 @@ data class SymbolicSourceProvider(
     this.patternBuffer = byteBuffer.asReadOnlyBuffer()
   }
 
-  override fun source(position: Long): Source = infinite()
+  override fun source(position: Long, timeout: Timeout): Source = InfinitePatternSource(
+    pattern = pattern,
+    patternBuffer = patternBuffer.asReadOnlyBuffer(),
+    repetitionBoundary = chunkBoundary,
+    timeout = timeout,
+  )
 
   override fun close() = Unit
-
-  fun fixed(length: Long): Source = infinite().fixedLength(length)
-
-  fun infinite(): Source = InfinitePatternSource(pattern, patternBuffer.asReadOnlyBuffer(), chunkBoundary)
 }

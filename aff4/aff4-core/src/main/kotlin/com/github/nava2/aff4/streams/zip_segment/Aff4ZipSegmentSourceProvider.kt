@@ -1,10 +1,12 @@
 package com.github.nava2.aff4.streams.zip_segment
 
+import com.github.nava2.aff4.io.buffer
+import com.github.nava2.aff4.io.use
 import com.github.nava2.aff4.meta.rdf.ForImageRoot
 import com.github.nava2.aff4.model.Aff4Model
-import com.github.nava2.aff4.model.Aff4Stream
-import com.github.nava2.aff4.model.VerifiableStream
-import com.github.nava2.aff4.model.VerifiableStream.Result.FailedHash
+import com.github.nava2.aff4.model.Aff4StreamSourceProvider
+import com.github.nava2.aff4.model.VerifiableStreamProvider
+import com.github.nava2.aff4.model.VerifiableStreamProvider.Result.FailedHash
 import com.github.nava2.aff4.model.rdf.ZipSegment
 import com.github.nava2.aff4.streams.SourceProviderWithRefCounts
 import com.github.nava2.aff4.streams.computeLinearHashes
@@ -14,12 +16,13 @@ import okio.Buffer
 import okio.BufferedSource
 import okio.FileSystem
 import okio.Source
+import okio.Timeout
 import okio.buffer
 
-internal class Aff4ZipSegment @AssistedInject constructor(
+internal class Aff4ZipSegmentSourceProvider @AssistedInject constructor(
   @ForImageRoot private val imageFileSystem: FileSystem,
   @Assisted val zipSegment: ZipSegment,
-) : Aff4Stream, VerifiableStream, SourceProviderWithRefCounts.SourceDelegate {
+) : Aff4StreamSourceProvider, VerifiableStreamProvider, SourceProviderWithRefCounts.SourceDelegate {
   override val size = zipSegment.size
 
   private val sourceProviderWithRefCounts = SourceProviderWithRefCounts(this)
@@ -28,16 +31,16 @@ internal class Aff4ZipSegment @AssistedInject constructor(
   private var currentSource: BufferedSource? = null
 
   @Volatile
-  private var verificationResult: VerifiableStream.Result? = null
+  private var verificationResult: VerifiableStreamProvider.Result? = null
 
-  override fun source(position: Long): Source = sourceProviderWithRefCounts.source(position)
+  override fun source(position: Long, timeout: Timeout): Source = sourceProviderWithRefCounts.source(position, timeout)
 
   override fun close() {
     resetCurrentSource()
     sourceProviderWithRefCounts.close()
   }
 
-  override fun verify(aff4Model: Aff4Model): VerifiableStream.Result {
+  override fun verify(aff4Model: Aff4Model, timeout: Timeout): VerifiableStreamProvider.Result {
     val previousResult = verificationResult
     if (previousResult != null) {
       return previousResult
@@ -49,7 +52,7 @@ internal class Aff4ZipSegment @AssistedInject constructor(
 
       val failedHashes = mutableListOf<FailedHash>()
 
-      val actualLinearHashes = source(position = 0).buffer().use { source ->
+      val actualLinearHashes = buffer().use(timeout) { source ->
         source.computeLinearHashes(zipSegment.linearHashes.map { it.hashType })
       }
 
@@ -61,9 +64,9 @@ internal class Aff4ZipSegment @AssistedInject constructor(
       }
 
       val result = if (failedHashes.isNotEmpty()) {
-        VerifiableStream.Result.Failed(failedHashes)
+        VerifiableStreamProvider.Result.Failed(failedHashes)
       } else {
-        VerifiableStream.Result.Success
+        VerifiableStreamProvider.Result.Success
       }
 
       verificationResult = result
@@ -71,7 +74,9 @@ internal class Aff4ZipSegment @AssistedInject constructor(
     }
   }
 
-  override fun readAt(readPosition: Long, sink: Buffer, byteCount: Long): Long {
+  override fun readAt(readPosition: Long, timeout: Timeout, sink: Buffer, byteCount: Long): Long {
+    timeout.throwIfReached()
+
     moveTo(readPosition)
 
     val maxBytesToRead = byteCount.coerceAtMost(size - readPosition)
@@ -123,5 +128,5 @@ internal class Aff4ZipSegment @AssistedInject constructor(
     currentSource = null
   }
 
-  interface Loader : Aff4Stream.Loader<ZipSegment, Aff4ZipSegment>
+  interface Loader : Aff4StreamSourceProvider.Loader<ZipSegment, Aff4ZipSegmentSourceProvider>
 }

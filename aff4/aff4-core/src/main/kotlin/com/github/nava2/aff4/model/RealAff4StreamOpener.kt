@@ -1,5 +1,9 @@
 package com.github.nava2.aff4.model
 
+import com.github.benmanes.caffeine.cache.Caffeine
+import com.github.benmanes.caffeine.cache.LoadingCache
+import com.github.nava2.aff4.io.SourceProvider
+import com.github.nava2.aff4.io.bounded
 import com.github.nava2.aff4.model.rdf.Aff4RdfModel
 import com.github.nava2.aff4.rdf.NamespacesProvider
 import com.github.nava2.aff4.rdf.RdfConnectionScoping
@@ -7,17 +11,19 @@ import com.github.nava2.aff4.rdf.ScopedConnection
 import com.github.nava2.aff4.rdf.io.RdfModel
 import com.github.nava2.aff4.rdf.io.RdfModelParser
 import com.github.nava2.aff4.streams.Aff4StreamLoaderContext
-import com.github.nava2.aff4.streams.BoundedAff4Stream
 import com.github.nava2.aff4.streams.symbolics.Symbolics
 import com.google.inject.TypeLiteral
+import okio.Closeable
+import okio.Source
 import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.Statement
 import org.eclipse.rdf4j.model.ValueFactory
-import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
+
+private const val MAX_OPEN_STREAMS = 20L
 
 @Singleton
 internal class RealAff4StreamOpener @Inject constructor(
@@ -39,25 +45,37 @@ internal class RealAff4StreamOpener @Inject constructor(
   private val aff4StreamLoaderContexts = aff4StreamLoaderContexts.associateBy { it.configTypeLiteral }
 
   // TODO For logical images, this will be _massive_ and not okay. We will need to be smarter about caching
-  private val openStreams = ConcurrentHashMap<IRI, Aff4Stream>()
+  private val openStreams: LoadingCache<IRI, SourceProvider<Source>> = Caffeine.newBuilder()
+    .maximumSize(MAX_OPEN_STREAMS)
+    .removalListener<IRI, SourceProvider<Source>> { _, provider, _ ->
+      (provider as? Closeable)?.close()
+    }
+    .build(::loadSourceProvider)
 
-  override fun openStream(iri: IRI): Aff4Stream {
+  override fun openStream(iri: IRI): SourceProvider<Source> {
     check(!closed) { "Closed" }
 
     val symbolic = symbolics.maybeGetProvider(iri)
     if (symbolic != null) return symbolic
 
-    return openStreams.computeIfAbsent(iri) { key ->
-      rdfConnectionScoping.scoped { connection: ScopedConnection, rdfModelParser: RdfModelParser ->
-        val namespaces = connection.namespaces
-        val statements = connection.queryStatements(subj = key).use { it.toList() }
+    // We do not hold open offset stream providers as they are just 'views' over a real stream provider
+    return if (!isIriHashDedupe(iri)) {
+      openStreams[iri]!!
+    } else {
+      loadSourceProvider(iri)
+    }
+  }
 
-        if (isIriHashDedupe(key)) {
-          val statement = statements.single()
-          loadHashDedupedStream(connection.valueFactory, statement.`object` as IRI)
-        } else {
-          loadStreamFromRdf(namespaces, rdfModelParser, iri, statements)
-        }
+  private fun loadSourceProvider(subject: IRI): SourceProvider<Source> {
+    return rdfConnectionScoping.scoped { connection: ScopedConnection, rdfModelParser: RdfModelParser ->
+      val namespaces = connection.namespaces
+      val statements = connection.queryStatements(subj = subject).use { it.toList() }
+
+      if (isIriHashDedupe(subject)) {
+        val statement = statements.single()
+        loadHashDedupedStream(connection.valueFactory, statement.`object` as IRI)
+      } else {
+        loadStreamFromRdf(namespaces, rdfModelParser, subject, statements)
       }
     }
   }
@@ -67,7 +85,7 @@ internal class RealAff4StreamOpener @Inject constructor(
     rdfModelParser: RdfModelParser,
     streamIri: IRI,
     statements: List<Statement>
-  ): Aff4Stream {
+  ): Aff4StreamSourceProvider {
     val rdfTypes = statements.asSequence()
       .filter { it.predicate == namespaces.iriFromTurtle("rdf:type") }
       .mapNotNull { it.`object` as? IRI }
@@ -91,28 +109,21 @@ internal class RealAff4StreamOpener @Inject constructor(
   private fun loadHashDedupedStream(
     valueFactory: ValueFactory,
     obj: IRI,
-  ): Aff4Stream {
+  ): SourceProvider<Source> {
     val (dataStreamIri, indexNotation) = obj.stringValue().split("[")
     val (startIndexHex, lengthHex) = indexNotation.substringBeforeLast(']').split(':')
     val startIndex = startIndexHex.substringAfter("0x").toLong(radix = 16)
     val length = lengthHex.substringAfter("0x").toLong(radix = 16)
 
-    val dataStream = openStream(valueFactory.createIRI(dataStreamIri))
-    return BoundedAff4Stream(dataStream, startIndex, length)
+    val dataStreamProvider = openStream(valueFactory.createIRI(dataStreamIri))
+    return dataStreamProvider.bounded(startIndex, length)
   }
 
   override fun close() {
     if (closed) return
     closed = true
 
-    val streamsToClose = openStreams.run {
-      val beforeClear = values.toSet()
-      clear()
-      beforeClear + values.toSet()
-    }
-
-    for (stream in streamsToClose) {
-      stream.close()
-    }
+    openStreams.invalidateAll()
+    openStreams.cleanUp()
   }
 }

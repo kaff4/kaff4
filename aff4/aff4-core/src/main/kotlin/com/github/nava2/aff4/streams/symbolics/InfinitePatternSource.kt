@@ -10,12 +10,14 @@ internal class InfinitePatternSource(
   private val pattern: ByteString,
   patternBuffer: ByteBuffer,
   private val repetitionBoundary: Int,
+  private val timeout: Timeout,
 ) : Source {
   private var position: Long = 0L
 
   private val byteBuffer = patternBuffer.asReadOnlyBuffer()
 
   override fun read(sink: Buffer, byteCount: Long): Long {
+    timeout.throwIfReached()
     refreshBufferIfNeeded()
 
     val maxBytesToRead = byteCount.toInt().coerceAtMost(byteBuffer.remaining())
@@ -39,7 +41,7 @@ internal class InfinitePatternSource(
   }
 
   override fun close() = Unit
-  override fun timeout(): Timeout = Timeout.NONE
+  override fun timeout(): Timeout = timeout
 
   override fun toString(): String = "infinite($pattern)"
 }

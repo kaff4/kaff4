@@ -7,6 +7,7 @@ import com.github.nava2.aff4.model.rdf.HashType
 import com.github.nava2.aff4.streams.computeLinearHashes
 import okio.ByteString
 import okio.FileSystem
+import okio.Timeout
 import org.eclipse.rdf4j.model.IRI
 import java.nio.ByteBuffer
 import javax.inject.Inject
@@ -22,10 +23,14 @@ internal class ImageBlockHashVerification @Inject constructor(
     .maximumSize(BLOCK_HASH_VALUES_CACHE)
     .build<CacheKey, ExpectedHashes>()
 
-  fun verifyBlock(bevy: Bevy, chunkIndex: Long, chunkBuffer: ByteBuffer) {
+  fun verifyBlock(timeout: Timeout, bevy: Bevy, chunkIndex: Long, chunkBuffer: ByteBuffer) {
     val expectedHashes = expectedHashesCache
       .get(CacheKey(bevy.arn, chunkIndex)) {
+        timeout.throwIfReached()
+
         val byHashType = bevy.blockHashes.mapValues { (hashType, file) ->
+          timeout.throwIfReached()
+
           fileSystem.read(file) {
             skip(chunkIndex * hashType.byteCount)
             readByteString(hashType.byteCount.toLong())
@@ -43,7 +48,7 @@ internal class ImageBlockHashVerification @Inject constructor(
 
     chunkBuffer.position(0)
 
-    val actualHashes = chunkBuffer.source().use {
+    val actualHashes = chunkBuffer.source(timeout).use {
       it.computeLinearHashes(expectedHashes.keys)
     }
 

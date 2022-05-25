@@ -1,7 +1,9 @@
 package com.github.nava2.aff4.streams.symbolics
 
 import com.github.nava2.aff4.Aff4ImageTestRule
+import com.github.nava2.aff4.io.limit
 import com.github.nava2.aff4.io.repeatByteString
+import com.github.nava2.aff4.io.use
 import com.github.nava2.aff4.meta.rdf.createAff4Iri
 import okio.Buffer
 import org.assertj.core.api.Assertions.assertThat
@@ -27,7 +29,7 @@ class SymbolicsTest {
 
     assertThat(provider0).isSameAs(providerZero)
 
-    providerZero.fixed(10).use { s ->
+    providerZero.limit(10).use { s ->
       Buffer().use { buffer ->
         assertThat(s.read(buffer, 20)).isEqualTo(10)
         assertThat(buffer.readByteString()).isEqualTo(0.repeatByteString(10))

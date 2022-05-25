@@ -6,15 +6,15 @@ import com.github.nava2.guice.key
 import com.github.nava2.guice.typeLiteral
 import com.google.inject.assistedinject.FactoryModuleBuilder
 
-internal object Aff4ImageStreamModule : AbstractAff4StreamModule<ImageStream, Aff4ImageStream>(
+internal object Aff4ImageStreamModule : AbstractAff4StreamModule<ImageStream, Aff4ImageStreamSourceProvider>(
   configTypeLiteral = typeLiteral(),
-  loaderKey = typeLiteral<Aff4ImageStream.Loader>().key,
+  loaderKey = typeLiteral<Aff4ImageStreamSourceProvider.Loader>().key,
 ) {
   override fun configureModule() {
-    install(FactoryModuleBuilder().build(Aff4ImageStream.Loader::class.java))
+    install(FactoryModuleBuilder().build(Aff4ImageStreamSourceProvider.Loader::class.java))
 
     install(FactoryModuleBuilder().build(BevyIndexReader.Factory::class.java))
     install(FactoryModuleBuilder().build(Aff4ImageBevies.Factory::class.java))
-    install(FactoryModuleBuilder().build(Aff4Bevy.AssistedFactory::class.java))
+    install(FactoryModuleBuilder().build(Aff4BevySourceProvider.AssistedFactory::class.java))
   }
 }

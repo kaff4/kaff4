@@ -1,12 +1,13 @@
 package com.github.nava2.aff4.streams.image_stream
 
 import com.github.nava2.aff4.Aff4ImageTestRule
+import com.github.nava2.aff4.io.buffer
+import com.github.nava2.aff4.io.use
 import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.model.rdf.ImageStream
 import com.github.nava2.aff4.streams.compression.SnappyModule
 import okio.Buffer
 import okio.ByteString.Companion.decodeHex
-import okio.buffer
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.eclipse.rdf4j.model.ValueFactory
@@ -16,7 +17,7 @@ import org.junit.Rule
 import org.junit.Test
 import javax.inject.Inject
 
-class Aff4BevyTest {
+class Aff4BevySourceProviderTest {
   @get:Rule
   val rule: Aff4ImageTestRule = Aff4ImageTestRule("Base-Linear.aff4", SnappyModule)
 
@@ -32,10 +33,11 @@ class Aff4BevyTest {
   private lateinit var imageStreamConfig: ImageStream
   private lateinit var aff4ImageBevies: Aff4ImageBevies
   private lateinit var bevyChunkCache: BevyChunkCache
-  private lateinit var aff4Bevy: Aff4Bevy
+  private lateinit var aff4BevySourceProvider: Aff4BevySourceProvider
 
-  private val chunkSize: Long
-    get() = imageStreamConfig.chunkSize.toLong()
+  private val bufferedProvider by lazy { aff4BevySourceProvider.buffer() }
+
+  private val chunkSize: Long get() = imageStreamConfig.chunkSize.toLong()
 
   @Before
   fun setup() {
@@ -46,18 +48,18 @@ class Aff4BevyTest {
 
     aff4ImageBevies = aff4ImageBeviesFactory.create(imageStreamConfig, bevyChunkCache)
 
-    aff4Bevy = aff4ImageBevies.getOrLoadBevy(0)
+    aff4BevySourceProvider = aff4ImageBevies.getOrLoadBevy(0)
   }
 
   @After
   fun after() {
     aff4ImageBevies.close()
-    aff4Bevy.close()
+    aff4BevySourceProvider.close()
   }
 
   @Test
   fun `open and read bevy source`() {
-    createSource().use { bevySource ->
+    bufferedProvider.use { bevySource ->
       Buffer().use { readSink ->
         bevySource.readFully(readSink, chunkSize)
         assertThat(readSink.size).isEqualTo(chunkSize)
@@ -71,12 +73,12 @@ class Aff4BevyTest {
       }
     }
 
-    assertThat(aff4Bevy.uncompressedSize).isEqualTo(imageStreamConfig.size)
+    assertThat(aff4BevySourceProvider.uncompressedSize).isEqualTo(imageStreamConfig.size)
   }
 
   @Test
   fun `open and read multiple times has chunks cached`() {
-    createSource().use { bevySource ->
+    bufferedProvider.use { bevySource ->
       Buffer().use { readSink ->
         bevySource.readFully(readSink, chunkSize)
         assertThat(readSink.size).isEqualTo(chunkSize)
@@ -84,7 +86,7 @@ class Aff4BevyTest {
       }
     }
 
-    createSource().use { bevySource ->
+    bufferedProvider.use { bevySource ->
       Buffer().use { readSink ->
         bevySource.readFully(readSink, chunkSize)
         assertThat(readSink.size).isEqualTo(chunkSize)
@@ -97,7 +99,7 @@ class Aff4BevyTest {
 
   @Test
   fun `open and read gt chunk size`() {
-    createSource().use { bevySource ->
+    bufferedProvider.use { bevySource ->
       Buffer().use { readSink ->
         bevySource.readFully(readSink, chunkSize * 2)
         assertThat(readSink.size).isEqualTo(chunkSize * 2)
@@ -108,7 +110,7 @@ class Aff4BevyTest {
 
   @Test
   fun `creating sources at location effectively seeks the stream`() {
-    createSource(position = chunkSize).use { bevySource ->
+    bufferedProvider.use(position = chunkSize) { bevySource ->
       Buffer().use { readSink ->
         bevySource.readFully(readSink, chunkSize)
         assertThat(readSink.size).isEqualTo(chunkSize)
@@ -116,7 +118,7 @@ class Aff4BevyTest {
       }
     }
 
-    createSource(position = 0).use { bevySource ->
+    bufferedProvider.use(position = 0) { bevySource ->
       Buffer().use { readSink ->
         bevySource.readFully(readSink, chunkSize)
         assertThat(readSink.size).isEqualTo(chunkSize)
@@ -127,7 +129,7 @@ class Aff4BevyTest {
 
   @Test
   fun `open and read skip bytes via buffering`() {
-    createSource().use { bevySource ->
+    bufferedProvider.use { bevySource ->
       bevySource.skip(1024)
 
       Buffer().use { readSink ->
@@ -140,15 +142,13 @@ class Aff4BevyTest {
 
   @Test
   fun `having open sources causes close() to throw`() {
-    createSource().use { source ->
-      assertThatThrownBy { aff4Bevy.close() }
+    aff4BevySourceProvider.use { source ->
+      assertThatThrownBy { aff4BevySourceProvider.close() }
         .isInstanceOf(IllegalStateException::class.java)
         .hasMessage("Sources were created and not freed: 1")
 
       source.close()
-      aff4Bevy.close() // no throw
+      aff4BevySourceProvider.close() // no throw
     }
   }
-
-  private fun createSource(position: Long = 0) = aff4Bevy.source(position).buffer()
 }

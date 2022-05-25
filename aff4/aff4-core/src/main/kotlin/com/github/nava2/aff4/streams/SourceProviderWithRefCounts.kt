@@ -1,24 +1,25 @@
 package com.github.nava2.aff4.streams
 
+import com.github.nava2.aff4.io.SourceProvider
 import okio.Buffer
 import okio.Source
 import okio.Timeout
 
 internal class SourceProviderWithRefCounts(
   private val sourceDelegate: SourceDelegate,
-) : AutoCloseable {
+) : SourceProvider<Source>, AutoCloseable {
   @Volatile
   private var closed = false
   private var sourcesOutstanding = 0L
 
   @Synchronized
-  fun source(position: Long): Source {
+  override fun source(position: Long, timeout: Timeout): Source {
     check(!closed)
     require(position >= 0)
 
     sourcesOutstanding += 1
 
-    return RefCountedOffsetSource(sourceDelegate, position) {
+    return RefCountedOffsetSource(sourceDelegate, position, timeout) {
       synchronized(this) {
         sourcesOutstanding -= 1
       }
@@ -37,12 +38,13 @@ internal class SourceProviderWithRefCounts(
   }
 
   internal interface SourceDelegate {
-    fun readAt(readPosition: Long, sink: Buffer, byteCount: Long): Long
+    fun readAt(readPosition: Long, timeout: Timeout, sink: Buffer, byteCount: Long): Long
   }
 
   private class RefCountedOffsetSource(
     private val sourceDelegate: SourceDelegate,
     private var sourcePosition: Long,
+    private val timeout: Timeout,
     private val onCloseSource: (Source) -> Unit,
   ) : Source {
     @Volatile
@@ -61,8 +63,9 @@ internal class SourceProviderWithRefCounts(
 
     override fun read(sink: Buffer, byteCount: Long): Long {
       check(!closed)
+      timeout.throwIfReached()
 
-      val result = sourceDelegate.readAt(sourcePosition, sink, byteCount)
+      val result = sourceDelegate.readAt(sourcePosition, timeout, sink, byteCount)
       if (result == -1L) return -1
 
       sourcePosition += result
@@ -70,7 +73,7 @@ internal class SourceProviderWithRefCounts(
       return result
     }
 
-    override fun timeout(): Timeout = Timeout.NONE
+    override fun timeout(): Timeout = timeout
 
     override fun toString(): String {
       return "offsetSource($sourceDelegate)"

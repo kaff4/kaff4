@@ -9,13 +9,13 @@ import com.google.inject.Key
 import com.google.inject.assistedinject.FactoryModuleBuilder
 import okio.FileSystem
 
-internal object Aff4ZipSegmentModule : AbstractAff4StreamModule<ZipSegment, Aff4ZipSegment>(
+internal object Aff4ZipSegmentModule : AbstractAff4StreamModule<ZipSegment, Aff4ZipSegmentSourceProvider>(
   configTypeLiteral = typeLiteral(),
-  loaderKey = typeLiteral<Aff4ZipSegment.Loader>().key,
+  loaderKey = typeLiteral<Aff4ZipSegmentSourceProvider.Loader>().key,
 ) {
   override fun configureModule() {
     requireBinding(Key.get(FileSystem::class.java, ForImageRoot::class.java))
 
-    install(FactoryModuleBuilder().build(Aff4ZipSegment.Loader::class.java))
+    install(FactoryModuleBuilder().build(Aff4ZipSegmentSourceProvider.Loader::class.java))
   }
 }

@@ -7,6 +7,7 @@ import com.google.inject.assistedinject.Assisted
 import com.google.inject.assistedinject.AssistedInject
 import okio.BufferedSource
 import okio.FileSystem
+import okio.Timeout
 import okio.buffer
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -29,7 +30,9 @@ internal class BevyIndexReader @AssistedInject constructor(
   private var position: Long = 0L
   private var currentSource: BufferedSource? = null
 
-  fun readIndexContaining(bevyPosition: Long): IndexValue? {
+  fun readIndexContaining(bevyPosition: Long, timeout: Timeout): IndexValue? {
+    timeout.throwIfReached()
+
     require(bevyPosition >= 0L) { "bevyPosition must be positive" }
 
     // round down by chunk size to find the index to read

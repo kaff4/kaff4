@@ -1,8 +1,10 @@
 package com.github.nava2.aff4.streams.symbolics
 
 import com.github.nava2.aff4.Aff4ImageTestRule
+import com.github.nava2.aff4.io.buffer
+import com.github.nava2.aff4.io.limit
 import com.github.nava2.aff4.io.repeatByteString
-import okio.buffer
+import com.github.nava2.aff4.io.use
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
 import org.junit.Rule
@@ -20,7 +22,7 @@ class SymbolicSourceProviderTest {
   fun `setting fixed length causes source to be limited`() {
     val iri = valueFactory.createIRI("http://aff4.org/schema", "Zero")
     val sourceProvider = SymbolicSourceProvider(iri, 0.repeatByteString(1), 1024)
-    sourceProvider.fixed(10).buffer().use { source ->
+    sourceProvider.limit(10).buffer().use { source ->
       assertThat(source.readByteString()).isEqualTo(0.repeatByteString(10))
     }
   }
@@ -31,7 +33,7 @@ class SymbolicSourceProviderTest {
     val sourceProvider = SymbolicSourceProvider(iri, 0xff.repeatByteString(1), 1024)
 
     val reasonableButAlsoWayBiggerThanBufferWouldEverBeSize = 1 * 1024 * 1024 // 1MiB
-    sourceProvider.infinite().buffer().use { source ->
+    sourceProvider.buffer().use { source ->
       assertThat(source.readByteString(reasonableButAlsoWayBiggerThanBufferWouldEverBeSize.toLong()))
         .isEqualTo(0xff.repeatByteString(reasonableButAlsoWayBiggerThanBufferWouldEverBeSize))
     }

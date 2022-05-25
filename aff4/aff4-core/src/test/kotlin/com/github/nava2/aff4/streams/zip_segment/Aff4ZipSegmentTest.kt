@@ -1,16 +1,17 @@
 package com.github.nava2.aff4.streams.zip_segment
 
 import com.github.nava2.aff4.Aff4LogicalImageTestRule
+import com.github.nava2.aff4.io.buffer
 import com.github.nava2.aff4.io.md5
+import com.github.nava2.aff4.io.use
 import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.model.Aff4StreamOpener
-import com.github.nava2.aff4.model.VerifiableStream
+import com.github.nava2.aff4.model.VerifiableStreamProvider
 import com.github.nava2.aff4.model.rdf.HashType
 import com.github.nava2.aff4.model.rdf.ZipSegment
 import com.github.nava2.aff4.streams.hashingSink
 import okio.ByteString.Companion.decodeHex
 import okio.ByteString.Companion.encodeUtf8
-import okio.buffer
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.eclipse.rdf4j.model.ValueFactory
@@ -38,14 +39,15 @@ class Aff4ZipSegmentTest {
   @Inject
   private lateinit var aff4Model: Aff4Model
 
-  private lateinit var aff4ZipSegment: Aff4ZipSegment
+  private lateinit var aff4ZipSegment: Aff4ZipSegmentSourceProvider
   private lateinit var zipSegment: ZipSegment
+  private val bufferedProvider by lazy { aff4ZipSegment.buffer() }
 
   @Before
   fun setup() {
     val zipSegmentIri =
       valueFactory.createIRI("aff4://5aea2dd0-32b4-4c61-a9db-677654be6f83//test_images/AFF4-L/dream.txt")
-    aff4ZipSegment = aff4StreamOpener.openStream(zipSegmentIri) as Aff4ZipSegment
+    aff4ZipSegment = aff4StreamOpener.openStream(zipSegmentIri) as Aff4ZipSegmentSourceProvider
     zipSegment = aff4ZipSegment.zipSegment
   }
 
@@ -59,47 +61,47 @@ class Aff4ZipSegmentTest {
     assertThat(aff4ZipSegment.size).isEqualTo(DREAM_TXT_SIZE)
     assertThat(zipSegment.size).isEqualTo(DREAM_TXT_SIZE)
 
-    createSource().use { mapStreamSource ->
+    bufferedProvider.use { mapStreamSource ->
       assertThat(mapStreamSource).md5(DREAM_TXT_SIZE, "75d83773f8d431a3ca91bfb8859e486d")
     }
   }
 
   @Test
   fun `open and read multiple times has same read`() {
-    createSource().use { mapStreamSource ->
+    bufferedProvider.use { mapStreamSource ->
       assertThat(mapStreamSource.readByteString(DREAM_FIRST_LINE.size.toLong())).isEqualTo(DREAM_FIRST_LINE)
       mapStreamSource.skip(DREAM_TXT_SIZE - DREAM_LAST_STANZA.size - DREAM_FIRST_LINE.size)
       assertThat(mapStreamSource.readByteString()).isEqualTo(DREAM_LAST_STANZA)
     }
 
-    createSource().use { mapStreamSource ->
+    bufferedProvider.use { mapStreamSource ->
       assertThat(mapStreamSource.readByteString(DREAM_FIRST_LINE.size.toLong())).isEqualTo(DREAM_FIRST_LINE)
     }
   }
 
   @Test
   fun `creating sources at location effectively seeks the stream`() {
-    createSource(position = DREAM_TXT_SIZE - DREAM_LAST_STANZA.size).use { mapStreamSource ->
+    bufferedProvider.use(position = DREAM_TXT_SIZE - DREAM_LAST_STANZA.size) { mapStreamSource ->
       assertThat(mapStreamSource.readByteString()).isEqualTo(DREAM_LAST_STANZA)
     }
 
-    createSource(position = 0).use { mapStreamSource ->
+    bufferedProvider.use(position = 0) { mapStreamSource ->
       assertThat(mapStreamSource).md5(DREAM_TXT_SIZE, "75d83773f8d431a3ca91bfb8859e486d")
     }
   }
 
   @Test
   fun `reading past end truncates`() {
-    createSource(DREAM_TXT_SIZE - DREAM_LAST_STANZA.size).use { mapStreamSource ->
+    bufferedProvider.use(position = DREAM_TXT_SIZE - DREAM_LAST_STANZA.size) { mapStreamSource ->
       assertThat(mapStreamSource.readByteString()).isEqualTo(DREAM_LAST_STANZA)
     }
   }
 
   @Test
   fun `hashes match`() {
-    assertThat(aff4ZipSegment.verify(aff4Model)).isEqualTo(VerifiableStream.Result.Success)
+    assertThat(aff4ZipSegment.verify(aff4Model)).isEqualTo(VerifiableStreamProvider.Result.Success)
 
-    createSource().use { source ->
+    bufferedProvider.use { source ->
       val md5Sink = HashType.MD5.hashingSink()
       val sha1Sink = HashType.SHA1.hashingSink(md5Sink)
       source.readAll(sha1Sink)
@@ -110,7 +112,7 @@ class Aff4ZipSegmentTest {
 
   @Test
   fun `having open sources causes close() to throw`() {
-    createSource().use { source ->
+    bufferedProvider.use { source ->
       assertThatThrownBy { aff4ZipSegment.close() }
         .isInstanceOf(IllegalStateException::class.java)
         .hasMessage("Sources were created and not freed: 1")
@@ -119,6 +121,4 @@ class Aff4ZipSegmentTest {
       aff4ZipSegment.close() // no throw
     }
   }
-
-  private fun createSource(position: Long = 0) = aff4ZipSegment.source(position).buffer()
 }

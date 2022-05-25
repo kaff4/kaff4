@@ -1,11 +1,16 @@
 package com.github.nava2.aff4.streams.image_stream
 
+import com.github.nava2.aff4.io.SourceProvider
+import com.github.nava2.aff4.io.applyAndCloseOnThrow
+import com.github.nava2.aff4.io.buffer
 import com.github.nava2.aff4.io.concatLazily
+import com.github.nava2.aff4.io.sourceProvider
+import com.github.nava2.aff4.io.use
 import com.github.nava2.aff4.meta.rdf.ForImageRoot
 import com.github.nava2.aff4.model.Aff4Model
-import com.github.nava2.aff4.model.Aff4Stream
-import com.github.nava2.aff4.model.VerifiableStream
-import com.github.nava2.aff4.model.VerifiableStream.Result.FailedHash
+import com.github.nava2.aff4.model.Aff4StreamSourceProvider
+import com.github.nava2.aff4.model.VerifiableStreamProvider
+import com.github.nava2.aff4.model.VerifiableStreamProvider.Result.FailedHash
 import com.github.nava2.aff4.model.rdf.ImageStream
 import com.github.nava2.aff4.streams.SourceProviderWithRefCounts
 import com.github.nava2.aff4.streams.computeLinearHashes
@@ -16,14 +21,14 @@ import okio.Buffer
 import okio.BufferedSource
 import okio.FileSystem
 import okio.Source
-import okio.buffer
+import okio.Timeout
 import java.io.Closeable
 
-class Aff4ImageStream @AssistedInject internal constructor(
+class Aff4ImageStreamSourceProvider @AssistedInject internal constructor(
   aff4ImageBeviesFactory: Aff4ImageBevies.Factory,
   @ForImageRoot private val imageFileSystem: FileSystem,
   @Assisted private val imageStreamConfig: ImageStream,
-) : VerifiableStream, Aff4Stream, SourceProviderWithRefCounts.SourceDelegate {
+) : VerifiableStreamProvider, Aff4StreamSourceProvider, SourceProviderWithRefCounts.SourceDelegate {
 
   private val sourceProviderWithRefCounts = SourceProviderWithRefCounts(this)
 
@@ -39,11 +44,11 @@ class Aff4ImageStream @AssistedInject internal constructor(
   private var currentSource: CurrentSourceInfo? = null
 
   @Volatile
-  private var verificationResult: VerifiableStream.Result? = null
+  private var verificationResult: VerifiableStreamProvider.Result? = null
 
-  override fun source(position: Long): Source = sourceProviderWithRefCounts.source(position)
+  override fun source(position: Long, timeout: Timeout): Source = sourceProviderWithRefCounts.source(position, timeout)
 
-  override fun verify(aff4Model: Aff4Model): VerifiableStream.Result {
+  override fun verify(aff4Model: Aff4Model, timeout: Timeout): VerifiableStreamProvider.Result {
     val previousResult = verificationResult
     if (previousResult != null) {
       return previousResult
@@ -53,11 +58,13 @@ class Aff4ImageStream @AssistedInject internal constructor(
       val doubleChecked = verificationResult
       if (doubleChecked != null) return doubleChecked
 
-      val failedHashes = mutableListOf<FailedHash>()
-      failedHashes += verifyLinearHashes()
-      failedHashes += verifyBlockHashes(aff4Model)
+      timeout.throwIfReached()
 
-      val result = VerifiableStream.Result.fromFailedHashes(failedHashes)
+      val failedHashes = mutableListOf<FailedHash>()
+      failedHashes += verifyLinearHashes(timeout)
+      failedHashes += verifyBlockHashes(aff4Model, timeout)
+
+      val result = VerifiableStreamProvider.Result.fromFailedHashes(failedHashes)
       verificationResult = result
       result
     }
@@ -75,7 +82,7 @@ class Aff4ImageStream @AssistedInject internal constructor(
     return "Aff4ImageStream(${imageStreamConfig.arn})"
   }
 
-  override fun readAt(readPosition: Long, sink: Buffer, byteCount: Long): Long {
+  override fun readAt(readPosition: Long, timeout: Timeout, sink: Buffer, byteCount: Long): Long {
     moveTo(readPosition)
 
     // we are exhausted
@@ -84,7 +91,7 @@ class Aff4ImageStream @AssistedInject internal constructor(
     val nextBevyIndex = position.floorDiv(bevyMaxSize).toInt()
     val maxBytesToRead = byteCount.coerceAtMost(size - position)
 
-    val readSource = getAndUpdateCurrentSourceIfChanged(nextBevyIndex)
+    val readSource = getAndUpdateCurrentSourceIfChanged(nextBevyIndex, timeout)
 
     val bytesRead = readSource.read(sink, maxBytesToRead)
     check(bytesRead >= 0) {
@@ -98,7 +105,7 @@ class Aff4ImageStream @AssistedInject internal constructor(
     return bytesRead
   }
 
-  private fun getAndUpdateCurrentSourceIfChanged(nextBevyIndex: Int): BufferedSource {
+  private fun getAndUpdateCurrentSourceIfChanged(nextBevyIndex: Int, timeout: Timeout): BufferedSource {
     val currentSource = currentSource
 
     if (currentSource?.bevyIndex == nextBevyIndex) {
@@ -110,23 +117,10 @@ class Aff4ImageStream @AssistedInject internal constructor(
 
     val bevyPosition = position % bevyMaxSize
 
-    var nextSource: Source? = null
-    var nextBufferedSource: BufferedSource? = null
+    return aff4ImageBevies.getOrLoadBevy(nextBevyIndex).buffer().source(bevyPosition, timeout).applyAndCloseOnThrow {
+      val sourceInfo = CurrentSourceInfo(nextBevyIndex, this)
 
-    return try {
-      nextSource = aff4ImageBevies.getOrLoadBevy(nextBevyIndex).source(bevyPosition)
-      nextBufferedSource = nextSource.buffer()
-
-      val sourceInfo = CurrentSourceInfo(nextBevyIndex, nextBufferedSource)
-
-      this.currentSource = sourceInfo
-
-      nextBufferedSource
-    } catch (@Suppress("TooGenericExceptionCaught") ex: Exception) {
-      nextSource?.close()
-      nextBufferedSource?.close()
-
-      throw ex
+      this@Aff4ImageStreamSourceProvider.currentSource = sourceInfo
     }
   }
 
@@ -147,8 +141,8 @@ class Aff4ImageStream @AssistedInject internal constructor(
     position = cappedPosition
   }
 
-  private fun verifyLinearHashes(): Sequence<FailedHash> = sequence {
-    val calculatedLinearHashes = source(0).use { s ->
+  private fun verifyLinearHashes(timeout: Timeout): Sequence<FailedHash> = sequence {
+    val calculatedLinearHashes = use(timeout = timeout) { s ->
       s.computeLinearHashes(imageStreamConfig.linearHashes.map { it.hashType })
     }
 
@@ -161,23 +155,26 @@ class Aff4ImageStream @AssistedInject internal constructor(
     }
   }
 
-  private fun verifyBlockHashes(aff4Model: Aff4Model): Sequence<FailedHash> = sequence {
+  private fun verifyBlockHashes(aff4Model: Aff4Model, timeout: Timeout): Sequence<FailedHash> = sequence {
     val blockHashes = imageStreamConfig.queryBlockHashes(aff4Model)
-    val blockHashSources = (0 until bevyCount).asSequence().map { aff4ImageBevies.getOrLoadBevy(it).bevy }
-      .fold(blockHashes.associateWith { mutableListOf<() -> Source>() }) { acc, bevy ->
+
+    val blockHashSourceProviders = (0 until bevyCount).asSequence()
+      .map { aff4ImageBevies.getOrLoadBevy(it).bevy }
+      .fold(blockHashes.associateWith { mutableListOf<SourceProvider<Source>>() }) { acc, bevy ->
         for ((hash, blockHashPath) in bevy.blockHashes) {
           val sources = acc.entries.single { it.key.forHashType == hash }.value
-          sources += { imageFileSystem.source(blockHashPath) }
+          sources += imageFileSystem.sourceProvider(blockHashPath)
         }
 
         acc
       }
 
-    for ((blockHash, sources) in blockHashSources) {
-      val actualHash = concatLazily(sources).buffer().use { source ->
-        val hashSink = blockHash.hash.hashType.hashingSink()
-        source.readAll(hashSink)
-        hashSink.hash
+    for ((blockHash, sourceProviders) in blockHashSourceProviders) {
+      val actualHash = concatLazily(sourceProviders).buffer().use(timeout = timeout) { source ->
+        blockHash.hash.hashType.hashingSink().use { hashSink ->
+          source.readAll(hashSink)
+          hashSink.hash
+        }
       }
 
       if (blockHash.hash.value != actualHash) {
@@ -191,5 +188,5 @@ class Aff4ImageStream @AssistedInject internal constructor(
     val source: BufferedSource,
   ) : Closeable by source
 
-  interface Loader : Aff4Stream.Loader<ImageStream, Aff4ImageStream>
+  interface Loader : Aff4StreamSourceProvider.Loader<ImageStream, Aff4ImageStreamSourceProvider>
 }

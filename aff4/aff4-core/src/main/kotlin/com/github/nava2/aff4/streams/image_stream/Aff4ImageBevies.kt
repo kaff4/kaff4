@@ -7,16 +7,16 @@ import com.google.inject.assistedinject.AssistedInject
 internal class Aff4ImageBevies @AssistedInject constructor(
   private val bevyIndexReaderFactory: BevyIndexReader.Factory,
   private val bevyOpener: Bevy.Opener,
-  private val aff4BevyFactory: Aff4Bevy.AssistedFactory,
+  private val aff4BevySourceProviderFactory: Aff4BevySourceProvider.AssistedFactory,
   @Assisted private val imageStreamConfig: ImageStream,
   @Assisted internal val bevyChunkCache: BevyChunkCache,
 ) : AutoCloseable {
 
-  private val bevies = mutableMapOf<Int, Aff4Bevy>()
+  private val bevies = mutableMapOf<Int, Aff4BevySourceProvider>()
 
-  fun getOrLoadBevy(bevyIndex: Int): Aff4Bevy = bevies.getOrPut(bevyIndex) {
+  fun getOrLoadBevy(bevyIndex: Int): Aff4BevySourceProvider = bevies.getOrPut(bevyIndex) {
     val bevy = bevyOpener.open(imageStreamConfig, bevyIndex)
-    aff4BevyFactory.create(
+    aff4BevySourceProviderFactory.create(
       imageStreamConfig = imageStreamConfig,
       bevyIndexReader = bevyIndexReaderFactory.create(imageStreamConfig, bevy),
       bevyChunkCache = bevyChunkCache,

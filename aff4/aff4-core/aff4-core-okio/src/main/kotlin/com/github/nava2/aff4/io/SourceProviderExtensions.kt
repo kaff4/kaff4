@@ -2,6 +2,7 @@ package com.github.nava2.aff4.io
 
 import okio.BufferedSource
 import okio.Source
+import okio.Timeout
 import okio.buffer
 import java.io.InputStream
 
@@ -11,12 +12,27 @@ fun SourceProvider<Source>.buffer(): SourceProvider<BufferedSource> {
   }
 }
 
-inline fun <T, SOURCE : Source> SourceProvider<SOURCE>.use(block: (source: SOURCE) -> T) {
-  return get().use { block(it) }
+inline fun <T, SOURCE : Source> SourceProvider<SOURCE>.use(
+  position: Long = 0L,
+  timeout: Timeout = Timeout.NONE,
+  block: (source: SOURCE) -> T,
+): T {
+  return source(position, timeout).use { block(it) }
 }
 
-inline fun <T, SOURCE : Source> SourceProvider<SOURCE>.useAsInputStream(block: (input: InputStream) -> T) {
-  return buffer().use { source ->
+inline fun <T, SOURCE : Source> SourceProvider<SOURCE>.use(
+  timeout: Timeout,
+  block: (source: SOURCE) -> T,
+): T {
+  return source(timeout).use { block(it) }
+}
+
+inline fun <T, SOURCE : Source> SourceProvider<SOURCE>.useAsInputStream(
+  position: Long = 0L,
+  timeout: Timeout = Timeout.NONE,
+  block: (input: InputStream) -> T,
+): T {
+  return buffer().use(position, timeout) { source ->
     source.inputStream().use { block(it) }
   }
 }

@@ -2,10 +2,11 @@ package com.github.nava2.aff4.model
 
 import com.github.nava2.aff4.model.rdf.Aff4RdfModel
 import com.github.nava2.aff4.model.rdf.Hash
+import okio.Timeout
 
-interface VerifiableStream {
+interface VerifiableStreamProvider {
   /** Verifies `this` streams content. This may recompute on each call or may reuse previous results. */
-  fun verify(aff4Model: Aff4Model): Result
+  fun verify(aff4Model: Aff4Model, timeout: Timeout = Timeout.NONE): Result
 
   sealed interface Result {
     val failedHashes: Collection<FailedHash>
