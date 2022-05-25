@@ -12,19 +12,32 @@ internal class Aff4ImageBevies @AssistedInject constructor(
   @Assisted internal val bevyChunkCache: BevyChunkCache,
 ) : AutoCloseable {
 
+  @Volatile
+  private var closed = false
+
   private val bevies = mutableMapOf<Int, Aff4BevySourceProvider>()
 
-  fun getOrLoadBevy(bevyIndex: Int): Aff4BevySourceProvider = bevies.getOrPut(bevyIndex) {
-    val bevy = bevyOpener.open(imageStreamConfig, bevyIndex)
-    aff4BevySourceProviderFactory.create(
-      imageStreamConfig = imageStreamConfig,
-      bevyIndexReader = bevyIndexReaderFactory.create(imageStreamConfig, bevy),
-      bevyChunkCache = bevyChunkCache,
-      bevy = bevy,
-    )
+  fun getOrLoadBevy(bevyIndex: Int): Aff4BevySourceProvider {
+    check(!closed) { "closed" }
+
+    return bevies.getOrPut(bevyIndex) {
+      val bevy = bevyOpener.open(imageStreamConfig, bevyIndex)
+      aff4BevySourceProviderFactory.create(
+        imageStreamConfig = imageStreamConfig,
+        bevyIndexReader = bevyIndexReaderFactory.create(imageStreamConfig, bevy),
+        bevyChunkCache = bevyChunkCache,
+        bevy = bevy,
+      )
+    }
   }
 
   override fun close() {
+    if (closed) return
+    synchronized(this) {
+      if (closed) return
+      closed = true
+    }
+
     val valuesToClose = bevies.values.toList()
     bevies.clear()
 

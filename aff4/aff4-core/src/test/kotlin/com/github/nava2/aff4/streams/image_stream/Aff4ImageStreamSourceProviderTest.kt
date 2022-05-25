@@ -12,7 +12,6 @@ import com.github.nava2.aff4.streams.compression.SnappyModule
 import okio.Buffer
 import okio.ByteString.Companion.decodeHex
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.eclipse.rdf4j.model.ValueFactory
 import org.junit.After
 import org.junit.Before
@@ -122,17 +121,5 @@ class Aff4ImageStreamSourceProviderTest {
     }
 
     assertThat(aff4ImageStreamSourceProvider.verify(aff4Model)).isEqualTo(VerifiableStreamProvider.Result.Success)
-  }
-
-  @Test
-  fun `having open sources causes close() to throw`() {
-    aff4ImageStreamSourceProvider.use { source ->
-      assertThatThrownBy { aff4ImageStreamSourceProvider.close() }
-        .isInstanceOf(IllegalStateException::class.java)
-        .hasMessage("Sources were created and not freed: 1")
-
-      source.close()
-      aff4ImageStreamSourceProvider.close() // no throw
-    }
   }
 }

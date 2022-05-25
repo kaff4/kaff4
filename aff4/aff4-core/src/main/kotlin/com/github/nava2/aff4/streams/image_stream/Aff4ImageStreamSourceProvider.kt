@@ -1,7 +1,6 @@
 package com.github.nava2.aff4.streams.image_stream
 
 import com.github.nava2.aff4.io.SourceProvider
-import com.github.nava2.aff4.io.applyAndCloseOnThrow
 import com.github.nava2.aff4.io.buffer
 import com.github.nava2.aff4.io.concatLazily
 import com.github.nava2.aff4.io.sourceProvider
@@ -12,41 +11,34 @@ import com.github.nava2.aff4.model.Aff4StreamSourceProvider
 import com.github.nava2.aff4.model.VerifiableStreamProvider
 import com.github.nava2.aff4.model.VerifiableStreamProvider.Result.FailedHash
 import com.github.nava2.aff4.model.rdf.ImageStream
-import com.github.nava2.aff4.streams.SourceProviderWithRefCounts
 import com.github.nava2.aff4.streams.computeLinearHashes
 import com.github.nava2.aff4.streams.hashingSink
 import com.google.inject.assistedinject.Assisted
 import com.google.inject.assistedinject.AssistedInject
-import okio.Buffer
-import okio.BufferedSource
 import okio.FileSystem
 import okio.Source
 import okio.Timeout
-import java.io.Closeable
 
 class Aff4ImageStreamSourceProvider @AssistedInject internal constructor(
   aff4ImageBeviesFactory: Aff4ImageBevies.Factory,
   @ForImageRoot private val imageFileSystem: FileSystem,
   @Assisted private val imageStreamConfig: ImageStream,
-) : VerifiableStreamProvider, Aff4StreamSourceProvider, SourceProviderWithRefCounts.SourceDelegate {
+) : VerifiableStreamProvider, Aff4StreamSourceProvider {
 
-  private val sourceProviderWithRefCounts = SourceProviderWithRefCounts(this)
-
-  private val aff4ImageBevies = aff4ImageBeviesFactory.create(imageStreamConfig)
-  private val chunkSize = imageStreamConfig.chunkSize
-  private val bevyMaxSize = imageStreamConfig.bevyMaxSize
+  private val aff4ImageBevies: Aff4ImageBevies = aff4ImageBeviesFactory.create(imageStreamConfig)
   private val bevyCount = imageStreamConfig.bevyCount
 
   override val size: Long = imageStreamConfig.size
 
-  private var position: Long = 0L
-
-  private var currentSource: CurrentSourceInfo? = null
-
   @Volatile
   private var verificationResult: VerifiableStreamProvider.Result? = null
 
-  override fun source(position: Long, timeout: Timeout): Source = sourceProviderWithRefCounts.source(position, timeout)
+  override fun source(position: Long, timeout: Timeout): Source = Aff4ImageStreamSource(
+    aff4ImageBevies = aff4ImageBevies,
+    imageStream = imageStreamConfig,
+    position = position,
+    timeout = timeout,
+  )
 
   override fun verify(aff4Model: Aff4Model, timeout: Timeout): VerifiableStreamProvider.Result {
     val previousResult = verificationResult
@@ -71,74 +63,11 @@ class Aff4ImageStreamSourceProvider @AssistedInject internal constructor(
   }
 
   override fun close() {
-    currentSource?.close()
-    currentSource = null
-
-    sourceProviderWithRefCounts.close()
     aff4ImageBevies.close()
   }
 
   override fun toString(): String {
     return "Aff4ImageStream(${imageStreamConfig.arn})"
-  }
-
-  override fun readAt(readPosition: Long, timeout: Timeout, sink: Buffer, byteCount: Long): Long {
-    moveTo(readPosition)
-
-    // we are exhausted
-    if (position == size) return -1L
-
-    val nextBevyIndex = position.floorDiv(bevyMaxSize).toInt()
-    val maxBytesToRead = byteCount.coerceAtMost(size - position)
-
-    val readSource = getAndUpdateCurrentSourceIfChanged(nextBevyIndex, timeout)
-
-    val bytesRead = readSource.read(sink, maxBytesToRead)
-    check(bytesRead >= 0) {
-      // because of how we read these bevies by capping their read sizes, we should never read them when they
-      // are exhausted but do a full read to their end point.
-      "Read too much of bevy [$nextBevyIndex] - $imageStreamConfig"
-    }
-
-    position += bytesRead
-
-    return bytesRead
-  }
-
-  private fun getAndUpdateCurrentSourceIfChanged(nextBevyIndex: Int, timeout: Timeout): BufferedSource {
-    val currentSource = currentSource
-
-    if (currentSource?.bevyIndex == nextBevyIndex) {
-      return currentSource.source
-    }
-
-    currentSource?.close()
-    this.currentSource = null
-
-    val bevyPosition = position % bevyMaxSize
-
-    return aff4ImageBevies.getOrLoadBevy(nextBevyIndex).buffer().source(bevyPosition, timeout).applyAndCloseOnThrow {
-      val sourceInfo = CurrentSourceInfo(nextBevyIndex, this)
-
-      this@Aff4ImageStreamSourceProvider.currentSource = sourceInfo
-    }
-  }
-
-  private fun moveTo(newPosition: Long) {
-    val cappedPosition = newPosition.coerceAtMost(size)
-    when {
-      cappedPosition == position -> return
-      cappedPosition > position && cappedPosition - position < chunkSize -> {
-        // try and skip forwards if its a small gap
-        currentSource?.source?.skip(cappedPosition - position)
-      }
-      else -> {
-        currentSource?.close()
-        currentSource = null
-      }
-    }
-
-    position = cappedPosition
   }
 
   private fun verifyLinearHashes(timeout: Timeout): Sequence<FailedHash> = sequence {
@@ -182,11 +111,6 @@ class Aff4ImageStreamSourceProvider @AssistedInject internal constructor(
       }
     }
   }
-
-  private data class CurrentSourceInfo(
-    val bevyIndex: Int,
-    val source: BufferedSource,
-  ) : Closeable by source
 
   interface Loader : Aff4StreamSourceProvider.Loader<ImageStream, Aff4ImageStreamSourceProvider>
 }
