@@ -40,7 +40,7 @@ class Sha256FileSystemFactoryTest {
 
     assertThat(shaFileSystem.mappingsView).containsEntry(
       fooBarTxt,
-      "55".toPath() / "5509116d245044864c22a8c6aed0cd5139ad8a2851f86c386f2b6aa5e1496917"
+      "ff".toPath() / "ff4111e8e4ebd83e0173a4f765a6d9e71068b5732f1e0c3ba865dfe1b8c6fad2"
     )
 
     assertThat(shaFileSystem.list(fooBarTxt.parent!!)).containsExactly(fooBarTxt)
@@ -70,14 +70,15 @@ class Sha256FileSystemFactoryTest {
     assertThat(shaFileSystem).content(fooBarTxt, fooBarTxtContent)
     assertThat(shaFileSystem).content(fooBazTxt, fooBazTxtContent)
 
-    assertThat(shaFileSystem.mappingsView).containsEntry(
-      fooBarTxt,
-      "55".toPath() / "5509116d245044864c22a8c6aed0cd5139ad8a2851f86c386f2b6aa5e1496917"
-    )
-    assertThat(shaFileSystem.mappingsView).containsEntry(
-      fooBazTxt,
-      "09".toPath() / "0924432d4c98b4b27b7676e4a618ddc49a637b8791da312c59e9451a49e345e3"
-    )
+    assertThat(shaFileSystem.mappingsView)
+      .containsEntry(
+        fooBarTxt,
+        "ff".toPath() / "ff4111e8e4ebd83e0173a4f765a6d9e71068b5732f1e0c3ba865dfe1b8c6fad2"
+      )
+      .containsEntry(
+        fooBazTxt,
+        "ef".toPath() / "effa498b575546a19dc5242a525d665f14cbdb2e9be16561786e5c9937273a8f"
+      )
 
     assertThat(shaFileSystem.list(fooBarTxt.parent!!)).containsExactlyInAnyOrder(fooBarTxt, fooBazTxt)
   }
@@ -93,7 +94,7 @@ class Sha256FileSystemFactoryTest {
 
     assertThat(shaFileSystem.mappingsView).containsEntry(
       fooBarTxt,
-      "55".toPath() / "5509116d245044864c22a8c6aed0cd5139ad8a2851f86c386f2b6aa5e1496917"
+      "ff".toPath() / "ff4111e8e4ebd83e0173a4f765a6d9e71068b5732f1e0c3ba865dfe1b8c6fad2"
     )
 
     shaFileSystem.delete(fooBarTxt)
