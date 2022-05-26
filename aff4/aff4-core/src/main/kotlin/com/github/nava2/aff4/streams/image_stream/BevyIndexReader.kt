@@ -47,6 +47,7 @@ internal class BevyIndexReader @AssistedInject constructor(
     resetSource()
   }
 
+  @Synchronized
   private fun loadIndex(bevy: Bevy, indexIndex: Long): IndexValue? {
     val indexFilePosition = indexIndex * IndexValue.SIZE_BYTES
 
@@ -84,6 +85,7 @@ internal class BevyIndexReader @AssistedInject constructor(
     return IndexValue(offset, length)
   }
 
+  @Synchronized
   private fun resetSource() {
     bufferArray.limit(0)
     currentSource?.close()

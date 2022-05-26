@@ -9,9 +9,7 @@ import com.github.nava2.aff4.streams.compression.SnappyModule
 import okio.Buffer
 import okio.ByteString.Companion.decodeHex
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.eclipse.rdf4j.model.ValueFactory
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -49,12 +47,6 @@ class Aff4BevySourceProviderTest {
     aff4ImageBevies = aff4ImageBeviesFactory.create(imageStreamConfig, bevyChunkCache)
 
     aff4BevySourceProvider = aff4ImageBevies.getOrLoadBevy(0)
-  }
-
-  @After
-  fun after() {
-    aff4ImageBevies.close()
-    aff4BevySourceProvider.close()
   }
 
   @Test
@@ -137,18 +129,6 @@ class Aff4BevySourceProviderTest {
         assertThat(readSink.size).isEqualTo(chunkSize)
         assertThat(readSink.md5()).isEqualTo("fea53f346a83f6fca5d4fa89ac96e758".decodeHex())
       }
-    }
-  }
-
-  @Test
-  fun `having open sources causes close() to throw`() {
-    aff4BevySourceProvider.use { source ->
-      assertThatThrownBy { aff4BevySourceProvider.close() }
-        .isInstanceOf(IllegalStateException::class.java)
-        .hasMessage("Sources were created and not freed: 1")
-
-      source.close()
-      aff4BevySourceProvider.close() // no throw
     }
   }
 }

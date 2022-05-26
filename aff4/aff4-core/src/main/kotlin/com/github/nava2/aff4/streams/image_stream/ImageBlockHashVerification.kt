@@ -23,7 +23,7 @@ internal class ImageBlockHashVerification @Inject constructor(
     .maximumSize(BLOCK_HASH_VALUES_CACHE)
     .build<CacheKey, ExpectedHashes>()
 
-  fun verifyBlock(timeout: Timeout, bevy: Bevy, chunkIndex: Long, chunkBuffer: ByteBuffer) {
+  fun verifyBlock(bevy: Bevy, chunkIndex: Long, chunkBuffer: ByteBuffer, timeout: Timeout) {
     val expectedHashes = expectedHashesCache
       .get(CacheKey(bevy.arn, chunkIndex)) {
         timeout.throwIfReached()
