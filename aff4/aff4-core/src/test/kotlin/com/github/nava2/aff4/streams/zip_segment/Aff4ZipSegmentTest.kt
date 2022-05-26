@@ -13,7 +13,6 @@ import com.github.nava2.aff4.streams.hashingSink
 import okio.ByteString.Companion.decodeHex
 import okio.ByteString.Companion.encodeUtf8
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.eclipse.rdf4j.model.ValueFactory
 import org.junit.After
 import org.junit.Before
@@ -107,18 +106,6 @@ class Aff4ZipSegmentTest {
       source.readAll(sha1Sink)
       assertThat(sha1Sink.hash).isEqualTo("9ae1b46bead70c322eef7ac8bc36a8ea2055595c".decodeHex())
       assertThat(md5Sink.hash).isEqualTo("75d83773f8d431a3ca91bfb8859e486d".decodeHex())
-    }
-  }
-
-  @Test
-  fun `having open sources causes close() to throw`() {
-    bufferedProvider.use { source ->
-      assertThatThrownBy { aff4ZipSegment.close() }
-        .isInstanceOf(IllegalStateException::class.java)
-        .hasMessage("Sources were created and not freed: 1")
-
-      source.close()
-      aff4ZipSegment.close() // no throw
     }
   }
 }

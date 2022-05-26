@@ -15,14 +15,11 @@ jobs:
         with:
           lfs: true
 
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
+      - name: Build engine-jvm
+        uses: burrunan/gradle-cache-action@v1
         with:
           build-root-directory: ./engine-jvm
-                  
-          # Only write to the cache for builds on the 'main' branch.
-          # Builds on other branches will only read existing entries from the cache.
-          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+          arguments: testClasses
 
       - name: Execute gradlew check
         working-directory: ./engine-jvm
@@ -34,5 +31,3 @@ jobs:
         with:
           name: build-reports
           path: engine-jvm/**/build/reports/
-      
-      - run: echo "🍏 This job's status is ${{ job.status }}."
