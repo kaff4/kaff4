@@ -79,12 +79,12 @@ internal class Aff4BevySink @Inject constructor(
     synchronized(this) {
       if (closed) return
       closed = true
+    }
 
-      writeBuffersToSinks()
+    writeBuffersToSinks()
 
-      for (sink in sinks()) {
-        sink.close()
-      }
+    for (sink in sinks()) {
+      sink.close()
     }
   }
 

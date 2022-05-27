@@ -11,11 +11,11 @@ enum class HashType(val byteCount: Int) {
   MD5(byteCount = 16),
   ;
 
-  fun value(hash: ByteString): Hash = when (this) {
-    SHA1 -> Hash.Sha1(hash)
-    SHA256 -> Hash.Sha256(hash)
-    SHA512 -> Hash.Sha512(hash)
-    MD5 -> Hash.Md5(hash)
+  fun value(hashBytes: ByteString): Hash = when (this) {
+    SHA1 -> Hash.Sha1(hashBytes)
+    SHA256 -> Hash.Sha256(hashBytes)
+    SHA512 -> Hash.Sha512(hashBytes)
+    MD5 -> Hash.Md5(hashBytes)
   }
 }
 

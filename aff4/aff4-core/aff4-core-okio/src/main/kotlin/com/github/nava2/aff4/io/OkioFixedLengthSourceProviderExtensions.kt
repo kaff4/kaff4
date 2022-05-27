@@ -1,8 +1,8 @@
 package com.github.nava2.aff4.io
 
 import okio.Buffer
+import okio.ForwardingSource
 import okio.Source
-import okio.Timeout
 
 fun <SOURCE : Source> SourceProvider<SOURCE>.bounded(position: Long, length: Long): SourceProvider<Source> {
   require(position >= 0L) { "position < 0" }
@@ -31,9 +31,9 @@ fun <SOURCE : Source> SourceProvider<SOURCE>.limit(length: Long): SourceProvider
 }
 
 private class FixedLengthSource(
-  private val delegate: Source,
+  delegate: Source,
   private val length: Long,
-) : Source {
+) : ForwardingSource(delegate) {
   private var position = 0L
 
   override fun read(sink: Buffer, byteCount: Long): Long {
@@ -49,10 +49,6 @@ private class FixedLengthSource(
       readBytes
     }
   }
-
-  override fun close() = delegate.close()
-
-  override fun timeout(): Timeout = delegate.timeout()
 
   override fun toString(): String = "fixedLength($delegate, $length)"
 }
