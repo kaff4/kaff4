@@ -14,7 +14,6 @@ import okio.ByteString.Companion.decodeHex
 import okio.ByteString.Companion.encodeUtf8
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -48,11 +47,6 @@ class Aff4ZipSegmentTest {
       valueFactory.createIRI("aff4://5aea2dd0-32b4-4c61-a9db-677654be6f83//test_images/AFF4-L/dream.txt")
     aff4ZipSegment = aff4StreamOpener.openStream(zipSegmentIri) as Aff4ZipSegmentSourceProvider
     zipSegment = aff4ZipSegment.zipSegment
-  }
-
-  @After
-  fun close() {
-    aff4ZipSegment.close()
   }
 
   @Test

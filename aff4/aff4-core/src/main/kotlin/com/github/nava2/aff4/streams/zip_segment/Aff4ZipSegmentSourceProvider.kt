@@ -23,10 +23,12 @@ internal class Aff4ZipSegmentSourceProvider @AssistedInject constructor(
 ) : Aff4StreamSourceProvider,
   VerifiableStreamProvider,
   SourceProvider<Source> by imageFileSystem.sourceProvider(zipSegment.segmentPath).buffer() {
+
   override val size = zipSegment.size
 
   @Volatile
   private var verificationResult: VerifiableStreamProvider.Result? = null
+
   override fun verify(aff4Model: Aff4Model, timeout: Timeout): VerifiableStreamProvider.Result {
     val previousResult = verificationResult
     if (previousResult != null) {
@@ -61,6 +63,5 @@ internal class Aff4ZipSegmentSourceProvider @AssistedInject constructor(
     }
   }
 
-  override fun close() = Unit
   interface Loader : Aff4StreamSourceProvider.Loader<ZipSegment, Aff4ZipSegmentSourceProvider>
 }

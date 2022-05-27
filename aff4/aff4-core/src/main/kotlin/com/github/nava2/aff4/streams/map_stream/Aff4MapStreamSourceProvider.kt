@@ -1,9 +1,6 @@
 package com.github.nava2.aff4.streams.map_stream
 
-import com.github.nava2.aff4.io.applyAndCloseOnThrow
-import com.github.nava2.aff4.io.buffer
 import com.github.nava2.aff4.io.concatLazily
-import com.github.nava2.aff4.io.limit
 import com.github.nava2.aff4.io.sourceProvider
 import com.github.nava2.aff4.io.use
 import com.github.nava2.aff4.meta.rdf.ForImageRoot
@@ -14,44 +11,37 @@ import com.github.nava2.aff4.model.VerifiableStreamProvider
 import com.github.nava2.aff4.model.VerifiableStreamProvider.Result.FailedHash
 import com.github.nava2.aff4.model.rdf.Hash
 import com.github.nava2.aff4.model.rdf.MapStream
-import com.github.nava2.aff4.streams.SourceProviderWithRefCounts
 import com.github.nava2.aff4.streams.computeLinearHash
 import com.github.nava2.aff4.yieldNotNull
 import com.google.inject.assistedinject.Assisted
 import com.google.inject.assistedinject.AssistedInject
-import okio.Buffer
-import okio.BufferedSource
 import okio.FileSystem
 import okio.Path
 import okio.Source
 import okio.Timeout
 import org.eclipse.rdf4j.model.IRI
-import java.io.Closeable
 
 class Aff4MapStreamSourceProvider @AssistedInject internal constructor(
   private val aff4StreamOpener: Aff4StreamOpener,
   private val mapStreamMapReader: MapStreamMapReader,
   @ForImageRoot private val imageFileSystem: FileSystem,
   @Assisted val mapStream: MapStream,
-) : Aff4StreamSourceProvider, VerifiableStreamProvider, SourceProviderWithRefCounts.SourceDelegate {
-  private val sourceProviderWithRefCounts = SourceProviderWithRefCounts(this)
-
-  private val map by lazy { mapStreamMapReader.loadMap(mapStream) }
+) : Aff4StreamSourceProvider, VerifiableStreamProvider {
+  private val map: MapStreamMap by lazy { mapStreamMapReader.loadMap(mapStream) }
 
   override val size: Long = mapStream.size
-
-  private var position: Long = 0L
-
-  private var currentSource: CurrentSourceInfo? = null
 
   @Volatile
   private var verificationResult: VerifiableStreamProvider.Result? = null
 
-  override fun source(position: Long, timeout: Timeout): Source = sourceProviderWithRefCounts.source(position, timeout)
-
-  override fun close() {
-    resetCurrentSource()
-    sourceProviderWithRefCounts.close()
+  override fun source(position: Long, timeout: Timeout): Source {
+    return Aff4MapStreamSource(
+      aff4StreamOpener = aff4StreamOpener,
+      mapStream = mapStream,
+      map = map,
+      position = position,
+      timeout = timeout,
+    )
   }
 
   override fun verify(aff4Model: Aff4Model, timeout: Timeout): VerifiableStreamProvider.Result {
@@ -130,87 +120,6 @@ class Aff4MapStreamSourceProvider @AssistedInject internal constructor(
 
     return FailedHash(mapStream, key, hash).takeIf { actualHash != hash.value }
   }
-
-  override fun readAt(readPosition: Long, timeout: Timeout, sink: Buffer, byteCount: Long): Long {
-    moveTo(readPosition)
-
-    // we are exhausted
-    if (position == size) return -1L
-
-    val entryToRead = map.query(position, byteCount).firstOrNull() ?: return -1
-
-    val maxBytesToRead = byteCount.coerceAtMost(entryToRead.length - (position - entryToRead.mappedOffset))
-
-    val readSource = getAndUpdateCurrentSourceIfChanged(position, timeout, entryToRead)
-
-    val bytesRead = readSource.read(sink, maxBytesToRead)
-    check(bytesRead >= 0) {
-      // because of how we read these targets by capping their read size to the entry.length, we *should* never read
-      // them when they are exhausted.
-      "Read too much of target [${entryToRead.targetIRI}] - $entryToRead - $mapStream"
-    }
-
-    position += bytesRead
-
-    return bytesRead
-  }
-
-  private fun getAndUpdateCurrentSourceIfChanged(
-    nextPosition: Long,
-    timeout: Timeout,
-    entryToRead: MapStreamEntry,
-  ): BufferedSource {
-    val currentSource = currentSource
-
-    if (currentSource?.entry == entryToRead) {
-      return currentSource.source
-    }
-
-    resetCurrentSource()
-
-    val targetSourceProvider = aff4StreamOpener.openStream(entryToRead.targetIRI)
-    val targetSource = targetSourceProvider
-      .limit(entryToRead.length)
-      .buffer()
-      .source(entryToRead.targetOffset, timeout)
-      .applyAndCloseOnThrow {
-        if (nextPosition != entryToRead.mappedOffset) {
-          skip(entryToRead.mappedOffset - nextPosition)
-        }
-      }
-
-    this.currentSource = CurrentSourceInfo(entryToRead, targetSource)
-
-    return targetSource
-  }
-
-  private fun moveTo(newPosition: Long) {
-    val cappedPosition = newPosition.coerceAtMost(size)
-    if (cappedPosition == position) return
-
-    val currentSource = this.currentSource
-
-    when {
-      currentSource == null -> Unit
-      cappedPosition > position && currentSource.entry.let { cappedPosition in it } -> {
-        // try and skip forwards if its a small gap
-        currentSource.source.skip(cappedPosition - position)
-      }
-      else -> resetCurrentSource()
-    }
-
-    position = cappedPosition
-  }
-
-  private fun resetCurrentSource() {
-    currentSource?.close()
-    currentSource = null
-  }
-
-  private data class CurrentSourceInfo(
-    val entry: MapStreamEntry,
-    val source: BufferedSource,
-  ) : Closeable by source
 
   interface Loader : Aff4StreamSourceProvider.Loader<MapStream, Aff4MapStreamSourceProvider>
 }

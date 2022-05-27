@@ -13,7 +13,6 @@ import okio.Buffer
 import okio.ByteString.Companion.decodeHex
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -46,11 +45,6 @@ class Aff4ImageStreamSourceProviderTest {
     imageStreamConfig = aff4Model.get(imageStreamIri, ImageStream::class)
 
     aff4ImageStreamSourceProvider = aff4ImageStreamSourceProviderLoader.load(imageStreamConfig)
-  }
-
-  @After
-  fun after() {
-    aff4ImageStreamSourceProvider.close()
   }
 
   @Test

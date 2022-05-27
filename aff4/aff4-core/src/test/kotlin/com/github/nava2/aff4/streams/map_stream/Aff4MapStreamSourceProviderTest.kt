@@ -15,9 +15,7 @@ import com.github.nava2.aff4.streams.hashingSink
 import okio.Buffer
 import okio.ByteString.Companion.decodeHex
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.eclipse.rdf4j.model.ValueFactory
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -48,11 +46,6 @@ class Aff4MapStreamSourceProviderTest {
     val mapStreamIri = valueFactory.createIRI("aff4://fcbfdce7-4488-4677-abf6-08bc931e195b")
     aff4MapStreamSourceProvider = aff4StreamOpener.openStream(mapStreamIri) as Aff4MapStreamSourceProvider
     mapStream = aff4MapStreamSourceProvider.mapStream
-  }
-
-  @After
-  fun close() {
-    aff4MapStreamSourceProvider.close()
   }
 
   @Test
@@ -129,18 +122,6 @@ class Aff4MapStreamSourceProviderTest {
 
         assertThat(md5Sink.hash).isEqualTo("dd6dbda282e27fd0d196abd95f5c3e58".decodeHex())
       }
-    }
-  }
-
-  @Test
-  fun `having open sources causes close() to throw`() {
-    bufferedProvider.use { source ->
-      assertThatThrownBy { aff4MapStreamSourceProvider.close() }
-        .isInstanceOf(IllegalStateException::class.java)
-        .hasMessage("Sources were created and not freed: 1")
-
-      source.close()
-      aff4MapStreamSourceProvider.close() // no throw
     }
   }
 }

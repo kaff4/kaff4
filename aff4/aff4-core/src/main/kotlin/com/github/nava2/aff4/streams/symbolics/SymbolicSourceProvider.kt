@@ -40,6 +40,4 @@ data class SymbolicSourceProvider(
     repetitionBoundary = chunkBoundary,
     timeout = timeout,
   )
-
-  override fun close() = Unit
 }

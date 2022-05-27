@@ -62,8 +62,6 @@ class Aff4ImageStreamSourceProvider @AssistedInject internal constructor(
     }
   }
 
-  override fun close() = Unit
-
   override fun toString(): String {
     return "Aff4ImageStream(${imageStreamConfig.arn})"
   }
