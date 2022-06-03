@@ -46,6 +46,8 @@ interface Interval : Comparable<Interval> {
   val length: Long
     get() = end - start
 
+  operator fun contains(offset: Long): Boolean = offset in start..end
+
   /**
    * Returns if this interval is adjacent to the specified interval.
    *
@@ -60,6 +62,17 @@ interface Interval : Comparable<Interval> {
 
   fun overlaps(o: Interval): Boolean {
     return end > o.start && o.end > start
+  }
+
+  fun isAdjacentOrOverlaps(o: Interval): Boolean {
+    return end >= o.start && o.end >= start
+  }
+
+  fun merge(other: Interval): Simple {
+    require(isAdjacentOrOverlaps(other)) { "$this can not merge with $other due to no overlapping or adjacent parts" }
+    val newStart = minOf(start, other.start)
+    val newEnd = maxOf(end, other.end)
+    return Simple(newStart, newEnd - newStart)
   }
 
   override operator fun compareTo(other: Interval): Int {

@@ -15,12 +15,12 @@ class TeeSink(
   override fun write(source: Buffer, byteCount: Long) {
     timeout.throwIfReached()
 
-    for ((idx, sink) in sinks.withIndex()) {
+    for ((idx, nextSink) in sinks.withIndex()) {
       if (idx == sinks.lastIndex) {
-        sink.write(source, byteCount)
+        nextSink.write(source, byteCount)
       } else {
         source.copy().use { nextSource ->
-          sink.write(nextSource, byteCount)
+          nextSink.write(nextSource, byteCount)
         }
       }
     }

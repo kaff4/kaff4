@@ -37,13 +37,18 @@ class Symbolics @Inject constructor(
   }
 
   fun provider(byte: Byte): SymbolicSourceProvider {
+    val streamIri = getArnForSimplePattern(byte)
+    return provider(streamIri)
+  }
+
+  fun getArnForSimplePattern(byte: Byte): IRI {
     val streamIri = byteMapping.getOrPut(byte) {
       val byteWithPadding = byte.toUByte().toString(radix = 16)
         .padStart(length = 2, '0')
         .uppercase()
       valueFactory.createAff4Iri("SymbolicStream$byteWithPadding")
     }
-    return provider(streamIri)
+    return streamIri
   }
 
   fun maybeGetProvider(streamIri: IRI): SymbolicSourceProvider? {

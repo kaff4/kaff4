@@ -11,6 +11,7 @@ import com.github.nava2.aff4.streams.WritingModule
 import com.github.nava2.aff4.streams.compression.SnappyCompression
 import com.github.nava2.configuration.TestConfigProviderModule
 import com.github.nava2.test.GuiceTestRule
+import okio.Buffer
 import okio.ByteString
 import okio.ByteString.Companion.decodeHex
 import okio.ByteString.Companion.encodeUtf8
@@ -21,6 +22,7 @@ import okio.Timeout
 import okio.buffer
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
+import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -58,6 +60,13 @@ class Aff4ImageStreamSinkTest {
 
   private val imageFileSystem: FileSystem by lazy { sha256FileSystemFactory.create(tempDirectory) }
 
+  private val dataBuffer = Buffer()
+
+  @After
+  fun tearDown() {
+    dataBuffer.clear()
+  }
+
   @Test
   fun `create image stream`() {
     val chunkSize = 5
@@ -87,6 +96,57 @@ class Aff4ImageStreamSinkTest {
       }
 
       this.imageStream
+    }
+
+    val md5LinearHash = HashType.MD5.value("8a7319dbf6544a7422c9e25452580ea5".decodeHex())
+    val sha256LinearHash = HashType.SHA256.value(
+      "41c7760c50efde99bf574ed8fffc7a6dd3405d546d3da929b214c8945acf8a97".decodeHex(),
+    )
+
+    assertThat(writtenImageStream)
+      .isEqualTo(
+        imageStream.copy(
+          size = content.size.toLong(),
+          linearHashes = listOf(sha256LinearHash, md5LinearHash),
+        )
+      )
+  }
+
+  @Test
+  fun `write across bevy boundary with chunk buffer partially filled`() {
+    val chunkSize = 5
+    val chunksInSegment = 2
+    val containerArn = valueFactory.createIRI("aff4://99cc4380-308f-4235-838c-e20a8898ad00")
+    val imageStream = ImageStream(
+      arn = valueFactory.createIRI("aff4://bb362b22-649c-494b-923f-e4ed0c5afef4"),
+      chunkSize = chunkSize,
+      chunksInSegment = chunksInSegment,
+      size = Long.MAX_VALUE,
+      compressionMethod = CompressionMethod.None,
+      stored = containerArn,
+      linearHashes = listOf(HashType.SHA256, HashType.MD5).map { it.value(ByteString.EMPTY) },
+    )
+
+    val content = "abcdefghijklmno".encodeUtf8()
+
+    val writtenImageStream = Aff4ImageStreamSink(
+      bevyFactory = bevyFactory,
+      outputFileSystem = imageFileSystem,
+      imageStream = imageStream,
+      blockHashTypes = listOf(),
+      timeout = Timeout.NONE,
+    ).use { imageStreamSink ->
+      dataBuffer.write(content)
+
+      // Write enough that we cross the chunk boundary but leave room for the bevy in a second write
+      imageStreamSink.write(dataBuffer, chunkSize * chunksInSegment - 3.toLong())
+
+      // now finish the content
+      imageStreamSink.write(dataBuffer, dataBuffer.size)
+
+      imageStreamSink.close()
+
+      imageStreamSink.imageStream
     }
 
     val md5LinearHash = HashType.MD5.value("8a7319dbf6544a7422c9e25452580ea5".decodeHex())

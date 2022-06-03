@@ -21,13 +21,21 @@ internal class MapStreamMapReader @Inject constructor(
   fun loadMap(mapStream: MapStream): MapStreamMap {
     val index = mapIdxFileReader.loadTargets(mapStream)
 
-    val entryTree = IntervalTree<MapStreamMap.IntervalEntry>()
+    val sortedEntries = sortedSetOf<MapStreamEntry>()
 
-    for (entries in streamEntries(mapStream, index).chunked(ENTRIES_INSERT_CHUNK_SIZE)) {
-      entryTree.insertAll(entries.map { MapStreamMap.IntervalEntry(it) })
+    for (entries in streamEntries(mapStream, index).chunked(ENTRIES_INSERT_CHUNK_SIZE) { it.toSortedSet() }) {
+      sortedEntries.addAll(entries)
     }
 
-    return MapStreamMap(mapStream.mapGapDefaultStream ?: symbolics.zero.arn, mapStream.size, entryTree)
+    val compressedTree = IntervalTree<MapStreamEntry>().apply {
+      insertAll(sortedEntries.compressedSequence())
+    }
+
+    return MapStreamMap(
+      gapTargetStream = mapStream.mapGapDefaultStream ?: symbolics.zero.arn,
+      size = mapStream.size,
+      entryTree = compressedTree,
+    )
   }
 
   private fun streamEntries(
@@ -37,11 +45,9 @@ internal class MapStreamMapReader @Inject constructor(
     val mapMapFile = mapStream.mapPath(aff4Model.containerArn)
     val gapDefaultStream = mapStream.mapGapDefaultStream ?: symbolics.zero.arn
 
-    val requiredBytes = MapStreamEntry.SIZE_BYTES.toLong()
-
     imageRootFileSystem.source(mapMapFile).buffer().use { source ->
       while (!source.exhausted()) {
-        source.require(requiredBytes)
+        source.require(MapStreamEntry.SIZE_BYTES)
 
         val mappedOffset = source.readLongLe()
         val length = source.readLongLe()

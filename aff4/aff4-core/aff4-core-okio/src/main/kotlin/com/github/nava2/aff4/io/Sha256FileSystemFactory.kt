@@ -14,11 +14,15 @@ class Sha256FileSystemFactory {
     return MappedFileSystem(writingFileSystem)
   }
 
-  class MappedFileSystem internal constructor(delegate: FileSystem) : ForwardingFileSystem(delegate) {
-    private val mappings = HashBiMap.create<Path, Path>()
+  class MappedFileSystem internal constructor(
+    delegate: RelativeFileSystem,
+  ) : ForwardingFileSystem(delegate) {
+    val baseDirectory = delegate.rootDirectory
 
     val mappingsView: HashBiMap<Path, Path>
       get() = HashBiMap.create(mappings)
+
+    private val mappings = HashBiMap.create<Path, Path>()
 
     override fun onPathParameter(path: Path, functionName: String, parameterName: String): Path {
       val normalized = path.normalized().toString().replace('\\', '/').toPath()

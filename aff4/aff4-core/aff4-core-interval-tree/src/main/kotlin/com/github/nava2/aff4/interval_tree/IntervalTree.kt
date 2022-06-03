@@ -77,6 +77,10 @@ class IntervalTree<T : Interval> : Iterable<T> {
     size = 1
   }
 
+  constructor(v0: T, vararg values: T) : this(v0) {
+    insertAll(values.asIterable())
+  }
+
   // /////////////////////////////////
   // Tree -- General query methods //
   // /////////////////////////////////
@@ -290,6 +294,9 @@ class IntervalTree<T : Interval> : Iterable<T> {
       insert(entry)
     }
   }
+
+  /** @see insertAll */
+  fun insertAll(entries: Sequence<T>) = insertAll(entries.asIterable())
 
   // ////////////////////////////
   // Tree -- Deletion methods //

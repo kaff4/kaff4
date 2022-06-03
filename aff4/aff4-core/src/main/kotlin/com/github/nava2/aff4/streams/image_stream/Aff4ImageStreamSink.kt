@@ -11,6 +11,7 @@ import okio.Sink
 import okio.Timeout
 import okio.blackholeSink
 import okio.buffer
+import org.eclipse.rdf4j.model.IRI
 import javax.inject.Named
 
 class Aff4ImageStreamSink(
@@ -20,12 +21,19 @@ class Aff4ImageStreamSink(
   private val blockHashTypes: Collection<HashType>,
   private val timeout: Timeout,
 ) : Sink {
+  val arn: IRI = imageStream.arn
+
   var imageStream: ImageStream = imageStream
     private set
 
   private val bevyMaxSize = imageStream.bevyMaxSize
 
-  private var dataPosition = 0L
+  var dataPosition = 0L
+    private set
+
+  // write-forward only, size is just position
+  val size: Long get() = dataPosition
+
   private var currentBevySink: Aff4BevySink
 
   init {

@@ -6,7 +6,7 @@ import okio.Path
 
 class RelativeFileSystem(
   delegate: FileSystem,
-  private val rootDirectory: Path,
+  val rootDirectory: Path,
 ) : ForwardingFileSystem(delegate) {
   override fun onPathParameter(path: Path, functionName: String, parameterName: String): Path {
     return rootDirectory.resolve(path)
@@ -19,6 +19,6 @@ class RelativeFileSystem(
   override fun toString(): String = "Relative($delegate, $rootDirectory)"
 }
 
-fun FileSystem.relativeTo(path: Path): FileSystem {
+fun FileSystem.relativeTo(path: Path): RelativeFileSystem {
   return RelativeFileSystem(this, path)
 }

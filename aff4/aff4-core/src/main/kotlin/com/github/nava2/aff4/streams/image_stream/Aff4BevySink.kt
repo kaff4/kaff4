@@ -46,7 +46,7 @@ internal class Aff4BevySink @Inject constructor(
       timeout.throwIfReached()
 
       if (uncompressedChunkBuffer.hasRemaining()) {
-        val bytesFromSource = source.read(uncompressedChunkBuffer)
+        val bytesFromSource = readRemainingBytesByChunkFromSource(source, bytesRemaining)
         if (bytesFromSource == -1) break
 
         bytesRemaining -= bytesFromSource
@@ -85,6 +85,19 @@ internal class Aff4BevySink @Inject constructor(
 
     for (sink in sinks()) {
       sink.close()
+    }
+  }
+
+  private fun readRemainingBytesByChunkFromSource(source: Buffer, bytesRemaining: Long): Int {
+    val initialLimit = uncompressedChunkBuffer.limit()
+    try {
+      val bytesToRead = bytesRemaining.toInt().coerceAtMost(uncompressedChunkBuffer.remaining())
+      val requiredLimit = uncompressedChunkBuffer.position() + bytesToRead
+      uncompressedChunkBuffer.limit(requiredLimit.coerceAtMost(uncompressedChunkBuffer.capacity()))
+
+      return source.read(uncompressedChunkBuffer)
+    } finally {
+      uncompressedChunkBuffer.limit(initialLimit)
     }
   }
 

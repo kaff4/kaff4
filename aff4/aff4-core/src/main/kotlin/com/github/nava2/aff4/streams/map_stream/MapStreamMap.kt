@@ -9,10 +9,10 @@ import java.util.SortedSet
 internal class MapStreamMap(
   private val gapTargetStream: IRI,
   private val size: Long,
-  private val entryTree: IntervalTree<IntervalEntry>,
+  private val entryTree: IntervalTree<MapStreamEntry>,
 ) {
 
-  private val entrySet: SortedSet<MapStreamEntry> = entryTree.asSequence().map { it.entry }.toSortedSet()
+  private val entrySet: SortedSet<MapStreamEntry> = entryTree.toSortedSet()
 
   /**
    * Queries the set of map stream entries that cover the requested interval.
@@ -24,8 +24,6 @@ internal class MapStreamMap(
     check(length >= 0)
 
     val treeEntries = entryTree.overlappers(mappedOffset, length)
-      .asSequence()
-      .map { it.entry }
 
     val finalOffset = (mappedOffset + length).coerceAtMost(size)
 
@@ -54,7 +52,7 @@ internal class MapStreamMap(
 
     // special case where there were _no_ matching entries so the loop never iterated
     val nextEntryStart by lazy(LazyThreadSafetyMode.NONE) {
-      val checkInterval = prevEntry?.asInterval() ?: Interval.Simple(mappedOffset, 0)
+      val checkInterval = prevEntry ?: Interval.Simple(mappedOffset, 0)
       entryTree.closestSuccessor(checkInterval)
         .map { it.start }
         .orElse(finalOffset)

@@ -16,6 +16,8 @@ dependencies {
   implementation(Dependencies.GUICE_ASSISTED_INJECT)
   implementation(Dependencies.CAFFIENE)
 
+  implementation("io.github.zabuzard.fastcdc4j:fastcdc4j:1.3")
+
   testImplementation(project(":aff4:aff4-compression-snappy"))
   testImplementation(project(":aff4:aff4-core:aff4-core-test"))
   testImplementation(project(":aff4:aff4-rdf:aff4-rdf-memory"))

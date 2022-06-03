@@ -39,7 +39,7 @@ class MapStreamMapReaderTest {
     val mapMap = mapStreamMapReader.loadMap(mapStream)
 
     val queriedEntries = mapMap.query(0, mapStream.size).toList()
-    assertThat(queriedEntries).hasSize(111)
+    assertThat(queriedEntries).hasSize(20)
   }
 
   @Test
