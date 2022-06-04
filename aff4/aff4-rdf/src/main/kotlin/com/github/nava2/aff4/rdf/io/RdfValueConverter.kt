@@ -2,24 +2,22 @@ package com.github.nava2.aff4.rdf.io
 
 import com.google.inject.TypeLiteral
 import org.eclipse.rdf4j.model.Value
+import org.eclipse.rdf4j.model.ValueFactory
+import javax.inject.Inject
 
-abstract class RdfValueConverter<T>(vararg types: TypeLiteral<*>) {
-  val types = types.toSet()
+abstract class RdfValueConverter<T> protected constructor(val types: Set<TypeLiteral<*>>) {
+  init {
+    require(types.isNotEmpty()) { "Must define at least one type matching" }
+  }
+
+  @Inject
+  protected lateinit var valueFactory: ValueFactory
 
   abstract fun matches(clazz: Class<*>): Boolean
 
-  abstract fun convert(clazz: Class<*>, value: Value): T?
-}
+  abstract fun parse(clazz: Class<*>, value: Value): T?
 
-abstract class ConcreteRdfValueConverter<T>(
-  vararg types: TypeLiteral<*>,
-) : RdfValueConverter<T>(types = types) {
+  abstract fun serialize(clazz: Class<*>, value: T): Value?
 
-  abstract fun convert(value: Value): T?
-
-  final override fun matches(clazz: Class<*>) = TypeLiteral.get(clazz) in types
-
-  final override fun convert(clazz: Class<*>, value: Value): T? {
-    return convert(value)
-  }
+  protected constructor(type0: TypeLiteral<*>, vararg types: TypeLiteral<*>) : this(setOf(type0) + types)
 }

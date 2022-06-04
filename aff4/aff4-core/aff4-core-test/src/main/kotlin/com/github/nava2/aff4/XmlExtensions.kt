@@ -1,4 +1,4 @@
-package com.github.nava2.aff4.model
+package com.github.nava2.aff4
 
 import java.time.ZonedDateTime
 import javax.xml.datatype.DatatypeFactory

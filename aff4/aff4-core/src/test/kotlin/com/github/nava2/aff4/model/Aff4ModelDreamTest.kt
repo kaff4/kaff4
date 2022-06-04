@@ -5,6 +5,7 @@ import com.github.nava2.aff4.meta.rdf.ForImageRoot
 import com.github.nava2.aff4.model.rdf.FileImage
 import com.github.nava2.aff4.model.rdf.Hash
 import com.github.nava2.aff4.model.rdf.ZipSegment
+import com.github.nava2.aff4.parseZonedDateTime
 import com.github.nava2.test.GuiceTestRule
 import okio.ByteString.Companion.decodeHex
 import okio.FileSystem

@@ -3,6 +3,7 @@ package com.github.nava2.aff4.rdf
 import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.ValueFactory
 
+@RdfConnectionScoped
 class NamespacesProvider internal constructor(
   private val connection: ScopedConnection,
   private val valueFactory: ValueFactory,

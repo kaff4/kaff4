@@ -1,7 +1,7 @@
 package com.github.nava2.aff4.streams.symbolics
 
-import com.github.nava2.aff4.meta.rdf.createAff4Iri
 import com.github.nava2.aff4.model.rdf.Aff4Schema
+import com.github.nava2.aff4.model.rdf.createAff4Iri
 import okio.ByteString
 import okio.ByteString.Companion.decodeHex
 import okio.ByteString.Companion.encode

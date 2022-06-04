@@ -12,6 +12,7 @@ import com.github.nava2.aff4.model.rdf.Image
 import com.github.nava2.aff4.model.rdf.ImageStream
 import com.github.nava2.aff4.model.rdf.TimeStamps
 import com.github.nava2.aff4.model.rdf.ZipVolume
+import com.github.nava2.aff4.parseZonedDateTime
 import com.github.nava2.aff4.streams.compression.SnappyCompression
 import com.github.nava2.aff4.streams.compression.SnappyModule
 import com.github.nava2.test.GuiceTestRule

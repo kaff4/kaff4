@@ -3,6 +3,7 @@ package com.github.nava2.aff4.model.rdf
 import okio.Path
 import okio.Path.Companion.toPath
 import org.eclipse.rdf4j.model.IRI
+import org.eclipse.rdf4j.model.ValueFactory
 import java.net.URLEncoder
 
 /**
@@ -30,4 +31,8 @@ fun IRI.toAff4Path(storageArn: IRI): Path {
   }
 
   return encoded.toPath()
+}
+
+fun ValueFactory.createAff4Iri(aff4LocalName: String): IRI {
+  return createIRI(Aff4Schema.SCHEMA, aff4LocalName)
 }
