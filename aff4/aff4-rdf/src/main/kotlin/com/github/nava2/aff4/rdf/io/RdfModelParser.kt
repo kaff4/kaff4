@@ -23,13 +23,13 @@ class RdfModelParser @Inject internal constructor(
     statements: Collection<Statement>,
   ): T {
     val parameterMap = LinkedHashMap<KParameter, Any?>(rdfAnnotationTypeInfo.requiredParameters.size)
-    for (subjectParam in rdfAnnotationTypeInfo.subjectParams) {
-      parameterMap[subjectParam] = subject
+    for (subjectInfo in rdfAnnotationTypeInfo.subjectProperties) {
+      parameterMap[subjectInfo.parameter] = subject
     }
 
-    for (param in rdfAnnotationTypeInfo.otherParams.keys) {
-      if (param.type.isMarkedNullable) {
-        parameterMap[param] = null
+    for (parameter in rdfAnnotationTypeInfo.otherProperties.values().map { it.parameter }) {
+      if (parameter.type.isMarkedNullable) {
+        parameterMap[parameter] = null
       }
     }
 
@@ -46,10 +46,10 @@ private fun <T : Any> buildNonSubjectParamMap(
   valueConverterProvider: RdfValueConverterProvider,
 ) {
   val statementsAndParameters = statements.associateWith {
-    rdfAnnotationTypeInfo.parametersByPredicate[it.predicate]
+    rdfAnnotationTypeInfo.otherProperties[it.predicate]
   }
 
-  val aggregateValues = mutableMapOf<ParameterInfo, MutableList<Any?>>()
+  val aggregateValues = mutableMapOf<PropertyInfo, MutableList<Any?>>()
   for ((statement, parameters) in statementsAndParameters) {
     if (parameters == null) continue
 

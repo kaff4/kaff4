@@ -38,6 +38,8 @@ class RdfModelParserTest {
   @Test
   fun `primitive properties - long`() {
     data class PrimitiveModelClass @RdfModel("test://primitive-model-class") constructor(
+      @RdfSubject
+      val subject: Resource,
       @RdfValue("test:longValue")
       val longValue: Long,
       @RdfValue("test:jlongValue")
@@ -55,16 +57,20 @@ class RdfModelParserTest {
       subject
     }
 
-    val expectedModel = PrimitiveModelClass(100L, 200L as JLong)
+    val expectedModel = PrimitiveModelClass(subject, 100L, 200L as JLong)
 
     val actualModel = queryModel<PrimitiveModelClass>(subject)
 
     assertThat(actualModel).isEqualTo(expectedModel)
+
+    verifyRoundTrip(expectedModel)
   }
 
   @Test
   fun `primitive properties - string`() {
     data class PrimitiveModelClass @RdfModel("test://primitive-model-class") constructor(
+      @RdfSubject
+      val subject: Resource,
       @RdfValue("test:stringValue")
       val stringValue: String,
     )
@@ -79,11 +85,13 @@ class RdfModelParserTest {
       subject
     }
 
-    val expectedModel = PrimitiveModelClass("FooBar")
+    val expectedModel = PrimitiveModelClass(subject, "FooBar")
 
     val actualModel = queryModel<PrimitiveModelClass>(subject)
 
     assertThat(actualModel).isEqualTo(expectedModel)
+
+    verifyRoundTrip(expectedModel)
   }
 
   interface WithSubject {
@@ -122,11 +130,15 @@ class RdfModelParserTest {
     val actualModel = queryModel<PrimitiveModelClass>(subject)
 
     assertThat(actualModel).isEqualTo(expectedModel)
+
+    verifyRoundTrip(expectedModel)
   }
 
   @Test
   fun `primitive properties - int`() {
     data class PrimitiveModelClass @RdfModel("test://primitive-model-class") constructor(
+      @RdfSubject
+      val subject: Resource,
       @RdfValue("test:intValue")
       val intValue: Int,
       @RdfValue("test:jintValue")
@@ -144,11 +156,13 @@ class RdfModelParserTest {
       subject
     }
 
-    val expectedModel = PrimitiveModelClass(100, 200 as JInteger)
+    val expectedModel = PrimitiveModelClass(subject, 100, 200 as JInteger)
 
     val actualModel = queryModel<PrimitiveModelClass>(subject)
 
     assertThat(actualModel).isEqualTo(expectedModel)
+
+    verifyRoundTrip(expectedModel)
   }
 
   private fun setupStatements(block: SetupFixture.() -> Resource): Resource {
@@ -163,6 +177,15 @@ class RdfModelParserTest {
     return rdfConnectionScoping.scoped { conn: ScopedConnection, rdfModelParser: RdfModelParser ->
       val statements = conn.queryStatements(subj = subject).use { it.toList() }
       rdfModelParser.parse(T::class, subject, statements)
+    }
+  }
+
+  private inline fun <reified T : Any> verifyRoundTrip(value: T) {
+    return rdfConnectionScoping.scoped { parser: RdfModelParser, serializer: RdfModelSerializer ->
+      val statements = serializer.serialize(value).toList()
+
+      val fromParser = parser.parse(T::class, statements.first().subject, statements)
+      assertThat(fromParser).isEqualTo(value)
     }
   }
 

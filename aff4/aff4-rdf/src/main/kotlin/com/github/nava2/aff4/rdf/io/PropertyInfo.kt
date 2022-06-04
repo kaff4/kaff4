@@ -1,16 +1,16 @@
 package com.github.nava2.aff4.rdf.io
 
 import org.apache.commons.lang3.ClassUtils
-import org.eclipse.rdf4j.model.IRI
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 import java.lang.reflect.WildcardType
 import kotlin.reflect.KParameter
+import kotlin.reflect.KProperty
 import kotlin.reflect.jvm.javaType
 
-internal data class ParameterInfo(
+internal data class PropertyInfo(
   val parameter: KParameter,
-  val predicate: IRI,
+  val property: KProperty<*>,
 ) {
   val collectionType: Class<*>?
   val elementType: Class<*>

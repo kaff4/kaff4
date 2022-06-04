@@ -2,7 +2,9 @@ package com.github.nava2.aff4.rdf.io
 
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.nava2.aff4.rdf.NamespacesProvider
+import com.google.common.collect.ImmutableMultimap
 import org.eclipse.rdf4j.model.IRI
+import org.eclipse.rdf4j.model.Resource
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.reflect.KClass
@@ -21,14 +23,15 @@ private const val CACHE_SIZE = 20L
 internal data class RdfAnnotationTypeInfo<T : Any>(
   val klass: KClass<T>,
   val rdfType: IRI,
-  val subjectParams: Set<KParameter>,
-  val otherParams: Map<KParameter, ParameterInfo>,
+  val subjectProperties: Set<PropertyInfo>,
+  val otherProperties: ImmutableMultimap<IRI, PropertyInfo>,
 ) {
   val constructor = findRdfConstructor(klass)
 
-  val requiredParameters = constructor.parameters.filter { !it.isOptional }.toSet()
+  @Suppress("UNCHECKED_CAST")
+  val subjectProperty: KProperty<Resource>? = subjectProperties.firstOrNull()?.property as? KProperty<Resource>
 
-  val parametersByPredicate = otherParams.entries.groupBy({ it.value.predicate }) { it.value }
+  val requiredParameters = constructor.parameters.filter { !it.isOptional }.toSet()
 
   @Singleton
   class Lookup @Inject constructor() {
@@ -37,8 +40,13 @@ internal data class RdfAnnotationTypeInfo<T : Any>(
       .build<KClass<*>, RdfAnnotationTypeInfo<*>>()
 
     fun <T : Any> get(type: KClass<T>, namespacesProvider: NamespacesProvider): RdfAnnotationTypeInfo<T> {
+      val fromCache = cache.get(type) { key ->
+        @Suppress("UNCHECKED_CAST")
+        computeInfo(key as KClass<T>, namespacesProvider)
+      }
+
       @Suppress("UNCHECKED_CAST")
-      return cache.get(type) { key -> computeInfo(key as KClass<T>, namespacesProvider) } as RdfAnnotationTypeInfo<T>
+      return fromCache as RdfAnnotationTypeInfo<T>
     }
 
     private fun <T : Any> computeInfo(
@@ -50,12 +58,14 @@ internal data class RdfAnnotationTypeInfo<T : Any>(
       val memberProperties = type.memberProperties.associateBy { it.name }
       val memoizedPropertyMaps = mutableMapOf<KClass<*>, Map<String, KProperty<*>>>(type to memberProperties)
 
-      val subjectParams = mutableSetOf<KParameter>()
+      val subjectParams = mutableSetOf<PropertyInfo>()
 
-      val otherParams = mutableMapOf<KParameter, ParameterInfo>()
+      val otherParams = ImmutableMultimap.builder<IRI, PropertyInfo>()
       for (parameter in constructor.parameters) {
+        val propertyInfo = PropertyInfo(parameter, memberProperties.getValue(parameter.name!!))
+
         if (isAnnotationPresent<RdfSubject>(memoizedPropertyMaps, type, parameter)) {
-          subjectParams.add(parameter)
+          subjectParams.add(propertyInfo)
           continue
         }
 
@@ -64,11 +74,16 @@ internal data class RdfAnnotationTypeInfo<T : Any>(
             ?: "aff4:${parameter.name}"
         )
 
-        otherParams[parameter] = ParameterInfo(parameter, predicate)
+        otherParams.put(predicate, propertyInfo)
       }
 
       val rdfType = (type.findAnnotation<RdfModel>() ?: constructor.findAnnotation())!!.rdfType
-      return RdfAnnotationTypeInfo(type, namespacesProvider.iriFromTurtle(rdfType), subjectParams, otherParams)
+      return RdfAnnotationTypeInfo(
+        klass = type,
+        rdfType = namespacesProvider.iriFromTurtle(rdfType),
+        subjectProperties = subjectParams,
+        otherProperties = otherParams.build(),
+      )
     }
   }
 }
