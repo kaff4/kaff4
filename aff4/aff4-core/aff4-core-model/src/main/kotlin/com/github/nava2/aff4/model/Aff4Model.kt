@@ -5,9 +5,10 @@ import com.github.nava2.aff4.model.rdf.ZipVolume
 import okio.FileSystem
 import okio.Path
 import org.eclipse.rdf4j.model.IRI
+import java.io.Closeable
 import kotlin.reflect.KClass
 
-interface Aff4Model : AutoCloseable {
+interface Aff4Model : Closeable {
   val imageRootFileSystem: FileSystem
   val containerArn: IRI
   val container: ZipVolume?

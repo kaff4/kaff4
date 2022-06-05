@@ -4,6 +4,7 @@ import com.github.nava2.aff4.io.TeeSink
 import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.model.rdf.HashType
 import com.github.nava2.aff4.model.rdf.ImageStream
+import com.github.nava2.aff4.streams.Aff4Sink
 import com.github.nava2.aff4.streams.hashingSink
 import okio.Buffer
 import okio.FileSystem
@@ -14,25 +15,26 @@ import okio.blackholeSink
 import okio.buffer
 import javax.inject.Named
 
-class Aff4ImageStreamSink(
+internal class Aff4ImageStreamSink constructor(
   private val bevyFactory: Bevy.Factory,
   @Named("ImageOutput") private val outputFileSystem: FileSystem,
   imageStream: ImageStream,
   private val blockHashTypes: Collection<HashType>,
   private val timeout: Timeout,
-) : Sink {
-  val arn: Aff4Arn = imageStream.arn
+) : Aff4Sink {
+  override val arn: Aff4Arn = imageStream.arn
 
   var imageStream: ImageStream = imageStream
     private set
 
+  override val model: ImageStream by ::imageStream
+
   private val bevyMaxSize = imageStream.bevyMaxSize
 
-  var dataPosition = 0L
-    private set
+  private var dataPosition = 0L
 
   // write-forward only, size is just position
-  val size: Long get() = dataPosition
+  override val size: Long get() = dataPosition
 
   private var currentBevySink: Aff4BevySink
 

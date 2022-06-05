@@ -19,11 +19,7 @@ jobs:
         uses: burrunan/gradle-cache-action@v1
         with:
           build-root-directory: ./engine-jvm
-          arguments: testClasses
-
-      - name: Execute gradlew check
-        working-directory: ./engine-jvm
-        run: ./gradlew check --continue 
+          arguments: check --continue 
 
       - name: Upload build reports
         uses: actions/upload-artifact@v3

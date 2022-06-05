@@ -1,12 +1,13 @@
 package com.github.nava2.aff4.streams.map_stream
 
-import com.github.nava2.aff4.io.Seekable
+import com.github.nava2.aff4.io.SeekableSink
+import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.model.rdf.MapStream
+import com.github.nava2.aff4.streams.Aff4Sink
 import com.github.nava2.aff4.streams.image_stream.Aff4ImageStreamSink
 import com.github.nava2.aff4.streams.symbolics.Symbolics
 import okio.Buffer
 import okio.FileSystem
-import okio.Sink
 import okio.Timeout
 import okio.buffer
 import okio.use
@@ -22,7 +23,9 @@ internal class Aff4MapStreamSink(
   private val dataStreamSink: Aff4ImageStreamSink,
   mapStream: MapStream,
   private val timeout: Timeout,
-) : Sink, Seekable {
+) : SeekableSink, Aff4Sink {
+  override val arn: Aff4Arn = mapStream.arn
+
   var mapStream: MapStream = mapStream
     get() {
       check(closed) { "do not use until closing stream" }
@@ -30,8 +33,7 @@ internal class Aff4MapStreamSink(
     }
     private set
 
-  var size: Long = 0L
-    private set
+  override val model: MapStream by ::mapStream
 
   private var _position: Long = 0L
 
@@ -44,6 +46,9 @@ internal class Aff4MapStreamSink(
       _position = value
       dataChunkSink.position = value
     }
+
+  override var size: Long = 0L
+    private set
 
   private val dataChunkSink = SeekableMapDataStreamChunkSink(dataStreamSink, timeout)
 

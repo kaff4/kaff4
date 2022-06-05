@@ -3,12 +3,12 @@ package com.github.nava2.aff4.streams.map_stream
 import com.github.nava2.aff4.interval_tree.IntervalTree
 import com.github.nava2.aff4.io.Seekable
 import com.github.nava2.aff4.model.rdf.Aff4Arn
-import com.github.nava2.aff4.streams.image_stream.Aff4ImageStreamSink
+import com.github.nava2.aff4.streams.Aff4Sink
 import okio.Buffer
 import okio.Timeout
 
 internal class SeekableMapDataStreamChunkSink(
-  private val dataStreamSink: Aff4ImageStreamSink,
+  private val dataStreamSink: Aff4Sink,
   private val timeout: Timeout,
 ) : MapDataChunkSink, Seekable {
 

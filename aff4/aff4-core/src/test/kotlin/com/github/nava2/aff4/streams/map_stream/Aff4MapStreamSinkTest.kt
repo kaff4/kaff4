@@ -62,7 +62,7 @@ class Aff4MapStreamSinkTest {
   @Inject
   private lateinit var symbolics: Symbolics
 
-  val consistentRandom: Random = Random(0L)
+  private val consistentRandom: Random = Random(0L)
 
   @Inject
   private lateinit var sha256FileSystemFactory: Sha256FileSystemFactory
