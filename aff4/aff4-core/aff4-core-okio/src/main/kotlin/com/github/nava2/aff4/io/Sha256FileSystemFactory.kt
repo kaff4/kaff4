@@ -9,8 +9,10 @@ import okio.Path
 import okio.Path.Companion.toPath
 
 class Sha256FileSystemFactory {
-  fun create(baseDirectory: Path): MappedFileSystem {
-    val writingFileSystem = FileSystem.SYSTEM.relativeTo(baseDirectory)
+  fun create(baseDirectory: Path): MappedFileSystem = create(FileSystem.SYSTEM, baseDirectory)
+
+  fun create(baseFileSystem: FileSystem, baseDirectory: Path): MappedFileSystem {
+    val writingFileSystem = baseFileSystem.relativeTo(baseDirectory)
     return MappedFileSystem(writingFileSystem)
   }
 

@@ -29,7 +29,7 @@ class MapStreamEntryIntervalTreeExtensionsTest {
       mappedOffset = 0L,
       length = 1L,
       targetOffset = 1024L,
-      targetIRI = valueFactory.createIRI("aff4://target-0"),
+      targetArn = valueFactory.createIRI("aff4://target-0"),
     )
     val tree = IntervalTree(entry)
 
@@ -42,7 +42,7 @@ class MapStreamEntryIntervalTreeExtensionsTest {
       mappedOffset = 0L,
       length = 1L,
       targetOffset = 1024L,
-      targetIRI = valueFactory.createIRI("aff4://target-0"),
+      targetArn = valueFactory.createIRI("aff4://target-0"),
     )
     val entry1 = entry0.copy(mappedOffset = 1L, targetOffset = 1025L)
 
@@ -54,7 +54,7 @@ class MapStreamEntryIntervalTreeExtensionsTest {
     val entry5 = entry1.copy(
       mappedOffset = 6L,
       targetOffset = 1028L,
-      targetIRI = valueFactory.createIRI("aff4://target-1"),
+      targetArn = valueFactory.createIRI("aff4://target-1"),
     )
 
     val tree = IntervalTree(entry0, entry1, entry2, entry3, entry4, entry5)

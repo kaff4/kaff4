@@ -32,10 +32,12 @@ class RdfModelSerializer @Inject internal constructor(
 
       if (propertyValue is Collection<*> && info.collectionType != null) {
         for (childValue in propertyValue.filterNotNull()) {
-          yield(valueFactory.createStatement(subject, predicate, converter.serialize(info.elementType, childValue)))
+          val convertedValue = converter.serialize(info.elementType, childValue) ?: continue
+          yield(valueFactory.createStatement(subject, predicate, convertedValue))
         }
       } else if (propertyValue != null) {
-        yield(valueFactory.createStatement(subject, predicate, converter.serialize(info.elementType, propertyValue)))
+        val convertedValue = converter.serialize(info.elementType, propertyValue) ?: continue
+        yield(valueFactory.createStatement(subject, predicate, convertedValue))
       }
     }
   }

@@ -1,14 +1,14 @@
 package com.github.nava2.aff4.streams.map_stream
 
 import com.github.nava2.aff4.interval_tree.Interval
+import com.github.nava2.aff4.model.rdf.Aff4Arn
 import okio.BufferedSink
-import org.eclipse.rdf4j.model.IRI
 
 data class MapStreamEntry(
   val mappedOffset: Long,
   override val length: Long,
   val targetOffset: Long,
-  val targetIRI: IRI,
+  val targetArn: Aff4Arn,
 ) : Interval {
 
   override val start: Long = mappedOffset
@@ -17,7 +17,7 @@ data class MapStreamEntry(
   val mappedEndOffset: Long = end
 
   fun canMerge(other: MapStreamEntry): Boolean {
-    if (!(isAdjacentOrOverlaps(other) && targetIRI == other.targetIRI)) return false
+    if (!(isAdjacentOrOverlaps(other) && targetArn == other.targetArn)) return false
 
     // If these values are not the same then the order of the two is not consistent or they are not identically
     // sequential in both mapped spaces
@@ -35,12 +35,12 @@ data class MapStreamEntry(
       mappedOffset = newOffsetInterval.start,
       length = newOffsetInterval.length,
       targetOffset = minOf(targetOffset, other.targetOffset),
-      targetIRI = targetIRI,
+      targetArn = targetArn,
     )
   }
 
-  fun writeToSink(targetMap: Map<IRI, Int>, sink: BufferedSink) {
-    val targetIndex = targetMap.getValue(targetIRI)
+  fun writeToSink(targetMap: Map<Aff4Arn, Int>, sink: BufferedSink) {
+    val targetIndex = targetMap.getValue(targetArn)
 
     sink.writeLongLe(mappedOffset)
     sink.writeLongLe(length)

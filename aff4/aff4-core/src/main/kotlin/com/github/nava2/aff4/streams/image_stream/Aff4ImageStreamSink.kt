@@ -1,6 +1,7 @@
 package com.github.nava2.aff4.streams.image_stream
 
 import com.github.nava2.aff4.io.TeeSink
+import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.model.rdf.HashType
 import com.github.nava2.aff4.model.rdf.ImageStream
 import com.github.nava2.aff4.streams.hashingSink
@@ -11,7 +12,6 @@ import okio.Sink
 import okio.Timeout
 import okio.blackholeSink
 import okio.buffer
-import org.eclipse.rdf4j.model.IRI
 import javax.inject.Named
 
 class Aff4ImageStreamSink(
@@ -21,7 +21,7 @@ class Aff4ImageStreamSink(
   private val blockHashTypes: Collection<HashType>,
   private val timeout: Timeout,
 ) : Sink {
-  val arn: IRI = imageStream.arn
+  val arn: Aff4Arn = imageStream.arn
 
   var imageStream: ImageStream = imageStream
     private set

@@ -5,6 +5,7 @@ import com.github.nava2.aff4.meta.rdf.ForImageRoot
 import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.model.rdf.HashType
 import com.github.nava2.aff4.model.rdf.ImageStream
+import com.github.nava2.aff4.model.rdf.createArn
 import com.github.nava2.aff4.model.rdf.toAff4Path
 import okio.FileSystem
 import okio.Path
@@ -46,7 +47,7 @@ data class Bevy(
     ): Bevy {
       val imageArn = imageStream.arn
       val indexId = indexId(index)
-      val arn = valueFactory.createIRI("$imageArn/$indexId")
+      val arn = valueFactory.createArn("$imageArn/$indexId")
       val imagePath = imageArn.toAff4Path(imageStream.stored!!)
 
       return Bevy(

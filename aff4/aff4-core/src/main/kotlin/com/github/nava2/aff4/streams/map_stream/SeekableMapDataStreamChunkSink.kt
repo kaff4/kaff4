@@ -2,10 +2,10 @@ package com.github.nava2.aff4.streams.map_stream
 
 import com.github.nava2.aff4.interval_tree.IntervalTree
 import com.github.nava2.aff4.io.Seekable
+import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.streams.image_stream.Aff4ImageStreamSink
 import okio.Buffer
 import okio.Timeout
-import org.eclipse.rdf4j.model.IRI
 
 internal class SeekableMapDataStreamChunkSink(
   private val dataStreamSink: Aff4ImageStreamSink,
@@ -17,9 +17,9 @@ internal class SeekableMapDataStreamChunkSink(
 
   val entryTree: IntervalTree<MapStreamEntry> = IntervalTree()
 
-  private val _idxEntries = mutableMapOf<IRI, Int>()
+  private val _idxEntries = mutableMapOf<Aff4Arn, Int>()
 
-  val idxEntries: Map<IRI, Int> get() = _idxEntries
+  val idxEntries: Map<Aff4Arn, Int> get() = _idxEntries
 
   override var position: Long = 0L
 
@@ -59,7 +59,7 @@ internal class SeekableMapDataStreamChunkSink(
   }
 
   private fun writeEntryToTree(mapStreamEntry: MapStreamEntry) {
-    _idxEntries.putIfAbsent(mapStreamEntry.targetIRI, _idxEntries.size)
+    _idxEntries.putIfAbsent(mapStreamEntry.targetArn, _idxEntries.size)
 
     // TODO support this
     check(!entryTree.overlaps(mapStreamEntry.mappedOffset, mapStreamEntry.length)) {
@@ -70,7 +70,7 @@ internal class SeekableMapDataStreamChunkSink(
   }
 
   private fun writeChunkToImageStream(chunk: MapDataChunk.Data): MapStreamEntry {
-    val dataStreamOffset = dataStreamSink.dataPosition
+    val dataStreamOffset = dataStreamSink.size
 
     dataStreamBuffer.write(chunk.data)
     dataStreamSink.write(dataStreamBuffer, dataStreamBuffer.size)
@@ -79,7 +79,7 @@ internal class SeekableMapDataStreamChunkSink(
       mappedOffset = position,
       length = chunk.length,
       targetOffset = dataStreamOffset,
-      targetIRI = dataStreamSink.imageStream.arn,
+      targetArn = dataStreamSink.arn,
     )
   }
 }
@@ -88,5 +88,5 @@ private fun MapDataChunk.Symbolic.asMapStreamEntry(mappedOffset: Long): MapStrea
   mappedOffset = mappedOffset,
   length = length,
   targetOffset = mappedOffset,
-  targetIRI = symbolArn,
+  targetArn = symbolArn,
 )

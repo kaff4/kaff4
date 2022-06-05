@@ -75,7 +75,7 @@ internal class MapStreamMap(
       mappedOffset = mappedOffset,
       length = length,
       targetOffset = mappedOffset,
-      targetIRI = gapTargetStream,
+      targetArn = gapTargetStream,
     ).truncateEntry()
   }
 

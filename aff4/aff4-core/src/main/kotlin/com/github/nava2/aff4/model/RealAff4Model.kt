@@ -5,6 +5,7 @@ import com.github.nava2.aff4.meta.rdf.ForImageRoot
 import com.github.nava2.aff4.model.Aff4Model.Metadata
 import com.github.nava2.aff4.model.rdf.Aff4RdfModel
 import com.github.nava2.aff4.model.rdf.ZipVolume
+import com.github.nava2.aff4.model.rdf.createArn
 import com.github.nava2.aff4.rdf.RdfConnectionScoping
 import com.github.nava2.aff4.rdf.ScopedConnection
 import com.github.nava2.aff4.rdf.io.RdfModel
@@ -127,27 +128,6 @@ internal class RealAff4Model @AssistedInject constructor(
         fileSystem.relativeTo(path)
       }
 
-      val childInjector = injector.createChildInjector(
-        object : KAbstractModule() {
-          override fun configure() {
-            requireBinding(Key.get(FileSystem::class.java, ForImageRoot::class.java))
-
-            install(FactoryModuleBuilder().build(AssistedFactory::class.java))
-          }
-        }
-      )
-
-      val rdfConnectionScoping = childInjector.getInstance<RdfConnectionScoping>()
-      val valueFactory = childInjector.getInstance<ValueFactory>()
-      val assistedFactory = childInjector.getInstance<AssistedFactory>()
-
-      loadTurtle(rdfConnectionScoping, imageFileSystem)
-
-      val containerArn = imageFileSystem.read("container.description".toPath()) {
-        val iri = readString(Charsets.UTF_8)
-        valueFactory.createIRI(iri)
-      }
-
       val (version, tool) = imageFileSystem.read("version.txt".toPath()) {
         var major = -1
         var minor = -1
@@ -165,9 +145,29 @@ internal class RealAff4Model @AssistedInject constructor(
         "$major.$minor" to tool
       }
 
+      val containerArn = imageFileSystem.read("container.description".toPath()) {
+        readString(Charsets.UTF_8).trimEnd()
+      }
+
+      val childInjector = injector.createChildInjector(
+        object : KAbstractModule() {
+          override fun configure() {
+            requireBinding(Key.get(FileSystem::class.java, ForImageRoot::class.java))
+
+            install(FactoryModuleBuilder().build(AssistedFactory::class.java))
+          }
+        }
+      )
+
+      val rdfConnectionScoping = childInjector.getInstance<RdfConnectionScoping>()
+      val valueFactory = childInjector.getInstance<ValueFactory>()
+      val assistedFactory = childInjector.getInstance<AssistedFactory>()
+
+      loadTurtle(rdfConnectionScoping, imageFileSystem)
+
       return assistedFactory.create(
         imageRootFileSystem = imageFileSystem,
-        containerArn = containerArn,
+        containerArn = valueFactory.createArn(containerArn),
         metadata = Metadata(version, tool),
       )
     }

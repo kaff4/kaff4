@@ -3,6 +3,7 @@
 package com.github.nava2.aff4.rdf.io
 
 import com.github.nava2.aff4.Aff4CoreModule
+import com.github.nava2.aff4.model.rdf.createArn
 import com.github.nava2.aff4.rdf.MemoryRdfRepositoryConfiguration
 import com.github.nava2.aff4.rdf.RdfConnectionScoping
 import com.github.nava2.aff4.rdf.RdfRepositoryConfiguration
@@ -115,7 +116,7 @@ class RdfModelParserTest {
     ) : ExtendWithSubject
 
     val subject = setupStatements {
-      val subject = createIRI("test://deadbeef")
+      val subject = createArn("test://deadbeef")
       add(
         subject,
         createIRI("http://test.example.com#intValue") to createLiteral(100),
@@ -146,7 +147,7 @@ class RdfModelParserTest {
     )
 
     val subject = setupStatements {
-      val subject = createIRI("test://deadbeef")
+      val subject = createArn("test://deadbeef")
       add(
         subject,
         createIRI("http://test.example.com#intValue") to createLiteral(100),

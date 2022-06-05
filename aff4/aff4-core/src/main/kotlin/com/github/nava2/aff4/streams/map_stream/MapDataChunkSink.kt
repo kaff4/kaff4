@@ -1,7 +1,7 @@
 package com.github.nava2.aff4.streams.map_stream
 
+import com.github.nava2.aff4.model.rdf.Aff4Arn
 import okio.Timeout
-import org.eclipse.rdf4j.model.IRI
 import java.io.Closeable
 import java.io.Flushable
 import java.nio.ByteBuffer
@@ -16,11 +16,11 @@ sealed interface MapDataChunk {
   val length: Long
 
   data class Symbolic(
-    val symbolArn: IRI,
+    val symbolArn: Aff4Arn,
     override val length: Long,
   ) : MapDataChunk {
 
-    constructor(symbolArn: IRI, length: Int) : this(symbolArn, length.toLong())
+    constructor(symbolArn: Aff4Arn, length: Int) : this(symbolArn, length.toLong())
   }
 
   data class Data(

@@ -63,7 +63,7 @@ internal class MapStreamMapReader @Inject constructor(
           mappedOffset = mappedOffset,
           length = length,
           targetOffset = targetOffset,
-          targetIRI = targetIri,
+          targetArn = targetIri,
         )
         yield(entry)
       }

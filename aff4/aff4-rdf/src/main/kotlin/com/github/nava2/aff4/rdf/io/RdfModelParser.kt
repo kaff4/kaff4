@@ -13,15 +13,8 @@ class RdfModelParser @Inject internal constructor(
   private val namespacesProvider: NamespacesProvider,
 ) {
   fun <T : Any> parse(type: KClass<T>, subject: Resource, statements: Collection<Statement>): T {
-    val constructionInfo = rdfAnnotationTypeInfoLookup.get(type, namespacesProvider)
-    return parse(constructionInfo, subject, statements)
-  }
+    val rdfAnnotationTypeInfo = rdfAnnotationTypeInfoLookup.get(type, namespacesProvider)
 
-  private fun <T : Any> parse(
-    rdfAnnotationTypeInfo: RdfAnnotationTypeInfo<T>,
-    subject: Resource,
-    statements: Collection<Statement>,
-  ): T {
     val parameterMap = LinkedHashMap<KParameter, Any?>(rdfAnnotationTypeInfo.requiredParameters.size)
     for (subjectInfo in rdfAnnotationTypeInfo.subjectProperties) {
       parameterMap[subjectInfo.parameter] = subject

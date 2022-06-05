@@ -2,6 +2,7 @@ package com.github.nava2.aff4.model
 
 import com.github.nava2.aff4.Aff4ImageTestRule
 import com.github.nava2.aff4.model.rdf.Aff4ImagingOperation
+import com.github.nava2.aff4.model.rdf.Aff4Schema
 import com.github.nava2.aff4.model.rdf.Aff4TimeSource
 import com.github.nava2.aff4.model.rdf.BlockHashes
 import com.github.nava2.aff4.model.rdf.CaseDetails
@@ -12,6 +13,7 @@ import com.github.nava2.aff4.model.rdf.Image
 import com.github.nava2.aff4.model.rdf.ImageStream
 import com.github.nava2.aff4.model.rdf.TimeStamps
 import com.github.nava2.aff4.model.rdf.ZipVolume
+import com.github.nava2.aff4.model.rdf.createArn
 import com.github.nava2.aff4.parseZonedDateTime
 import com.github.nava2.aff4.streams.compression.SnappyCompression
 import com.github.nava2.aff4.streams.compression.SnappyModule
@@ -236,8 +238,8 @@ class Aff4ModelBaseLinearTest {
     )
   }
 
-  private fun arn(namespace: String, localName: String) = valueFactory.createIRI(namespace, localName)
-  private fun arn(iri: String) = valueFactory.createIRI(iri)
+  private fun arn(namespace: String, localName: String) = valueFactory.createArn(namespace, localName)
+  private fun arn(iri: String) = valueFactory.createArn(iri)
 
-  private fun aff4Type(localName: String) = valueFactory.createIRI("http://aff4.org/Schema#", localName)
+  private fun aff4Type(localName: String) = valueFactory.createArn(Aff4Schema.SCHEMA, localName)
 }

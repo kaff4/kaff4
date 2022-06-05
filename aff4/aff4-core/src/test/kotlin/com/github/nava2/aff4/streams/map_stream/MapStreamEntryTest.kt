@@ -27,7 +27,7 @@ class MapStreamEntryTest {
       mappedOffset = 1024L,
       length = 512L,
       targetOffset = 0,
-      targetIRI = valueFactory.createIRI("aff4://my-target")
+      targetArn = valueFactory.createIRI("aff4://my-target")
     )
 
     assertThat(entry.start).isEqualTo(1024L).isEqualTo(entry.mappedOffset)
@@ -40,7 +40,7 @@ class MapStreamEntryTest {
       mappedOffset = 1024L,
       length = 512L,
       targetOffset = 4096,
-      targetIRI = valueFactory.createIRI("aff4://my-target")
+      targetArn = valueFactory.createIRI("aff4://my-target")
     )
 
     // Target and Mapped offsets are overlapping: other > this
@@ -68,7 +68,7 @@ class MapStreamEntryTest {
       mappedOffset = 1024L,
       length = 512L,
       targetOffset = 4096,
-      targetIRI = valueFactory.createIRI("aff4://my-target")
+      targetArn = valueFactory.createIRI("aff4://my-target")
     )
 
     // Target and Mapped offsets are aligned: other > this
@@ -96,7 +96,7 @@ class MapStreamEntryTest {
       mappedOffset = 1024L,
       length = 512L,
       targetOffset = 4096,
-      targetIRI = valueFactory.createIRI("aff4://my-target")
+      targetArn = valueFactory.createIRI("aff4://my-target")
     )
 
     // Target and Mapped offsets are aligned: other in this
@@ -121,7 +121,7 @@ class MapStreamEntryTest {
       mappedOffset = 1024L,
       length = 512L,
       targetOffset = 0,
-      targetIRI = valueFactory.createIRI("aff4://my-target")
+      targetArn = valueFactory.createIRI("aff4://my-target")
     )
 
     // Target and Mapped offsets are misaligned
@@ -139,7 +139,7 @@ class MapStreamEntryTest {
       mappedOffset = 1024L,
       length = 512L,
       targetOffset = 0,
-      targetIRI = valueFactory.createIRI("aff4://my-target")
+      targetArn = valueFactory.createIRI("aff4://my-target")
     )
 
     // Not overlapping or adjacent mapped offset
@@ -157,13 +157,13 @@ class MapStreamEntryTest {
       mappedOffset = 1024L,
       length = 512L,
       targetOffset = 0,
-      targetIRI = valueFactory.createIRI("aff4://my-target")
+      targetArn = valueFactory.createIRI("aff4://my-target")
     )
 
     // different target
     assertThat(entry).canNotMerge(
       entry.copy(
-        targetIRI = valueFactory.createIRI("aff4://other-target")
+        targetArn = valueFactory.createIRI("aff4://other-target")
       )
     )
   }
@@ -174,10 +174,10 @@ class MapStreamEntryTest {
       mappedOffset = 1024L,
       length = 512L,
       targetOffset = 0,
-      targetIRI = valueFactory.createIRI("aff4://my-target")
+      targetArn = valueFactory.createIRI("aff4://my-target")
     )
 
-    val targetMap = mapOf(entry.targetIRI to 4096)
+    val targetMap = mapOf(entry.targetArn to 4096)
 
     okio.Buffer().use { buffer ->
       entry.writeToSink(targetMap, buffer)

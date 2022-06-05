@@ -36,7 +36,7 @@ internal class Aff4MapStreamSource(
     check(bytesRead >= 0) {
       // because of how we read these targets by capping their read size to the entry.length, we *should* never read
       // them when they are exhausted.
-      "Read too much of target [${entryToRead.targetIRI}] - $entryToRead - $mapStream"
+      "Read too much of target [${entryToRead.targetArn}] - $entryToRead - $mapStream"
     }
 
     position += bytesRead
@@ -63,7 +63,7 @@ internal class Aff4MapStreamSource(
 
     resetCurrentSource()
 
-    val targetSourceProvider = aff4StreamOpener.openStream(entryToRead.targetIRI)
+    val targetSourceProvider = aff4StreamOpener.openStream(entryToRead.targetArn)
     val targetSource = targetSourceProvider
       .limit(entryToRead.length)
       .buffer()

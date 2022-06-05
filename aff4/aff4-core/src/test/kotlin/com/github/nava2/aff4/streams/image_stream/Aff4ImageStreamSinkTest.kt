@@ -2,10 +2,13 @@ package com.github.nava2.aff4.streams.image_stream
 
 import com.github.nava2.aff4.Aff4CoreModule
 import com.github.nava2.aff4.io.Sha256FileSystemFactory
+import com.github.nava2.aff4.io.relativeTo
 import com.github.nava2.aff4.io.repeatByteString
+import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.model.rdf.CompressionMethod
 import com.github.nava2.aff4.model.rdf.HashType
 import com.github.nava2.aff4.model.rdf.ImageStream
+import com.github.nava2.aff4.model.rdf.createArn
 import com.github.nava2.aff4.rdf.MemoryRdfRepositoryModule
 import com.github.nava2.aff4.streams.WritingModule
 import com.github.nava2.aff4.streams.compression.SnappyCompression
@@ -18,11 +21,13 @@ import okio.ByteString.Companion.encodeUtf8
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toOkioPath
+import okio.Path.Companion.toPath
 import okio.Timeout
 import okio.buffer
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
 import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -58,9 +63,18 @@ class Aff4ImageStreamSinkTest {
   @Inject
   private lateinit var snappyCompression: SnappyCompression
 
-  private val imageFileSystem: FileSystem by lazy { sha256FileSystemFactory.create(tempDirectory) }
+  private val tempFileSystem by lazy { FileSystem.SYSTEM.relativeTo(tempDirectory) }
+
+  private val imageFileSystem by lazy { sha256FileSystemFactory.create(tempFileSystem, "sha256".toPath()) }
 
   private val dataBuffer = Buffer()
+
+  private lateinit var containerArn: Aff4Arn
+
+  @Before
+  fun setup() {
+    containerArn = valueFactory.createArn("aff4://99cc4380-308f-4235-838c-e20a8898ad00")
+  }
 
   @After
   fun tearDown() {
@@ -71,7 +85,6 @@ class Aff4ImageStreamSinkTest {
   fun `create image stream`() {
     val chunkSize = 5
     val chunksInSegment = 2
-    val containerArn = valueFactory.createIRI("aff4://99cc4380-308f-4235-838c-e20a8898ad00")
     val imageStream = ImageStream(
       arn = valueFactory.createIRI("aff4://bb362b22-649c-494b-923f-e4ed0c5afef4"),
       chunkSize = chunkSize,
@@ -116,7 +129,6 @@ class Aff4ImageStreamSinkTest {
   fun `write across bevy boundary with chunk buffer partially filled`() {
     val chunkSize = 5
     val chunksInSegment = 2
-    val containerArn = valueFactory.createIRI("aff4://99cc4380-308f-4235-838c-e20a8898ad00")
     val imageStream = ImageStream(
       arn = valueFactory.createIRI("aff4://bb362b22-649c-494b-923f-e4ed0c5afef4"),
       chunkSize = chunkSize,

@@ -5,6 +5,7 @@ import com.github.benmanes.caffeine.cache.LoadingCache
 import com.github.nava2.aff4.io.SourceProvider
 import com.github.nava2.aff4.io.bounded
 import com.github.nava2.aff4.model.rdf.Aff4RdfModel
+import com.github.nava2.aff4.model.rdf.createArn
 import com.github.nava2.aff4.rdf.NamespacesProvider
 import com.github.nava2.aff4.rdf.RdfConnectionScoping
 import com.github.nava2.aff4.rdf.ScopedConnection
@@ -115,7 +116,7 @@ internal class RealAff4StreamOpener @Inject constructor(
     val startIndex = startIndexHex.substringAfter("0x").toLong(radix = 16)
     val length = lengthHex.substringAfter("0x").toLong(radix = 16)
 
-    val dataStreamProvider = openStream(valueFactory.createIRI(dataStreamIri))
+    val dataStreamProvider = openStream(valueFactory.createArn(dataStreamIri))
     return dataStreamProvider.bounded(startIndex, length)
   }
 
