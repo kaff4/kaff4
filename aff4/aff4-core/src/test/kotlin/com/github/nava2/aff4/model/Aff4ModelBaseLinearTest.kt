@@ -1,6 +1,8 @@
 package com.github.nava2.aff4.model
 
 import com.github.nava2.aff4.Aff4ImageTestRule
+import com.github.nava2.aff4.UnderTest
+import com.github.nava2.aff4.model.Aff4Container.ToolMetadata
 import com.github.nava2.aff4.model.rdf.Aff4ImagingOperation
 import com.github.nava2.aff4.model.rdf.Aff4Schema
 import com.github.nava2.aff4.model.rdf.Aff4TimeSource
@@ -38,11 +40,16 @@ class Aff4ModelBaseLinearTest {
   private lateinit var snappyCompression: SnappyCompression
 
   @Inject
+  @field:UnderTest
+  private lateinit var aff4Container: Aff4Container
+
+  @Inject
+  @field:UnderTest
   private lateinit var aff4Model: Aff4Model
 
   @Test
   fun `model loads correctly`() {
-    assertThat(aff4Model.metadata).isEqualTo(Aff4Model.Metadata("1.0", "Evimetry 2.2.0"))
+    assertThat(aff4Container.metadata).isEqualTo(ToolMetadata("1.0", "Evimetry 2.2.0"))
     assertThat(aff4Model.container).isEqualTo(
       ZipVolume(
         arn = arn("aff4://685e15cc-d0fb-4dbc-ba47-48117fc77044"),

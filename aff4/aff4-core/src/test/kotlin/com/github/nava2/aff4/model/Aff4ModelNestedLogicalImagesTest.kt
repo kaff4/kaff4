@@ -1,8 +1,10 @@
 package com.github.nava2.aff4.model
 
 import com.github.nava2.aff4.Aff4LogicalImageTestRule
+import com.github.nava2.aff4.UnderTest
 import com.github.nava2.aff4.io.md5
 import com.github.nava2.aff4.io.use
+import com.github.nava2.aff4.model.Aff4Container.ToolMetadata
 import com.github.nava2.aff4.streams.compression.SnappyModule
 import com.github.nava2.test.GuiceTestRule
 import org.assertj.core.api.Assertions.assertThat
@@ -19,6 +21,11 @@ class Aff4ModelNestedLogicalImagesTest {
   private lateinit var valueFactory: ValueFactory
 
   @Inject
+  @field:UnderTest
+  private lateinit var aff4Container: Aff4Container
+
+  @Inject
+  @field:UnderTest
   private lateinit var aff4Model: Aff4Model
 
   @Inject
@@ -26,7 +33,7 @@ class Aff4ModelNestedLogicalImagesTest {
 
   @Test
   fun `model loads correctly`() {
-    assertThat(aff4Model.metadata).isEqualTo(Aff4Model.Metadata("1.1", "pyaff4"))
+    assertThat(aff4Container.metadata).isEqualTo(ToolMetadata("1.1", "pyaff4"))
     assertThat(aff4Model.containerArn).isEqualTo(arn("aff4://2872342b-8aff-4747-9325-6cd5f50bcff5"))
   }
 

@@ -6,8 +6,12 @@ inline fun <T : AutoCloseable> T.applyAndCloseOnThrow(block: T.() -> Unit): T {
 }
 
 inline fun <T : AutoCloseable, R> T.runAndCloseOnThrow(block: T.() -> R): R {
+  return alsoCloseOnThrow { block() }
+}
+
+inline fun <T : AutoCloseable, R> T.alsoCloseOnThrow(block: (T) -> R): R {
   return try {
-    block()
+    block(this)
   } catch (@Suppress("TooGenericExceptionCaught") ex: Exception) {
     try {
       close()

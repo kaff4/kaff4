@@ -1,9 +1,9 @@
 package com.github.nava2.aff4
 
-import com.github.nava2.aff4.meta.rdf.ForImageRoot
-import com.github.nava2.aff4.model.Aff4Model
-import com.github.nava2.aff4.model.Aff4ModelModule
-import com.github.nava2.aff4.model.Aff4StreamOpener
+import com.github.nava2.aff4.container.Aff4ContainerOpenerBuilder
+import com.github.nava2.aff4.container.RealAff4ContainerOpener
+import com.github.nava2.aff4.model.Aff4Container
+import com.github.nava2.aff4.model.Aff4ContainerOpener
 import com.github.nava2.guice.KAbstractModule
 import com.github.nava2.guice.getInstance
 import com.github.nava2.guice.typeLiteral
@@ -12,20 +12,15 @@ import com.google.inject.Injector
 import com.google.inject.Key
 import com.google.inject.Module
 import com.google.inject.Provides
-import com.google.inject.name.Names
 import okio.FileSystem
 import okio.Path.Companion.toPath
-import javax.inject.Inject
-import javax.inject.Named
-import javax.inject.Provider
 import javax.inject.Singleton
 
 open class Aff4ImageTestRule(val imageName: String, vararg modules: Module) : GuiceTestRule(
-  providedModules = listOf(
-    Aff4CoreModule,
-    TestImagesModule,
-  ) + modules,
+  providedModules = listOf(TestImagesModule),
 ) {
+  private val providedModules = modules.toSet()
+
   open val imageModules: List<Module> = listOf()
 
   override fun setupInjector(injector: Injector, cleanupActions: CleanupActions): Injector {
@@ -34,35 +29,43 @@ open class Aff4ImageTestRule(val imageName: String, vararg modules: Module) : Gu
       "Image path does not exist: ${imagesFileSystem.canonicalize(imageName.toPath())}"
     }
 
-    val childModules =
-      listOf(Aff4ModelModule, Aff4BaseStreamModule) +
-        imageModules +
-        object : KAbstractModule() {
-          override fun configure() {
-            bind<Aff4Model>().toProvider(Aff4ModelProvider::class.java).asEagerSingleton()
+    val aff4ContainerOpenerBuilder = injector.getInstance<Aff4ContainerOpenerBuilder>()
 
-            bind<String>().annotatedWith(Names.named("test-image-name")).toInstance(imageName)
-          }
+    val aff4ContainerOpener = aff4ContainerOpenerBuilder
+      .withFeatureModules(providedModules + imageModules)
+      .build() as RealAff4ContainerOpener
 
-          @Provides
-          @Singleton
-          @ForImageRoot
-          fun providesImageRootFileSystem(aff4Model: Aff4Model) = aff4Model.imageRootFileSystem
-        }
+    val testInjector = aff4ContainerOpener.setupContainerInjector(
+      fileSystem = imagesFileSystem,
+      path = imageName.toPath(),
+      extraModules = setOf(UnderTestModule(aff4ContainerOpener, imageName)),
+    )
 
-    val childInjector = injector.createChildInjector(childModules)
+    cleanupActions.register {
+      testInjector.getInstance(Key.get(Aff4Container::class.java, UnderTest::class.java)).close()
+    }
 
-    cleanupActions.register { childInjector.getInstance<Aff4Model>().close() }
-    cleanupActions.register { childInjector.getInstance<Aff4StreamOpener>().close() }
-
-    return childInjector
+    return testInjector
   }
 
-  private class Aff4ModelProvider @Inject constructor(
-    @ForImages private val imagesFileSystem: FileSystem,
-    private val aff4ModelLoader: Aff4Model.Loader,
-    @Named("test-image-name") private val imageName: String,
-  ) : Provider<Aff4Model> {
-    override fun get(): Aff4Model = aff4ModelLoader.load(imagesFileSystem, imageName.toPath())
+  private class UnderTestModule(
+    val aff4ContainerOpener: Aff4ContainerOpener,
+    val imageName: String
+  ) : KAbstractModule() {
+    override fun configure() = Unit
+
+    @Provides
+    @UnderTest
+    @Singleton
+    fun providesAff4ContainerUnderTest(
+      @ForImages imagesFileSystem: FileSystem,
+    ): Aff4Container {
+      return aff4ContainerOpener.open(imagesFileSystem, imageName.toPath())
+    }
+
+    @Provides
+    @Singleton
+    @UnderTest
+    fun providesAff4ModelUnderTest(@UnderTest aff4Container: Aff4Container) = aff4Container.aff4Model
   }
 }

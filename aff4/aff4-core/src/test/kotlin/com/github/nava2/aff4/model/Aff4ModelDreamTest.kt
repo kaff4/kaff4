@@ -1,10 +1,11 @@
 package com.github.nava2.aff4.model
 
 import com.github.nava2.aff4.Aff4ImageTestRule
-import com.github.nava2.aff4.meta.rdf.ForImageRoot
+import com.github.nava2.aff4.UnderTest
 import com.github.nava2.aff4.model.rdf.FileImage
 import com.github.nava2.aff4.model.rdf.Hash
 import com.github.nava2.aff4.model.rdf.ZipSegment
+import com.github.nava2.aff4.model.rdf.createArn
 import com.github.nava2.aff4.parseZonedDateTime
 import com.github.nava2.test.GuiceTestRule
 import okio.ByteString.Companion.decodeHex
@@ -24,15 +25,18 @@ class Aff4ModelDreamTest {
   private lateinit var valueFactory: ValueFactory
 
   @Inject
-  private lateinit var aff4Model: Aff4Model
+  @field:UnderTest
+  private lateinit var aff4Container: Aff4Container
 
   @Inject
-  @field:ForImageRoot
-  private lateinit var imageFileSystem: FileSystem
+  @field:UnderTest
+  private lateinit var aff4Model: Aff4Model
+
+  private val imageFileSystem: FileSystem by lazy { aff4Model.imageRootFileSystem }
 
   @Test
   fun `model loads correctly`() {
-    assertThat(aff4Model.metadata).isEqualTo(Aff4Model.Metadata("1.1", "pyaff4"))
+    assertThat(aff4Container.metadata).isEqualTo(Aff4Container.ToolMetadata("1.1", "pyaff4"))
     assertThat(aff4Model.containerArn).isEqualTo(arn("aff4://5aea2dd0-32b4-4c61-a9db-677654be6f83"))
   }
 
@@ -66,5 +70,5 @@ class Aff4ModelDreamTest {
     assertThat(imageFileSystem.exists(zipSegment.segmentPath)).isTrue()
   }
 
-  private fun arn(iri: String) = valueFactory.createIRI(iri)
+  private fun arn(iri: String) = valueFactory.createArn(iri)
 }

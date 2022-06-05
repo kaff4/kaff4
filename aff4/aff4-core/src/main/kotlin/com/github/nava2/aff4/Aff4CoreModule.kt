@@ -5,7 +5,6 @@ import com.github.nava2.aff4.rdf.RdfRepositoryModule
 import com.github.nava2.aff4.rdf.io.RdfModelParserModule
 import com.github.nava2.guice.KAbstractModule
 import com.google.inject.BindingAnnotation
-import okio.FileSystem
 
 @Target(
   AnnotationTarget.PROPERTY,
@@ -27,10 +26,6 @@ annotation class ForImages
 
 object Aff4CoreModule : KAbstractModule() {
   override fun configure() {
-    bind<FileSystem>()
-      .annotatedWith(ForResources::class.java)
-      .toInstance(FileSystem.RESOURCES)
-
     install(RdfRepositoryModule)
     install(RdfModelParserModule)
     install(Aff4RdfModelModule)

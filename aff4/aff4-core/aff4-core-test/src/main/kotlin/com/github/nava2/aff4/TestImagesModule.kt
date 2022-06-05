@@ -11,6 +11,10 @@ import javax.inject.Singleton
 object TestImagesModule : KAbstractModule() {
   override fun configure() {
     install(MemoryRdfRepositoryModule)
+
+    bind<FileSystem>()
+      .annotatedWith(ForResources::class.java)
+      .toInstance(FileSystem.RESOURCES)
   }
 
   @Provides

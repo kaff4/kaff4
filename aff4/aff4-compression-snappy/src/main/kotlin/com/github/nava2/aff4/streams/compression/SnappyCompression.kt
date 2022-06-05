@@ -9,9 +9,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class SnappyCompression @Inject constructor(
-  valueFactory: ValueFactory,
-) : CompressionMethod {
+class SnappyCompression @Inject constructor(valueFactory: ValueFactory) : CompressionMethod {
   override val method: IRI = valueFactory.createIRI("http://code.google.com/p/snappy/")
 
   override fun compress(uncompressed: ByteBuffer, compressed: ByteBuffer): Int {
@@ -22,5 +20,15 @@ class SnappyCompression @Inject constructor(
     if (!Snappy.isValidCompressedBuffer(compressed)) return 0
 
     return Snappy.uncompress(compressed, uncompressed)
+  }
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+
+    return other is CompressionMethod && method == other.method
+  }
+
+  override fun hashCode(): Int {
+    return method.hashCode()
   }
 }

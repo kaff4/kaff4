@@ -1,27 +1,17 @@
 package com.github.nava2.aff4.model
 
-import com.github.nava2.aff4.io.relativeTo
-import com.github.nava2.aff4.meta.rdf.ForImageRoot
-import com.github.nava2.aff4.model.Aff4Model.Metadata
+import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.model.rdf.Aff4RdfModel
 import com.github.nava2.aff4.model.rdf.ZipVolume
-import com.github.nava2.aff4.model.rdf.createArn
 import com.github.nava2.aff4.rdf.RdfConnectionScoping
 import com.github.nava2.aff4.rdf.ScopedConnection
 import com.github.nava2.aff4.rdf.io.RdfModel
 import com.github.nava2.aff4.rdf.io.RdfModelParser
 import com.github.nava2.aff4.rdf.querySubjectsByType
-import com.github.nava2.guice.KAbstractModule
-import com.github.nava2.guice.getInstance
-import com.google.inject.Injector
-import com.google.inject.Key
 import com.google.inject.assistedinject.Assisted
 import com.google.inject.assistedinject.AssistedInject
-import com.google.inject.assistedinject.FactoryModuleBuilder
 import okio.FileSystem
-import okio.Path
 import okio.Path.Companion.toPath
-import okio.openZip
 import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.ValueFactory
 import javax.inject.Inject
@@ -32,14 +22,15 @@ import kotlin.reflect.full.findAnnotation
 internal class RealAff4Model @AssistedInject constructor(
   private val rdfConnectionScoping: RdfConnectionScoping,
   private val valueFactory: ValueFactory,
-  @Assisted override val imageRootFileSystem: FileSystem,
-  @Assisted override val containerArn: IRI,
-  @Assisted override val metadata: Metadata,
+  @Assisted override val containerContext: Aff4ContainerContext,
 ) : Aff4Model {
+  override val imageRootFileSystem: FileSystem get() = containerContext.imageFileSystem
+  override val containerArn: Aff4Arn get() = containerContext.containerArn
+
   @Volatile
   private var closed = false
 
-  private val modelIris = mutableMapOf<KClass<*>, String>()
+  private val modelArns = mutableMapOf<KClass<*>, String>()
 
   private val _container: ZipVolume? by lazy {
     get(containerArn, ZipVolume::class)
@@ -107,69 +98,19 @@ internal class RealAff4Model @AssistedInject constructor(
   }
 
   private fun getModelRdfType(modelType: KClass<*>) =
-    modelIris.getOrPut(modelType) { modelType.findAnnotation<RdfModel>()!!.rdfType }
+    modelArns.getOrPut(modelType) { modelType.findAnnotation<RdfModel>()!!.rdfType }
 
-  private interface AssistedFactory {
-    fun create(
-      imageRootFileSystem: FileSystem,
-      containerArn: IRI,
-      metadata: Metadata,
-    ): RealAff4Model
+  internal interface AssistedFactory {
+    fun create(containerContext: Aff4ContainerContext): RealAff4Model
   }
 
   @Singleton
   internal class Loader @Inject constructor(
-    private val injector: Injector,
+    private val assistedFactory: AssistedFactory,
   ) : Aff4Model.Loader {
-    override fun load(fileSystem: FileSystem, path: Path): RealAff4Model {
-      val imageFileSystem = if (path.toFile().extension in setOf("zip", "aff4")) {
-        fileSystem.openZip(path)
-      } else {
-        fileSystem.relativeTo(path)
-      }
-
-      val (version, tool) = imageFileSystem.read("version.txt".toPath()) {
-        var major = -1
-        var minor = -1
-        lateinit var tool: String
-        for (line in readString(Charsets.UTF_8).lineSequence().filter { it.isNotEmpty() }) {
-          val (tag, value) = line.split('=')
-          when (tag) {
-            "major" -> major = value.toInt()
-            "minor" -> minor = value.toInt()
-            "tool" -> tool = value
-          }
-        }
-
-        check(major >= 0 && minor >= 0) { "Invalid version.txt" }
-        "$major.$minor" to tool
-      }
-
-      val containerArn = imageFileSystem.read("container.description".toPath()) {
-        readString(Charsets.UTF_8).trimEnd()
-      }
-
-      val childInjector = injector.createChildInjector(
-        object : KAbstractModule() {
-          override fun configure() {
-            requireBinding(Key.get(FileSystem::class.java, ForImageRoot::class.java))
-
-            install(FactoryModuleBuilder().build(AssistedFactory::class.java))
-          }
-        }
-      )
-
-      val rdfConnectionScoping = childInjector.getInstance<RdfConnectionScoping>()
-      val valueFactory = childInjector.getInstance<ValueFactory>()
-      val assistedFactory = childInjector.getInstance<AssistedFactory>()
-
-      loadTurtle(rdfConnectionScoping, imageFileSystem)
-
-      return assistedFactory.create(
-        imageRootFileSystem = imageFileSystem,
-        containerArn = valueFactory.createArn(containerArn),
-        metadata = Metadata(version, tool),
-      )
+    override fun load(containerContext: Aff4ContainerContext): RealAff4Model {
+      loadTurtle(containerContext.rdfConnectionScoping, containerContext.imageFileSystem)
+      return assistedFactory.create(containerContext = containerContext)
     }
 
     private fun loadTurtle(rdfConnectionScoping: RdfConnectionScoping, imageFileSystem: FileSystem) {
