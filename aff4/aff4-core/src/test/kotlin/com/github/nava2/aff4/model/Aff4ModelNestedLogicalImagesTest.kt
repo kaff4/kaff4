@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 class Aff4ModelNestedLogicalImagesTest {
   @get:Rule
-  val rule: GuiceTestRule = Aff4LogicalImageTestRule("nested_logical_images.aff4", SnappyModule)
+  val rule: GuiceTestRule = Aff4LogicalImageTestRule(imageName = "nested_logical_images.aff4", SnappyModule)
 
   @Inject
   private lateinit var valueFactory: ValueFactory
@@ -29,6 +29,7 @@ class Aff4ModelNestedLogicalImagesTest {
   private lateinit var aff4Model: Aff4Model
 
   @Inject
+  @field:UnderTest
   private lateinit var aff4StreamOpener: Aff4StreamOpener
 
   @Test

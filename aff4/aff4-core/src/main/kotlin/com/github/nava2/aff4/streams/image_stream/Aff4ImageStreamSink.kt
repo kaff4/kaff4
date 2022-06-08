@@ -6,6 +6,8 @@ import com.github.nava2.aff4.model.rdf.HashType
 import com.github.nava2.aff4.model.rdf.ImageStream
 import com.github.nava2.aff4.streams.Aff4Sink
 import com.github.nava2.aff4.streams.hashingSink
+import com.google.inject.assistedinject.Assisted
+import com.google.inject.assistedinject.AssistedInject
 import okio.Buffer
 import okio.FileSystem
 import okio.HashingSink
@@ -13,14 +15,13 @@ import okio.Sink
 import okio.Timeout
 import okio.blackholeSink
 import okio.buffer
-import javax.inject.Named
 
-internal class Aff4ImageStreamSink constructor(
+internal class Aff4ImageStreamSink @AssistedInject constructor(
   private val bevyFactory: Bevy.Factory,
-  @Named("ImageOutput") private val outputFileSystem: FileSystem,
-  imageStream: ImageStream,
-  private val blockHashTypes: Collection<HashType>,
-  private val timeout: Timeout,
+  @Assisted private val outputFileSystem: FileSystem,
+  @Assisted imageStream: ImageStream,
+  @Assisted private val blockHashTypes: Collection<HashType>,
+  @Assisted private val timeout: Timeout,
 ) : Aff4Sink {
   override val arn: Aff4Arn = imageStream.arn
 

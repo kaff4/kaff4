@@ -1,6 +1,7 @@
 package com.github.nava2.aff4.streams.image_stream
 
 import com.github.nava2.aff4.Aff4ImageTestRule
+import com.github.nava2.aff4.UnderTest
 import com.github.nava2.aff4.io.buffer
 import com.github.nava2.aff4.io.use
 import com.github.nava2.aff4.model.Aff4Model
@@ -26,6 +27,7 @@ class Aff4BevySourceProviderTest {
   private lateinit var aff4ImageBeviesFactory: Aff4ImageBevies.Factory
 
   @Inject
+  @field:UnderTest
   private lateinit var aff4Model: Aff4Model
 
   private lateinit var imageStreamConfig: ImageStream

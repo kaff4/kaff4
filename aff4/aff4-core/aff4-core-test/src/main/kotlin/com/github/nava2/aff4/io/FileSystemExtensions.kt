@@ -3,6 +3,7 @@ package com.github.nava2.aff4.io
 import com.github.nava2.aff4.satisfies
 import okio.ByteString
 import okio.ByteString.Companion.decodeHex
+import okio.FileMetadata
 import okio.FileSystem
 import okio.Path
 import okio.buffer
@@ -46,4 +47,28 @@ fun <SELF : AbstractObjectAssert<SELF, T>, T : FileSystem> SELF.content(path: Pa
         .isEqualTo(content)
     }
   }
+}
+
+fun <SELF : AbstractObjectAssert<SELF, T>, T : FileMetadata?> SELF.isDirectory(): SELF {
+  isNotNull()
+
+  extracting { it!!.isDirectory }
+    .`as` { "isDirectory" }
+    .isEqualTo(true)
+
+  return this
+}
+
+fun <SELF : AbstractObjectAssert<SELF, T>, T : FileMetadata?> SELF.isRegularFile(size: Long? = null): SELF {
+  isNotNull()
+
+  extracting { it!!.isRegularFile }
+    .`as` { "isRegularFile" }
+    .isEqualTo(true)
+
+  if (size != null) {
+    extracting { it!!.size }.`as` { "size" }.isEqualTo(size)
+  }
+
+  return this
 }

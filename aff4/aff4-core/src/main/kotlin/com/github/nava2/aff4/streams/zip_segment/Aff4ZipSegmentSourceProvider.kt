@@ -9,6 +9,7 @@ import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.model.Aff4StreamSourceProvider
 import com.github.nava2.aff4.model.VerifiableStreamProvider
 import com.github.nava2.aff4.model.VerifiableStreamProvider.Result.FailedHash
+import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.model.rdf.ZipSegment
 import com.github.nava2.aff4.streams.computeLinearHashes
 import com.google.inject.assistedinject.Assisted
@@ -24,6 +25,7 @@ internal class Aff4ZipSegmentSourceProvider @AssistedInject constructor(
   VerifiableStreamProvider,
   SourceProvider<Source> by imageFileSystem.sourceProvider(zipSegment.segmentPath).buffer() {
 
+  override val arn: Aff4Arn = zipSegment.arn
   override val size = zipSegment.size
 
   @Volatile

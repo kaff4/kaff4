@@ -1,6 +1,8 @@
 package com.github.nava2.test
 
 import com.github.nava2.configuration.TestConfigProviderModule
+import com.github.nava2.guice.GuiceFactory
+import com.github.nava2.guice.KAbstractModule
 import com.google.inject.Guice
 import com.google.inject.Injector
 import com.google.inject.Module
@@ -24,7 +26,7 @@ open class GuiceTestRule(providedModules: Collection<Module>) : MethodRule {
 
   override fun apply(base: Statement, method: FrameworkMethod, target: Any): Statement {
     val cleanupActions = CleanupActions()
-    val injector = Guice.createInjector(Stage.DEVELOPMENT, modules)
+    val injector = Guice.createInjector(Stage.DEVELOPMENT, modules + TestModule)
     val testInjector = setupInjector(injector, cleanupActions)
     testInjector.injectMembers(target)
 
@@ -48,6 +50,16 @@ open class GuiceTestRule(providedModules: Collection<Module>) : MethodRule {
       for (action in cleanups) {
         action()
       }
+    }
+  }
+
+  private object TestModule : KAbstractModule() {
+    override fun configure() {
+      bind<GuiceFactory>().toInstance(object : GuiceFactory {
+        override fun create(modules: Collection<Module>): Injector {
+          return Guice.createInjector(Stage.DEVELOPMENT, modules)
+        }
+      })
     }
   }
 

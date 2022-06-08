@@ -11,7 +11,6 @@ import com.github.nava2.aff4.model.rdf.ImageStream
 import com.github.nava2.aff4.model.rdf.hash
 import com.github.nava2.aff4.model.rdf.toAff4Path
 import com.github.nava2.aff4.rdf.MemoryRdfRepositoryModule
-import com.github.nava2.aff4.streams.WritingModule
 import com.github.nava2.aff4.streams.compression.SnappyCompression
 import com.github.nava2.configuration.TestConfigProviderModule
 import com.github.nava2.test.GuiceTestRule
@@ -45,7 +44,6 @@ class Aff4BevySinkTest {
     TestConfigProviderModule,
     Aff4CoreModule,
     MemoryRdfRepositoryModule,
-    WritingModule(tempDirectory),
   )
 
   @Inject

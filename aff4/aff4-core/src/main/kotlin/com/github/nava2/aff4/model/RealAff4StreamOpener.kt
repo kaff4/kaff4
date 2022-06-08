@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.benmanes.caffeine.cache.LoadingCache
 import com.github.nava2.aff4.io.SourceProvider
 import com.github.nava2.aff4.io.bounded
+import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.model.rdf.Aff4RdfModel
 import com.github.nava2.aff4.model.rdf.createArn
 import com.github.nava2.aff4.rdf.NamespacesProvider
@@ -45,39 +46,47 @@ internal class RealAff4StreamOpener @Inject constructor(
 
   private val aff4StreamLoaderContexts = aff4StreamLoaderContexts.associateBy { it.configTypeLiteral }
 
-  // TODO For logical images, this will be _massive_ and not okay. We will need to be smarter about caching
-  private val openStreams: LoadingCache<IRI, SourceProvider<Source>> = Caffeine.newBuilder()
+  private val openStreams: LoadingCache<Aff4Arn, Aff4StreamSourceProvider> = Caffeine.newBuilder()
     .maximumSize(MAX_OPEN_STREAMS)
     .removalListener<IRI, SourceProvider<Source>> { _, provider, _ ->
       (provider as? Closeable)?.close()
     }
     .build(::loadSourceProvider)
 
-  override fun openStream(iri: IRI): SourceProvider<Source> {
+  override fun openStream(arn: Aff4Arn): SourceProvider<Source> {
     check(!closed) { "Closed" }
 
-    val symbolic = symbolics.maybeGetProvider(iri)
+    val symbolic = symbolics.maybeGetProvider(arn)
     if (symbolic != null) return symbolic
 
     // We do not hold open offset stream providers as they are just 'views' over a real stream provider
-    return if (!isIriHashDedupe(iri)) {
-      openStreams[iri]!!
+    return if (!arn.isHashDedupe()) {
+      openStreams[arn]!!
     } else {
-      loadSourceProvider(iri)
+      loadHashDedupedStream(arn)
     }
   }
 
-  private fun loadSourceProvider(subject: IRI): SourceProvider<Source> {
+  private fun loadHashDedupedStream(subject: Aff4Arn): SourceProvider<Source> {
+    require(subject.isHashDedupe()) { "Hash streams are not supported via this method." }
+
+    return rdfConnectionScoping.scoped { connection: ScopedConnection ->
+      val statement = connection.queryStatements(subj = subject).use { it.single() }
+
+      val dataStreamOffset = DataStreamOffsetReference.parse(connection.valueFactory, statement.`object` as Aff4Arn)
+      val dataStreamProvider = openStream(dataStreamOffset.dataStream)
+      dataStreamProvider.bounded(dataStreamOffset.offset, dataStreamOffset.length)
+    }
+  }
+
+  private fun loadSourceProvider(subject: Aff4Arn): Aff4StreamSourceProvider {
+    require(!subject.isHashDedupe()) { "Hash streams are not supported via this method." }
+
     return rdfConnectionScoping.scoped { connection: ScopedConnection, rdfModelParser: RdfModelParser ->
       val namespaces = connection.namespaces
       val statements = connection.queryStatements(subj = subject).use { it.toList() }
 
-      if (isIriHashDedupe(subject)) {
-        val statement = statements.single()
-        loadHashDedupedStream(connection.valueFactory, statement.`object` as IRI)
-      } else {
-        loadStreamFromRdf(namespaces, rdfModelParser, subject, statements)
-      }
+      loadStreamFromRdf(namespaces, rdfModelParser, subject, statements)
     }
   }
 
@@ -100,26 +109,6 @@ internal class RealAff4StreamOpener @Inject constructor(
     return streamLoader.load(rdfModel)
   }
 
-  private fun isIriHashDedupe(key: IRI): Boolean {
-    val iriValue = key.stringValue()
-    return iriValue.startsWith("aff4:") &&
-      iriValue.endsWith("==") &&
-      iriValue.indexOf(':', startIndex = "aff4:".length) != -1
-  }
-
-  private fun loadHashDedupedStream(
-    valueFactory: ValueFactory,
-    obj: IRI,
-  ): SourceProvider<Source> {
-    val (dataStreamIri, indexNotation) = obj.stringValue().split("[")
-    val (startIndexHex, lengthHex) = indexNotation.substringBeforeLast(']').split(':')
-    val startIndex = startIndexHex.substringAfter("0x").toLong(radix = 16)
-    val length = lengthHex.substringAfter("0x").toLong(radix = 16)
-
-    val dataStreamProvider = openStream(valueFactory.createArn(dataStreamIri))
-    return dataStreamProvider.bounded(startIndex, length)
-  }
-
   override fun close() {
     if (closed) return
     closed = true
@@ -127,4 +116,27 @@ internal class RealAff4StreamOpener @Inject constructor(
     openStreams.invalidateAll()
     openStreams.cleanUp()
   }
+}
+
+private data class DataStreamOffsetReference(
+  val dataStream: Aff4Arn,
+  val offset: Long,
+  val length: Long,
+) {
+  companion object {
+    fun parse(valueFactory: ValueFactory, iri: IRI): DataStreamOffsetReference {
+      val (dataStream, indexNotation) = iri.stringValue().split("[")
+      val (startIndexHex, lengthHex) = indexNotation.substringBeforeLast(']').split(':')
+      val offset = startIndexHex.substringAfter("0x").toLong(radix = 16)
+      val length = lengthHex.substringAfter("0x").toLong(radix = 16)
+      return DataStreamOffsetReference(valueFactory.createArn(dataStream), offset, length)
+    }
+  }
+}
+
+private fun Aff4Arn.isHashDedupe(): Boolean {
+  val iriValue = stringValue()
+  return iriValue.startsWith("aff4:") &&
+    iriValue.endsWith("==") &&
+    iriValue.indexOf(':', startIndex = "aff4:".length) != -1
 }

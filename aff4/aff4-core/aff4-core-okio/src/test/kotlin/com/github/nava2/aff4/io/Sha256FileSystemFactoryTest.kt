@@ -79,8 +79,45 @@ class Sha256FileSystemFactoryTest {
         fooBazTxt,
         "ef".toPath() / "effa498b575546a19dc5242a525d665f14cbdb2e9be16561786e5c9937273a8f"
       )
+  }
+
+  @Test
+  fun `directory operations`() {
+    val shaFileSystem = sha256FileSystemFactory.create(tempDirectory)
+    val fooBarTxt = "foo".toPath() / "bar.txt"
+    val fooBazTxt = "foo".toPath() / "baz.txt"
+
+    val fooBarTxtContent = "foobar\n".encodeUtf8()
+    shaFileSystem.write(fooBarTxt, mustCreate = true) {
+      write(fooBarTxtContent)
+    }
+
+    val fooBazTxtContent = "foobaz\n".encodeUtf8()
+    shaFileSystem.write(fooBazTxt, mustCreate = true) {
+      write(fooBazTxtContent)
+    }
+
+    assertThat(shaFileSystem).exists(fooBarTxt)
+    assertThat(shaFileSystem).exists(fooBazTxt)
 
     assertThat(shaFileSystem.list(fooBarTxt.parent!!)).containsExactlyInAnyOrder(fooBarTxt, fooBazTxt)
+
+    assertThat(shaFileSystem.listRecursively("".toPath()).toList()).containsExactlyInAnyOrder(
+      "foo".toPath(),
+      fooBarTxt,
+      fooBazTxt,
+    )
+
+    assertThat(shaFileSystem.metadataOrNull(fooBarTxt)).isRegularFile(fooBarTxtContent.size.toLong())
+    assertThat(shaFileSystem.metadataOrNull(fooBazTxt)).isRegularFile(fooBazTxtContent.size.toLong())
+
+    assertThat(shaFileSystem).exists("foo".toPath())
+    assertThat(shaFileSystem.metadata("foo".toPath())).isDirectory()
+    assertThat(shaFileSystem.metadataOrNull("foo".toPath())).isDirectory()
+
+    assertThat(shaFileSystem).doesNotExist("does_not_exist".toPath())
+    assertThat(shaFileSystem.metadataOrNull("does_not_exist/foo".toPath()))
+      .isNull()
   }
 
   @Test

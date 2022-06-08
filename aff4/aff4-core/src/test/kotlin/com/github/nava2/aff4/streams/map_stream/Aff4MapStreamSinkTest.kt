@@ -1,22 +1,27 @@
 package com.github.nava2.aff4.streams.map_stream
 
-import com.github.nava2.aff4.Aff4CoreModule
+import com.github.nava2.aff4.container.Aff4ContainerBuilder
+import com.github.nava2.aff4.container.Aff4ContainerOpenerBuilder
+import com.github.nava2.aff4.container.RealAff4ContainerBuilder
 import com.github.nava2.aff4.io.Sha256FileSystemFactory
 import com.github.nava2.aff4.io.doesNotExist
 import com.github.nava2.aff4.io.exists
 import com.github.nava2.aff4.io.md5
+import com.github.nava2.aff4.io.relativeTo
 import com.github.nava2.aff4.io.repeatByteString
+import com.github.nava2.aff4.model.Aff4ContainerOpener
+import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.model.rdf.CompressionMethod
 import com.github.nava2.aff4.model.rdf.HashType
 import com.github.nava2.aff4.model.rdf.ImageStream
 import com.github.nava2.aff4.model.rdf.MapStream
+import com.github.nava2.aff4.model.rdf.createArn
 import com.github.nava2.aff4.rdf.MemoryRdfRepositoryModule
-import com.github.nava2.aff4.streams.WritingModule
+import com.github.nava2.aff4.streams.TestAff4ContainerBuilderModule
 import com.github.nava2.aff4.streams.compression.SnappyCompression
-import com.github.nava2.aff4.streams.image_stream.Aff4ImageStreamSink
+import com.github.nava2.aff4.streams.compression.SnappyModule
 import com.github.nava2.aff4.streams.image_stream.Bevy
 import com.github.nava2.aff4.streams.symbolics.Symbolics
-import com.github.nava2.configuration.TestConfigProviderModule
 import com.github.nava2.test.GuiceTestRule
 import okio.Buffer
 import okio.ByteString
@@ -25,15 +30,16 @@ import okio.ByteString.Companion.encodeUtf8
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toOkioPath
-import okio.Timeout
+import okio.Path.Companion.toPath
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
-import java.util.Random
 import java.util.function.Consumer
 import javax.inject.Inject
+import javax.inject.Provider
 
 class Aff4MapStreamSinkTest {
   @get:Rule
@@ -47,10 +53,8 @@ class Aff4MapStreamSinkTest {
 
   @get:Rule
   var rule = GuiceTestRule(
-    TestConfigProviderModule,
-    Aff4CoreModule,
+    TestAff4ContainerBuilderModule,
     MemoryRdfRepositoryModule,
-    WritingModule(tempDirectory),
   )
 
   @Inject
@@ -62,17 +66,43 @@ class Aff4MapStreamSinkTest {
   @Inject
   private lateinit var symbolics: Symbolics
 
-  private val consistentRandom: Random = Random(0L)
-
   @Inject
   private lateinit var sha256FileSystemFactory: Sha256FileSystemFactory
 
   @Inject
   private lateinit var snappyCompression: SnappyCompression
 
-  private val imageFileSystem: FileSystem by lazy { sha256FileSystemFactory.create(tempDirectory) }
+  private val tempFileSystem by lazy { FileSystem.SYSTEM.relativeTo(tempDirectory) }
 
-  private val containerArn by lazy { valueFactory.createIRI("aff4://99cc4380-308f-4235-838c-e20a8898ad00") }
+  private val imageFileSystem by lazy { sha256FileSystemFactory.create(tempFileSystem, "sha256".toPath()) }
+
+  private val outputFileSystem by lazy { tempFileSystem.relativeTo("output".toPath()) }
+
+  @Inject
+  private lateinit var containerOpenerBuilderProvider: Provider<Aff4ContainerOpenerBuilder>
+
+  private val aff4ContainerOpener: Aff4ContainerOpener by lazy {
+    containerOpenerBuilderProvider.get()
+      .withFeatureModules(MemoryRdfRepositoryModule, SnappyModule)
+      .build()
+  }
+
+  @Inject
+  private lateinit var aff4ContainerBuilderFactory: Aff4ContainerBuilder.Factory
+
+  private val buffer = Buffer()
+
+  private lateinit var containerArn: Aff4Arn
+  private lateinit var aff4ContainerBuilder: RealAff4ContainerBuilder
+
+  @Before
+  fun setup() {
+    containerArn = valueFactory.createArn("aff4://ffffffff-308f-4235-838c-e20a8898ad00")
+    aff4ContainerBuilder = aff4ContainerBuilderFactory.create(
+      temporaryFileSystem = imageFileSystem,
+      arn = containerArn,
+    ) as RealAff4ContainerBuilder
+  }
 
   @Test
   fun `create map sink and write out of order`() {
@@ -80,7 +110,7 @@ class Aff4MapStreamSinkTest {
     val chunksInSegment = 2
 
     val dataStream = ImageStream(
-      arn = valueFactory.createIRI("aff4://bb362b22-649c-494b-923f-e4ed0c5afef4"),
+      arn = valueFactory.createIRI("aff4://cccccccc-649c-494b-923f-e4ed0c5afef4"),
       chunkSize = chunkSize,
       chunksInSegment = chunksInSegment,
       size = Long.MAX_VALUE,
@@ -90,7 +120,7 @@ class Aff4MapStreamSinkTest {
     )
 
     val mapStream = MapStream(
-      arn = valueFactory.createIRI("aff4://f5ce6c33-7598-4283-b183-fc1424edf533"),
+      arn = valueFactory.createIRI("aff4://cccccccc-7598-4283-b183-fc1424edf533"),
       mapGapDefaultStream = symbolics.zero.arn,
       dependentStream = dataStream.arn,
       size = Long.MAX_VALUE,
@@ -106,24 +136,11 @@ class Aff4MapStreamSinkTest {
     var expectedPosition = 0L
     var expectedDataSize = 0L
 
-    val (finalMapStream, finalDataStream) = Aff4ImageStreamSink(
-      bevyFactory = bevyFactory,
-      outputFileSystem = imageFileSystem,
-      imageStream = dataStream,
-      blockHashTypes = listOf(),
-      timeout = Timeout.NONE,
-    ).use { dataStreamSink ->
-      val finalMapStream = Aff4MapStreamSink(
-        random = consistentRandom,
-        symbolics = symbolics,
-        outputFileSystem = imageFileSystem,
-        dataStreamSink = dataStreamSink,
-        mapStream = mapStream,
-        timeout = Timeout.NONE,
-      ).use { mapStreamSink ->
-        // Write and validate that the position/size APIs are behaving. That is, the cursor can be moved arbitrarily,
-        // however the size will only grow once content is written into that position.
-        Buffer().use { buffer ->
+    val (finalMapStream, finalDataStream) = aff4ContainerBuilder.createImageStream(dataStream, listOf())
+      .use { dataStreamSink ->
+        val finalMapStream = aff4ContainerBuilder.createMapStream(mapStream, dataStreamSink).use { mapStreamSink ->
+          // Write and validate that the position/size APIs are behaving. That is, the cursor can be moved arbitrarily,
+          // however the size will only grow once content is written into that position.
           buffer.write(firstContent, 0, backWrittenContentOffset)
           mapStreamSink.write(buffer, buffer.size)
 
@@ -178,30 +195,29 @@ class Aff4MapStreamSinkTest {
           assertThat(mapStreamSink.size).isEqualTo(expectedSize)
 
           assertThat(dataStreamSink.size).isEqualTo(expectedDataSize)
+
+          mapStreamSink.close()
+
+          expectedDataSize += firstContent.size - backWrittenContentOffset
+
+          assertThat(mapStreamSink.position).isEqualTo(expectedPosition)
+          assertThat(mapStreamSink.size).isEqualTo(expectedSize)
+
+          assertThat(dataStreamSink.size).isEqualTo(expectedDataSize)
+
+          mapStreamSink.mapStream
         }
 
-        mapStreamSink.close()
+        dataStreamSink.close()
 
-        expectedDataSize += firstContent.size - backWrittenContentOffset
-
-        assertThat(mapStreamSink.position).isEqualTo(expectedPosition)
-        assertThat(mapStreamSink.size).isEqualTo(expectedSize)
-
-        assertThat(dataStreamSink.size).isEqualTo(expectedDataSize)
-
-        mapStreamSink.mapStream
+        finalMapStream to dataStreamSink.imageStream
       }
-
-      dataStreamSink.close()
-
-      finalMapStream to dataStreamSink.imageStream
-    }
 
     assertThat(finalMapStream.size).isEqualTo(expectedSize)
     assertThat(finalDataStream.size).isEqualTo(expectedDataSize)
 
     // Golden value: just the data stream in the index
-    assertThat(imageFileSystem).md5(finalMapStream.idxPath(containerArn), "f0976c8f0e9137a455ab7c92091622c7")
+    assertThat(imageFileSystem).md5(finalMapStream.idxPath(containerArn), "971209f68aaa555dc6bdd98a550d72c9")
 
     // Golden value: Map of only 3 entries first[0..9] -> first[10..14] -> second[0..10]. first[..] is split in two
     // because it was written out of order and the image stream doesn't line up. The entries are written in a consistent
@@ -222,6 +238,8 @@ class Aff4MapStreamSinkTest {
           assertThat(imageFileSystem).exists(bevy.indexSegment)
         }
       )
+
+    verifyWrittenStream(finalMapStream)
   }
 
   @Test
@@ -230,7 +248,7 @@ class Aff4MapStreamSinkTest {
     val chunksInSegment = 10
 
     val dataStream = ImageStream(
-      arn = valueFactory.createIRI("aff4://bb362b22-649c-494b-923f-e4ed0c5afef4"),
+      arn = valueFactory.createIRI("aff4://aaaaaaaa-649c-494b-923f-e4ed0c5afef4"),
       chunkSize = chunkSize,
       chunksInSegment = chunksInSegment,
       size = Long.MAX_VALUE,
@@ -240,7 +258,7 @@ class Aff4MapStreamSinkTest {
     )
 
     val mapStream = MapStream(
-      arn = valueFactory.createIRI("aff4://f5ce6c33-7598-4283-b183-fc1424edf533"),
+      arn = valueFactory.createIRI("aff4://bbbbbbbb-7598-4283-b183-fc1424edf533"),
       mapGapDefaultStream = symbolics.zero.arn,
       dependentStream = dataStream.arn,
       size = Long.MAX_VALUE,
@@ -250,24 +268,11 @@ class Aff4MapStreamSinkTest {
     var expectedPosition = 0L
     var expectedSize = 0L
 
-    val (finalMapStream, finalDataStream) = Aff4ImageStreamSink(
-      bevyFactory = bevyFactory,
-      outputFileSystem = imageFileSystem,
-      imageStream = dataStream,
-      blockHashTypes = listOf(),
-      timeout = Timeout.NONE,
-    ).use { dataStreamSink ->
-      val finalMapStream = Aff4MapStreamSink(
-        random = consistentRandom,
-        symbolics = symbolics,
-        outputFileSystem = imageFileSystem,
-        dataStreamSink = dataStreamSink,
-        mapStream = mapStream,
-        timeout = Timeout.NONE,
-      ).use { writtenMapStream ->
-        // Write and validate that the position/size APIs are behaving. That is, the cursor can be moved arbitrarily,
-        // however the size will only grow once content is written into that position.
-        Buffer().use { buffer ->
+    val (finalMapStream, finalDataStream) = aff4ContainerBuilder.createImageStream(dataStream, listOf())
+      .use { dataStreamSink ->
+        val finalMapStream = aff4ContainerBuilder.createMapStream(mapStream, dataStreamSink).use { writtenMapStream ->
+          // Write and validate that the position/size APIs are behaving. That is, the cursor can be moved arbitrarily,
+          // however the size will only grow once content is written into that position.
           val ffString = 0xff.repeatByteString(chunkSize * 10)
           val gapString = 0x00.repeatByteString(chunkSize * 5)
           val aaString = 0xaa.repeatByteString(chunkSize * 3)
@@ -309,16 +314,15 @@ class Aff4MapStreamSinkTest {
           expectedSize += gapString.size + 50
           assertThat(writtenMapStream.position).isEqualTo(expectedPosition)
           assertThat(writtenMapStream.size).isEqualTo(expectedSize)
+
+          writtenMapStream.close()
+          writtenMapStream.mapStream
         }
 
-        writtenMapStream.close()
-        writtenMapStream.mapStream
+        dataStreamSink.close()
+
+        finalMapStream to dataStreamSink.imageStream
       }
-
-      dataStreamSink.close()
-
-      finalMapStream to dataStreamSink.imageStream
-    }
 
     assertThat(finalMapStream.size).isEqualTo(expectedSize)
     assertThat(finalDataStream.size).isEqualTo(0L)
@@ -338,6 +342,8 @@ class Aff4MapStreamSinkTest {
 
     assertThat(finalDataStream.linearHashes)
       .containsExactly(HashType.MD5.value("d41d8cd98f00b204e9800998ecf8427e".decodeHex()))
+
+    verifyWrittenStream(finalMapStream)
   }
 
   @Test
@@ -346,7 +352,7 @@ class Aff4MapStreamSinkTest {
     val chunksInSegment = 20
 
     val dataStream = ImageStream(
-      arn = valueFactory.createIRI("aff4://bb362b22-649c-494b-923f-e4ed0c5afef4"),
+      arn = valueFactory.createIRI("aff4://aaaaaaaa-649c-494b-923f-e4ed0c5afef4"),
       chunkSize = chunkSize,
       chunksInSegment = chunksInSegment,
       size = Long.MAX_VALUE,
@@ -356,7 +362,7 @@ class Aff4MapStreamSinkTest {
     )
 
     val mapStream = MapStream(
-      arn = valueFactory.createIRI("aff4://f5ce6c33-7598-4283-b183-fc1424edf533"),
+      arn = valueFactory.createIRI("aff4://bbbbbbbb-7598-4283-b183-fc1424edf533"),
       mapGapDefaultStream = symbolics.zero.arn,
       dependentStream = dataStream.arn,
       size = Long.MAX_VALUE,
@@ -370,25 +376,12 @@ class Aff4MapStreamSinkTest {
     val abcdString = "abcd".repeat(chunkSize).encodeUtf8()
     val efghString = "efgh".repeat(chunkSize * 5).encodeUtf8()
 
-    val (finalMapStream, finalDataStream) = Aff4ImageStreamSink(
-      bevyFactory = bevyFactory,
-      outputFileSystem = imageFileSystem,
-      imageStream = dataStream,
-      blockHashTypes = listOf(),
-      timeout = Timeout.NONE,
-    ).use { dataStreamSink ->
-      val finalMapStream = Aff4MapStreamSink(
-        random = consistentRandom,
-        symbolics = symbolics,
-        outputFileSystem = imageFileSystem,
-        dataStreamSink = dataStreamSink,
-        mapStream = mapStream,
-        timeout = Timeout.NONE,
-      ).use { writtenMapStream ->
+    val (finalMapStream, finalDataStream) = aff4ContainerBuilder.createImageStream(dataStream, listOf())
+      .use { dataStreamSink ->
+        val finalMapStream = aff4ContainerBuilder.createMapStream(mapStream, dataStreamSink).use { writtenMapStream ->
 
-        // Write and validate that the position/size APIs are behaving. That is, the cursor can be moved arbitrarily,
-        // however the size will only grow once content is written into that position.
-        Buffer().use { buffer ->
+          // Write and validate that the position/size APIs are behaving. That is, the cursor can be moved arbitrarily,
+          // however the size will only grow once content is written into that position.
           buffer.write(abcdString)
           writtenMapStream.write(buffer, buffer.size)
 
@@ -439,33 +432,45 @@ class Aff4MapStreamSinkTest {
           assertThat(writtenMapStream.position).isEqualTo(expectedPosition)
           assertThat(writtenMapStream.size).isEqualTo(expectedSize)
           assertThat(dataStreamSink.size).isEqualTo(expectedDataSize)
+
+          writtenMapStream.close()
+
+          expectedDataSize += abcdString.size
+          assertThat(writtenMapStream.position).isEqualTo(expectedPosition)
+          assertThat(writtenMapStream.size).isEqualTo(expectedSize)
+          assertThat(dataStreamSink.size).isEqualTo(expectedDataSize)
+
+          writtenMapStream.mapStream
         }
 
-        writtenMapStream.close()
+        dataStreamSink.close()
 
-        expectedDataSize += abcdString.size
-        assertThat(writtenMapStream.position).isEqualTo(expectedPosition)
-        assertThat(writtenMapStream.size).isEqualTo(expectedSize)
-        assertThat(dataStreamSink.size).isEqualTo(expectedDataSize)
-
-        writtenMapStream.mapStream
+        finalMapStream to dataStreamSink.imageStream
       }
-
-      dataStreamSink.close()
-
-      finalMapStream to dataStreamSink.imageStream
-    }
 
     assertThat(finalMapStream.size).isEqualTo(expectedSize)
     assertThat(finalDataStream.size).isEqualTo(expectedDataSize)
 
     // Golden value: Single target element
-    assertThat(imageFileSystem).md5(finalMapStream.idxPath(containerArn), "f0976c8f0e9137a455ab7c92091622c7")
+    assertThat(imageFileSystem).md5(finalMapStream.idxPath(containerArn), "5e5729c273fb3b9059e7a6ad961c1e43")
 
     // Golden value: Map of 2 entries split by the position += 50 because all content is in the data stream
     assertThat(imageFileSystem).md5(finalMapStream.mapPath(containerArn), "ab87d754cc3780936c071ac64281052a")
 
     // not supported today
     assertThat(imageFileSystem).doesNotExist(finalMapStream.mapPathPath(containerArn))
+
+    verifyWrittenStream(finalMapStream)
+  }
+
+  private fun verifyWrittenStream(writtenMapStream: MapStream) {
+    aff4ContainerBuilder.buildIntoDirectory(outputFileSystem, ".".toPath())
+
+    aff4ContainerOpener.open(outputFileSystem, ".".toPath()).use { container ->
+      val openedImageStream = container.streamOpener.openStream(writtenMapStream.arn) as Aff4MapStreamSourceProvider
+      assertThat(openedImageStream.mapStream).isEqualTo(writtenMapStream)
+
+      openedImageStream.verify(container.aff4Model)
+    }
   }
 }

@@ -1,6 +1,7 @@
 package com.github.nava2.aff4.streams.image_stream
 
 import com.github.nava2.aff4.Aff4ImageTestRule
+import com.github.nava2.aff4.UnderTest
 import com.github.nava2.aff4.io.buffer
 import com.github.nava2.aff4.io.md5
 import com.github.nava2.aff4.io.use
@@ -29,6 +30,7 @@ class Aff4ImageStreamSourceProviderTest {
   private lateinit var valueFactory: ValueFactory
 
   @Inject
+  @field:UnderTest
   private lateinit var aff4Model: Aff4Model
 
   private lateinit var imageStreamConfig: ImageStream

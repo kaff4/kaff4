@@ -10,6 +10,7 @@ import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.model.Aff4StreamSourceProvider
 import com.github.nava2.aff4.model.VerifiableStreamProvider
 import com.github.nava2.aff4.model.VerifiableStreamProvider.Result.FailedHash
+import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.model.rdf.ImageStream
 import com.github.nava2.aff4.streams.computeLinearHashes
 import com.github.nava2.aff4.streams.hashingSink
@@ -22,20 +23,21 @@ import okio.Timeout
 class Aff4ImageStreamSourceProvider @AssistedInject internal constructor(
   aff4ImageBeviesFactory: Aff4ImageBevies.Factory,
   @ForImageRoot private val imageFileSystem: FileSystem,
-  @Assisted private val imageStreamConfig: ImageStream,
+  @Assisted val imageStream: ImageStream,
 ) : VerifiableStreamProvider, Aff4StreamSourceProvider {
 
-  private val aff4ImageBevies: Aff4ImageBevies = aff4ImageBeviesFactory.create(imageStreamConfig)
-  private val bevyCount = imageStreamConfig.bevyCount
+  override val arn: Aff4Arn = imageStream.arn
+  override val size: Long = imageStream.size
 
-  override val size: Long = imageStreamConfig.size
+  private val aff4ImageBevies: Aff4ImageBevies = aff4ImageBeviesFactory.create(imageStream)
+  private val bevyCount = imageStream.bevyCount
 
   @Volatile
   private var verificationResult: VerifiableStreamProvider.Result? = null
 
   override fun source(position: Long, timeout: Timeout): Source = Aff4ImageStreamSource(
     aff4ImageBevies = aff4ImageBevies,
-    imageStream = imageStreamConfig,
+    imageStream = imageStream,
     position = position,
     timeout = timeout,
   )
@@ -63,25 +65,25 @@ class Aff4ImageStreamSourceProvider @AssistedInject internal constructor(
   }
 
   override fun toString(): String {
-    return "Aff4ImageStream(${imageStreamConfig.arn})"
+    return "Aff4ImageStream(${imageStream.arn})"
   }
 
   private fun verifyLinearHashes(timeout: Timeout): Sequence<FailedHash> = sequence {
     val calculatedLinearHashes = use(timeout = timeout) { s ->
-      s.computeLinearHashes(imageStreamConfig.linearHashes.map { it.hashType })
+      s.computeLinearHashes(imageStream.linearHashes.map { it.hashType })
     }
 
-    val linearHashesByHashType = imageStreamConfig.linearHashes.associateBy { it.hashType }
+    val linearHashesByHashType = imageStream.linearHashes.associateBy { it.hashType }
     for ((hashType, actualHash) in calculatedLinearHashes) {
       val expectedHash = linearHashesByHashType.getValue(hashType)
       if (expectedHash.value != actualHash) {
-        yield(FailedHash(imageStreamConfig, "Linear", expectedHash))
+        yield(FailedHash(imageStream, "Linear", expectedHash))
       }
     }
   }
 
   private fun verifyBlockHashes(aff4Model: Aff4Model, timeout: Timeout): Sequence<FailedHash> = sequence {
-    val blockHashes = imageStreamConfig.queryBlockHashes(aff4Model)
+    val blockHashes = imageStream.queryBlockHashes(aff4Model)
 
     val blockHashSourceProviders = (0 until bevyCount).asSequence()
       .map { aff4ImageBevies.getOrLoadBevy(it).bevy }
@@ -103,7 +105,7 @@ class Aff4ImageStreamSourceProvider @AssistedInject internal constructor(
       }
 
       if (blockHash.hash.value != actualHash) {
-        yield(FailedHash(imageStreamConfig, "BlockHash ${blockHash.forHashType}", blockHash.hash))
+        yield(FailedHash(imageStream, "BlockHash ${blockHash.forHashType}", blockHash.hash))
       }
     }
   }

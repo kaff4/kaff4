@@ -103,6 +103,14 @@ class ScopedConnection(
       connection.add(statements)
     }
 
+    /** @see [RepositoryConnection.add] */
+    fun add(statements: Iterable<Statement>) {
+      connection.add(statements)
+    }
+
+    /** @see [RepositoryConnection.add] */
+    fun add(statements: Sequence<Statement>) = add(statements.asIterable())
+
     /** @see [RepositoryConnection.setNamespace] */
     fun setNamespace(prefix: String, name: String) {
       connection.setNamespace(prefix, name)

@@ -1,18 +1,22 @@
 package com.github.nava2.aff4.streams.image_stream
 
-import com.github.nava2.aff4.Aff4CoreModule
+import com.github.nava2.aff4.TestRandomsModule
+import com.github.nava2.aff4.container.Aff4ContainerBuilder
+import com.github.nava2.aff4.container.Aff4ContainerOpenerBuilder
+import com.github.nava2.aff4.container.RealAff4ContainerBuilder
 import com.github.nava2.aff4.io.Sha256FileSystemFactory
 import com.github.nava2.aff4.io.relativeTo
 import com.github.nava2.aff4.io.repeatByteString
+import com.github.nava2.aff4.model.Aff4ContainerOpener
 import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.model.rdf.CompressionMethod
 import com.github.nava2.aff4.model.rdf.HashType
 import com.github.nava2.aff4.model.rdf.ImageStream
 import com.github.nava2.aff4.model.rdf.createArn
 import com.github.nava2.aff4.rdf.MemoryRdfRepositoryModule
-import com.github.nava2.aff4.streams.WritingModule
+import com.github.nava2.aff4.streams.TestAff4ContainerBuilderModule
 import com.github.nava2.aff4.streams.compression.SnappyCompression
-import com.github.nava2.configuration.TestConfigProviderModule
+import com.github.nava2.aff4.streams.compression.SnappyModule
 import com.github.nava2.test.GuiceTestRule
 import okio.Buffer
 import okio.ByteString
@@ -22,7 +26,6 @@ import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toOkioPath
 import okio.Path.Companion.toPath
-import okio.Timeout
 import okio.buffer
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
@@ -32,6 +35,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import javax.inject.Inject
+import javax.inject.Provider
 
 class Aff4ImageStreamSinkTest {
   @get:Rule
@@ -45,17 +49,13 @@ class Aff4ImageStreamSinkTest {
 
   @get:Rule
   var rule = GuiceTestRule(
-    TestConfigProviderModule,
-    Aff4CoreModule,
+    TestAff4ContainerBuilderModule,
     MemoryRdfRepositoryModule,
-    WritingModule(tempDirectory),
+    SnappyModule,
   )
 
   @Inject
   private lateinit var valueFactory: ValueFactory
-
-  @Inject
-  private lateinit var bevyFactory: Bevy.Factory
 
   @Inject
   private lateinit var sha256FileSystemFactory: Sha256FileSystemFactory
@@ -63,22 +63,43 @@ class Aff4ImageStreamSinkTest {
   @Inject
   private lateinit var snappyCompression: SnappyCompression
 
+  @Inject
+  private lateinit var containerOpenerBuilderProvider: Provider<Aff4ContainerOpenerBuilder>
+
+  private val aff4ContainerOpener: Aff4ContainerOpener by lazy {
+    containerOpenerBuilderProvider.get()
+      .withFeatureModules(MemoryRdfRepositoryModule, SnappyModule, TestRandomsModule)
+      .build()
+  }
+
+  @Inject
+  private lateinit var aff4ContainerBuilderFactory: Aff4ContainerBuilder.Factory
+
   private val tempFileSystem by lazy { FileSystem.SYSTEM.relativeTo(tempDirectory) }
+
+  private val outputFileSystem by lazy { tempFileSystem.relativeTo("output".toPath()) }
 
   private val imageFileSystem by lazy { sha256FileSystemFactory.create(tempFileSystem, "sha256".toPath()) }
 
   private val dataBuffer = Buffer()
 
   private lateinit var containerArn: Aff4Arn
+  private lateinit var aff4ContainerBuilder: RealAff4ContainerBuilder
 
   @Before
   fun setup() {
     containerArn = valueFactory.createArn("aff4://99cc4380-308f-4235-838c-e20a8898ad00")
+    aff4ContainerBuilder = aff4ContainerBuilderFactory.create(
+      temporaryFileSystem = imageFileSystem,
+      arn = containerArn,
+    ) as RealAff4ContainerBuilder
   }
 
   @After
   fun tearDown() {
     dataBuffer.clear()
+
+    aff4ContainerBuilder.close()
   }
 
   @Test
@@ -97,19 +118,12 @@ class Aff4ImageStreamSinkTest {
 
     val content = "abcdefghijklmno".encodeUtf8()
 
-    val writtenImageStream = Aff4ImageStreamSink(
-      bevyFactory = bevyFactory,
-      outputFileSystem = imageFileSystem,
-      imageStream = imageStream,
-      blockHashTypes = listOf(),
-      timeout = Timeout.NONE,
-    ).run {
-      buffer().use { sink ->
-        sink.write(content)
-      }
+    val writtenImageStream = aff4ContainerBuilder.createImageStream(imageStream, listOf())
+      .use { imageStreamSink ->
+        imageStreamSink.buffer().use { it.write(content) }
 
-      this.imageStream
-    }
+        imageStreamSink.imageStream
+      }
 
     val md5LinearHash = HashType.MD5.value("8a7319dbf6544a7422c9e25452580ea5".decodeHex())
     val sha256LinearHash = HashType.SHA256.value(
@@ -123,6 +137,8 @@ class Aff4ImageStreamSinkTest {
           linearHashes = listOf(sha256LinearHash, md5LinearHash),
         )
       )
+
+    verifyWrittenStream(writtenImageStream)
   }
 
   @Test
@@ -141,25 +157,20 @@ class Aff4ImageStreamSinkTest {
 
     val content = "abcdefghijklmno".encodeUtf8()
 
-    val writtenImageStream = Aff4ImageStreamSink(
-      bevyFactory = bevyFactory,
-      outputFileSystem = imageFileSystem,
-      imageStream = imageStream,
-      blockHashTypes = listOf(),
-      timeout = Timeout.NONE,
-    ).use { imageStreamSink ->
-      dataBuffer.write(content)
+    val writtenImageStream = aff4ContainerBuilder.createImageStream(imageStream, listOf())
+      .use { imageStreamSink ->
+        dataBuffer.write(content)
 
-      // Write enough that we cross the chunk boundary but leave room for the bevy in a second write
-      imageStreamSink.write(dataBuffer, chunkSize * chunksInSegment - 3.toLong())
+        // Write enough that we cross the chunk boundary but leave room for the bevy in a second write
+        imageStreamSink.write(dataBuffer, chunkSize * chunksInSegment - 3.toLong())
 
-      // now finish the content
-      imageStreamSink.write(dataBuffer, dataBuffer.size)
+        // now finish the content
+        imageStreamSink.write(dataBuffer, dataBuffer.size)
 
-      imageStreamSink.close()
+        imageStreamSink.close()
 
-      imageStreamSink.imageStream
-    }
+        imageStreamSink.imageStream
+      }
 
     val md5LinearHash = HashType.MD5.value("8a7319dbf6544a7422c9e25452580ea5".decodeHex())
     val sha256LinearHash = HashType.SHA256.value(
@@ -173,6 +184,8 @@ class Aff4ImageStreamSinkTest {
           linearHashes = listOf(sha256LinearHash, md5LinearHash),
         )
       )
+
+    verifyWrittenStream(writtenImageStream)
   }
 
   @Test
@@ -192,19 +205,12 @@ class Aff4ImageStreamSinkTest {
       linearHashes = listOf(HashType.SHA256, HashType.MD5).map { it.value(ByteString.EMPTY) },
     )
 
-    val writtenImageStream = Aff4ImageStreamSink(
-      bevyFactory = bevyFactory,
-      outputFileSystem = imageFileSystem,
-      imageStream = imageStream,
-      blockHashTypes = listOf(),
-      timeout = Timeout.NONE,
-    ).run {
-      buffer().use { sink ->
-        sink.write(content)
-      }
+    val writtenImageStream = aff4ContainerBuilder.createImageStream(imageStream, listOf())
+      .use { imageStreamSink ->
+        imageStreamSink.buffer().use { it.write(content) }
 
-      this.imageStream
-    }
+        imageStreamSink.imageStream
+      }
 
     val md5LinearHash = HashType.MD5.value("6d0bb00954ceb7fbee436bb55a8397a9".decodeHex())
     val sha256LinearHash = HashType.SHA256.value(
@@ -218,5 +224,18 @@ class Aff4ImageStreamSinkTest {
           linearHashes = listOf(sha256LinearHash, md5LinearHash),
         )
       )
+
+    verifyWrittenStream(writtenImageStream)
+  }
+
+  private fun verifyWrittenStream(writtenImageStream: ImageStream) {
+    aff4ContainerBuilder.buildIntoDirectory(outputFileSystem, ".".toPath())
+
+    aff4ContainerOpener.open(outputFileSystem, ".".toPath()).use { container ->
+      val openedImageStream = container.streamOpener.openStream(writtenImageStream.arn) as Aff4ImageStreamSourceProvider
+      assertThat(openedImageStream.imageStream).isEqualTo(writtenImageStream)
+
+      openedImageStream.verify(container.aff4Model)
+    }
   }
 }

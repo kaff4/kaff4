@@ -9,6 +9,7 @@ import com.github.nava2.aff4.model.Aff4StreamOpener
 import com.github.nava2.aff4.model.Aff4StreamSourceProvider
 import com.github.nava2.aff4.model.VerifiableStreamProvider
 import com.github.nava2.aff4.model.VerifiableStreamProvider.Result.FailedHash
+import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.model.rdf.Hash
 import com.github.nava2.aff4.model.rdf.MapStream
 import com.github.nava2.aff4.streams.computeLinearHash
@@ -29,6 +30,7 @@ class Aff4MapStreamSourceProvider @AssistedInject internal constructor(
 ) : Aff4StreamSourceProvider, VerifiableStreamProvider {
   private val map: MapStreamMap by lazy { mapStreamMapReader.loadMap(mapStream) }
 
+  override val arn: Aff4Arn = mapStream.arn
   override val size: Long = mapStream.size
 
   @Volatile

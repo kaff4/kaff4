@@ -4,6 +4,7 @@ import com.github.nava2.aff4.container.Aff4ContainerOpenerBuilder
 import com.github.nava2.aff4.container.RealAff4ContainerOpener
 import com.github.nava2.aff4.model.Aff4Container
 import com.github.nava2.aff4.model.Aff4ContainerOpener
+import com.github.nava2.aff4.rdf.MemoryRdfRepositoryModule
 import com.github.nava2.guice.KAbstractModule
 import com.github.nava2.guice.getInstance
 import com.github.nava2.guice.typeLiteral
@@ -19,7 +20,7 @@ import javax.inject.Singleton
 open class Aff4ImageTestRule(val imageName: String, vararg modules: Module) : GuiceTestRule(
   providedModules = listOf(TestImagesModule),
 ) {
-  private val providedModules = modules.toSet()
+  private val providedModules = modules.toSet() + setOf(MemoryRdfRepositoryModule)
 
   open val imageModules: List<Module> = listOf()
 
@@ -38,7 +39,7 @@ open class Aff4ImageTestRule(val imageName: String, vararg modules: Module) : Gu
     val testInjector = aff4ContainerOpener.setupContainerInjector(
       fileSystem = imagesFileSystem,
       path = imageName.toPath(),
-      extraModules = setOf(UnderTestModule(aff4ContainerOpener, imageName)),
+      extraModules = setOf(TestRandomsModule, UnderTestModule(aff4ContainerOpener, imageName)),
     )
 
     cleanupActions.register {
@@ -52,14 +53,14 @@ open class Aff4ImageTestRule(val imageName: String, vararg modules: Module) : Gu
     val aff4ContainerOpener: Aff4ContainerOpener,
     val imageName: String
   ) : KAbstractModule() {
-    override fun configure() = Unit
+    override fun configure() {
+      install(TestImagesModule)
+    }
 
     @Provides
     @UnderTest
     @Singleton
-    fun providesAff4ContainerUnderTest(
-      @ForImages imagesFileSystem: FileSystem,
-    ): Aff4Container {
+    fun providesAff4ContainerUnderTest(@ForImages imagesFileSystem: FileSystem): Aff4Container {
       return aff4ContainerOpener.open(imagesFileSystem, imageName.toPath())
     }
 
@@ -67,5 +68,10 @@ open class Aff4ImageTestRule(val imageName: String, vararg modules: Module) : Gu
     @Singleton
     @UnderTest
     fun providesAff4ModelUnderTest(@UnderTest aff4Container: Aff4Container) = aff4Container.aff4Model
+
+    @Provides
+    @Singleton
+    @UnderTest
+    fun providesAff4StreamOpenerUnderTest(@UnderTest aff4Container: Aff4Container) = aff4Container.streamOpener
   }
 }

@@ -6,23 +6,24 @@ import com.github.nava2.aff4.model.rdf.MapStream
 import com.github.nava2.aff4.streams.Aff4Sink
 import com.github.nava2.aff4.streams.image_stream.Aff4ImageStreamSink
 import com.github.nava2.aff4.streams.symbolics.Symbolics
+import com.google.inject.assistedinject.Assisted
+import com.google.inject.assistedinject.AssistedInject
 import okio.Buffer
 import okio.FileSystem
 import okio.Timeout
 import okio.buffer
 import okio.use
 import java.util.Random
-import javax.inject.Named
 
 private const val CHUNKED_ENTRY_SHUFFLED_SIZE = 128
 
-internal class Aff4MapStreamSink(
+internal class Aff4MapStreamSink @AssistedInject constructor(
   private val random: Random,
   symbolics: Symbolics,
-  @Named("ImageOutput") private val outputFileSystem: FileSystem,
-  private val dataStreamSink: Aff4ImageStreamSink,
-  mapStream: MapStream,
-  private val timeout: Timeout,
+  @Assisted private val outputFileSystem: FileSystem,
+  @Assisted private val dataStreamSink: Aff4ImageStreamSink,
+  @Assisted mapStream: MapStream,
+  @Assisted private val timeout: Timeout,
 ) : SeekableSink, Aff4Sink {
   override val arn: Aff4Arn = mapStream.arn
 

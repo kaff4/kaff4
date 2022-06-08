@@ -63,7 +63,7 @@ data class ImageStream(
   val chunkSize: Int,
   val chunksInSegment: Int,
   val size: Long,
-  val compressionMethod: CompressionMethod,
+  val compressionMethod: CompressionMethod = CompressionMethod.None,
   @RdfValue("aff4:hash")
   val linearHashes: List<Hash> = listOf(),
   @RdfValue("aff4:imageStreamHash")

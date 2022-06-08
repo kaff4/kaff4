@@ -27,7 +27,13 @@ interface CompressionMethod {
       return copyAndTruncate(compressed, uncompressed)
     }
 
+    override fun toString(): String = javaClass.simpleName
+
     private fun copyAndTruncate(src: ByteBuffer, dst: ByteBuffer): Int {
+      check(dst.remaining() >= src.remaining()) {
+        "dst buffer does not have enough remaining [${dst.remaining()}] require [${src.remaining()}]"
+      }
+
       val srcRemaining = src.remaining()
 
       dst.mark()

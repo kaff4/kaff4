@@ -10,7 +10,7 @@ import java.nio.ByteBuffer
 private const val BUFFER_SIZE: Int = 16 * 1024 // 16KiB
 
 data class SymbolicSourceProvider(
-  val arn: IRI,
+  override val arn: IRI,
   val pattern: ByteString,
   val chunkBoundary: Int,
 ) : Aff4StreamSourceProvider {

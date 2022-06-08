@@ -1,6 +1,7 @@
 package com.github.nava2.aff4.streams.zip_segment
 
 import com.github.nava2.aff4.Aff4LogicalImageTestRule
+import com.github.nava2.aff4.UnderTest
 import com.github.nava2.aff4.io.buffer
 import com.github.nava2.aff4.io.md5
 import com.github.nava2.aff4.io.use
@@ -26,15 +27,17 @@ private val DREAM_LAST_STANZA =
 
 class Aff4ZipSegmentTest {
   @get:Rule
-  val rule = Aff4LogicalImageTestRule()
+  val rule = Aff4LogicalImageTestRule(imageName = "dream.aff4")
 
   @Inject
   private lateinit var valueFactory: ValueFactory
 
   @Inject
+  @field:UnderTest
   private lateinit var aff4StreamOpener: Aff4StreamOpener
 
   @Inject
+  @field:UnderTest
   private lateinit var aff4Model: Aff4Model
 
   private lateinit var aff4ZipSegment: Aff4ZipSegmentSourceProvider

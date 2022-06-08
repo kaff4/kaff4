@@ -30,4 +30,8 @@ object Aff4CoreModule : KAbstractModule() {
     install(RdfModelParserModule)
     install(Aff4RdfModelModule)
   }
+
+  override fun equals(other: Any?): Boolean = this === other
+
+  override fun hashCode(): Int = javaClass.hashCode()
 }

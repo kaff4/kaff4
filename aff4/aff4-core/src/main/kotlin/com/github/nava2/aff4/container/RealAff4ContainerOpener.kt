@@ -1,6 +1,5 @@
 package com.github.nava2.aff4.container
 
-import com.github.nava2.aff4.Aff4CoreModule
 import com.github.nava2.aff4.io.relativeTo
 import com.github.nava2.aff4.meta.rdf.ForImageRoot
 import com.github.nava2.aff4.model.Aff4Container
@@ -15,6 +14,7 @@ import com.github.nava2.aff4.rdf.RdfConnectionScoping
 import com.github.nava2.aff4.streams.image_stream.Aff4ImageStreamModule
 import com.github.nava2.aff4.streams.map_stream.Aff4MapStreamModule
 import com.github.nava2.aff4.streams.zip_segment.Aff4ZipSegmentModule
+import com.github.nava2.guice.GuiceFactory
 import com.github.nava2.guice.KAbstractModule
 import com.github.nava2.guice.getInstance
 import com.github.nava2.guice.to
@@ -30,7 +30,7 @@ import org.eclipse.rdf4j.model.impl.SimpleIRI
 import javax.inject.Singleton
 
 class RealAff4ContainerOpener constructor(
-  private val injector: Injector,
+  private val guiceFactory: GuiceFactory,
   private val featureModules: Set<Module>,
 ) : Aff4ContainerOpener {
   override fun open(fileSystem: FileSystem, path: Path): Aff4Container {
@@ -49,12 +49,12 @@ class RealAff4ContainerOpener constructor(
       object : SimpleIRI(arn) {}
     }
 
-    return injector.createChildInjector(
-      containerMetadata.streamModules() +
-        featureModules +
-        extraModules +
-        ContainerContextModule(imageFileSystem, containerArn, containerMetadata)
-    )
+    val modules = containerMetadata.streamModules() +
+      featureModules +
+      extraModules +
+      ContainerContextModule(imageFileSystem, containerArn, containerMetadata)
+
+    return guiceFactory.create(modules)
   }
 
   private fun openImageFileSystem(fileSystem: FileSystem, path: Path): FileSystem {
@@ -77,7 +77,6 @@ class RealAff4ContainerOpener constructor(
         .annotatedWith(ForImageRoot::class.java)
         .toInstance(imageFileSystem)
 
-      install(Aff4CoreModule)
       install(Aff4ModelModule)
       install(Aff4StreamOpenerModule)
     }

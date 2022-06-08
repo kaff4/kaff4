@@ -77,6 +77,7 @@ internal class Aff4BevySource(
     timeout.throwIfReached()
 
     chunkBuffer.rewind()
+    chunkBuffer.limit(chunkBuffer.capacity())
 
     bevyChunkCache.getOrPutInto(bevy, index, chunkBuffer) {
       readCompressedBuffer(timeout, index.dataPosition, index.compressedLength)

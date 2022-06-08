@@ -1,6 +1,7 @@
 package com.github.nava2.aff4.streams.image_stream
 
 import com.github.nava2.aff4.Aff4ImageTestRule
+import com.github.nava2.aff4.UnderTest
 import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.model.rdf.ImageStream
 import com.github.nava2.aff4.streams.compression.SnappyModule
@@ -28,6 +29,7 @@ class BevyIndexReaderTest {
   private lateinit var bevyIndexReaderFactory: BevyIndexReader.Factory
 
   @Inject
+  @field:UnderTest
   private lateinit var aff4Model: Aff4Model
 
   private lateinit var imageStreamIri: IRI

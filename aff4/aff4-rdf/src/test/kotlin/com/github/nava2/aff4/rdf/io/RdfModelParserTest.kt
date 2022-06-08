@@ -4,11 +4,9 @@ package com.github.nava2.aff4.rdf.io
 
 import com.github.nava2.aff4.Aff4CoreModule
 import com.github.nava2.aff4.model.rdf.createArn
-import com.github.nava2.aff4.rdf.MemoryRdfRepositoryConfiguration
+import com.github.nava2.aff4.rdf.MemoryRdfRepositoryModule
 import com.github.nava2.aff4.rdf.RdfConnectionScoping
-import com.github.nava2.aff4.rdf.RdfRepositoryConfiguration
 import com.github.nava2.aff4.rdf.ScopedConnection
-import com.github.nava2.guice.KAbstractModule
 import com.github.nava2.test.GuiceTestRule
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.IRI
@@ -24,14 +22,7 @@ import java.lang.Long as JLong
 
 class RdfModelParserTest {
   @get:Rule
-  val rule: GuiceTestRule = GuiceTestRule(
-    Aff4CoreModule,
-    object : KAbstractModule() {
-      override fun configure() {
-        bind<RdfRepositoryConfiguration>().toInstance(MemoryRdfRepositoryConfiguration)
-      }
-    },
-  )
+  val rule: GuiceTestRule = GuiceTestRule(Aff4CoreModule, MemoryRdfRepositoryModule)
 
   @Inject
   private lateinit var rdfConnectionScoping: RdfConnectionScoping

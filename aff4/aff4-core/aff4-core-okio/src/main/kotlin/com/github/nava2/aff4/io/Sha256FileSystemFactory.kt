@@ -3,6 +3,7 @@ package com.github.nava2.aff4.io
 import com.google.common.collect.HashBiMap
 import okio.Buffer
 import okio.ByteString.Companion.encodeUtf8
+import okio.FileMetadata
 import okio.FileSystem
 import okio.ForwardingFileSystem
 import okio.Path
@@ -44,9 +45,53 @@ class Sha256FileSystemFactory {
       return mappings.inverse()[path] ?: error("Can not resolve path not previously mapped: $path")
     }
 
+    override fun metadataOrNull(path: Path): FileMetadata? {
+      val normalized = path.normalized()
+
+      if (normalized in mappings) {
+        return super.metadataOrNull(path)
+      }
+
+      val segments = normalized.segments
+      val directoryExists = mappings.keys.any { it.segments.take(segments.size) == segments }
+      return if (directoryExists) {
+        FileMetadata(
+          isRegularFile = false,
+          isDirectory = true,
+        )
+      } else {
+        null
+      }
+    }
+
     override fun list(dir: Path): List<Path> {
       val normalizedParent = dir.normalized()
-      return mappings.keys.filter { it.parent == normalizedParent }
+      val segments = if (normalizedParent == ".".toPath() || normalizedParent == "".toPath()) {
+        listOf()
+      } else {
+        normalizedParent.segments
+      }
+
+      val pathsUnderDir = mappings.keys.filter { mapped ->
+        mapped.segments.size > segments.size && mapped.segments.take(segments.size) == segments
+      }
+      val singleLevelPaths = pathsUnderDir.asSequence()
+        .map { it.segments.take(segments.size + 1).fold("".toPath()) { a, b -> a / b } }
+        .toSet()
+
+      return singleLevelPaths.toList()
+    }
+
+    override fun listRecursively(dir: Path, followSymlinks: Boolean): Sequence<Path> {
+      val normalizedDir = dir.normalized()
+      val paths = list(normalizedDir)
+      return sequence {
+        yieldAll(paths)
+
+        for (path in paths) {
+          yieldAll(listRecursively(path, followSymlinks))
+        }
+      }
     }
 
     /** All directories are synthetic */

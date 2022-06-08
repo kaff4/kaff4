@@ -1,6 +1,7 @@
 package com.github.nava2.aff4.streams.map_stream
 
 import com.github.nava2.aff4.Aff4ImageTestRule
+import com.github.nava2.aff4.UnderTest
 import com.github.nava2.aff4.interval_tree.Interval
 import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.model.rdf.MapStream
@@ -18,6 +19,7 @@ class MapStreamMapReaderTest {
   val rule: Aff4ImageTestRule = Aff4ImageTestRule("Base-Linear.aff4")
 
   @Inject
+  @field:UnderTest
   private lateinit var aff4Model: Aff4Model
 
   @Inject
