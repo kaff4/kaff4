@@ -35,7 +35,7 @@ allprojects {
     mavenCentral()
   }
 
-  group = "com.github.nava2"
+  group = "com.github.nava2.kaff4"
 
   dependencies {
     implementation(kotlin("stdlib-jdk8"))
