@@ -1,6 +1,6 @@
 dependencies {
-  api(project(":core:core-guice"))
-  api(project(":core:core-logging"))
+  api(project(":aff4:aff4-core:aff4-core-guice"))
+  api(project(":aff4:aff4-core:aff4-core-logging"))
 
   api("org.eclipse.rdf4j:rdf4j-repository-api:4.0.0")
   api("org.eclipse.rdf4j:rdf4j-query:4.0.0")

@@ -1,6 +1,5 @@
 dependencies {
-  api(project(":core:core-guice"))
-  api(project(":core:core-test"))
+  api(project(":aff4:aff4-core:aff4-core-guice"))
 
   api(Dependencies.ASSERTJ_CORE)
   api(Dependencies.GUICE)

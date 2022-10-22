@@ -42,8 +42,8 @@ allprojects {
 
     testImplementation(Dependencies.ASSERTJ_CORE)
     
-    if (project.name != "core-test") {
-      testImplementation(project(":core:core-test"))
+    if (project.name != "aff4-core-test") {
+      testImplementation(project(":aff4:aff4-core:aff4-core-test"))
     }
   }
 
