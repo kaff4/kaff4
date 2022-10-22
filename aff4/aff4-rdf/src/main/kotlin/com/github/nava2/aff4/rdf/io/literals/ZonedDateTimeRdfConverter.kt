@@ -9,8 +9,8 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-internal class ZonedDateTimeRdfConverter @Inject constructor()
-  : ConcreteRdfValueConverter<ZonedDateTime>(typeLiteral<ZonedDateTime>()) {
+internal class ZonedDateTimeRdfConverter @Inject constructor() :
+  ConcreteRdfValueConverter<ZonedDateTime>(typeLiteral<ZonedDateTime>()) {
   override fun parse(value: Value): ZonedDateTime? {
     val calendarValue = (value as? Literal)?.calendarValue() ?: return null
     return calendarValue.toGregorianCalendar().toZonedDateTime()

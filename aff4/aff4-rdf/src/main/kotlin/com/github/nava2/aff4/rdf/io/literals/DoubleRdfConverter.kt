@@ -8,8 +8,8 @@ import javax.inject.Singleton
 import java.lang.Double as JDouble
 
 @Singleton
-internal class DoubleRdfConverter @Inject constructor()
-  : PrimitiveRdfConverter<Double>(generateTypeLiterals<Double, JDouble>()) {
+internal class DoubleRdfConverter @Inject constructor() :
+  PrimitiveRdfConverter<Double>(generateTypeLiterals<Double, JDouble>()) {
   override fun parse(value: Literal): Double = value.doubleValue()
   override fun serialize(value: Double): Literal = valueFactory.createLiteral(value)
 }

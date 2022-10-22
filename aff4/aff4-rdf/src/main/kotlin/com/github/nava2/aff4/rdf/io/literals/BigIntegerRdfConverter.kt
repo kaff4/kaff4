@@ -9,8 +9,8 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-internal class BigIntegerRdfConverter @Inject constructor()
-  : ConcreteRdfValueConverter<BigInteger>(typeLiteral<BigInteger>()) {
+internal class BigIntegerRdfConverter @Inject constructor() :
+  ConcreteRdfValueConverter<BigInteger>(typeLiteral<BigInteger>()) {
   override fun parse(value: Value): BigInteger? = (value as? Literal)?.integerValue()
   override fun serialize(value: BigInteger): Value = valueFactory.createLiteral(value)
 }

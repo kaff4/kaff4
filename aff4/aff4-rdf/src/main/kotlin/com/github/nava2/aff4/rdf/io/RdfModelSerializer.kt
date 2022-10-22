@@ -46,7 +46,12 @@ class RdfModelSerializer @Inject internal constructor(
     }
   }
 
-  private fun RdfValueConverter<Any>.convertValue(info: PropertyInfo, value: Any, subject: Resource, predicate: IRI?): Statement? {
+  private fun RdfValueConverter<Any>.convertValue(
+    info: PropertyInfo,
+    value: Any,
+    subject: Resource,
+    predicate: IRI?,
+  ): Statement? {
     val convertedValue = serialize(info.elementType, value)
     return convertedValue?.let { valueFactory.createStatement(subject, predicate, it) }
   }

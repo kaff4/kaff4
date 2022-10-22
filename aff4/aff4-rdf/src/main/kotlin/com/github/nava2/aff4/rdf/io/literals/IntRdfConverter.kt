@@ -8,8 +8,8 @@ import javax.inject.Singleton
 import java.lang.Integer as JInt
 
 @Singleton
-internal class IntRdfConverter @Inject constructor()
-  : PrimitiveRdfConverter<Int>(generateTypeLiterals<Int, JInt>()) {
+internal class IntRdfConverter @Inject constructor() :
+  PrimitiveRdfConverter<Int>(generateTypeLiterals<Int, JInt>()) {
   override fun parse(value: Literal): Int = value.intValue()
   override fun serialize(value: Int): Literal = valueFactory.createLiteral(value)
 }

@@ -8,8 +8,8 @@ import javax.inject.Singleton
 import java.lang.Float as JFloat
 
 @Singleton
-internal class FloatRdfConverter  @Inject constructor()
-  : PrimitiveRdfConverter<Float>(generateTypeLiterals<Float, JFloat>()) {
+internal class FloatRdfConverter @Inject constructor() :
+  PrimitiveRdfConverter<Float>(generateTypeLiterals<Float, JFloat>()) {
   override fun parse(value: Literal): Float = value.floatValue()
   override fun serialize(value: Float): Literal = valueFactory.createLiteral(value)
 }

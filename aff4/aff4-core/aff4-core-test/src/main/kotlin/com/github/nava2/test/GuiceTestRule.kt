@@ -1,5 +1,6 @@
 package com.github.nava2.test
 
+import com.github.nava2.aff4.io.Sha256FileSystemFactory
 import com.github.nava2.guice.GuiceFactory
 import com.github.nava2.guice.KAbstractModule
 import com.google.inject.Guice
@@ -9,11 +10,16 @@ import com.google.inject.Stage
 import org.junit.rules.MethodRule
 import org.junit.runners.model.FrameworkMethod
 import org.junit.runners.model.Statement
+import javax.inject.Provider
 
 open class GuiceTestRule(providedModules: Collection<Module>) : MethodRule {
 
   private val baseModules = listOf<Module>(
-//    TestConfigProviderModule,
+    object : KAbstractModule() {
+      override fun configure() {
+        bind<Sha256FileSystemFactory>().toProvider(Provider { Sha256FileSystemFactory() })
+      }
+    }
   )
 
   private val modules = baseModules + providedModules

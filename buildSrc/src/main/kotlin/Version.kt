@@ -22,6 +22,8 @@ object Dependencies {
   const val GUICE = "com.google.inject:guice:${Versions.GUICE}"
   const val GUICE_ASSISTED_INJECT = "com.google.inject.extensions:guice-assistedinject:${Versions.GUICE}"
 
+  const val JAVAX_INJECT = "javax.inject:javax.inject:1"
+
   const val JODA_TIME = "joda-time:joda-time:2.10.14"
   const val JUNIT4 = "junit:junit:4.13.2"
 
