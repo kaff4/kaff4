@@ -1,4 +1,5 @@
 dependencies {
+  implementation(project(":aff4:aff4-core:aff4-core-kotlin"))
   api(project(":aff4:aff4-core:aff4-core-guice"))
   api(project(":aff4:aff4-core:aff4-core-logging"))
 

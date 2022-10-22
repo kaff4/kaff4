@@ -2,6 +2,9 @@ package com.github.nava2.aff4.rdf.io
 
 import com.github.nava2.aff4.rdf.NamespacesProvider
 import com.github.nava2.aff4.rdf.schema.RdfSchema
+import com.github.nava2.aff4.yieldNotNull
+import org.eclipse.rdf4j.model.IRI
+import org.eclipse.rdf4j.model.Resource
 import org.eclipse.rdf4j.model.Statement
 import org.eclipse.rdf4j.model.ValueFactory
 import javax.inject.Inject
@@ -24,6 +27,7 @@ class RdfModelSerializer @Inject internal constructor(
     )
 
     yield(typeStatement)
+
     for ((predicate, info) in rdfInfo.otherProperties.entries()) {
       val propertyValue = info.property.call(value)
 
@@ -31,14 +35,19 @@ class RdfModelSerializer @Inject internal constructor(
       val converter by lazy(NONE) { valueConverterProvider.getConverter(info.elementType) as RdfValueConverter<Any> }
 
       if (propertyValue is Collection<*> && info.collectionType != null) {
-        for (childValue in propertyValue.filterNotNull()) {
-          val convertedValue = converter.serialize(info.elementType, childValue) ?: continue
-          yield(valueFactory.createStatement(subject, predicate, convertedValue))
-        }
+        yieldAll(
+          propertyValue.asSequence()
+            .filterNotNull()
+            .mapNotNull { converter.convertValue(info, it, subject, predicate) }
+        )
       } else if (propertyValue != null) {
-        val convertedValue = converter.serialize(info.elementType, propertyValue) ?: continue
-        yield(valueFactory.createStatement(subject, predicate, convertedValue))
+        yieldNotNull(converter.convertValue(info, propertyValue, subject, predicate))
       }
     }
+  }
+
+  private fun RdfValueConverter<Any>.convertValue(info: PropertyInfo, value: Any, subject: Resource, predicate: IRI?): Statement? {
+    val convertedValue = serialize(info.elementType, value)
+    return convertedValue?.let { valueFactory.createStatement(subject, predicate, it) }
   }
 }

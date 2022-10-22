@@ -1,6 +1,5 @@
 package com.github.nava2.test
 
-import com.github.nava2.configuration.TestConfigProviderModule
 import com.github.nava2.guice.GuiceFactory
 import com.github.nava2.guice.KAbstractModule
 import com.google.inject.Guice
@@ -13,8 +12,8 @@ import org.junit.runners.model.Statement
 
 open class GuiceTestRule(providedModules: Collection<Module>) : MethodRule {
 
-  private val baseModules = listOf(
-    TestConfigProviderModule,
+  private val baseModules = listOf<Module>(
+//    TestConfigProviderModule,
   )
 
   private val modules = baseModules + providedModules

@@ -4,6 +4,7 @@ dependencies {
   api(Dependencies.ASSERTJ_CORE)
   api(Dependencies.GUICE)
   api(Dependencies.OKIO)
+  api(Dependencies.JUNIT4)
 
   implementation(project(":aff4:aff4-core"))
   implementation(project(":aff4:aff4-core:aff4-core-model"))

@@ -5,10 +5,12 @@ import com.github.nava2.guice.typeLiteral
 import org.eclipse.rdf4j.model.Literal
 import org.eclipse.rdf4j.model.Value
 import java.time.ZonedDateTime
+import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-internal class ZonedDateTimeRdfConverter : ConcreteRdfValueConverter<ZonedDateTime>(typeLiteral<ZonedDateTime>()) {
+internal class ZonedDateTimeRdfConverter @Inject constructor()
+  : ConcreteRdfValueConverter<ZonedDateTime>(typeLiteral<ZonedDateTime>()) {
   override fun parse(value: Value): ZonedDateTime? {
     val calendarValue = (value as? Literal)?.calendarValue() ?: return null
     return calendarValue.toGregorianCalendar().toZonedDateTime()

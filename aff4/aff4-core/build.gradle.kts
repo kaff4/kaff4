@@ -9,6 +9,7 @@ dependencies {
 
   implementation(project(":aff4:aff4-rdf"))
 
+  implementation(project(":aff4:aff4-core:aff4-core-kotlin"))
   implementation(project(":aff4:aff4-core:aff4-core-okio"))
   implementation(project(":aff4:aff4-core:aff4-core-interval-tree"))
 
