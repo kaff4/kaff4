@@ -5,6 +5,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
   kotlin("jvm") version Versions.KOTLIN
   id("io.gitlab.arturbosch.detekt") version Versions.DETEKT
+  id("com.jaredsburrows.license") version "0.9.0"
 }
 
 buildscript {
@@ -23,6 +24,7 @@ allprojects {
   apply {
     plugin("org.jetbrains.kotlin.jvm")
     plugin("io.gitlab.arturbosch.detekt")
+    plugin("com.jaredsburrows.license")
   }
 
   buildscript {
@@ -33,6 +35,13 @@ allprojects {
 
   repositories {
     mavenCentral()
+  }
+
+  licenseReport {
+    generateTextReport = true
+    generateHtmlReport = true
+    generateCsvReport = false
+    generateJsonReport = false
   }
 
   group = "com.github.nava2.kaff4"
@@ -80,10 +89,7 @@ allprojects {
 
   tasks.withType<Detekt>().configureEach {
     reports {
-      html.required.set(true) // observe findings in your browser with structure and code snippets
-      xml.required.set(true) // checkstyle like format mainly for integrations like Jenkins
-      txt.required.set(true) // similar to the console output, contains issue signature to manually edit baseline files
-      sarif.required.set(true) // standardized SARIF format (https://sarifweb.azurewebsites.net/) to support integrations with Github Code Scanning
+      html.required.set(true)
     }
   }
 }
