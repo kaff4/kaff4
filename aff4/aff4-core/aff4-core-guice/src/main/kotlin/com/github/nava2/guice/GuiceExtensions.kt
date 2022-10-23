@@ -2,7 +2,9 @@ package com.github.nava2.guice
 
 import com.google.inject.Injector
 import com.google.inject.Key
+import com.google.inject.Module
 import com.google.inject.TypeLiteral
+import com.google.inject.assistedinject.FactoryModuleBuilder
 import com.google.inject.binder.AnnotatedBindingBuilder
 import com.google.inject.binder.LinkedBindingBuilder
 import com.google.inject.binder.ScopedBindingBuilder
@@ -34,4 +36,14 @@ inline fun <reified T> Injector.getInstance(): T {
 
 inline fun <reified T> Injector.getProvider(): Provider<T> {
   return getProvider(typeLiteral<T>().key)
+}
+
+inline fun <reified F> assistedFactoryModule(setupFn: FactoryModuleBuilder.() -> Unit = {}): Module {
+  return FactoryModuleBuilder()
+    .apply(setupFn)
+    .build(F::class.java)
+}
+
+inline fun <reified T, reified U : T> FactoryModuleBuilder.implement(): FactoryModuleBuilder {
+  return implement(T::class.java, U::class.java)
 }
