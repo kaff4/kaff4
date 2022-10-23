@@ -10,6 +10,8 @@ import javax.inject.Singleton
 
 object RdfRepositoryModule : KAbstractModule() {
   override fun configure() {
+    binder().requireAtInjectOnConstructors()
+
     requireBinding(typeLiteral<RdfRepositoryConfiguration>().key)
 
     install(RdfConnectionScopeModule)

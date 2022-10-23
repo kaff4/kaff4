@@ -6,6 +6,8 @@ import com.github.nava2.guice.KAbstractModule
 
 object Aff4BaseStreamModule : KAbstractModule() {
   override fun configure() {
+    binder().requireAtInjectOnConstructors()
+
     install(Aff4ImageStreamModule)
     install(Aff4MapStreamModule)
   }
