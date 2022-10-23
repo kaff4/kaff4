@@ -12,9 +12,9 @@ data class MapStreamEntry(
 ) : Interval {
 
   override val start: Long = mappedOffset
-  override val end: Long = mappedOffset + length
+  override val endExclusive: Long = mappedOffset + length
 
-  val mappedEndOffset: Long = end
+  val mappedEndOffset: Long = endExclusive
 
   fun canMerge(other: MapStreamEntry): Boolean {
     if (!(isAdjacentOrOverlaps(other) && targetArn == other.targetArn)) return false

@@ -31,7 +31,7 @@ class MapStreamEntryTest {
     )
 
     assertThat(entry.start).isEqualTo(1024L).isEqualTo(entry.mappedOffset)
-    assertThat(entry.end).isEqualTo(1024L + 512L).isEqualTo(entry.mappedEndOffset)
+    assertThat(entry.endExclusive).isEqualTo(1024L + 512L).isEqualTo(entry.mappedEndOffset)
   }
 
   @Test

@@ -87,7 +87,7 @@ class MapStreamMapReaderTest {
 
         assertThat(results.asIterable()).allSatisfy(
           Consumer { entry ->
-            assertThat(entry.mappedOffset).isEqualTo(mergingInterval.end)
+            assertThat(entry.mappedOffset).isEqualTo(mergingInterval.endExclusive)
             mergingInterval = mergingInterval.copy(length = entry.mappedEndOffset - mergingInterval.start)
           }
         )

@@ -102,7 +102,7 @@ internal class MapStreamMap(
 
   data class IntervalEntry(val entry: MapStreamEntry) : Interval {
     override val start: Long = entry.mappedOffset
-    override val end: Long = entry.mappedOffset + entry.length
+    override val endExclusive: Long = entry.mappedOffset + entry.length
     override val length: Long = entry.length
   }
 }
