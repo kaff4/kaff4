@@ -6,8 +6,8 @@ import com.github.nava2.aff4.model.rdf.Aff4Schema
 import com.github.nava2.aff4.model.rdf.HashType
 import com.github.nava2.aff4.model.rdf.ImageStream
 import com.github.nava2.aff4.model.rdf.MapStream
-import com.github.nava2.aff4.rdf.RdfConnectionScoping
-import com.github.nava2.aff4.rdf.ScopedConnection
+import com.github.nava2.aff4.rdf.MutableRdfConnection
+import com.github.nava2.aff4.rdf.RdfExecutor
 import com.github.nava2.aff4.rdf.io.RdfModelSerializer
 import com.github.nava2.aff4.rdf.schema.RdfSchema
 import com.github.nava2.aff4.rdf.schema.XsdSchema
@@ -23,15 +23,19 @@ import okio.Timeout
 import okio.buffer
 import okio.openZip
 import java.util.concurrent.ConcurrentHashMap
-import javax.inject.Inject
 
 internal class RealAff4ContainerBuilder @AssistedInject internal constructor(
   private val streamSinkFactory: Aff4StreamSinkFactory,
-  private val rdfConnectionScoping: RdfConnectionScoping,
-  @Assisted private val temporaryFileSystem: FileSystem,
-  @Assisted override val arn: Aff4Arn,
-  @Assisted override val defaultTimeout: Timeout,
+  private val rdfExecutor: RdfExecutor,
+  private val containerMetaWriter: ContainerMetaWriter,
+  private val rdfModelSerializer: RdfModelSerializer,
+  @Assisted context: Aff4ContainerBuilder.Context,
 ) : Aff4ContainerBuilder {
+
+  private val temporaryFileSystem: FileSystem = context.temporaryFileSystem
+  override val arn: Aff4Arn = context.arn
+  override val defaultTimeout: Timeout = context.defaultTimeout
+
   init {
     setupContainerNamespaces()
   }
@@ -101,10 +105,10 @@ internal class RealAff4ContainerBuilder @AssistedInject internal constructor(
   }
 
   private fun exportInto(outputFileSystem: FileSystem) {
-    rdfConnectionScoping.scoped { containerMetaWriter: ContainerMetaWriter, serializer: ConnectionSerializer ->
-      serializer.dumpToConnection(sinks.values.map { it.model })
+    rdfExecutor.withReadWriteSession { connection ->
+      rdfModelSerializer.serializeAllToConnection(connection, sinks.values.map { it.model })
 
-      containerMetaWriter.write(temporaryFileSystem, arn)
+      containerMetaWriter.write(connection, temporaryFileSystem, arn)
     }
 
     val pathsAndMetadata = temporaryFileSystem.listRecursively(".".toPath())
@@ -126,8 +130,8 @@ internal class RealAff4ContainerBuilder @AssistedInject internal constructor(
   }
 
   private fun setupContainerNamespaces() {
-    rdfConnectionScoping.scoped { scopedConnection: ScopedConnection ->
-      scopedConnection.mutable.apply {
+    rdfExecutor.withReadWriteSession { connection ->
+      connection.apply {
         setNamespace("", arn.stringValue())
         setNamespace("rdf", RdfSchema.SCHEMA)
         setNamespace("xsd", XsdSchema.SCHEMA)
@@ -137,15 +141,10 @@ internal class RealAff4ContainerBuilder @AssistedInject internal constructor(
   }
 }
 
-private class ConnectionSerializer @Inject constructor(
-  private val connection: ScopedConnection,
-  private val serializer: RdfModelSerializer,
-) {
-  fun dumpToConnection(objects: Collection<Any>) {
-    connection.mutable.apply {
-      for (obj in objects) {
-        add(serializer.serialize(obj))
-      }
+private fun RdfModelSerializer.serializeAllToConnection(connection: MutableRdfConnection, objects: Collection<Any>) {
+  connection.apply {
+    for (obj in objects) {
+      add(serialize(connection, obj))
     }
   }
 }

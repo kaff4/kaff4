@@ -3,8 +3,8 @@ package com.github.nava2.aff4.model
 import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.model.rdf.Aff4RdfModel
 import com.github.nava2.aff4.model.rdf.ZipVolume
-import com.github.nava2.aff4.rdf.RdfConnectionScoping
-import com.github.nava2.aff4.rdf.ScopedConnection
+import com.github.nava2.aff4.rdf.RdfConnection
+import com.github.nava2.aff4.rdf.RdfExecutor
 import com.github.nava2.aff4.rdf.io.RdfModel
 import com.github.nava2.aff4.rdf.io.RdfModelParser
 import com.github.nava2.aff4.rdf.querySubjectsByType
@@ -20,8 +20,9 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 
 internal class RealAff4Model @AssistedInject constructor(
-  private val rdfConnectionScoping: RdfConnectionScoping,
+  private val rdfExecutor: RdfExecutor,
   private val valueFactory: ValueFactory,
+  private val rdfModelParser: RdfModelParser,
   @Assisted override val containerContext: Aff4ContainerContext,
 ) : Aff4Model {
   override val imageRootFileSystem: FileSystem get() = containerContext.imageFileSystem
@@ -43,26 +44,26 @@ internal class RealAff4Model @AssistedInject constructor(
     }
 
   override fun <T : Aff4RdfModel> query(modelType: KClass<T>): List<T> {
-    return query { connection, rdfModelParser ->
+    return query { connection ->
       val modelRdfType = getModelRdfType(modelType)
       val subjects = connection.querySubjectsByType(connection.namespaces.iriFromTurtle(modelRdfType))
 
       subjects.map { subject ->
         val statements = connection.queryStatements(subj = subject).use { it.toList() }
-        rdfModelParser.parse(modelType, subject, statements)
+        rdfModelParser.parse(connection, modelType, subject, statements)
       }
     }
   }
 
   override fun <T : Aff4RdfModel> get(subject: IRI, modelType: KClass<T>): T {
-    return query { connection, rdfModelParser ->
+    return query { connection ->
       val statements = connection.queryStatements(subj = subject).use { it.toList() }
-      rdfModelParser.parse(modelType, subject, statements)
+      rdfModelParser.parse(connection, modelType, subject, statements)
     }
   }
 
   override fun <T : Aff4RdfModel> querySubjectStartsWith(subjectPrefix: String, modelType: KClass<T>): List<T> {
-    return query { connection, rdfModelParser ->
+    return query { connection ->
       val q = connection.prepareGraphQuery(
         """
           CONSTRUCT { ?s ?p ?o }
@@ -79,7 +80,7 @@ internal class RealAff4Model @AssistedInject constructor(
       val statementsBySubject = q.evaluate().use { r -> r.toList() }.groupBy { it.subject }
 
       statementsBySubject.entries.map { (subject, statements) ->
-        rdfModelParser.parse(modelType, subject, statements)
+        rdfModelParser.parse(connection, modelType, subject, statements)
       }
     }
   }
@@ -89,12 +90,10 @@ internal class RealAff4Model @AssistedInject constructor(
     closed = true
   }
 
-  private fun <T> query(block: (connection: ScopedConnection, rdfModelParser: RdfModelParser) -> T): T {
+  private inline fun <T> query(crossinline block: (connection: RdfConnection) -> T): T {
     check(!closed) { "Closed" }
 
-    return rdfConnectionScoping.scoped { connection: ScopedConnection, rdfModelParser: RdfModelParser ->
-      block(connection, rdfModelParser)
-    }
+    return rdfExecutor.withReadOnlySession<T> { block(it) }
   }
 
   private fun getModelRdfType(modelType: KClass<*>) =
@@ -109,14 +108,14 @@ internal class RealAff4Model @AssistedInject constructor(
     private val assistedFactory: AssistedFactory,
   ) : Aff4Model.Loader {
     override fun load(containerContext: Aff4ContainerContext): RealAff4Model {
-      loadTurtle(containerContext.rdfConnectionScoping, containerContext.imageFileSystem)
+      loadTurtle(containerContext.rdfExecutor, containerContext.imageFileSystem)
       return assistedFactory.create(containerContext = containerContext)
     }
 
-    private fun loadTurtle(rdfConnectionScoping: RdfConnectionScoping, imageFileSystem: FileSystem) {
-      rdfConnectionScoping.scoped { scopedConnection: ScopedConnection ->
+    private fun loadTurtle(rdfExecutor: RdfExecutor, imageFileSystem: FileSystem) {
+      rdfExecutor.withReadWriteSession { connection ->
         imageFileSystem.read("information.turtle".toPath()) {
-          inputStream().use { scopedConnection.mutable.addTurtle(it) }
+          inputStream().use { connection.addTurtle(it) }
         }
       }
     }

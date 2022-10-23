@@ -5,8 +5,8 @@ package com.github.nava2.aff4.rdf.io
 import com.github.nava2.aff4.Aff4CoreModule
 import com.github.nava2.aff4.model.rdf.createArn
 import com.github.nava2.aff4.rdf.MemoryRdfRepositoryModule
-import com.github.nava2.aff4.rdf.RdfConnectionScoping
-import com.github.nava2.aff4.rdf.ScopedConnection
+import com.github.nava2.aff4.rdf.MutableRdfConnection
+import com.github.nava2.aff4.rdf.RdfExecutor
 import com.github.nava2.test.GuiceTestRule
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.IRI
@@ -20,12 +20,18 @@ import kotlin.Long
 import java.lang.Integer as JInteger
 import java.lang.Long as JLong
 
-class RdfModelParserTest {
+internal class RdfModelParserTest {
   @get:Rule
   val rule: GuiceTestRule = GuiceTestRule(Aff4CoreModule, MemoryRdfRepositoryModule)
 
   @Inject
-  private lateinit var rdfConnectionScoping: RdfConnectionScoping
+  lateinit var rdfExecutor: RdfExecutor
+
+  @Inject
+  lateinit var rdfModelParser: RdfModelParser
+
+  @Inject
+  lateinit var rdfModelSerializer: RdfModelSerializer
 
   @Test
   fun `primitive properties - long`() {
@@ -158,7 +164,8 @@ class RdfModelParserTest {
   }
 
   private fun setupStatements(block: SetupFixture.() -> Resource): Resource {
-    return rdfConnectionScoping.scoped { fixture: SetupFixture ->
+    return rdfExecutor.withReadWriteSession { connection ->
+      val fixture = SetupFixture(connection)
       fixture.setNamespace("test", "http://test.example.com#")
 
       fixture.block()
@@ -166,31 +173,30 @@ class RdfModelParserTest {
   }
 
   private inline fun <reified T : Any> queryModel(subject: Resource): T {
-    return rdfConnectionScoping.scoped { conn: ScopedConnection, rdfModelParser: RdfModelParser ->
-      val statements = conn.queryStatements(subj = subject).use { it.toList() }
-      rdfModelParser.parse(T::class, subject, statements)
+    return rdfExecutor.withReadOnlySession { connection ->
+      val statements = connection.queryStatements(subj = subject).use { it.toList() }
+      rdfModelParser.parse(connection, T::class, subject, statements)
     }
   }
 
   private inline fun <reified T : Any> verifyRoundTrip(value: T) {
-    return rdfConnectionScoping.scoped { parser: RdfModelParser, serializer: RdfModelSerializer ->
-      val statements = serializer.serialize(value).toList()
+    return rdfExecutor.withReadWriteSession { connection ->
+      val statements = rdfModelSerializer.serialize(connection, value).toList()
 
-      val fromParser = parser.parse(T::class, statements.first().subject, statements)
+      val fromParser = rdfModelParser.parse(connection, T::class, statements.first().subject, statements)
       assertThat(fromParser).isEqualTo(value)
     }
   }
 
-  class SetupFixture @Inject constructor(
-    private val valueFactory: ValueFactory,
-    private val scopedConnection: ScopedConnection,
-  ) : ValueFactory by valueFactory {
+  class SetupFixture(
+    private val rdfConnection: MutableRdfConnection,
+  ) : ValueFactory by rdfConnection.valueFactory {
     fun add(subject: Resource, vararg values: Pair<IRI, Value>) {
-      scopedConnection.mutable.add(subject, *values)
+      rdfConnection.add(subject, *values)
     }
 
     fun setNamespace(prefix: String, name: String) {
-      scopedConnection.mutable.setNamespace(prefix, name)
+      rdfConnection.setNamespace(prefix, name)
     }
   }
 }

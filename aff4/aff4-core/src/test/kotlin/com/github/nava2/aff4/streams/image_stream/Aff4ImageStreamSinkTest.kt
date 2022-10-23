@@ -90,8 +90,10 @@ class Aff4ImageStreamSinkTest {
   fun setup() {
     containerArn = valueFactory.createArn("aff4://99cc4380-308f-4235-838c-e20a8898ad00")
     aff4ContainerBuilder = aff4ContainerBuilderFactory.create(
-      temporaryFileSystem = imageFileSystem,
-      arn = containerArn,
+      Aff4ContainerBuilder.Context(
+        temporaryFileSystem = imageFileSystem,
+        arn = containerArn,
+      ),
     ) as RealAff4ContainerBuilder
   }
 

@@ -1,6 +1,6 @@
 package com.github.nava2.aff4.rdf.io
 
-import com.github.nava2.aff4.rdf.NamespacesProvider
+import com.github.nava2.aff4.rdf.QueryableRdfConnection
 import com.github.nava2.aff4.rdf.schema.RdfSchema
 import com.github.nava2.aff4.yieldNotNull
 import org.eclipse.rdf4j.model.IRI
@@ -13,13 +13,13 @@ import kotlin.LazyThreadSafetyMode.NONE
 class RdfModelSerializer @Inject internal constructor(
   private val rdfAnnotationTypeInfoLookup: RdfAnnotationTypeInfo.Lookup,
   private val valueConverterProvider: RdfValueConverterProvider,
-  private val namespacesProvider: NamespacesProvider,
-  private val valueFactory: ValueFactory,
 ) {
-  fun <T : Any> serialize(value: T): Sequence<Statement> = sequence {
-    val rdfInfo = rdfAnnotationTypeInfoLookup.get(value.javaClass.kotlin, namespacesProvider)
+  fun <T : Any> serialize(connection: QueryableRdfConnection, value: T): Sequence<Statement> = sequence {
+    val rdfInfo = rdfAnnotationTypeInfoLookup.get(value.javaClass.kotlin, connection.namespaces)
 
     val subject = rdfInfo.subjectProperty?.call(value)!!
+    val valueFactory = connection.valueFactory
+
     val typeStatement = valueFactory.createStatement(
       subject,
       valueFactory.createIRI(RdfSchema.SCHEMA, "type"),
@@ -38,15 +38,16 @@ class RdfModelSerializer @Inject internal constructor(
         yieldAll(
           propertyValue.asSequence()
             .filterNotNull()
-            .mapNotNull { converter.convertValue(info, it, subject, predicate) }
+            .mapNotNull { converter.convertValue(valueFactory, info, it, subject, predicate) }
         )
       } else if (propertyValue != null) {
-        yieldNotNull(converter.convertValue(info, propertyValue, subject, predicate))
+        yieldNotNull(converter.convertValue(valueFactory, info, propertyValue, subject, predicate))
       }
     }
   }
 
   private fun RdfValueConverter<Any>.convertValue(
+    valueFactory: ValueFactory,
     info: PropertyInfo,
     value: Any,
     subject: Resource,

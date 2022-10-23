@@ -33,11 +33,13 @@ interface Aff4ContainerBuilder : Closeable {
 
   fun buildIntoZip(path: Path)
 
+  data class Context(
+    val temporaryFileSystem: FileSystem,
+    val arn: Aff4Arn,
+    val defaultTimeout: Timeout = Timeout.NONE,
+  )
+
   interface Factory {
-    fun create(
-      temporaryFileSystem: FileSystem,
-      arn: Aff4Arn,
-      defaultTimeout: Timeout = Timeout.NONE,
-    ): Aff4ContainerBuilder
+    fun create(context: Context): Aff4ContainerBuilder
   }
 }
