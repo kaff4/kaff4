@@ -10,7 +10,7 @@ import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.model.Aff4ModelModule
 import com.github.nava2.aff4.model.Aff4StreamOpener
 import com.github.nava2.aff4.model.Aff4StreamOpenerModule
-import com.github.nava2.aff4.rdf.RdfConnectionScoping
+import com.github.nava2.aff4.rdf.RdfExecutor
 import com.github.nava2.aff4.streams.image_stream.Aff4ImageStreamModule
 import com.github.nava2.aff4.streams.map_stream.Aff4MapStreamModule
 import com.github.nava2.aff4.streams.zip_segment.Aff4ZipSegmentModule
@@ -102,12 +102,12 @@ class RealAff4ContainerOpener internal constructor(
 
     @Provides
     fun providesContainerContext(
-      rdfConnectionScoping: RdfConnectionScoping,
+      rdfExecutor: RdfExecutor,
     ) = Aff4ContainerContext(
       imageFileSystem = imageFileSystem,
       containerArn = containerArn,
       metadata = containerMetadata,
-      rdfConnectionScoping = rdfConnectionScoping,
+      rdfExecutor = rdfExecutor,
     )
   }
 }

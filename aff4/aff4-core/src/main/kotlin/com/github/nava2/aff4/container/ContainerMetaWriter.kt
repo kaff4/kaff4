@@ -1,8 +1,7 @@
 package com.github.nava2.aff4.container
 
 import com.github.nava2.aff4.model.rdf.Aff4Arn
-import com.github.nava2.aff4.rdf.RdfConnectionScoped
-import com.github.nava2.aff4.rdf.ScopedConnection
+import com.github.nava2.aff4.rdf.QueryableRdfConnection
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import org.eclipse.rdf4j.rio.RDFFormat
@@ -10,11 +9,8 @@ import org.eclipse.rdf4j.rio.RDFWriter
 import org.eclipse.rdf4j.rio.Rio
 import javax.inject.Inject
 
-@RdfConnectionScoped
-internal class ContainerMetaWriter @Inject constructor(
-  private val scopedConnection: ScopedConnection,
-) {
-  fun write(fileSystem: FileSystem, containerArn: Aff4Arn) {
+internal class ContainerMetaWriter @Inject constructor() {
+  fun write(connection: QueryableRdfConnection, fileSystem: FileSystem, containerArn: Aff4Arn) {
     fileSystem.write("container.description".toPath(), mustCreate = true) {
       writeUtf8(containerArn.stringValue())
       writeUtf8("\n")
@@ -26,17 +22,17 @@ internal class ContainerMetaWriter @Inject constructor(
       writeUtf8("tool=TEST\n")
     }
 
-    dumpConnectionToTurtle(fileSystem)
+    dumpConnectionToTurtle(connection, fileSystem)
   }
 
-  private fun dumpConnectionToTurtle(fileSystem: FileSystem) {
+  private fun dumpConnectionToTurtle(rdfConnection: QueryableRdfConnection, fileSystem: FileSystem) {
     fileSystem.write("information.turtle".toPath(), mustCreate = true) {
       val writer = Rio.createWriter(RDFFormat.TURTLE, outputStream())
       writer.startRDF()
 
-      dumpNamespacesToWriter(writer)
+      dumpNamespacesToWriter(rdfConnection, writer)
 
-      scopedConnection.queryStatements().use { statements ->
+      rdfConnection.queryStatements().use { statements ->
         for (statement in statements) {
           writer.handleStatement(statement)
         }
@@ -46,8 +42,8 @@ internal class ContainerMetaWriter @Inject constructor(
     }
   }
 
-  private fun dumpNamespacesToWriter(writer: RDFWriter) {
-    scopedConnection.queryNamespaces().use { iter ->
+  private fun dumpNamespacesToWriter(rdfConnection: QueryableRdfConnection, writer: RDFWriter) {
+    rdfConnection.queryNamespaces().use { iter ->
       for (ns in iter) {
         writer.handleNamespace(ns.prefix, ns.name)
       }

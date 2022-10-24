@@ -7,9 +7,9 @@ import com.github.nava2.aff4.io.bounded
 import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.model.rdf.Aff4RdfModel
 import com.github.nava2.aff4.model.rdf.createArn
-import com.github.nava2.aff4.rdf.NamespacesProvider
-import com.github.nava2.aff4.rdf.RdfConnectionScoping
-import com.github.nava2.aff4.rdf.ScopedConnection
+import com.github.nava2.aff4.rdf.QueryableRdfConnection
+import com.github.nava2.aff4.rdf.RdfConnection
+import com.github.nava2.aff4.rdf.RdfExecutor
 import com.github.nava2.aff4.rdf.io.RdfModel
 import com.github.nava2.aff4.rdf.io.RdfModelParser
 import com.github.nava2.aff4.streams.Aff4StreamLoaderContext
@@ -29,7 +29,8 @@ private const val MAX_OPEN_STREAMS = 20L
 
 @Singleton
 internal class RealAff4StreamOpener @Inject constructor(
-  private val rdfConnectionScoping: RdfConnectionScoping,
+  private val rdfExecutor: RdfExecutor,
+  private val rdfModelParser: RdfModelParser,
   private val modelKlasses: Set<KClass<out Aff4RdfModel>>,
   aff4StreamLoaderContexts: Set<Aff4StreamLoaderContext>,
   private val symbolics: Symbolics,
@@ -37,10 +38,10 @@ internal class RealAff4StreamOpener @Inject constructor(
   @Volatile
   private var closed = false
 
-  private val modelKlassesByRdfType = rdfConnectionScoping.scoped { namespaces: NamespacesProvider ->
+  private val modelKlassesByRdfType = rdfExecutor.withReadOnlySession { connection ->
     modelKlasses.associateBy { klass ->
       val rdfModelType = klass.findAnnotation<RdfModel>()!!.rdfType
-      namespaces.iriFromTurtle(rdfModelType)
+      connection.namespaces.iriFromTurtle(rdfModelType)
     }
   }
 
@@ -70,7 +71,7 @@ internal class RealAff4StreamOpener @Inject constructor(
   private fun loadHashDedupedStream(subject: Aff4Arn): SourceProvider<Source> {
     require(subject.isHashDedupe()) { "Hash streams are not supported via this method." }
 
-    return rdfConnectionScoping.scoped { connection: ScopedConnection ->
+    return rdfExecutor.withReadOnlySession { connection: RdfConnection ->
       val statement = connection.queryStatements(subj = subject).use { it.single() }
 
       val dataStreamOffset = DataStreamOffsetReference.parse(connection.valueFactory, statement.`object` as Aff4Arn)
@@ -82,29 +83,28 @@ internal class RealAff4StreamOpener @Inject constructor(
   private fun loadSourceProvider(subject: Aff4Arn): Aff4StreamSourceProvider {
     require(!subject.isHashDedupe()) { "Hash streams are not supported via this method." }
 
-    return rdfConnectionScoping.scoped { connection: ScopedConnection, rdfModelParser: RdfModelParser ->
-      val namespaces = connection.namespaces
+    return rdfExecutor.withReadOnlySession { connection: RdfConnection ->
       val statements = connection.queryStatements(subj = subject).use { it.toList() }
 
-      loadStreamFromRdf(namespaces, rdfModelParser, subject, statements)
+      loadStreamFromRdf(connection, rdfModelParser, subject, statements)
     }
   }
 
   private fun loadStreamFromRdf(
-    namespaces: NamespacesProvider,
+    connection: QueryableRdfConnection,
     rdfModelParser: RdfModelParser,
     streamIri: IRI,
     statements: List<Statement>
   ): Aff4StreamSourceProvider {
     val rdfTypes = statements.asSequence()
-      .filter { it.predicate == namespaces.iriFromTurtle("rdf:type") }
+      .filter { it.predicate == connection.namespaces.iriFromTurtle("rdf:type") }
       .mapNotNull { it.`object` as? IRI }
       .toSet()
 
     val modelType = rdfTypes.asSequence().mapNotNull { type -> modelKlassesByRdfType[type] }
       .first { TypeLiteral.get(it.java) in aff4StreamLoaderContexts }
 
-    val rdfModel = rdfModelParser.parse(modelType, streamIri, statements)
+    val rdfModel = rdfModelParser.parse(connection, modelType, streamIri, statements)
     val streamLoader = aff4StreamLoaderContexts.getValue(TypeLiteral.get(modelType.java)).get()
     return streamLoader.load(rdfModel)
   }

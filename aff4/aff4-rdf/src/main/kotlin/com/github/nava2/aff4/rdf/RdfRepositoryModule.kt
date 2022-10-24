@@ -2,6 +2,7 @@ package com.github.nava2.aff4.rdf
 
 import com.github.nava2.guice.KAbstractModule
 import com.github.nava2.guice.key
+import com.github.nava2.guice.to
 import com.github.nava2.guice.typeLiteral
 import com.google.inject.Provides
 import org.eclipse.rdf4j.repository.Repository
@@ -14,7 +15,7 @@ object RdfRepositoryModule : KAbstractModule() {
 
     requireBinding(typeLiteral<RdfRepositoryConfiguration>().key)
 
-    install(RdfConnectionScopeModule)
+    bind<RdfExecutor>().to<RealRdfExecutor>()
   }
 
   @Provides
