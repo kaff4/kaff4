@@ -16,7 +16,7 @@ import com.github.nava2.aff4.model.rdf.createArn
 import com.github.nava2.aff4.rdf.MemoryRdfRepositoryModule
 import com.github.nava2.aff4.streams.TestAff4ContainerBuilderModule
 import com.github.nava2.aff4.streams.compression.SnappyCompression
-import com.github.nava2.aff4.streams.compression.SnappyModule
+import com.github.nava2.aff4.streams.compression.Aff4SnappyModule
 import com.github.nava2.test.GuiceTestRule
 import okio.Buffer
 import okio.ByteString
@@ -51,7 +51,7 @@ class Aff4ImageStreamSinkTest {
   var rule = GuiceTestRule(
     TestAff4ContainerBuilderModule,
     MemoryRdfRepositoryModule,
-    SnappyModule,
+    Aff4SnappyModule,
   )
 
   @Inject
@@ -68,7 +68,7 @@ class Aff4ImageStreamSinkTest {
 
   private val aff4ContainerOpener: Aff4ContainerOpener by lazy {
     containerOpenerBuilderProvider.get()
-      .withFeatureModules(MemoryRdfRepositoryModule, SnappyModule, TestRandomsModule)
+      .withFeatureModules(MemoryRdfRepositoryModule, Aff4SnappyModule, TestRandomsModule)
       .build()
   }
 

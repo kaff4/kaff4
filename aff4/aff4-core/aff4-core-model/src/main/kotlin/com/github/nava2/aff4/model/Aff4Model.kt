@@ -24,3 +24,5 @@ interface Aff4Model : Closeable {
     fun load(containerContext: Aff4ContainerContext): Aff4Model
   }
 }
+
+inline fun <reified T : Aff4RdfModel> Aff4Model.query(): List<T> = query(T::class)
