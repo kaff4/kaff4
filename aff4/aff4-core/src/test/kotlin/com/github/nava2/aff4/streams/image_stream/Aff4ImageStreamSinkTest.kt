@@ -15,8 +15,8 @@ import com.github.nava2.aff4.model.rdf.ImageStream
 import com.github.nava2.aff4.model.rdf.createArn
 import com.github.nava2.aff4.rdf.MemoryRdfRepositoryModule
 import com.github.nava2.aff4.streams.TestAff4ContainerBuilderModule
-import com.github.nava2.aff4.streams.compression.SnappyCompression
 import com.github.nava2.aff4.streams.compression.Aff4SnappyModule
+import com.github.nava2.aff4.streams.compression.SnappyCompression
 import com.github.nava2.test.GuiceTestRule
 import okio.Buffer
 import okio.ByteString
