@@ -6,7 +6,9 @@ import java.security.SecureRandom
 import java.util.Random
 
 object RandomsModule : KAbstractModule() {
-  override fun configure() = Unit
+  override fun configure() {
+    binder().requireAtInjectOnConstructors()
+  }
 
   @Provides
   fun providesRandom(): Random = SecureRandom.getInstanceStrong()

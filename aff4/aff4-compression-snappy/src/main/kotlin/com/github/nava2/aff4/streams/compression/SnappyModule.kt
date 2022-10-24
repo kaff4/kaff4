@@ -5,6 +5,8 @@ import com.github.nava2.guice.KAbstractModule
 
 object SnappyModule : KAbstractModule() {
   override fun configure() {
+    binder().requireAtInjectOnConstructors()
+
     bindSet<CompressionMethod> {
       to<SnappyCompression>()
     }

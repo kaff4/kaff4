@@ -26,6 +26,8 @@ annotation class ForImages
 
 object Aff4CoreModule : KAbstractModule() {
   override fun configure() {
+    binder().requireAtInjectOnConstructors()
+
     install(RdfRepositoryModule)
     install(RdfModelParserModule)
     install(Aff4RdfModelModule)
