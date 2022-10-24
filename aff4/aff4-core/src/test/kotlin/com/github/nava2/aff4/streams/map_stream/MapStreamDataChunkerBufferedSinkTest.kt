@@ -4,7 +4,6 @@ import com.github.nava2.aff4.io.repeatByteString
 import com.github.nava2.aff4.rdf.MemoryRdfRepositoryModule
 import com.github.nava2.aff4.rdf.RdfRepositoryModule
 import com.github.nava2.aff4.streams.symbolics.Symbolics
-import com.github.nava2.configuration.TestConfigProviderModule
 import com.github.nava2.test.GuiceTestRule
 import okio.Buffer
 import okio.ByteString.Companion.encodeUtf8
@@ -18,7 +17,7 @@ import javax.inject.Inject
 class MapStreamDataChunkerBufferedSinkTest {
   @get:Rule
   var rule = GuiceTestRule(
-    TestConfigProviderModule,
+//    TestConfigProviderModule,
     RdfRepositoryModule,
     MemoryRdfRepositoryModule,
   )

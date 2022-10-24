@@ -894,14 +894,14 @@ class IntervalTreeTest {
   /**
    * Simple implementation of Interval for testing
    */
-  private data class Impl(override val start: Long, override val end: Long) : Interval {
+  private data class Impl(override val start: Long, override val endExclusive: Long) : Interval {
 
-    constructor(i: Impl) : this(i.start, i.end)
+    constructor(i: Impl) : this(i.start, i.endExclusive)
 
-    override val length = end - start
+    override val length = endExclusive - start
 
     override fun toString(): String {
-      return "start: $start end: $end"
+      return "start: $start end: $endExclusive"
     }
   }
 }

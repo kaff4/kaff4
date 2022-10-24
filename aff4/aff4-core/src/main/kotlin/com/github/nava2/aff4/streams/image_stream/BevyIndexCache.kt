@@ -2,12 +2,13 @@ package com.github.nava2.aff4.streams.image_stream
 
 import com.github.benmanes.caffeine.cache.Caffeine
 import org.eclipse.rdf4j.model.IRI
+import javax.inject.Inject
 import javax.inject.Singleton
 
 private const val INDEX_CACHE_SIZE = 500L
 
 @Singleton
-internal class BevyIndexCache {
+internal class BevyIndexCache @Inject constructor() {
   private val cache = Caffeine.newBuilder()
     .maximumSize(INDEX_CACHE_SIZE)
     .build<CacheKey, CacheValue>()

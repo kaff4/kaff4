@@ -29,7 +29,7 @@ import okio.openZip
 import org.eclipse.rdf4j.model.impl.SimpleIRI
 import javax.inject.Singleton
 
-class RealAff4ContainerOpener constructor(
+class RealAff4ContainerOpener internal constructor(
   private val guiceFactory: GuiceFactory,
   private val featureModules: Set<Module>,
 ) : Aff4ContainerOpener {

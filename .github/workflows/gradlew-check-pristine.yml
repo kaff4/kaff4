@@ -15,10 +15,9 @@ jobs:
         with:
           lfs: true
 
-      - name: Build engine-jvm
+      - name: Build kaff4
         uses: burrunan/gradle-cache-action@v1
         with:
-          build-root-directory: ./engine-jvm
           arguments: check --continue 
 
       - name: Upload build reports
@@ -26,4 +25,4 @@ jobs:
         if: failure()
         with:
           name: build-reports
-          path: engine-jvm/**/build/reports/
+          path: ./**/build/reports/

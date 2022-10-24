@@ -26,27 +26,22 @@ package com.github.nava2.aff4.interval_tree
 /**
  * Closed-open, [), interval on the integer number line.
  */
-interface Interval : Comparable<Interval> {
+interface Interval : Comparable<Interval>, ClosedRange<Long> {
   /**
-   * Returns the starting point of this.
+   * Returns the ending point of `this`.
+   *
+   * The interval does **not** include this point.
    */
-  val start: Long
+  val endExclusive: Long
 
-  /**
-   * Returns the ending point of this.
-   *
-   *
-   * The interval does not include this point.
-   */
-  val end: Long
+  override val endInclusive: Long
+    get() = endExclusive - 1
 
   /**
    * Returns the length of this.
    */
   val length: Long
-    get() = end - start
-
-  operator fun contains(offset: Long): Boolean = offset in start..end
+    get() = endExclusive - start
 
   /**
    * Returns if this interval is adjacent to the specified interval.
@@ -57,21 +52,21 @@ interface Interval : Comparable<Interval> {
    * @return if this interval is adjacent to the specified interval.
    */
   fun isAdjacent(other: Interval): Boolean {
-    return start == other.end || end == other.start
+    return start == other.endExclusive || endExclusive == other.start
   }
 
   fun overlaps(o: Interval): Boolean {
-    return end > o.start && o.end > start
+    return endExclusive > o.start && o.endExclusive > start
   }
 
   fun isAdjacentOrOverlaps(o: Interval): Boolean {
-    return end >= o.start && o.end >= start
+    return endExclusive >= o.start && o.endExclusive >= start
   }
 
   fun merge(other: Interval): Simple {
     require(isAdjacentOrOverlaps(other)) { "$this can not merge with $other due to no overlapping or adjacent parts" }
     val newStart = minOf(start, other.start)
-    val newEnd = maxOf(end, other.end)
+    val newEnd = maxOf(endExclusive, other.endExclusive)
     return Simple(newStart, newEnd - newStart)
   }
 
@@ -80,9 +75,9 @@ interface Interval : Comparable<Interval> {
       1
     } else if (start < other.start) {
       -1
-    } else if (end > other.end) {
+    } else if (endExclusive > other.endExclusive) {
       1
-    } else if (end < other.end) {
+    } else if (endExclusive < other.endExclusive) {
       -1
     } else {
       0
@@ -90,6 +85,7 @@ interface Interval : Comparable<Interval> {
   }
 
   data class Simple(override val start: Long, override val length: Long) : Interval {
-    override val end: Long = start + length
+    override val endInclusive: Long = start + length - 1
+    override val endExclusive: Long = start + length
   }
 }

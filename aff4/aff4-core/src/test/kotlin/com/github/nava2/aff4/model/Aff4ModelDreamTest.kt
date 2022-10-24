@@ -42,7 +42,7 @@ class Aff4ModelDreamTest {
 
   @Test
   fun `loads files`() {
-    assertThat(aff4Model.query(FileImage::class).single()).isEqualTo(
+    assertThat(aff4Model.query(FileImage::class)).singleElement().isEqualTo(
       FileImage(
         arn = arn("aff4://5aea2dd0-32b4-4c61-a9db-677654be6f83//test_images/AFF4-L/dream.txt"),
         originalFileName = "./test_images/AFF4-L/dream.txt".toPath(),

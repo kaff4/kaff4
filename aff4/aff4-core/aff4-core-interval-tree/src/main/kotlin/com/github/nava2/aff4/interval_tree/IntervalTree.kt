@@ -400,7 +400,7 @@ class IntervalTree<T : Interval> : Iterable<T> {
       parent = nil
       left = nil
       right = nil
-      maxEnd = interval.end
+      maxEnd = interval.endExclusive
       redden()
     }
 
@@ -413,8 +413,8 @@ class IntervalTree<T : Interval> : Iterable<T> {
     /**
      * The end of the Interval in this Node
      */
-    override val end: Long
-      get() = interval!!.end
+    override val endExclusive: Long
+      get() = interval!!.endExclusive
 
     // /////////////////////////////////
     // Node -- General query methods //
@@ -576,7 +576,7 @@ class IntervalTree<T : Interval> : Iterable<T> {
 
               // Left subtree cannot contain an overlapper. Check the
               // right sub-tree.
-              if (n.start >= t.end) {
+              if (n.start >= t.endExclusive) {
                 // Nothing in the right subtree can overlap
                 break
               }
@@ -785,7 +785,7 @@ class IntervalTree<T : Interval> : Iterable<T> {
      * correct maxEnd values.
      */
     fun resetMaxEnd() {
-      var value = interval!!.end
+      var value = interval!!.endExclusive
 
       if (!left.isNil) {
         value = value.coerceAtLeast(left.maxEnd)
@@ -883,7 +883,7 @@ class IntervalTree<T : Interval> : Iterable<T> {
         val color = if (isBlack) "black" else "red"
         """
         start = $start
-        end = $end
+        end = $endExclusive
         maxEnd = $maxEnd
         color = $color
         """.trimIndent()
@@ -1084,9 +1084,9 @@ class IntervalTree<T : Interval> : Iterable<T> {
         return true
       }
       return if (hasNoChildren()) { // 2. leaf node
-        maxEnd == end
+        maxEnd == endExclusive
       } else {
-        val consistent = maxEnd >= end
+        val consistent = maxEnd >= endExclusive
         if (hasTwoChildren()) { // 3. two children
           consistent && maxEnd >= left.maxEnd && maxEnd >= right.maxEnd &&
             left.hasConsistentMaxEnds() &&

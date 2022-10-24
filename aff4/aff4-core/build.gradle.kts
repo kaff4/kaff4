@@ -3,12 +3,13 @@ dependencies {
 
   api(Dependencies.OKIO)
 
-  api(project(":core:core-logging"))
-  api(project(":core:core-guice"))
+  api(project(":aff4:aff4-core:aff4-core-logging"))
+  api(project(":aff4:aff4-core:aff4-core-guice"))
   api(project(":aff4:aff4-core:aff4-core-model"))
 
   implementation(project(":aff4:aff4-rdf"))
 
+  implementation(project(":aff4:aff4-core:aff4-core-kotlin"))
   implementation(project(":aff4:aff4-core:aff4-core-okio"))
   implementation(project(":aff4:aff4-core:aff4-core-interval-tree"))
 
