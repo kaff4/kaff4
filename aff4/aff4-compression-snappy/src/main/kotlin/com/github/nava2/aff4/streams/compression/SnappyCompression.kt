@@ -22,6 +22,8 @@ class SnappyCompression @Inject constructor(valueFactory: ValueFactory) : Compre
     return Snappy.uncompress(compressed, uncompressed)
   }
 
+  override fun toString(): String = SnappyCompression::class.java.simpleName
+
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
 

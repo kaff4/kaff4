@@ -11,7 +11,7 @@ import com.github.nava2.aff4.model.Aff4StreamOpener
 import com.github.nava2.aff4.model.VerifiableStreamProvider
 import com.github.nava2.aff4.model.rdf.HashType
 import com.github.nava2.aff4.model.rdf.MapStream
-import com.github.nava2.aff4.streams.compression.SnappyModule
+import com.github.nava2.aff4.streams.compression.Aff4SnappyModule
 import com.github.nava2.aff4.streams.hashingSink
 import okio.Buffer
 import okio.ByteString.Companion.decodeHex
@@ -26,7 +26,7 @@ private const val CHUNK_SIZE: Long = 32 * 1024
 
 class Aff4MapStreamSourceProviderTest {
   @get:Rule
-  val rule: Aff4ImageTestRule = Aff4ImageTestRule("Base-Linear.aff4", SnappyModule)
+  val rule: Aff4ImageTestRule = Aff4ImageTestRule("Base-Linear.aff4", Aff4SnappyModule)
 
   @Inject
   private lateinit var valueFactory: ValueFactory

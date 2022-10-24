@@ -6,7 +6,7 @@ import com.github.nava2.aff4.io.buffer
 import com.github.nava2.aff4.io.use
 import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.model.rdf.ImageStream
-import com.github.nava2.aff4.streams.compression.SnappyModule
+import com.github.nava2.aff4.streams.compression.Aff4SnappyModule
 import okio.Buffer
 import okio.ByteString.Companion.decodeHex
 import org.assertj.core.api.Assertions.assertThat
@@ -18,7 +18,7 @@ import javax.inject.Inject
 
 class Aff4BevySourceProviderTest {
   @get:Rule
-  val rule: Aff4ImageTestRule = Aff4ImageTestRule("Base-Linear.aff4", SnappyModule)
+  val rule: Aff4ImageTestRule = Aff4ImageTestRule("Base-Linear.aff4", Aff4SnappyModule)
 
   @Inject
   private lateinit var valueFactory: ValueFactory
