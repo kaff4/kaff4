@@ -102,7 +102,8 @@ internal class RealAff4StreamOpener @Inject constructor(
       .toSet()
 
     val modelType = rdfTypes.asSequence().mapNotNull { type -> modelKlassesByRdfType[type] }
-      .first { TypeLiteral.get(it.java) in aff4StreamLoaderContexts }
+      .firstOrNull() { TypeLiteral.get(it.java) in aff4StreamLoaderContexts }
+      ?: error("Could not load Stream: $streamIri")
 
     val rdfModel = rdfModelParser.parse(connection, modelType, streamIri, statements)
     val streamLoader = aff4StreamLoaderContexts.getValue(TypeLiteral.get(modelType.java)).get()

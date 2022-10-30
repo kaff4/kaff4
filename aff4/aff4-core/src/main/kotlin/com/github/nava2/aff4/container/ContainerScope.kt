@@ -9,7 +9,7 @@ import com.google.inject.Scopes
 import javax.inject.Provider
 import com.google.inject.Provider as GuiceProvider
 
-class ContainerScope : Scope {
+internal class ContainerScope : Scope {
   private val values = ThreadLocal<MutableMap<Key<*>, Any>>()
 
   fun enter() {
@@ -36,10 +36,6 @@ class ContainerScope : Scope {
     }
 
     scopedObjects[key] = value
-  }
-
-  fun <T : Any> seed(clazz: Class<T>, value: T) {
-    seed(Key.get(clazz), value)
   }
 
   override fun <T : Any> scope(key: Key<T>, unscoped: GuiceProvider<T>): GuiceProvider<T> {

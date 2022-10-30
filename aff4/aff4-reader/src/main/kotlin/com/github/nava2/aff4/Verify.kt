@@ -47,13 +47,14 @@ class Verify : Subcommand("verify", "Verify an image") {
       Aff4ContainerOpenerModule,
       Aff4CoreModule,
       Aff4BaseStreamModule,
+      Aff4LogicalModule,
       Aff4SnappyModule,
     )
 
     val injector = Guice.createInjector(Stage.DEVELOPMENT, modules)
     val aff4ContainerOpener = injector.getInstance<Aff4ContainerOpener>()
 
-    logger.info("Verifying two images: $inputImages")
+    logger.info("Verifying ${inputImages.size} images: $inputImages")
     for (imagePath in inputImages) {
       verifyImage(aff4ContainerOpener, imagePath)
     }
