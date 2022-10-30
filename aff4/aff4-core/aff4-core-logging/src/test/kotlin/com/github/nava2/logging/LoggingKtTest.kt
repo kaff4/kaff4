@@ -2,7 +2,7 @@ package com.github.nava2.logging
 
 import org.apache.logging.log4j.LogManager
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 private val fileLogger = Logging.getLogger()
 

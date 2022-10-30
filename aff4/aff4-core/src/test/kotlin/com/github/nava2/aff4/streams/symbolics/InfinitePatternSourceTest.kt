@@ -1,13 +1,16 @@
 package com.github.nava2.aff4.streams.symbolics
 
 import com.github.nava2.aff4.io.repeatByteString
+import com.github.nava2.test.GuiceExtension
 import okio.ByteString
 import okio.ByteString.Companion.encode
 import okio.Timeout
 import okio.buffer
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(GuiceExtension::class)
 class InfinitePatternSourceTest {
   @Test
   fun `pattern breaks and repeats across boundary`() {

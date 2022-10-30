@@ -4,19 +4,21 @@ import com.github.nava2.aff4.io.repeatByteString
 import com.github.nava2.aff4.rdf.MemoryRdfRepositoryModule
 import com.github.nava2.aff4.rdf.RdfRepositoryModule
 import com.github.nava2.aff4.streams.symbolics.Symbolics
-import com.github.nava2.test.GuiceTestRule
+import com.github.nava2.test.GuiceExtension
+import com.github.nava2.test.GuiceModule
 import okio.Buffer
 import okio.ByteString.Companion.encodeUtf8
 import okio.Timeout
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.After
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import javax.inject.Inject
 
+@ExtendWith(GuiceExtension::class)
 class MapStreamDataChunkerBufferedSinkTest {
-  @get:Rule
-  var rule = GuiceTestRule(
+  @GuiceModule
+  val modules = listOf(
 //    TestConfigProviderModule,
     RdfRepositoryModule,
     MemoryRdfRepositoryModule,
@@ -27,7 +29,7 @@ class MapStreamDataChunkerBufferedSinkTest {
 
   private val buffer: Buffer = Buffer()
 
-  @After
+  @AfterEach
   fun tearDown() {
     buffer.close()
   }

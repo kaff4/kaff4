@@ -1,23 +1,26 @@
 package com.github.nava2.aff4.streams.image_stream
 
-import com.github.nava2.aff4.Aff4ImageTestRule
+import com.github.nava2.aff4.Aff4ImageTestModule
 import com.github.nava2.aff4.UnderTest
 import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.model.rdf.ImageStream
 import com.github.nava2.aff4.streams.compression.Aff4SnappyModule
+import com.github.nava2.test.GuiceExtension
+import com.github.nava2.test.GuiceModule
 import okio.Timeout
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.ValueFactory
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import javax.inject.Inject
 
+@ExtendWith(GuiceExtension::class)
 class BevyIndexReaderTest {
-  @get:Rule
-  val rule = Aff4ImageTestRule("Base-Linear.aff4", Aff4SnappyModule)
+  @GuiceModule
+  val imageTestModule = Aff4ImageTestModule("Base-Linear.aff4", Aff4SnappyModule)
 
   @Inject
   private lateinit var valueFactory: ValueFactory
@@ -38,7 +41,7 @@ class BevyIndexReaderTest {
   private val chunkSize: Long
     get() = imageStreamConfig.chunkSize.toLong()
 
-  @Before
+  @BeforeEach
   fun setup() {
     imageStreamIri = valueFactory.createIRI("aff4://c215ba20-5648-4209-a793-1f918c723610")
     imageStreamConfig = aff4Model.get(imageStreamIri, ImageStream::class)

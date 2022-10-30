@@ -17,38 +17,33 @@ import com.github.nava2.aff4.rdf.MemoryRdfRepositoryModule
 import com.github.nava2.aff4.streams.TestAff4ContainerBuilderModule
 import com.github.nava2.aff4.streams.compression.Aff4SnappyModule
 import com.github.nava2.aff4.streams.compression.SnappyCompression
-import com.github.nava2.test.GuiceTestRule
+import com.github.nava2.test.GuiceExtension
+import com.github.nava2.test.GuiceModule
 import okio.Buffer
 import okio.ByteString
 import okio.ByteString.Companion.decodeHex
 import okio.ByteString.Companion.encodeUtf8
 import okio.FileSystem
-import okio.Path
 import okio.Path.Companion.toOkioPath
 import okio.Path.Companion.toPath
 import okio.buffer
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TemporaryFolder
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.io.TempDir
 import javax.inject.Inject
 import javax.inject.Provider
 
+@ExtendWith(GuiceExtension::class)
 class Aff4ImageStreamSinkTest {
-  @get:Rule
-  var tempDirectoryRule: TemporaryFolder = TemporaryFolder()
+  @TempDir
+  private lateinit var tempDirectory: java.nio.file.Path
 
-  private val tempDirectory: Path
-    get() {
-      tempDirectoryRule.create()
-      return tempDirectoryRule.root.toOkioPath()
-    }
-
-  @get:Rule
-  var rule = GuiceTestRule(
+  @GuiceModule
+  val modules = listOf(
     TestAff4ContainerBuilderModule,
     MemoryRdfRepositoryModule,
     Aff4SnappyModule,
@@ -75,7 +70,7 @@ class Aff4ImageStreamSinkTest {
   @Inject
   private lateinit var aff4ContainerBuilderFactory: Aff4ContainerBuilder.Factory
 
-  private val tempFileSystem by lazy { FileSystem.SYSTEM.relativeTo(tempDirectory) }
+  private val tempFileSystem by lazy { FileSystem.SYSTEM.relativeTo(tempDirectory.toOkioPath()) }
 
   private val outputFileSystem by lazy { tempFileSystem.relativeTo("output".toPath()) }
 
@@ -86,7 +81,7 @@ class Aff4ImageStreamSinkTest {
   private lateinit var containerArn: Aff4Arn
   private lateinit var aff4ContainerBuilder: RealAff4ContainerBuilder
 
-  @Before
+  @BeforeEach
   fun setup() {
     containerArn = valueFactory.createArn("aff4://99cc4380-308f-4235-838c-e20a8898ad00")
     aff4ContainerBuilder = aff4ContainerBuilderFactory.create(
@@ -97,7 +92,7 @@ class Aff4ImageStreamSinkTest {
     ) as RealAff4ContainerBuilder
   }
 
-  @After
+  @AfterEach
   fun tearDown() {
     dataBuffer.clear()
 

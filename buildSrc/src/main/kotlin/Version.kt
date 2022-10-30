@@ -4,6 +4,8 @@ object Versions {
   const val KOTLIN = "1.6.21"
   const val DETEKT = "1.20.0"
 
+  const val JUNIT = "5.9.1"
+
   const val GUAVA = "31.1-jre"
   const val GUICE = "5.1.0"
 
@@ -14,6 +16,8 @@ object Dependencies {
   const val APACHE_COMMONS_LANG = "org.apache.commons:commons-lang3:3.12.0"
 
   const val ASSERTJ_CORE = "org.assertj:assertj-core:3.22.0"
+  const val JUNIT_JUIPTER_API = "org.junit.jupiter:junit-jupiter-api:${Versions.JUNIT}"
+  const val JUNIT_JUIPTER_ENGINE = "org.junit.jupiter:junit-jupiter-engine:${Versions.JUNIT}"
 
   const val CAFFIENE = "com.github.ben-manes.caffeine:caffeine:3.1.0"
 

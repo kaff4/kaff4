@@ -30,8 +30,8 @@ package com.github.nava2.aff4.interval_tree
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import java.util.Random
 import java.util.TreeSet
 import java.util.stream.StreamSupport
@@ -60,7 +60,7 @@ class IntervalTreeTest {
 
   private val gappedIntervals = mutableSetOf<Impl>()
 
-  @Before
+  @BeforeEach
   fun initRandom() {
     val rand = Random()
     for (i in generateIntervals(numRandomIntervals, randomUpperBound, rand = rand)) {

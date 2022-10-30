@@ -22,8 +22,6 @@ java {
 
 allprojects {
   apply {
-    plugin("org.jetbrains.kotlin.jvm")
-    plugin("io.gitlab.arturbosch.detekt")
     plugin("com.jaredsburrows.license")
   }
 
@@ -32,6 +30,8 @@ allprojects {
       mavenCentral()
     }
   }
+
+  group = "com.github.nava2.kaff4"
 
   repositories {
     mavenCentral()
@@ -44,16 +44,28 @@ allprojects {
     generateJsonReport = false
   }
 
-  group = "com.github.nava2.kaff4"
+}
+
+subprojects {
+  apply {
+    plugin("org.jetbrains.kotlin.jvm")
+    plugin("io.gitlab.arturbosch.detekt")
+  }
 
   dependencies {
     implementation(kotlin("stdlib-jdk8"))
 
     testImplementation(Dependencies.ASSERTJ_CORE)
+    testImplementation(Dependencies.JUNIT_JUIPTER_API)
+    testRuntimeOnly(Dependencies.JUNIT_JUIPTER_ENGINE)
     
     if (project.name != "aff4-core-test") {
       testImplementation(project(":aff4:aff4-core:aff4-core-test"))
     }
+  }
+
+  tasks.test {
+    useJUnitPlatform()
   }
 
   val compileKotlin: KotlinCompile by tasks

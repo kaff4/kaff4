@@ -1,20 +1,23 @@
 package com.github.nava2.aff4.streams.symbolics
 
-import com.github.nava2.aff4.Aff4ImageTestRule
+import com.github.nava2.aff4.Aff4ImageTestModule
 import com.github.nava2.aff4.io.limit
 import com.github.nava2.aff4.io.repeatByteString
 import com.github.nava2.aff4.io.use
 import com.github.nava2.aff4.model.rdf.createAff4Iri
+import com.github.nava2.test.GuiceExtension
+import com.github.nava2.test.GuiceModule
 import okio.Buffer
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import javax.inject.Inject
 
+@ExtendWith(GuiceExtension::class)
 class SymbolicsTest {
-  @get:Rule
-  val rule: Aff4ImageTestRule = Aff4ImageTestRule("Base-Linear.aff4")
+  @GuiceModule
+  val imageTestModule = Aff4ImageTestModule("Base-Linear.aff4")
 
   @Inject
   private lateinit var symbolics: Symbolics

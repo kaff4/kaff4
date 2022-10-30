@@ -12,35 +12,31 @@ import com.github.nava2.aff4.model.rdf.hash
 import com.github.nava2.aff4.model.rdf.toAff4Path
 import com.github.nava2.aff4.rdf.MemoryRdfRepositoryModule
 import com.github.nava2.aff4.streams.compression.SnappyCompression
-import com.github.nava2.test.GuiceTestRule
+import com.github.nava2.test.GuiceExtension
+import com.github.nava2.test.GuiceModule
 import okio.ByteString
 import okio.ByteString.Companion.encodeUtf8
 import okio.ByteString.Companion.toByteString
 import okio.FileSystem
-import okio.Path
 import okio.Path.Companion.toOkioPath
 import okio.Timeout
 import okio.buffer
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TemporaryFolder
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.io.TempDir
 import javax.inject.Inject
 
+@ExtendWith(GuiceExtension::class)
 class Aff4BevySinkTest {
-  @get:Rule
-  var tempDirectoryRule: TemporaryFolder = TemporaryFolder()
 
-  private val tempDirectory: Path
-    get() {
-      tempDirectoryRule.create()
-      return tempDirectoryRule.root.toOkioPath()
-    }
+  @TempDir
+  private lateinit var tempDir: java.nio.file.Path
 
-  @get:Rule
-  var rule = GuiceTestRule(
-//    TestConfigProviderModule,
+  @GuiceModule
+  val modules = listOf(
+    //    TestConfigProviderModule,
     Aff4CoreModule,
     MemoryRdfRepositoryModule,
   )
@@ -57,7 +53,7 @@ class Aff4BevySinkTest {
   @Inject
   private lateinit var snappyCompression: SnappyCompression
 
-  private val imageFileSystem: FileSystem by lazy { sha256FileSystemFactory.create(tempDirectory) }
+  private val imageFileSystem: FileSystem by lazy { sha256FileSystemFactory.create(tempDir.toOkioPath()) }
 
   @Test
   fun `create bevy`() {

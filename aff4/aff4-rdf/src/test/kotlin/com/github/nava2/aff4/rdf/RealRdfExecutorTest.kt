@@ -2,27 +2,29 @@ package com.github.nava2.aff4.rdf
 
 import com.github.nava2.aff4.Aff4CoreModule
 import com.github.nava2.aff4.isIllegalStateException
-import com.github.nava2.test.GuiceTestRule
+import com.github.nava2.test.GuiceExtension
+import com.github.nava2.test.GuiceModule
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.assertj.core.api.Assertions.fail
 import org.assertj.core.api.ObjectAssert
 import org.eclipse.rdf4j.model.Statement
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import javax.inject.Inject
 
+@ExtendWith(GuiceExtension::class)
 internal class RealRdfExecutorTest {
-  @get:Rule
-  val rule: GuiceTestRule = GuiceTestRule(Aff4CoreModule, MemoryRdfRepositoryModule)
+  @GuiceModule
+  val modules = listOf(Aff4CoreModule, MemoryRdfRepositoryModule)
 
   @Inject
   lateinit var realRdfExecutor: RealRdfExecutor
 
   private lateinit var statements: List<Statement>
 
-  @Before
+  @BeforeEach
   fun setup() {
     statements = realRdfExecutor.withReadWriteSession { connection ->
       val vf = connection.valueFactory
