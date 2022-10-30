@@ -7,8 +7,6 @@ object Aff4LogicalModule : KAbstractModule() {
   override fun configure() {
     binder().requireAtInjectOnConstructors()
 
-    install(Aff4BaseStreamModule)
-
     install(Aff4ZipSegmentModule)
   }
 }

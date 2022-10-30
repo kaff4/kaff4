@@ -17,13 +17,14 @@ import com.google.inject.assistedinject.AssistedInject
 import okio.FileSystem
 import okio.Source
 import okio.Timeout
+import javax.inject.Provider
 
 internal class Aff4ZipSegmentSourceProvider @AssistedInject constructor(
-  @ForImageRoot imageFileSystem: FileSystem,
+  @ForImageRoot private val imageRootFileSystemProvider: Provider<FileSystem>,
   @Assisted val zipSegment: ZipSegment,
 ) : Aff4StreamSourceProvider,
   VerifiableStreamProvider,
-  SourceProvider<Source> by imageFileSystem.sourceProvider(zipSegment.segmentPath).buffer() {
+  SourceProvider<Source> by imageRootFileSystemProvider.get().sourceProvider(zipSegment.segmentPath).buffer() {
 
   override val arn: Aff4Arn = zipSegment.arn
   override val size = zipSegment.size

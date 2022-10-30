@@ -1,8 +1,8 @@
 package com.github.nava2.test
 
 import com.github.nava2.aff4.io.Sha256FileSystemFactory
-import com.github.nava2.guice.GuiceFactory
 import com.github.nava2.guice.KAbstractModule
+import com.github.nava2.guice.getInstance
 import com.google.inject.Guice
 import com.google.inject.Injector
 import com.google.inject.Module
@@ -10,9 +10,11 @@ import com.google.inject.Stage
 import org.junit.rules.MethodRule
 import org.junit.runners.model.FrameworkMethod
 import org.junit.runners.model.Statement
+import javax.inject.Inject
 import javax.inject.Provider
+import javax.inject.Singleton
 
-open class GuiceTestRule(providedModules: Collection<Module>) : MethodRule {
+open class GuiceTestRule(vararg val providedModules: Module) : MethodRule {
 
   private val baseModules = listOf<Module>(
     object : KAbstractModule() {
@@ -24,31 +26,35 @@ open class GuiceTestRule(providedModules: Collection<Module>) : MethodRule {
 
   private val modules = baseModules + providedModules
 
-  protected open fun setupInjector(
-    injector: Injector,
-    cleanupActions: CleanupActions,
-  ): Injector = injector
-
   override fun apply(base: Statement, method: FrameworkMethod, target: Any): Statement {
-    val cleanupActions = CleanupActions()
-    val injector = Guice.createInjector(Stage.DEVELOPMENT, modules + TestModule)
-    val testInjector = setupInjector(injector, cleanupActions)
-    testInjector.injectMembers(target)
+    val injector = Guice.createInjector(Stage.DEVELOPMENT, modules)
+    injector.injectMembers(target)
 
     return object : Statement() {
       override fun evaluate() {
-        cleanupActions.use {
-          base.evaluate()
+        injector.getInstance<CleanupActions>().use {
+          evaluate(injector) {
+            base.evaluate()
+          }
         }
       }
     }
   }
 
-  protected class CleanupActions : AutoCloseable {
+  protected open fun evaluate(injector: Injector, block: () -> Unit) {
+    block()
+  }
+
+  @Singleton
+  protected class CleanupActions @Inject constructor() : AutoCloseable {
     private val cleanups = mutableListOf<() -> Unit>()
 
     fun register(action: () -> Unit) {
       cleanups += action
+    }
+
+    fun register(autoCloseable: AutoCloseable) {
+      cleanups += autoCloseable::close
     }
 
     override fun close() {
@@ -57,16 +63,4 @@ open class GuiceTestRule(providedModules: Collection<Module>) : MethodRule {
       }
     }
   }
-
-  private object TestModule : KAbstractModule() {
-    override fun configure() {
-      bind<GuiceFactory>().toInstance(object : GuiceFactory {
-        override fun create(modules: Collection<Module>): Injector {
-          return Guice.createInjector(Stage.DEVELOPMENT, modules)
-        }
-      })
-    }
-  }
-
-  constructor(vararg modules: Module) : this(modules.toList())
 }
