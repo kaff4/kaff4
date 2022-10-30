@@ -1,17 +1,3 @@
-object Versions {
-  const val JVM_BYTECODE_TARGET = "11"
-  const val JVM_TARGET = "17"
-  const val KOTLIN = "1.6.21"
-  const val DETEKT = "1.20.0"
-
-  const val JUNIT = "5.9.1"
-
-  const val GUAVA = "31.1-jre"
-  const val GUICE = "5.1.0"
-
-  const val LOG4J = "2.17.1"
-}
-
 object Dependencies {
   const val APACHE_COMMONS_LANG = "org.apache.commons:commons-lang3:3.12.0"
 
