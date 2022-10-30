@@ -1,6 +1,7 @@
 package com.github.nava2.aff4
 
-import com.github.nava2.aff4.container.Aff4ContainerOpenerBuilder
+import com.github.nava2.aff4.container.Aff4ContainerOpenerModule
+import com.github.nava2.aff4.model.Aff4ContainerOpener
 import com.github.nava2.aff4.model.VerifiableStreamProvider
 import com.github.nava2.aff4.model.query
 import com.github.nava2.aff4.model.rdf.ImageStream
@@ -8,8 +9,6 @@ import com.github.nava2.aff4.model.rdf.MapStream
 import com.github.nava2.aff4.model.rdf.ZipSegment
 import com.github.nava2.aff4.rdf.MemoryRdfRepositoryModule
 import com.github.nava2.aff4.streams.compression.Aff4SnappyModule
-import com.github.nava2.guice.GuiceFactory
-import com.github.nava2.guice.KAbstractModule
 import com.github.nava2.guice.getInstance
 import com.github.nava2.logging.Logging
 import com.google.inject.Guice
@@ -43,35 +42,27 @@ class Verify : Subcommand("verify", "Verify an image") {
 
   override fun execute() {
     val modules = listOf(
-      Aff4CoreModule,
+      RandomsModule,
       MemoryRdfRepositoryModule,
-      object : KAbstractModule() {
-        override fun configure() {
-          bind<GuiceFactory>().toInstance(ChildInjectorGuiceFactory)
-        }
-      }
+      Aff4ContainerOpenerModule,
+      Aff4CoreModule,
+      Aff4BaseStreamModule,
+      Aff4SnappyModule,
     )
 
     val injector = Guice.createInjector(Stage.DEVELOPMENT, modules)
-    val aff4ContainerOpenerBuilder = injector.getInstance<Aff4ContainerOpenerBuilder>()
+    val aff4ContainerOpener = injector.getInstance<Aff4ContainerOpener>()
 
     logger.info("Verifying two images: $inputImages")
     for (imagePath in inputImages) {
-      verifyImage(aff4ContainerOpenerBuilder, imagePath)
+      verifyImage(aff4ContainerOpener, imagePath)
     }
   }
 
-  private fun verifyImage(aff4ContainerOpenerBuilder: Aff4ContainerOpenerBuilder, imagePath: Path) {
-    val aff4ContainerOpener = aff4ContainerOpenerBuilder
-      .withFeatureModules(
-        Aff4SnappyModule,
-        MemoryRdfRepositoryModule,
-      )
-      .build()
-
+  private fun verifyImage(aff4ContainerOpener: Aff4ContainerOpener, imagePath: Path) {
     logger.info("Opening image: $imagePath")
 
-    aff4ContainerOpener.open(FileSystem.SYSTEM, imagePath).use { container ->
+    aff4ContainerOpener.open(FileSystem.SYSTEM, imagePath) { container ->
       logger.debug("Opened image, querying streams")
 
       val model = container.aff4Model
@@ -94,8 +85,5 @@ class Verify : Subcommand("verify", "Verify an image") {
     }
 
     logger.info("Verified image: $imagePath")
-
-    logger.warn("foo bar")
-    logger.error("baz")
   }
 }

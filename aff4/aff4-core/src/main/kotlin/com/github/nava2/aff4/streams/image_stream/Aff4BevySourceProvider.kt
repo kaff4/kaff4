@@ -9,11 +9,12 @@ import okio.Closeable
 import okio.FileSystem
 import okio.Source
 import okio.Timeout
+import javax.inject.Provider
 
 internal class Aff4BevySourceProvider @AssistedInject constructor(
   imageBlockHashVerification: ImageBlockHashVerification,
   bevyIndexReaderFactory: BevyIndexReader.Factory,
-  @ForImageRoot fileSystem: FileSystem,
+  @ForImageRoot fileSystemProvider: Provider<FileSystem>,
   @Assisted bevyChunkCache: BevyChunkCache,
   @Assisted imageStream: ImageStream,
   @Assisted val bevy: Bevy,
@@ -24,7 +25,7 @@ internal class Aff4BevySourceProvider @AssistedInject constructor(
     imageBlockHashVerification = imageBlockHashVerification,
     bevyIndexReader = bevyIndexReader,
     bevyChunkCache = bevyChunkCache,
-    fileSystem = fileSystem,
+    fileSystem = fileSystemProvider.get(),
     imageStream = imageStream,
     bevy = bevy,
   )

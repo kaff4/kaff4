@@ -2,6 +2,7 @@ package com.github.nava2.aff4.model
 
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.benmanes.caffeine.cache.LoadingCache
+import com.github.nava2.aff4.container.ContainerScoped
 import com.github.nava2.aff4.io.SourceProvider
 import com.github.nava2.aff4.io.bounded
 import com.github.nava2.aff4.model.rdf.Aff4Arn
@@ -21,13 +22,12 @@ import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.Statement
 import org.eclipse.rdf4j.model.ValueFactory
 import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 
 private const val MAX_OPEN_STREAMS = 20L
 
-@Singleton
+@ContainerScoped
 internal class RealAff4StreamOpener @Inject constructor(
   private val rdfExecutor: RdfExecutor,
   private val rdfModelParser: RdfModelParser,
