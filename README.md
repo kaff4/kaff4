@@ -1,17 +1,18 @@
 # kaff4
 
-The kaff4 project is a [kotlin](https://kotlinlang.org/) implementation of the [AFF4 file format](https://github.com/aff4/Standard).
+The kaff4 project is a [kotlin](https://kotlinlang.org/) implementation of
+the [AFF4 file format](https://github.com/aff4/Standard).
 
-This library is build to run in any JVM-based environment. 
+This library is build to run in any JVM-based environment.
 
 ## What works today
 
 * Reading
-  * Physical Images
-  * Logical Images
-    * Querying files/directories is not "first part" but supported
+    * Physical Images
+    * Logical Images
+        * Querying files/directories is not "first part" but supported
 * Writing via `Aff4ContainerBuilder`
-  * Physical Images
+    * Physical Images
 
 ### Hashing
 
@@ -26,7 +27,9 @@ This library is build to run in any JVM-based environment.
 
 ## Attributions
 
-* [IntervalTree](https://github.com/charcuterie/interval-tree/blob/65dc2fc8f754127aa09fba0dff6f43b10ac151cb/src/datastructures/IntervalTree.java) - [MIT License (MIT)](https://github.com/charcuterie/interval-tree/blob/65dc2fc8f754127aa09fba0dff6f43b10ac151cb/LICENSE) - Mason M Lai
+* [IntervalTree](https://github.com/charcuterie/interval-tree/blob/65dc2fc8f754127aa09fba0dff6f43b10ac151cb/src/datastructures/IntervalTree.java)
+    - [MIT License (MIT)](https://github.com/charcuterie/interval-tree/blob/65dc2fc8f754127aa09fba0dff6f43b10ac151cb/LICENSE)
+    - Mason M Lai
 
 For individual projects, see `./gradlew :path:to:project:licenseReport`
 
@@ -36,10 +39,17 @@ See `LICENSE` in the root of this file.
 
 For individual projects, see `./gradlew :path:to:project:licenseReport`
 
-## TODO 
+## TODO
 
+* General
+    * [ ] Add "plugin" support for optional features
+    * [ ] Package into jitpack
 * [ ] Add documentation on general architecture
-  * Eclipse RDF4J, witness scoping, queries
-* [/] Add attributions for licenses
-* [ ]
+    * Eclipse RDF4J, witness scoping, queries
+* [x] Add attributions for licenses
+* [ ] CLI
+    * [ ] Add create command
+    * [ ] Create report for `verify` subcommand
+* [ ] Logical
+    * [ ] Implement file system walking
   
