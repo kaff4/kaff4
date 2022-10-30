@@ -3,16 +3,18 @@ package com.github.nava2.aff4.streams.map_stream
 import com.github.nava2.aff4.interval_tree.IntervalTree
 import com.github.nava2.aff4.rdf.MemoryRdfRepositoryModule
 import com.github.nava2.aff4.rdf.RdfRepositoryModule
-import com.github.nava2.test.GuiceTestRule
+import com.github.nava2.test.GuiceExtension
+import com.github.nava2.test.GuiceModule
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import javax.inject.Inject
 
+@ExtendWith(GuiceExtension::class)
 class MapStreamEntryIntervalTreeExtensionsTest {
-  @get:Rule
-  val rule = GuiceTestRule(RdfRepositoryModule, MemoryRdfRepositoryModule)
+  @GuiceModule
+  val modules = listOf(RdfRepositoryModule, MemoryRdfRepositoryModule)
 
   @Inject
   private lateinit var valueFactory: ValueFactory

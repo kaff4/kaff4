@@ -1,6 +1,6 @@
 package com.github.nava2.aff4.streams.map_stream
 
-import com.github.nava2.aff4.Aff4ImageTestRule
+import com.github.nava2.aff4.Aff4ImageTestModule
 import com.github.nava2.aff4.UnderTest
 import com.github.nava2.aff4.io.buffer
 import com.github.nava2.aff4.io.md5
@@ -13,20 +13,23 @@ import com.github.nava2.aff4.model.rdf.HashType
 import com.github.nava2.aff4.model.rdf.MapStream
 import com.github.nava2.aff4.streams.compression.Aff4SnappyModule
 import com.github.nava2.aff4.streams.hashingSink
+import com.github.nava2.test.GuiceExtension
+import com.github.nava2.test.GuiceModule
 import okio.Buffer
 import okio.ByteString.Companion.decodeHex
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import javax.inject.Inject
 
 private const val CHUNK_SIZE: Long = 32 * 1024
 
+@ExtendWith(GuiceExtension::class)
 class Aff4MapStreamSourceProviderTest {
-  @get:Rule
-  val rule: Aff4ImageTestRule = Aff4ImageTestRule("Base-Linear.aff4", Aff4SnappyModule)
+  @GuiceModule
+  val imageTestModule = Aff4ImageTestModule("Base-Linear.aff4", Aff4SnappyModule)
 
   @Inject
   private lateinit var valueFactory: ValueFactory
@@ -44,7 +47,7 @@ class Aff4MapStreamSourceProviderTest {
 
   private val bufferedProvider by lazy { aff4MapStreamSourceProvider.buffer() }
 
-  @Before
+  @BeforeEach
   fun setup() {
     val mapStreamIri = valueFactory.createIRI("aff4://fcbfdce7-4488-4677-abf6-08bc931e195b")
     aff4MapStreamSourceProvider = aff4StreamOpener.openStream(mapStreamIri) as Aff4MapStreamSourceProvider

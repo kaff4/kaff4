@@ -1,25 +1,27 @@
 package com.github.nava2.aff4.model
 
-import com.github.nava2.aff4.Aff4ImageTestRule
+import com.github.nava2.aff4.Aff4ImageTestModule
 import com.github.nava2.aff4.UnderTest
 import com.github.nava2.aff4.model.rdf.FileImage
 import com.github.nava2.aff4.model.rdf.Hash
 import com.github.nava2.aff4.model.rdf.ZipSegment
 import com.github.nava2.aff4.model.rdf.createArn
 import com.github.nava2.aff4.parseZonedDateTime
-import com.github.nava2.test.GuiceTestRule
+import com.github.nava2.test.GuiceExtension
+import com.github.nava2.test.GuiceModule
 import okio.ByteString.Companion.decodeHex
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import javax.inject.Inject
 
+@ExtendWith(GuiceExtension::class)
 class Aff4ModelDreamTest {
-  @get:Rule
-  val rule: GuiceTestRule = Aff4ImageTestRule("dream.aff4")
+  @GuiceModule
+  val imageTestModule = Aff4ImageTestModule("dream.aff4")
 
   @Inject
   private lateinit var valueFactory: ValueFactory

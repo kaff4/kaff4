@@ -1,6 +1,7 @@
 package com.github.nava2.aff4.streams.zip_segment
 
-import com.github.nava2.aff4.Aff4LogicalImageTestRule
+import com.github.nava2.aff4.Aff4ImageTestModule
+import com.github.nava2.aff4.Aff4LogicalModule
 import com.github.nava2.aff4.UnderTest
 import com.github.nava2.aff4.io.buffer
 import com.github.nava2.aff4.io.md5
@@ -11,13 +12,15 @@ import com.github.nava2.aff4.model.VerifiableStreamProvider
 import com.github.nava2.aff4.model.rdf.HashType
 import com.github.nava2.aff4.model.rdf.ZipSegment
 import com.github.nava2.aff4.streams.hashingSink
+import com.github.nava2.test.GuiceExtension
+import com.github.nava2.test.GuiceModule
 import okio.ByteString.Companion.decodeHex
 import okio.ByteString.Companion.encodeUtf8
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import javax.inject.Inject
 
 private const val DREAM_TXT_SIZE = 8688L
@@ -25,9 +28,13 @@ private val DREAM_FIRST_LINE = "I have a Dream by Martin Luther King, Jr; August
 private val DREAM_LAST_STANZA =
   "\"Free at last! free at last! Thank God Almighty, we are free at last!\"\n".encodeUtf8()
 
+@ExtendWith(GuiceExtension::class)
 class Aff4ZipSegmentTest {
-  @get:Rule
-  val rule = Aff4LogicalImageTestRule(imageName = "dream.aff4")
+  @GuiceModule
+  val imageTestModules = listOf(
+    Aff4ImageTestModule(imageName = "dream.aff4"),
+    Aff4LogicalModule,
+  )
 
   @Inject
   private lateinit var valueFactory: ValueFactory
@@ -44,7 +51,7 @@ class Aff4ZipSegmentTest {
   private lateinit var zipSegment: ZipSegment
   private val bufferedProvider by lazy { aff4ZipSegment.buffer() }
 
-  @Before
+  @BeforeEach
   fun setup() {
     val zipSegmentIri =
       valueFactory.createIRI("aff4://5aea2dd0-32b4-4c61-a9db-677654be6f83//test_images/AFF4-L/dream.txt")

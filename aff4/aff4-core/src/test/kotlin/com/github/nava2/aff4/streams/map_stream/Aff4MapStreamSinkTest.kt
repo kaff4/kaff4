@@ -22,36 +22,31 @@ import com.github.nava2.aff4.streams.compression.Aff4SnappyModule
 import com.github.nava2.aff4.streams.compression.SnappyCompression
 import com.github.nava2.aff4.streams.image_stream.Bevy
 import com.github.nava2.aff4.streams.symbolics.Symbolics
-import com.github.nava2.test.GuiceTestRule
+import com.github.nava2.test.GuiceExtension
+import com.github.nava2.test.GuiceModule
 import okio.Buffer
 import okio.ByteString
 import okio.ByteString.Companion.decodeHex
 import okio.ByteString.Companion.encodeUtf8
 import okio.FileSystem
-import okio.Path
-import okio.Path.Companion.toOkioPath
 import okio.Path.Companion.toPath
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TemporaryFolder
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.io.TempDir
+import java.nio.file.Path
 import java.util.function.Consumer
 import javax.inject.Inject
 
+@ExtendWith(GuiceExtension::class)
 class Aff4MapStreamSinkTest {
-  @get:Rule
-  var tempDirectoryRule: TemporaryFolder = TemporaryFolder()
+  @TempDir
+  private lateinit var tempDirectory: Path
 
-  private val tempDirectory: Path
-    get() {
-      tempDirectoryRule.create()
-      return tempDirectoryRule.root.toOkioPath()
-    }
-
-  @get:Rule
-  var rule = GuiceTestRule(
+  @GuiceModule
+  val modules = listOf(
     TestAff4ContainerBuilderModule,
     Aff4BaseStreamModule,
     MemoryRdfRepositoryModule,
@@ -90,7 +85,7 @@ class Aff4MapStreamSinkTest {
   private lateinit var containerArn: Aff4Arn
   private lateinit var aff4ContainerBuilder: RealAff4ContainerBuilder
 
-  @Before
+  @BeforeEach
   fun setup() {
     containerArn = valueFactory.createArn("aff4://ffffffff-308f-4235-838c-e20a8898ad00")
     aff4ContainerBuilder = aff4ContainerBuilderFactory.create(

@@ -7,22 +7,24 @@ import com.github.nava2.aff4.model.rdf.createArn
 import com.github.nava2.aff4.rdf.MemoryRdfRepositoryModule
 import com.github.nava2.aff4.rdf.MutableRdfConnection
 import com.github.nava2.aff4.rdf.RdfExecutor
-import com.github.nava2.test.GuiceTestRule
+import com.github.nava2.test.GuiceExtension
+import com.github.nava2.test.GuiceModule
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.Resource
 import org.eclipse.rdf4j.model.Value
 import org.eclipse.rdf4j.model.ValueFactory
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import javax.inject.Inject
 import kotlin.Long
 import java.lang.Integer as JInteger
 import java.lang.Long as JLong
 
+@ExtendWith(GuiceExtension::class)
 internal class RdfModelParserTest {
-  @get:Rule
-  val rule: GuiceTestRule = GuiceTestRule(Aff4CoreModule, MemoryRdfRepositoryModule)
+  @GuiceModule
+  val modules = listOf(Aff4CoreModule, MemoryRdfRepositoryModule)
 
   @Inject
   lateinit var rdfExecutor: RdfExecutor

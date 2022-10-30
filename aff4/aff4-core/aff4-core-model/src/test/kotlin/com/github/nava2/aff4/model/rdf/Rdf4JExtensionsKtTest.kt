@@ -3,7 +3,7 @@ package com.github.nava2.aff4.model.rdf
 import okio.Path.Companion.toPath
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class Rdf4JExtensionsKtTest {
   private val valueFactory = SimpleValueFactory.getInstance()

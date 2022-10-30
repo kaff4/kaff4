@@ -1,25 +1,19 @@
 package com.github.nava2.aff4.io
 
-import com.github.nava2.test.GuiceTestRule
+import com.github.nava2.test.GuiceExtension
 import okio.ByteString.Companion.encodeUtf8
-import okio.Path
-import okio.Path.Companion.toOkioPath
 import okio.Path.Companion.toPath
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TemporaryFolder
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.io.TempDir
+import java.nio.file.Path
 import javax.inject.Inject
 
+@ExtendWith(GuiceExtension::class)
 class Sha256FileSystemFactoryTest {
-  @get:Rule
-  var tempDirectoryRule: TemporaryFolder = TemporaryFolder()
-
-  private val tempDirectory: Path
-    get() = tempDirectoryRule.root.toOkioPath()
-
-  @get:Rule
-  val rule = GuiceTestRule()
+  @TempDir
+  private lateinit var tempDirectory: Path
 
   @Inject
   private lateinit var sha256FileSystemFactory: Sha256FileSystemFactory

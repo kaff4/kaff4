@@ -3,7 +3,7 @@ package com.github.nava2.aff4.model.rdf
 import com.github.nava2.aff4.io.repeatByteString
 import okio.ByteString.Companion.toByteString
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import java.nio.ByteBuffer
 
 class NoneCompressionMethodTest {
