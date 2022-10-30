@@ -1,6 +1,6 @@
 object Versions {
-  const val JVM_BYTECODE_TARGET = "17"
-  const val JVM_TARGET = "17"
+  const val JVM_BYTECODE_TARGET = "18"
+  const val JVM_TARGET = "18"
   const val KOTLIN = "1.7.20"
   const val DETEKT = "1.21.0"
 
