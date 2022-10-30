@@ -23,7 +23,6 @@ import okio.ByteString
 import okio.ByteString.Companion.decodeHex
 import okio.ByteString.Companion.encodeUtf8
 import okio.FileSystem
-import okio.Path.Companion.toOkioPath
 import okio.Path.Companion.toPath
 import okio.buffer
 import org.assertj.core.api.Assertions.assertThat
@@ -33,12 +32,13 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.io.TempDir
+import java.nio.file.Path
 import javax.inject.Inject
 
 @ExtendWith(GuiceExtension::class)
 class Aff4ImageStreamSinkTest {
   @TempDir
-  private lateinit var tempDirectory: java.nio.file.Path
+  private lateinit var tempDirectory: Path
 
   @GuiceModule
   val modules = listOf(
@@ -63,7 +63,7 @@ class Aff4ImageStreamSinkTest {
   @Inject
   private lateinit var aff4ContainerBuilderFactory: Aff4ContainerBuilder.Factory
 
-  private val tempFileSystem by lazy { FileSystem.SYSTEM.relativeTo(tempDirectory.toOkioPath()) }
+  private val tempFileSystem by lazy { FileSystem.SYSTEM.relativeTo(tempDirectory) }
 
   private val outputFileSystem by lazy { tempFileSystem.relativeTo("output".toPath()) }
 

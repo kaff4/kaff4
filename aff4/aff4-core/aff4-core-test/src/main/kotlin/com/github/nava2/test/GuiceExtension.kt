@@ -21,16 +21,12 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
 import kotlin.reflect.full.declaredMemberProperties
-import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.hasAnnotation
-import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.javaGetter
 import kotlin.reflect.jvm.javaType
 
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.CLASS)
-annotation class GuiceModule(
-  vararg val modules: KClass<out Module>,
-)
+annotation class GuiceModule
 
 class GuiceExtension : BeforeEachCallback, AfterEachCallback, BeforeAllCallback {
 
@@ -45,18 +41,9 @@ class GuiceExtension : BeforeEachCallback, AfterEachCallback, BeforeAllCallback 
       val properties = testClass.kotlin.getModuleProperties()
 
       return@getOrPut { instance ->
-        val fromClass by lazy {
-          testClass.kotlin.findAnnotation<GuiceModule>()?.modules?.map { getModuleInstance(it) }
-            ?: listOf()
-        }
-
-        fromClass + properties.flatMap { property ->
-          val fromAnnotation by lazy(LazyThreadSafetyMode.NONE) {
-            property.findAnnotation<GuiceModule>()!!.modules.map { getModuleInstance(it) }
-          }
-
+        properties.flatMap { property ->
           val returnType = property.returnType
-          val fromProperty = when {
+          when {
             returnType.isModule -> {
               val fromProperty = property.getter.call(instance) as Module
               listOf(fromProperty)
@@ -69,24 +56,8 @@ class GuiceExtension : BeforeEachCallback, AfterEachCallback, BeforeAllCallback 
 
             else -> error("Impossible")
           }
-
-          fromAnnotation + fromProperty
         }
       }
-    }
-  }
-
-  private fun getModuleInstance(mKlass: KClass<out Module>): Module {
-    return if (mKlass.objectInstance != null) {
-      mKlass.objectInstance!!
-    } else {
-      val primaryConstructor = mKlass.primaryConstructor
-      checkNotNull(primaryConstructor)
-      check(primaryConstructor.parameters.isEmpty()) {
-        "Must have default constructor: ${mKlass.qualifiedName}"
-      }
-
-      primaryConstructor.call()
     }
   }
 

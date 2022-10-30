@@ -1,6 +1,7 @@
 package com.github.nava2.aff4
 
 import com.github.nava2.aff4.container.Aff4ContainerOpenerModule
+import com.github.nava2.aff4.io.relativeTo
 import com.github.nava2.aff4.model.Aff4Container
 import com.github.nava2.aff4.model.Aff4ContainerOpener
 import com.github.nava2.aff4.rdf.MemoryRdfRepositoryModule
@@ -12,17 +13,30 @@ import okio.FileSystem
 import okio.Path.Companion.toPath
 import javax.inject.Singleton
 
-class Aff4ImageTestModule(val imageName: String, vararg featureModules: Module) : KAbstractModule() {
-  private val featureModules = featureModules.toSet()
+class Aff4ImageTestModule(val imageName: String, private vararg val featureModules: Module) : KAbstractModule() {
 
   override fun configure() {
-    install(TestImagesModule)
+    bind<FileSystem>()
+      .annotatedWith(ForResources::class.java)
+      .toInstance(FileSystem.RESOURCES)
+
+    install(TestRandomsModule)
+    install(MemoryRdfRepositoryModule)
 
     install(Aff4ContainerOpenerModule)
     install(Aff4CoreModule)
     install(Aff4BaseStreamModule)
-    install(MemoryRdfRepositoryModule)
-    install(TestRandomsModule)
+
+    for (module in featureModules) {
+      install(module)
+    }
+  }
+
+  @Provides
+  @Singleton
+  @ForImages
+  fun providesFileSystemForImages(@ForResources resourcesFileSystem: FileSystem): FileSystem {
+    return resourcesFileSystem.relativeTo("images".toPath())
   }
 
   @Provides

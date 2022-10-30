@@ -29,7 +29,6 @@ import okio.ByteString
 import okio.ByteString.Companion.decodeHex
 import okio.ByteString.Companion.encodeUtf8
 import okio.FileSystem
-import okio.Path.Companion.toOkioPath
 import okio.Path.Companion.toPath
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
@@ -69,7 +68,7 @@ class Aff4MapStreamSinkTest {
   @Inject
   private lateinit var snappyCompression: SnappyCompression
 
-  private val tempFileSystem by lazy { FileSystem.SYSTEM.relativeTo(tempDirectory.toOkioPath()) }
+  private val tempFileSystem by lazy { FileSystem.SYSTEM.relativeTo(tempDirectory) }
 
   private val imageFileSystem by lazy { sha256FileSystemFactory.create(tempFileSystem, "sha256".toPath()) }
 

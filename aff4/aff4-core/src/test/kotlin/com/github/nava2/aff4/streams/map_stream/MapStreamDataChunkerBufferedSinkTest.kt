@@ -19,7 +19,6 @@ import javax.inject.Inject
 class MapStreamDataChunkerBufferedSinkTest {
   @GuiceModule
   val modules = listOf(
-//    TestConfigProviderModule,
     RdfRepositoryModule,
     MemoryRdfRepositoryModule,
   )

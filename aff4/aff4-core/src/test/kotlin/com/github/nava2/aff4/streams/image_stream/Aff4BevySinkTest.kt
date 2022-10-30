@@ -3,6 +3,7 @@ package com.github.nava2.aff4.streams.image_stream
 import com.github.nava2.aff4.Aff4CoreModule
 import com.github.nava2.aff4.io.Sha256FileSystemFactory
 import com.github.nava2.aff4.io.content
+import com.github.nava2.aff4.io.create
 import com.github.nava2.aff4.io.md5
 import com.github.nava2.aff4.io.repeatByteString
 import com.github.nava2.aff4.model.rdf.CompressionMethod
@@ -18,7 +19,6 @@ import okio.ByteString
 import okio.ByteString.Companion.encodeUtf8
 import okio.ByteString.Companion.toByteString
 import okio.FileSystem
-import okio.Path.Companion.toOkioPath
 import okio.Timeout
 import okio.buffer
 import org.assertj.core.api.Assertions.assertThat
@@ -26,17 +26,17 @@ import org.eclipse.rdf4j.model.ValueFactory
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.io.TempDir
+import java.nio.file.Path
 import javax.inject.Inject
 
 @ExtendWith(GuiceExtension::class)
 class Aff4BevySinkTest {
 
   @TempDir
-  private lateinit var tempDir: java.nio.file.Path
+  private lateinit var tempDirectory: Path
 
   @GuiceModule
   val modules = listOf(
-    //    TestConfigProviderModule,
     Aff4CoreModule,
     MemoryRdfRepositoryModule,
   )
@@ -53,7 +53,7 @@ class Aff4BevySinkTest {
   @Inject
   private lateinit var snappyCompression: SnappyCompression
 
-  private val imageFileSystem: FileSystem by lazy { sha256FileSystemFactory.create(tempDir.toOkioPath()) }
+  private val imageFileSystem: FileSystem by lazy { sha256FileSystemFactory.create(tempDirectory) }
 
   @Test
   fun `create bevy`() {
