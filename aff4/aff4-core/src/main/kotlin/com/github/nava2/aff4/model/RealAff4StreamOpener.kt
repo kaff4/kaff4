@@ -49,7 +49,7 @@ internal class RealAff4StreamOpener @Inject constructor(
 
   private val openStreams: LoadingCache<Aff4Arn, Aff4StreamSourceProvider> = Caffeine.newBuilder()
     .maximumSize(MAX_OPEN_STREAMS)
-    .removalListener<IRI, SourceProvider<Source>> { _, provider, _ ->
+    .removalListener<Aff4Arn, SourceProvider<Source>> { _, provider, _ ->
       (provider as? Closeable)?.close()
     }
     .build(::loadSourceProvider)
@@ -98,7 +98,7 @@ internal class RealAff4StreamOpener @Inject constructor(
   ): Aff4StreamSourceProvider {
     val rdfTypes = statements.asSequence()
       .filter { it.predicate == connection.namespaces.iriFromTurtle("rdf:type") }
-      .mapNotNull { it.`object` as? IRI }
+      .mapNotNull { it.`object` as? Aff4Arn }
       .toSet()
 
     val modelType = rdfTypes.asSequence().mapNotNull { type -> modelKlassesByRdfType[type] }
