@@ -1,6 +1,7 @@
 package com.github.nava2.aff4.model
 
 import com.github.nava2.aff4.Aff4ImageTestModule
+import com.github.nava2.aff4.Aff4LogicalModule
 import com.github.nava2.aff4.UnderTest
 import com.github.nava2.aff4.io.md5
 import com.github.nava2.aff4.io.use
@@ -17,7 +18,11 @@ import javax.inject.Inject
 @ExtendWith(GuiceExtension::class)
 class Aff4ModelNestedLogicalImagesTest {
   @GuiceModule
-  val imageTestModule = Aff4ImageTestModule(imageName = "nested_logical_images.aff4", Aff4SnappyModule)
+  val imageTestModule = Aff4ImageTestModule(
+    imageName = "nested_logical_images.aff4",
+    Aff4SnappyModule,
+    Aff4LogicalModule,
+  )
 
   @Inject
   private lateinit var valueFactory: ValueFactory

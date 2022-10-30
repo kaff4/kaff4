@@ -43,7 +43,7 @@ class Aff4ImageTestModule(val imageName: String, private vararg val featureModul
   @UnderTest
   @Singleton
   internal fun providesAff4ContainerUnderTest(
-    @UnderTest aff4ContainerOpener: Aff4ContainerOpener,
+    aff4ContainerOpener: Aff4ContainerOpener,
     cleanupActions: GuiceExtension.CleanupActions,
     @ForImages imagesFileSystem: FileSystem,
   ): Aff4Container {
