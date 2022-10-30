@@ -1,7 +1,6 @@
 package com.github.nava2.test
 
 import com.github.nava2.aff4.io.Sha256FileSystemFactory
-import com.github.nava2.guice.GuiceFactory
 import com.github.nava2.guice.KAbstractModule
 import com.github.nava2.guice.getInstance
 import com.google.inject.Guice
@@ -129,6 +128,10 @@ class GuiceExtension : BeforeEachCallback, AfterEachCallback, BeforeAllCallback 
       cleanups += action
     }
 
+    fun register(autoCloseable: AutoCloseable) {
+      cleanups += autoCloseable::close
+    }
+
     override fun close() {
       for (action in cleanups) {
         action()
@@ -140,13 +143,6 @@ class GuiceExtension : BeforeEachCallback, AfterEachCallback, BeforeAllCallback 
     override fun configure() {
       bind<Sha256FileSystemFactory>().toProvider(Provider { Sha256FileSystemFactory() })
       bind<CleanupActions>()
-      bind<GuiceFactory>().toInstance(
-        object : GuiceFactory {
-          override fun create(modules: Collection<Module>): Injector {
-            return Guice.createInjector(Stage.DEVELOPMENT, modules)
-          }
-        }
-      )
     }
   }
 }

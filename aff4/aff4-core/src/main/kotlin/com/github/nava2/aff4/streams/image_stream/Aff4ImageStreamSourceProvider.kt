@@ -19,10 +19,11 @@ import com.google.inject.assistedinject.AssistedInject
 import okio.FileSystem
 import okio.Source
 import okio.Timeout
+import javax.inject.Provider
 
 class Aff4ImageStreamSourceProvider @AssistedInject internal constructor(
   aff4ImageBeviesFactory: Aff4ImageBevies.Factory,
-  @ForImageRoot private val imageFileSystem: FileSystem,
+  @ForImageRoot private val imageFileSystemProvider: Provider<FileSystem>,
   @Assisted val imageStream: ImageStream,
 ) : VerifiableStreamProvider, Aff4StreamSourceProvider {
 
@@ -90,7 +91,7 @@ class Aff4ImageStreamSourceProvider @AssistedInject internal constructor(
       .fold(blockHashes.associateWith { mutableListOf<SourceProvider<Source>>() }) { acc, bevy ->
         for ((hash, blockHashPath) in bevy.blockHashes) {
           val sources = acc.entries.single { it.key.forHashType == hash }.value
-          sources += imageFileSystem.sourceProvider(blockHashPath)
+          sources += imageFileSystemProvider.get().sourceProvider(blockHashPath)
         }
 
         acc

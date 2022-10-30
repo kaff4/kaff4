@@ -1,7 +1,7 @@
 package com.github.nava2.aff4.streams.map_stream
 
+import com.github.nava2.aff4.Aff4BaseStreamModule
 import com.github.nava2.aff4.container.Aff4ContainerBuilder
-import com.github.nava2.aff4.container.Aff4ContainerOpenerBuilder
 import com.github.nava2.aff4.container.RealAff4ContainerBuilder
 import com.github.nava2.aff4.io.Sha256FileSystemFactory
 import com.github.nava2.aff4.io.doesNotExist
@@ -40,7 +40,6 @@ import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
 import java.util.function.Consumer
 import javax.inject.Inject
-import javax.inject.Provider
 
 @ExtendWith(GuiceExtension::class)
 class Aff4MapStreamSinkTest {
@@ -50,7 +49,9 @@ class Aff4MapStreamSinkTest {
   @GuiceModule
   val modules = listOf(
     TestAff4ContainerBuilderModule,
+    Aff4BaseStreamModule,
     MemoryRdfRepositoryModule,
+    Aff4SnappyModule,
   )
 
   @Inject
@@ -75,13 +76,7 @@ class Aff4MapStreamSinkTest {
   private val outputFileSystem by lazy { tempFileSystem.relativeTo("output".toPath()) }
 
   @Inject
-  private lateinit var containerOpenerBuilderProvider: Provider<Aff4ContainerOpenerBuilder>
-
-  private val aff4ContainerOpener: Aff4ContainerOpener by lazy {
-    containerOpenerBuilderProvider.get()
-      .withFeatureModules(MemoryRdfRepositoryModule, Aff4SnappyModule)
-      .build()
-  }
+  private lateinit var aff4ContainerOpener: Aff4ContainerOpener
 
   @Inject
   private lateinit var aff4ContainerBuilderFactory: Aff4ContainerBuilder.Factory
@@ -464,7 +459,7 @@ class Aff4MapStreamSinkTest {
   private fun verifyWrittenStream(writtenMapStream: MapStream) {
     aff4ContainerBuilder.buildIntoDirectory(outputFileSystem, ".".toPath())
 
-    aff4ContainerOpener.open(outputFileSystem, ".".toPath()).use { container ->
+    aff4ContainerOpener.open(outputFileSystem, ".".toPath()) { container ->
       val openedImageStream = container.streamOpener.openStream(writtenMapStream.arn) as Aff4MapStreamSourceProvider
       assertThat(openedImageStream.mapStream).isEqualTo(writtenMapStream)
 
