@@ -65,7 +65,7 @@ class IntervalTree<T : Interval> : Iterable<T> {
     size = 0
   }
 
-  /**r
+  /**
    * Constructs an IntervalTree containing a single node corresponding to
    * the given interval.
    * @param t - the interval to add to the tree
