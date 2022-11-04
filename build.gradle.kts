@@ -68,11 +68,27 @@ subprojects {
     }
   }
 
-  publishing {
-    publications {
+  if (project.name != "interval-tree") {
+    publishing {
+      publications {
         create<MavenPublication>("maven") {
-            from(components["kotlin"])
+          from(components["kotlin"])
+
+          pom {
+            licenses {
+              license {
+                name.set("MIT License")
+                url.set("https://opensource.org/licenses/MIT")
+              }
+            }
+            scm {
+              connection.set("scm:git:https://github.com/Nava2/kaff4.git")
+              developerConnection.set("scm:git:ssh://github.com:Nava2/kaff4.git")
+              url.set("https://github.com/Nava2/kaff4")
+            }
+          }
         }
+      }
     }
   }
 
