@@ -1,9 +1,11 @@
 dependencies {
   api(project(":aff4:aff4-rdf"))
+  api(project(":aff4:aff4-compression:aff4-compression-api"))
   api(project(":aff4:aff4-core:aff4-core-okio"))
 
-  api("com.squareup.okio:okio:3.1.0")
-  implementation(Dependencies.GUICE)
+  api(Dependencies.OKIO)
+  api(Dependencies.RDF4J_MODEL_API)
+  api(Dependencies.GUICE)
 
   testImplementation(project(":aff4:aff4-core:aff4-core-test"))
 }

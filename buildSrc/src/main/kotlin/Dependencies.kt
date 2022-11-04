@@ -22,4 +22,15 @@ object Dependencies {
   const val LOG4J_SLF4J = "org.apache.logging.log4j:log4j-slf4j-impl:${Versions.LOG4J}"
 
   const val OKIO = "com.squareup.okio:okio:3.1.0"
+
+  const val RDF4J_MODEL = "org.eclipse.rdf4j:rdf4j-model:${Versions.RDF4J}"
+  const val RDF4J_MODEL_API = "org.eclipse.rdf4j:rdf4j-model-api:${Versions.RDF4J}"
+
+  const val RDF4J_QUERY = "org.eclipse.rdf4j:rdf4j-query:${Versions.RDF4J}"
+
+  const val RDF4J_REPOSITORY_API = "org.eclipse.rdf4j:rdf4j-repository-api:${Versions.RDF4J}"
+  const val RDF4J_REPOSITORY_SAIL = "org.eclipse.rdf4j:rdf4j-repository-sail:${Versions.RDF4J}"
+  const val RDF4J_REPOSITORY_SAIL_MEMORY = "org.eclipse.rdf4j:rdf4j-sail-memory:${Versions.RDF4J}"
+  
+  const val RDF4J_RIO_TURTLE = "org.eclipse.rdf4j:rdf4j-rio-turtle:${Versions.RDF4J}"
 }

@@ -11,7 +11,7 @@ dependencies {
 
   implementation(project(":aff4:aff4-core:aff4-core-kotlin"))
   implementation(project(":aff4:aff4-core:aff4-core-okio"))
-  implementation(project(":aff4:aff4-core:aff4-core-interval-tree"))
+  implementation(project(":interval-tree"))
 
   implementation(Dependencies.APACHE_COMMONS_LANG)
   implementation(Dependencies.GUICE_ASSISTED_INJECT)
@@ -19,7 +19,7 @@ dependencies {
 
   implementation("io.github.zabuzard.fastcdc4j:fastcdc4j:1.3")
 
-  testImplementation(project(":aff4:aff4-compression-snappy"))
+  testImplementation(project(":aff4:aff4-compression:aff4-compression-snappy"))
   testImplementation(project(":aff4:aff4-core:aff4-core-test"))
   testImplementation(project(":aff4:aff4-rdf:aff4-rdf-memory"))
 }

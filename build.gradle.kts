@@ -6,6 +6,7 @@ plugins {
   kotlin("jvm") version Versions.KOTLIN
   id("io.gitlab.arturbosch.detekt") version Versions.DETEKT
   id("com.jaredsburrows.license") version "0.9.0"
+  `maven-publish`
 }
 
 buildscript {
@@ -32,6 +33,7 @@ allprojects {
   }
 
   group = "com.github.nava2.kaff4"
+  version = "0.0.0"
 
   repositories {
     mavenCentral()
@@ -43,24 +45,34 @@ allprojects {
     generateCsvReport = false
     generateJsonReport = false
   }
-
 }
 
 subprojects {
   apply {
     plugin("org.jetbrains.kotlin.jvm")
-    plugin("io.gitlab.arturbosch.detekt")
+    plugin("io.gitlab.arturbosch.detekt") 
+    plugin("maven-publish") 
+  }
+
+  repositories {
+    mavenLocal()
   }
 
   dependencies {
-    implementation(kotlin("stdlib-jdk8"))
-
     testImplementation(Dependencies.ASSERTJ_CORE)
     testImplementation(Dependencies.JUNIT_JUIPTER_API)
     testRuntimeOnly(Dependencies.JUNIT_JUIPTER_ENGINE)
-    
+
     if (project.name != "aff4-core-test") {
       testImplementation(project(":aff4:aff4-core:aff4-core-test"))
+    }
+  }
+
+  publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["kotlin"])
+        }
     }
   }
 
