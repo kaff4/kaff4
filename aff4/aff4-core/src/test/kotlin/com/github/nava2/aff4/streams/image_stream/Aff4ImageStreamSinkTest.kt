@@ -11,10 +11,11 @@ import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.model.rdf.CompressionMethod
 import com.github.nava2.aff4.model.rdf.HashType
 import com.github.nava2.aff4.model.rdf.ImageStream
+import com.github.nava2.aff4.model.rdf.None
 import com.github.nava2.aff4.model.rdf.createArn
 import com.github.nava2.aff4.rdf.MemoryRdfRepositoryModule
 import com.github.nava2.aff4.streams.TestAff4ContainerBuilderModule
-import com.github.nava2.aff4.streams.compression.Aff4SnappyModule
+import com.github.nava2.aff4.streams.compression.Aff4SnappyPlugin
 import com.github.nava2.aff4.streams.compression.SnappyCompression
 import com.github.nava2.test.GuiceExtension
 import com.github.nava2.test.GuiceModule
@@ -45,7 +46,7 @@ class Aff4ImageStreamSinkTest {
     TestAff4ContainerBuilderModule,
     Aff4BaseStreamModule,
     MemoryRdfRepositoryModule,
-    Aff4SnappyModule,
+    Aff4SnappyPlugin,
   )
 
   @Inject
@@ -53,9 +54,6 @@ class Aff4ImageStreamSinkTest {
 
   @Inject
   private lateinit var sha256FileSystemFactory: Sha256FileSystemFactory
-
-  @Inject
-  private lateinit var snappyCompression: SnappyCompression
 
   @Inject
   private lateinit var aff4ContainerOpener: Aff4ContainerOpener
@@ -190,7 +188,7 @@ class Aff4ImageStreamSinkTest {
       chunkSize = chunkSize,
       chunksInSegment = chunksInSegment,
       size = content.size.toLong(),
-      compressionMethod = snappyCompression,
+      compressionMethod = SnappyCompression,
       stored = containerArn,
       linearHashes = listOf(HashType.SHA256, HashType.MD5).map { it.value(ByteString.EMPTY) },
     )

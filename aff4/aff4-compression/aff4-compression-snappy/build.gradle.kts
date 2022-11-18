@@ -3,6 +3,7 @@ dependencies {
 
   api(project(":aff4:aff4-core:aff4-core-guice"))
   api(project(":aff4:aff4-compression:aff4-compression-api"))
+  api(project(":aff4:aff4-plugin-api"))
 
   api(Dependencies.GUICE)
 

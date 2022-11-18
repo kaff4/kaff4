@@ -13,8 +13,8 @@ internal class Aff4CompressionMethodValueConverter @Inject constructor(
 ) : ConcreteRdfValueConverter<CompressionMethod>(typeLiteral<CompressionMethod>()) {
   override fun parse(value: Value): CompressionMethod? {
     val method = value as? Aff4Arn ?: return null
-    return compressionMethodProviders.get().firstOrNull { it.method == method }
+    return compressionMethodProviders.get().firstOrNull { it.method == method.toString() }
   }
 
-  override fun serialize(value: CompressionMethod): Value? = value.method
+  override fun serialize(value: CompressionMethod): Value? = value.method?.let { valueFactory.createIRI(it) }
 }

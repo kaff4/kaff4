@@ -14,7 +14,7 @@ object Aff4RdfModelModule : KAbstractModule() {
       }
     }
 
-    bindSet<CompressionMethod> {}
+    bindSet<com.github.nava2.aff4.model.rdf.CompressionMethod> {}
 
     bindSet<RdfValueConverter<*>> {
       to<Aff4ImagePathRdfValueConverter>()

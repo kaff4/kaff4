@@ -8,7 +8,7 @@ import com.github.nava2.aff4.model.rdf.ImageStream
 import com.github.nava2.aff4.model.rdf.MapStream
 import com.github.nava2.aff4.model.rdf.ZipSegment
 import com.github.nava2.aff4.rdf.MemoryRdfRepositoryModule
-import com.github.nava2.aff4.streams.compression.Aff4SnappyModule
+import com.github.nava2.aff4.streams.compression.Aff4SnappyPlugin
 import com.github.nava2.guice.getInstance
 import com.github.nava2.logging.Logging
 import com.google.inject.Guice
@@ -48,7 +48,7 @@ class Verify : Subcommand("verify", "Verify an image") {
       Aff4CoreModule,
       Aff4BaseStreamModule,
       Aff4LogicalModule,
-      Aff4SnappyModule,
+      Aff4SnappyPlugin,
     )
 
     val injector = Guice.createInjector(Stage.DEVELOPMENT, modules)

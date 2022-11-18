@@ -9,6 +9,7 @@ import com.github.nava2.aff4.io.repeatByteString
 import com.github.nava2.aff4.model.rdf.CompressionMethod
 import com.github.nava2.aff4.model.rdf.HashType
 import com.github.nava2.aff4.model.rdf.ImageStream
+import com.github.nava2.aff4.model.rdf.None
 import com.github.nava2.aff4.model.rdf.hash
 import com.github.nava2.aff4.model.rdf.toAff4Path
 import com.github.nava2.aff4.rdf.MemoryRdfRepositoryModule
@@ -49,9 +50,6 @@ class Aff4BevySinkTest {
 
   @Inject
   private lateinit var sha256FileSystemFactory: Sha256FileSystemFactory
-
-  @Inject
-  private lateinit var snappyCompression: SnappyCompression
 
   private val imageFileSystem: FileSystem by lazy { sha256FileSystemFactory.create(tempDirectory) }
 
@@ -107,7 +105,7 @@ class Aff4BevySinkTest {
       chunkSize = chunkSize,
       chunksInSegment = chunksInSegment,
       size = content.size.toLong(),
-      compressionMethod = snappyCompression,
+      compressionMethod = SnappyCompression,
       stored = containerArn,
     )
 

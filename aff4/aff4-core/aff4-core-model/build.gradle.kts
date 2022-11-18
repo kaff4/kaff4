@@ -7,5 +7,7 @@ dependencies {
   api(Dependencies.RDF4J_MODEL_API)
   api(Dependencies.GUICE)
 
+  api(project(":aff4:aff4-plugin-api"))
+
   testImplementation(project(":aff4:aff4-core:aff4-core-test"))
 }

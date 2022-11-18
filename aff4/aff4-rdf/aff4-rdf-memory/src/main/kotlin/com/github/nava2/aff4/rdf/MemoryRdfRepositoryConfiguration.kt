@@ -6,7 +6,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class MemoryRdfRepositoryConfiguration @Inject constructor() : RdfRepositoryConfiguration {
+internal class MemoryRdfRepositoryConfiguration @Inject constructor() : RdfRepositoryConfiguration {
   private val memoryStore by lazy { MemoryStore() }
 
   override fun provideStore(): Sail = memoryStore

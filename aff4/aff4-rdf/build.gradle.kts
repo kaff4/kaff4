@@ -12,6 +12,9 @@ dependencies {
   implementation(Dependencies.RDF4J_REPOSITORY_SAIL)
   implementation(Dependencies.RDF4J_RIO_TURTLE)
 
+  implementation(project(":aff4:aff4-plugin-api"))
+  implementation(project(":aff4:aff4-rdf:aff4-rdf-api"))
+
   testImplementation(project(":aff4:aff4-core"))
   testImplementation(project(":aff4:aff4-rdf:aff4-rdf-memory"))
 }
