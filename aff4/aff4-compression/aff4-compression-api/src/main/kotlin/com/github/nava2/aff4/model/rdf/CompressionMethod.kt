@@ -1,10 +1,9 @@
 package com.github.nava2.aff4.model.rdf
 
-import org.eclipse.rdf4j.model.IRI
 import java.nio.ByteBuffer
 
 interface CompressionMethod {
-  val method: IRI?
+  val method: org.eclipse.rdf4j.model.IRI?
 
   fun compress(
     uncompressed: ByteBuffer,
@@ -17,7 +16,7 @@ interface CompressionMethod {
   ): Int
 
   object None : CompressionMethod {
-    override val method: IRI? = null
+    override val method: org.eclipse.rdf4j.model.IRI? = null
 
     override fun compress(uncompressed: ByteBuffer, compressed: ByteBuffer): Int {
       return copyAndTruncate(uncompressed, compressed)

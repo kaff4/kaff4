@@ -1,3 +1,0 @@
-dependencies {
-  implementation(Dependencies.GUAVA)
-}

@@ -1,10 +1,11 @@
 rootProject.name = "kaff4"
 
 include(
-  "aff4:aff4-compression-snappy",
+  "aff4:aff4-compression:aff4-compression-api",
+  "aff4:aff4-compression:aff4-compression-snappy",
   "aff4:aff4-core",
   "aff4:aff4-core:aff4-core-kotlin",
-  "aff4:aff4-core:aff4-core-interval-tree",
+  "interval-tree",
   "aff4:aff4-core:aff4-core-model",
   "aff4:aff4-core:aff4-core-okio",
   "aff4:aff4-core:aff4-core-test",

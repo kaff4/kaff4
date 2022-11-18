@@ -23,7 +23,7 @@ This library is build to run in any JVM-based environment.
 
 * `ZipSegment`, and `snappy` are supported
 * All others are not supported at this time - these can be supported by creating a module similar to
-  `aff4-compression-snappy`
+  `aff4-compression:aff4-compression-snappy`
 
 ## Attributions
 

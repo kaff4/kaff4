@@ -10,5 +10,6 @@ object Versions {
   const val GUICE = "5.1.0"
 
   const val LOG4J = "2.17.1"
+  const val RDF4J = "4.0.0"
 }
 
