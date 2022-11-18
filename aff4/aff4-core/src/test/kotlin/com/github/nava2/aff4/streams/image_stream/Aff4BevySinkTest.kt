@@ -9,9 +9,10 @@ import com.github.nava2.aff4.io.repeatByteString
 import com.github.nava2.aff4.model.rdf.CompressionMethod
 import com.github.nava2.aff4.model.rdf.HashType
 import com.github.nava2.aff4.model.rdf.ImageStream
+import com.github.nava2.aff4.model.rdf.None
 import com.github.nava2.aff4.model.rdf.hash
 import com.github.nava2.aff4.model.rdf.toAff4Path
-import com.github.nava2.aff4.rdf.MemoryRdfRepositoryModule
+import com.github.nava2.aff4.rdf.MemoryRdfRepositoryPlugin
 import com.github.nava2.aff4.streams.compression.SnappyCompression
 import com.github.nava2.test.GuiceExtension
 import com.github.nava2.test.GuiceModule
@@ -38,7 +39,7 @@ class Aff4BevySinkTest {
   @GuiceModule
   val modules = listOf(
     Aff4CoreModule,
-    MemoryRdfRepositoryModule,
+    MemoryRdfRepositoryPlugin,
   )
 
   @Inject

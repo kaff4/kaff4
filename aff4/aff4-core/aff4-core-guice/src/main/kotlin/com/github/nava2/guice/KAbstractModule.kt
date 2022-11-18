@@ -4,6 +4,7 @@ import com.google.inject.AbstractModule
 import com.google.inject.binder.AnnotatedBindingBuilder
 import com.google.inject.multibindings.MapBinder
 import com.google.inject.multibindings.Multibinder
+import kotlin.reflect.KClass
 
 /**
  * Provides many Kotlin abstractions to ease binding content within an [AbstractModule].
@@ -28,7 +29,16 @@ abstract class KAbstractModule protected constructor() : AbstractModule() {
   }
 
   protected inline fun <reified T> bindSet(
-    annotatedWith: Class<out Annotation>,
+    annotatedWith: KClass<out Annotation>,
+    block: KSetMultibinderHelper<T>.() -> Unit
+  ): Multibinder<T> {
+    val multibinder = Multibinder.newSetBinder(binder(), typeLiteral<T>(), annotatedWith.java)
+    KSetMultibinderHelper(multibinder).block()
+    return multibinder
+  }
+
+  protected inline fun <reified T> bindSet(
+    annotatedWith: Annotation,
     block: KSetMultibinderHelper<T>.() -> Unit
   ): Multibinder<T> {
     val multibinder = Multibinder.newSetBinder(binder(), typeLiteral<T>(), annotatedWith)

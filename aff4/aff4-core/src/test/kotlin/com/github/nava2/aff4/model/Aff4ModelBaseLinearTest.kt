@@ -17,7 +17,7 @@ import com.github.nava2.aff4.model.rdf.TimeStamps
 import com.github.nava2.aff4.model.rdf.ZipVolume
 import com.github.nava2.aff4.model.rdf.createArn
 import com.github.nava2.aff4.parseZonedDateTime
-import com.github.nava2.aff4.streams.compression.Aff4SnappyModule
+import com.github.nava2.aff4.streams.compression.Aff4SnappyPlugin
 import com.github.nava2.aff4.streams.compression.SnappyCompression
 import com.github.nava2.test.GuiceExtension
 import com.github.nava2.test.GuiceModule
@@ -33,7 +33,7 @@ import com.github.nava2.aff4.model.rdf.MapStream as AMap
 @ExtendWith(GuiceExtension::class)
 class Aff4ModelBaseLinearTest {
   @GuiceModule
-  val imageTestModule = Aff4ImageTestModule("Base-Linear.aff4", Aff4SnappyModule)
+  val imageTestModule = Aff4ImageTestModule("Base-Linear.aff4", Aff4SnappyPlugin)
 
   @Inject
   private lateinit var valueFactory: ValueFactory

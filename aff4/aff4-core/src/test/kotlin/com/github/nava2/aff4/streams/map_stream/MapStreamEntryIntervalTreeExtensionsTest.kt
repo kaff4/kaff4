@@ -1,7 +1,7 @@
 package com.github.nava2.aff4.streams.map_stream
 
 import com.github.nava2.aff4.interval_tree.IntervalTree
-import com.github.nava2.aff4.rdf.MemoryRdfRepositoryModule
+import com.github.nava2.aff4.rdf.MemoryRdfRepositoryPlugin
 import com.github.nava2.aff4.rdf.RdfRepositoryModule
 import com.github.nava2.test.GuiceExtension
 import com.github.nava2.test.GuiceModule
@@ -14,7 +14,7 @@ import javax.inject.Inject
 @ExtendWith(GuiceExtension::class)
 class MapStreamEntryIntervalTreeExtensionsTest {
   @GuiceModule
-  val modules = listOf(RdfRepositoryModule, MemoryRdfRepositoryModule)
+  val modules = listOf(RdfRepositoryModule, MemoryRdfRepositoryPlugin)
 
   @Inject
   private lateinit var valueFactory: ValueFactory

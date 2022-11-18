@@ -6,7 +6,7 @@ import com.github.nava2.aff4.UnderTest
 import com.github.nava2.aff4.io.md5
 import com.github.nava2.aff4.io.use
 import com.github.nava2.aff4.model.Aff4Container.ToolMetadata
-import com.github.nava2.aff4.streams.compression.Aff4SnappyModule
+import com.github.nava2.aff4.streams.compression.Aff4SnappyPlugin
 import com.github.nava2.test.GuiceExtension
 import com.github.nava2.test.GuiceModule
 import org.assertj.core.api.Assertions.assertThat
@@ -20,7 +20,7 @@ class Aff4ModelNestedLogicalImagesTest {
   @GuiceModule
   val imageTestModule = Aff4ImageTestModule(
     imageName = "nested_logical_images.aff4",
-    Aff4SnappyModule,
+    Aff4SnappyPlugin,
     Aff4LogicalModule,
   )
 

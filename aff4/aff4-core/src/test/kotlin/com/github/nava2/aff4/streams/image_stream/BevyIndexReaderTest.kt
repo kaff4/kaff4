@@ -4,7 +4,7 @@ import com.github.nava2.aff4.Aff4ImageTestModule
 import com.github.nava2.aff4.UnderTest
 import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.model.rdf.ImageStream
-import com.github.nava2.aff4.streams.compression.Aff4SnappyModule
+import com.github.nava2.aff4.streams.compression.Aff4SnappyPlugin
 import com.github.nava2.test.GuiceExtension
 import com.github.nava2.test.GuiceModule
 import okio.Timeout
@@ -20,7 +20,7 @@ import javax.inject.Inject
 @ExtendWith(GuiceExtension::class)
 class BevyIndexReaderTest {
   @GuiceModule
-  val imageTestModule = Aff4ImageTestModule("Base-Linear.aff4", Aff4SnappyModule)
+  val imageTestModule = Aff4ImageTestModule("Base-Linear.aff4", Aff4SnappyPlugin)
 
   @Inject
   private lateinit var valueFactory: ValueFactory

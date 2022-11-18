@@ -11,10 +11,11 @@ import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.model.rdf.CompressionMethod
 import com.github.nava2.aff4.model.rdf.HashType
 import com.github.nava2.aff4.model.rdf.ImageStream
+import com.github.nava2.aff4.model.rdf.None
 import com.github.nava2.aff4.model.rdf.createArn
-import com.github.nava2.aff4.rdf.MemoryRdfRepositoryModule
+import com.github.nava2.aff4.rdf.MemoryRdfRepositoryPlugin
 import com.github.nava2.aff4.streams.TestAff4ContainerBuilderModule
-import com.github.nava2.aff4.streams.compression.Aff4SnappyModule
+import com.github.nava2.aff4.streams.compression.Aff4SnappyPlugin
 import com.github.nava2.aff4.streams.compression.SnappyCompression
 import com.github.nava2.test.GuiceExtension
 import com.github.nava2.test.GuiceModule
@@ -44,8 +45,8 @@ class Aff4ImageStreamSinkTest {
   val modules = listOf(
     TestAff4ContainerBuilderModule,
     Aff4BaseStreamModule,
-    MemoryRdfRepositoryModule,
-    Aff4SnappyModule,
+    MemoryRdfRepositoryPlugin,
+    Aff4SnappyPlugin,
   )
 
   @Inject

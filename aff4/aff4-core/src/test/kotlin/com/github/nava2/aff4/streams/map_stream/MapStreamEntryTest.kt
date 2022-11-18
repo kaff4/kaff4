@@ -2,7 +2,7 @@ package com.github.nava2.aff4.streams.map_stream
 
 import com.github.nava2.aff4.io.md5
 import com.github.nava2.aff4.isIllegalArgumentException
-import com.github.nava2.aff4.rdf.MemoryRdfRepositoryModule
+import com.github.nava2.aff4.rdf.MemoryRdfRepositoryPlugin
 import com.github.nava2.aff4.rdf.RdfRepositoryModule
 import com.github.nava2.aff4.satisfies
 import com.github.nava2.test.GuiceExtension
@@ -18,7 +18,7 @@ import javax.inject.Inject
 @ExtendWith(GuiceExtension::class)
 class MapStreamEntryTest {
   @GuiceModule
-  val modules = listOf(RdfRepositoryModule, MemoryRdfRepositoryModule)
+  val modules = listOf(RdfRepositoryModule, MemoryRdfRepositoryPlugin)
 
   @Inject
   private lateinit var valueFactory: ValueFactory

@@ -12,6 +12,8 @@ include(
   "aff4:aff4-core:aff4-core-guice",
   "aff4:aff4-core:aff4-core-logging",
   "aff4:aff4-rdf",
+  "aff4:aff4-rdf:aff4-rdf-api",
   "aff4:aff4-rdf:aff4-rdf-memory",
+  "aff4:aff4-plugin-api",
   "aff4:aff4-reader",
 )
