@@ -4,7 +4,7 @@ import com.github.nava2.aff4.container.Aff4ContainerOpenerModule
 import com.github.nava2.aff4.io.relativeTo
 import com.github.nava2.aff4.model.Aff4Container
 import com.github.nava2.aff4.model.Aff4ContainerOpener
-import com.github.nava2.aff4.rdf.MemoryRdfRepositoryModule
+import com.github.nava2.aff4.rdf.MemoryRdfRepositoryPlugin
 import com.github.nava2.guice.KAbstractModule
 import com.github.nava2.test.GuiceExtension
 import com.google.inject.Module
@@ -21,7 +21,7 @@ class Aff4ImageTestModule(val imageName: String, private vararg val featureModul
       .toInstance(FileSystem.RESOURCES)
 
     install(TestRandomsModule)
-    install(MemoryRdfRepositoryModule)
+    install(MemoryRdfRepositoryPlugin)
 
     install(Aff4ContainerOpenerModule)
     install(Aff4CoreModule)

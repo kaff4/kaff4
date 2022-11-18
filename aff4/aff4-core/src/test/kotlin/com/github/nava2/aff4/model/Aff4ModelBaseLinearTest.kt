@@ -39,6 +39,9 @@ class Aff4ModelBaseLinearTest {
   private lateinit var valueFactory: ValueFactory
 
   @Inject
+  private lateinit var snappyCompression: SnappyCompression
+
+  @Inject
   @field:UnderTest
   private lateinit var aff4Container: Aff4Container
 
@@ -125,7 +128,7 @@ class Aff4ModelBaseLinearTest {
         chunkSize = 32768,
         chunksInSegment = 2048,
         size = 3964928,
-        compressionMethod = SnappyCompression,
+        compressionMethod = snappyCompression,
         linearHashes = listOf(
           Hash.Sha1("fbac22cca549310bc5df03b7560afcf490995fbb".decodeHex()),
           Hash.Md5("d5825dc1152a42958c8219ff11ed01a3".decodeHex()),

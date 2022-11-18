@@ -4,7 +4,7 @@ package com.github.nava2.aff4.rdf.io
 
 import com.github.nava2.aff4.Aff4CoreModule
 import com.github.nava2.aff4.model.rdf.createArn
-import com.github.nava2.aff4.rdf.MemoryRdfRepositoryModule
+import com.github.nava2.aff4.rdf.MemoryRdfRepositoryPlugin
 import com.github.nava2.aff4.rdf.MutableRdfConnection
 import com.github.nava2.aff4.rdf.RdfExecutor
 import com.github.nava2.test.GuiceExtension
@@ -24,7 +24,7 @@ import java.lang.Long as JLong
 @ExtendWith(GuiceExtension::class)
 internal class RdfModelParserTest {
   @GuiceModule
-  val modules = listOf(Aff4CoreModule, MemoryRdfRepositoryModule)
+  val modules = listOf(Aff4CoreModule, MemoryRdfRepositoryPlugin)
 
   @Inject
   lateinit var rdfExecutor: RdfExecutor

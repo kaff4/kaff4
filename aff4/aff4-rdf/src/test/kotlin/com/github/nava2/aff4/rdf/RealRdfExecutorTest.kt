@@ -17,7 +17,7 @@ import javax.inject.Inject
 @ExtendWith(GuiceExtension::class)
 internal class RealRdfExecutorTest {
   @GuiceModule
-  val modules = listOf(Aff4CoreModule, MemoryRdfRepositoryModule)
+  val modules = listOf(Aff4CoreModule, MemoryRdfRepositoryPlugin)
 
   @Inject
   lateinit var realRdfExecutor: RealRdfExecutor

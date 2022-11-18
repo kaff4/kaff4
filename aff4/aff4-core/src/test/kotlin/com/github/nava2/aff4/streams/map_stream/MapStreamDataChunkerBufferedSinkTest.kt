@@ -1,7 +1,7 @@
 package com.github.nava2.aff4.streams.map_stream
 
 import com.github.nava2.aff4.io.repeatByteString
-import com.github.nava2.aff4.rdf.MemoryRdfRepositoryModule
+import com.github.nava2.aff4.rdf.MemoryRdfRepositoryPlugin
 import com.github.nava2.aff4.rdf.RdfRepositoryModule
 import com.github.nava2.aff4.streams.symbolics.Symbolics
 import com.github.nava2.test.GuiceExtension
@@ -20,7 +20,7 @@ class MapStreamDataChunkerBufferedSinkTest {
   @GuiceModule
   val modules = listOf(
     RdfRepositoryModule,
-    MemoryRdfRepositoryModule,
+    MemoryRdfRepositoryPlugin,
   )
 
   @Inject

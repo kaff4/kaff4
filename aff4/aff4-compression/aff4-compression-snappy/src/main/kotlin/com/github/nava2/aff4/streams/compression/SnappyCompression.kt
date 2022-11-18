@@ -3,8 +3,11 @@ package com.github.nava2.aff4.streams.compression
 import com.github.nava2.aff4.model.rdf.CompressionMethod
 import org.xerial.snappy.Snappy
 import java.nio.ByteBuffer
+import javax.inject.Inject
+import javax.inject.Singleton
 
-object SnappyCompression : CompressionMethod {
+@Singleton
+class SnappyCompression @Inject constructor() : CompressionMethod {
   override val method: String = "http://code.google.com/p/snappy/"
 
   override fun compress(uncompressed: ByteBuffer, compressed: ByteBuffer): Int {
