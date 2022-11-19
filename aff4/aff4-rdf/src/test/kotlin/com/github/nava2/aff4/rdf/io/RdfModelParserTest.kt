@@ -3,6 +3,9 @@
 package com.github.nava2.aff4.rdf.io
 
 import com.github.nava2.aff4.Aff4CoreModule
+import com.github.nava2.aff4.model.rdf.annotations.RdfModel
+import com.github.nava2.aff4.model.rdf.annotations.RdfSubject
+import com.github.nava2.aff4.model.rdf.annotations.RdfValue
 import com.github.nava2.aff4.model.rdf.createArn
 import com.github.nava2.aff4.rdf.MemoryRdfRepositoryPlugin
 import com.github.nava2.aff4.rdf.MutableRdfConnection

@@ -1,5 +1,6 @@
 package com.github.nava2.aff4.rdf.io
 
+import com.github.nava2.aff4.rdf.RdfValueConverter
 import javax.inject.Inject
 
 internal class RdfValueConverterProvider @Inject constructor(

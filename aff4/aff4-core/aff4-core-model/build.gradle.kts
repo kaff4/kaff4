@@ -1,13 +1,22 @@
 dependencies {
-  api(project(":aff4:aff4-rdf"))
-  api(project(":aff4:aff4-compression:aff4-compression-api"))
+  compileOnly(kotlin("reflect"))
+
+  api(project(":aff4:aff4-core:aff4-core-model:aff4-core-model-api"))
   api(project(":aff4:aff4-core:aff4-core-okio"))
+  api(project(":aff4:aff4-plugin"))
+  api(project(":aff4:aff4-rdf"))
 
   api(Dependencies.OKIO)
   api(Dependencies.RDF4J_MODEL_API)
-  api(Dependencies.GUICE)
 
-  api(project(":aff4:aff4-plugin-api"))
+  implementation(Dependencies.GUICE)
+  implementation(Dependencies.JAVAX_INJECT)
+
+  implementation(project(":aff4:aff4-core:aff4-core-guice"))
+
+  testImplementation(Dependencies.RDF4J_MODEL)
 
   testImplementation(project(":aff4:aff4-core:aff4-core-test"))
 }
+
+useJunit5()

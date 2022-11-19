@@ -6,6 +6,7 @@ plugins {
   kotlin("jvm") version Versions.KOTLIN
   id("io.gitlab.arturbosch.detekt") version Versions.DETEKT
   id("com.jaredsburrows.license") version "0.9.0"
+  id("com.autonomousapps.dependency-analysis") version "1.14.1"
   `maven-publish`
 }
 
@@ -56,16 +57,6 @@ subprojects {
 
   repositories {
     mavenLocal()
-  }
-
-  dependencies {
-    testImplementation(Dependencies.ASSERTJ_CORE)
-    testImplementation(Dependencies.JUNIT_JUIPTER_API)
-    testRuntimeOnly(Dependencies.JUNIT_JUIPTER_ENGINE)
-
-    if (project.name != "aff4-core-test") {
-      testImplementation(project(":aff4:aff4-core:aff4-core-test"))
-    }
   }
 
   if (project.name != "interval-tree") {

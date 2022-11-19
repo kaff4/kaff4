@@ -1,6 +1,6 @@
 package com.github.nava2.aff4
 
-import com.github.nava2.aff4.model.rdf.Aff4RdfModelModule
+import com.github.nava2.aff4.model.rdf.Aff4RdfModelPlugin
 import com.github.nava2.aff4.rdf.RdfRepositoryModule
 import com.github.nava2.aff4.rdf.io.RdfModelParserModule
 import com.github.nava2.guice.KAbstractModule
@@ -30,7 +30,7 @@ object Aff4CoreModule : KAbstractModule() {
 
     install(RdfRepositoryModule)
     install(RdfModelParserModule)
-    install(Aff4RdfModelModule)
+    install(Aff4RdfModelPlugin)
   }
 
   override fun equals(other: Any?): Boolean = this === other

@@ -1,6 +1,9 @@
 package com.github.nava2.aff4.rdf.io
 
 import com.github.benmanes.caffeine.cache.Caffeine
+import com.github.nava2.aff4.model.rdf.annotations.RdfModel
+import com.github.nava2.aff4.model.rdf.annotations.RdfSubject
+import com.github.nava2.aff4.model.rdf.annotations.RdfValue
 import com.github.nava2.aff4.rdf.NamespacesProvider
 import com.google.common.collect.ImmutableMultimap
 import org.eclipse.rdf4j.model.IRI

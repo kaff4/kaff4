@@ -114,7 +114,7 @@ class Aff4ImageStreamSourceProvider @AssistedInject internal constructor(
       }
 
     for ((blockHash, sourceProviders) in blockHashSourceProviders) {
-      val actualHash = concatLazily(sourceProviders).buffer().use(timeout = timeout) { source ->
+      val actualHash = sourceProviders.concatLazily().buffer().use(timeout = timeout) { source ->
         blockHash.hash.hashType.hashingSink().use { hashSink ->
           source.readAll(hashSink)
           hashSink.hash
