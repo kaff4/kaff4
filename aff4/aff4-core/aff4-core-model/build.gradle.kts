@@ -19,7 +19,6 @@ dependencies {
 
 
   testImplementation(project(":aff4:aff4-core:aff4-core-test"))
-  testImplementation(Dependencies.RDF4J_MODEL)
 }
 
 useJunit5()
