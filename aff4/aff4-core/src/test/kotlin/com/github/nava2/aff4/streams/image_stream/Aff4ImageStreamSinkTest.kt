@@ -32,13 +32,14 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.io.CleanupMode
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
 import javax.inject.Inject
 
 @ExtendWith(GuiceExtension::class)
 class Aff4ImageStreamSinkTest {
-  @TempDir
+  @TempDir(cleanup = CleanupMode.ON_SUCCESS)
   private lateinit var tempDirectory: Path
 
   @GuiceModule
@@ -64,11 +65,9 @@ class Aff4ImageStreamSinkTest {
   @Inject
   private lateinit var aff4ContainerBuilderFactory: Aff4ContainerBuilder.Factory
 
-  private val tempFileSystem by lazy { FileSystem.SYSTEM.relativeTo(tempDirectory) }
-
-  private val outputFileSystem by lazy { tempFileSystem.relativeTo("output".toPath()) }
-
-  private val imageFileSystem by lazy { sha256FileSystemFactory.create(tempFileSystem, "sha256".toPath()) }
+  private lateinit var tempFileSystem: FileSystem
+  private lateinit var outputFileSystem: FileSystem
+  private lateinit var imageFileSystem: FileSystem
 
   private val dataBuffer = Buffer()
 
@@ -78,6 +77,11 @@ class Aff4ImageStreamSinkTest {
   @BeforeEach
   fun setup() {
     containerArn = valueFactory.createArn("aff4://99cc4380-308f-4235-838c-e20a8898ad00")
+
+    tempFileSystem = FileSystem.SYSTEM.relativeTo(tempDirectory)
+    outputFileSystem = tempFileSystem.relativeTo("output".toPath())
+    imageFileSystem = sha256FileSystemFactory.create(tempFileSystem, "sha256".toPath())
+
     aff4ContainerBuilder = aff4ContainerBuilderFactory.create(
       Aff4ContainerBuilder.Context(
         temporaryFileSystem = imageFileSystem,

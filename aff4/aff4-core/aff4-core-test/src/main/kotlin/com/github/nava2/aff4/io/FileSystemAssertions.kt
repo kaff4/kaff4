@@ -18,9 +18,10 @@ fun <SELF : AbstractObjectAssert<SELF, T>, T : FileSystem> SELF.md5(path: Path, 
   exists(path)
 
   return satisfies { fs ->
-    val fileSize = fs.metadata(path).size!!
+    val metadata = fs.metadata(path)
+    assertThat(metadata.isRegularFile).`as` { "$path is not a file" }.isTrue()
     fs.source(path).use { source ->
-      assertThat(source).md5(fileSize, md5)
+      assertThat(source).md5(metadata.size!!, md5)
     }
   }
 }

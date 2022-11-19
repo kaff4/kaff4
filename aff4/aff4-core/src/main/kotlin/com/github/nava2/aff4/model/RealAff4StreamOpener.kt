@@ -1,7 +1,6 @@
 package com.github.nava2.aff4.model
 
 import com.github.benmanes.caffeine.cache.Caffeine
-import com.github.benmanes.caffeine.cache.LoadingCache
 import com.github.nava2.aff4.container.ContainerScoped
 import com.github.nava2.aff4.io.SourceProvider
 import com.github.nava2.aff4.io.bounded
@@ -21,6 +20,7 @@ import okio.Source
 import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.Statement
 import org.eclipse.rdf4j.model.ValueFactory
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
@@ -47,12 +47,18 @@ internal class RealAff4StreamOpener @Inject constructor(
 
   private val aff4StreamLoaderContexts = aff4StreamLoaderContexts.associateBy { it.configTypeLiteral }
 
-  private val openStreams: LoadingCache<Aff4Arn, Aff4StreamSourceProvider> = Caffeine.newBuilder()
-    .maximumSize(MAX_OPEN_STREAMS)
-    .removalListener<Aff4Arn, SourceProvider<Source>> { _, provider, _ ->
-      (provider as? Closeable)?.close()
-    }
-    .build(::loadSourceProvider)
+  private val allCloseableStreams = ConcurrentHashMap<Aff4Arn, Unit>()
+
+  private val openStreams: com.github.benmanes.caffeine.cache.LoadingCache<Aff4Arn, Aff4StreamSourceProvider> =
+    Caffeine.newBuilder()
+      .maximumSize(MAX_OPEN_STREAMS)
+      .removalListener<Aff4Arn, SourceProvider<Source>> { key, provider, _ ->
+        if (provider is Closeable) {
+          provider.close()
+          allCloseableStreams.remove(key)
+        }
+      }
+      .build(::loadSourceProvider)
 
   override fun openStream(arn: Aff4Arn): SourceProvider<Source> {
     check(!closed) { "Closed" }
@@ -81,13 +87,21 @@ internal class RealAff4StreamOpener @Inject constructor(
   }
 
   private fun loadSourceProvider(subject: Aff4Arn): Aff4StreamSourceProvider {
+    check(!closed) { "Closed" }
+
     require(!subject.isHashDedupe()) { "Hash streams are not supported via this method." }
 
-    return rdfExecutor.withReadOnlySession { connection: RdfConnection ->
+    val result = rdfExecutor.withReadOnlySession { connection: RdfConnection ->
       val statements = connection.queryStatements(subj = subject).use { it.toList() }
 
       loadStreamFromRdf(connection, rdfModelParser, subject, statements)
     }
+
+    if (result is Closeable) {
+      allCloseableStreams[subject] = Unit
+    }
+
+    return result
   }
 
   private fun loadStreamFromRdf(
@@ -113,6 +127,10 @@ internal class RealAff4StreamOpener @Inject constructor(
   override fun close() {
     if (closed) return
     closed = true
+
+    for (openStream in openStreams.getAllPresent(allCloseableStreams.keys).values) {
+      (openStream as? Closeable)?.close()
+    }
 
     openStreams.invalidateAll()
     openStreams.cleanUp()
