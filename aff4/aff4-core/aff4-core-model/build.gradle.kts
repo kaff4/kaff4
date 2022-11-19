@@ -14,7 +14,7 @@ dependencies {
 
   implementation(project(":aff4:aff4-core:aff4-core-guice"))
 
-  api(Dependencies.RDF4J_MODEL)
+  testImplementation(Dependencies.RDF4J_MODEL)
 
   testImplementation(project(":aff4:aff4-core:aff4-core-test"))
 }
