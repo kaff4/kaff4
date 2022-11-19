@@ -42,7 +42,6 @@ private class LazyConcatSource(
 
         read(sink, byteCount)
       }
-
       else -> bytesRead
     }
   }

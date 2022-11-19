@@ -92,12 +92,15 @@ class Aff4MapStreamSourceProvider @AssistedInject internal constructor(
 
     val mapHash = mapStream.mapHash
     if (mapHash != null) {
-      val // H( map || idx || [mapPath] )
-      maybeFailure = listOfNotNull(
+      val maybeFailure = listOfNotNull(
+        // H( map || idx || [mapPath] )
         mapStream.mapPath(containerArn),
         mapStream.idxPath(containerArn),
         mapStream.mapPathPath(containerArn).takeIf { imageFileSystem.exists(it) },
-      ).map { imageFileSystem.sourceProvider(it) }.concatLazily().use { source ->
+      )
+      .map { imageFileSystem.sourceProvider(it) }
+      .concatLazily()
+      .use { source ->
         val actualHash = source.computeLinearHash(mapHash.hashType)
         FailedHash(mapStream, "map", mapHash).takeIf { actualHash != mapHash.value }
       }

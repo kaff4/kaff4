@@ -2,14 +2,16 @@ package com.github.nava2.aff4.rdf
 
 import com.google.inject.TypeLiteral
 import org.eclipse.rdf4j.model.Value
+import org.eclipse.rdf4j.model.ValueFactory
+import javax.inject.Inject
 
 abstract class RdfValueConverter<T> protected constructor(val types: Set<TypeLiteral<*>>) {
   init {
     require(types.isNotEmpty()) { "Must define at least one type matching" }
   }
 
-  @javax.inject.Inject
-  protected lateinit var valueFactory: org.eclipse.rdf4j.model.ValueFactory
+  @Inject
+  protected lateinit var valueFactory: ValueFactory
 
   abstract fun matches(clazz: Class<*>): Boolean
 
