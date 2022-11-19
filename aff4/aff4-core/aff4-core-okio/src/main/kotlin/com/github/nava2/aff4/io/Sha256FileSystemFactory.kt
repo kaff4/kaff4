@@ -28,7 +28,7 @@ class Sha256FileSystemFactory {
     private val mappings = HashBiMap.create<Path, Path>()
 
     override fun onPathParameter(path: Path, functionName: String, parameterName: String): Path {
-      val normalized = path.normalized() // .segments.joinToString(UNIX_SEPARATOR).toPath(true)
+      val normalized = path.normalized()
       val mappedPath = mappings.computeIfAbsent(normalized) {
         val sha256 = Buffer().use { it.write(normalized.toString().encodeUtf8()).sha256() }.hex()
         val shaPath = (sha256.substring(0..1).toPath() / sha256).normalized()
@@ -46,7 +46,7 @@ class Sha256FileSystemFactory {
     }
 
     override fun metadataOrNull(path: Path): FileMetadata? {
-      val normalized = path.normalized() // .segments.joinToString(UNIX_SEPARATOR).toPath(true)
+      val normalized = path.normalized()
 
       if (normalized in mappings) {
         return super.metadataOrNull(path)
@@ -83,7 +83,7 @@ class Sha256FileSystemFactory {
     }
 
     override fun listRecursively(dir: Path, followSymlinks: Boolean): Sequence<Path> {
-      val normalizedDir = dir.normalized() // .segments.joinToString(UNIX_SEPARATOR).toPath(true)
+      val normalizedDir = dir.normalized()
       val paths = list(normalizedDir)
       return sequence {
         yieldAll(paths)
@@ -100,9 +100,7 @@ class Sha256FileSystemFactory {
     override fun delete(path: Path, mustExist: Boolean) {
       super.delete(path, mustExist)
 
-      mappings.remove(
-        path.normalized() // .segments.joinToString(UNIX_SEPARATOR).toPath(true)
-      )
+      mappings.remove(path.normalized())
     }
   }
 }
