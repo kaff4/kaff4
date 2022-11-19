@@ -6,6 +6,7 @@ object Dependencies {
   const val JUNIT_JUIPTER_ENGINE = "org.junit.jupiter:junit-jupiter-engine:${Versions.JUNIT}"
 
   const val CAFFIENE = "com.github.ben-manes.caffeine:caffeine:3.1.0"
+  const val CHECKER_QUAL = "org.checkerframework:checker-qual:3.21.4"
 
   const val GUAVA = "com.google.guava:guava:${Versions.GUAVA}"
 
@@ -31,6 +32,9 @@ object Dependencies {
   const val RDF4J_REPOSITORY_API = "org.eclipse.rdf4j:rdf4j-repository-api:${Versions.RDF4J}"
   const val RDF4J_REPOSITORY_SAIL = "org.eclipse.rdf4j:rdf4j-repository-sail:${Versions.RDF4J}"
   const val RDF4J_REPOSITORY_SAIL_MEMORY = "org.eclipse.rdf4j:rdf4j-sail-memory:${Versions.RDF4J}"
-  
+
+  const val RDF4J_RIO_API = "org.eclipse.rdf4j:rdf4j-rio-api:${Versions.RDF4J}"
   const val RDF4J_RIO_TURTLE = "org.eclipse.rdf4j:rdf4j-rio-turtle:${Versions.RDF4J}"
+
+  const val RDF4J_SAIL_API = "org.eclipse.rdf4j:rdf4j-sail-api:${Versions.RDF4J}"
 }

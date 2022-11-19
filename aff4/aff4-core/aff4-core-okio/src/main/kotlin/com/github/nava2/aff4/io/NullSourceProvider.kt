@@ -11,8 +11,6 @@ internal object NullSourceProvider : SourceProvider<Source> {
   }
 }
 
-fun nullSource(timeout: Timeout = Timeout.NONE): Source = NullSource.create(timeout)
-
 private class NullSource private constructor(private val timeout: Timeout) : Source {
   override fun close() = Unit
 

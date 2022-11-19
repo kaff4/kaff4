@@ -5,3 +5,5 @@ command -v git-lfs >/dev/null 2>&1 || { echo >&2 "\nThis repository is configure
 git lfs pre-push "$@"
 
 ./gradlew detekt --continue
+
+./hooks/check-dependencies.sh

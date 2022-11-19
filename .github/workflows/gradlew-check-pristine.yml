@@ -1,5 +1,5 @@
 name: Check JVM
-on: [push]
+on: [ push ]
 jobs:
   JVM-Run-Gradle-Check:
     runs-on: ubuntu-latest
@@ -18,7 +18,10 @@ jobs:
       - name: Build kaff4
         uses: burrunan/gradle-cache-action@v1
         with:
-          arguments: check --continue 
+          arguments: check buildHealth --continue
+
+      - name: Verify build health
+        run: ./hooks/check-dependencies.sh
 
       - name: Upload build reports
         uses: actions/upload-artifact@v3

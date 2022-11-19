@@ -46,19 +46,18 @@ private fun <T : Any> buildNonSubjectParamMap(
     rdfAnnotationTypeInfo.otherProperties[it.predicate]
   }
 
-  val aggregateValues = mutableMapOf<PropertyInfo, MutableList<Any?>>()
-  for ((statement, parameters) in statementsAndParameters) {
-    if (parameters == null) continue
-
-    for (parameter in parameters) {
-      val obj = statement.`object`
-      val handler = valueConverterProvider.getConverter(parameter.elementType)
-      val converted = handler.parse(parameter.elementType, obj)
-
-      val values = aggregateValues.getOrPut(parameter) { mutableListOf() }
-      values.add(converted)
+  val aggregateValues = statementsAndParameters.asSequence()
+    .flatMap { (statement, parameters) ->
+      parameters.asSequence().map { parameter ->
+        val obj = statement.`object`
+        val handler = valueConverterProvider.getConverter(parameter.elementType)
+        parameter to handler.parse(parameter.elementType, obj)
+      }
     }
-  }
+    .groupBy(
+      keySelector = { (propertyInfo, _) -> propertyInfo },
+      valueTransform = { (_, converted) -> converted },
+    )
 
   for ((parameter, values) in aggregateValues) {
     parameterMap[parameter.parameter] = when (parameter.collectionType) {

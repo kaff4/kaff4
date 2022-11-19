@@ -1,5 +1,6 @@
 package com.github.nava2.aff4.rdf.io
 
+import com.github.nava2.aff4.rdf.RdfValueConverter
 import com.google.inject.TypeLiteral
 import org.eclipse.rdf4j.model.Value
 

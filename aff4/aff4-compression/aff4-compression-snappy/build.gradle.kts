@@ -1,11 +1,13 @@
 dependencies {
   implementation(kotlin("stdlib-jdk8"))
 
-  api(project(":aff4:aff4-core:aff4-core-guice"))
-  api(project(":aff4:aff4-compression:aff4-compression-api"))
-  api(project(":aff4:aff4-plugin-api"))
+  api(Dependencies.JAVAX_INJECT)
 
-  api(Dependencies.GUICE)
+  api(project(":aff4:aff4-plugin"))
+  api(project(":aff4:aff4-core:aff4-core-model:aff4-core-model-api"))
 
+  implementation(Dependencies.GUICE)
   implementation("org.xerial.snappy:snappy-java:1.1.8.4")
+
+  implementation(project(":aff4:aff4-core:aff4-core-guice"))
 }

@@ -6,6 +6,8 @@ dependencies {
   implementation(Dependencies.GUAVA)
 }
 
+useJunit5()
+
 publishing {
   publications {
     create<MavenPublication>("maven") {

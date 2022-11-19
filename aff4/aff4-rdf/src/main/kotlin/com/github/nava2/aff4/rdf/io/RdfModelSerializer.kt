@@ -1,6 +1,7 @@
 package com.github.nava2.aff4.rdf.io
 
 import com.github.nava2.aff4.rdf.QueryableRdfConnection
+import com.github.nava2.aff4.rdf.RdfValueConverter
 import com.github.nava2.aff4.rdf.schema.RdfSchema
 import com.github.nava2.aff4.yieldNotNull
 import org.eclipse.rdf4j.model.IRI

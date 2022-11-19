@@ -21,7 +21,7 @@ abstract class KAbstractModule protected constructor() : AbstractModule() {
   }
 
   protected inline fun <reified T> bindSet(
-    block: KSetMultibinderHelper<T>.() -> Unit
+    noinline block: KSetMultibinderHelper<T>.() -> Unit
   ): Multibinder<T> {
     val multibinder = Multibinder.newSetBinder(binder(), typeLiteral<T>())
     KSetMultibinderHelper(multibinder).block()

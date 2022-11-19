@@ -3,9 +3,9 @@ package com.github.nava2.aff4.model
 import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.model.rdf.Aff4RdfModel
 import com.github.nava2.aff4.model.rdf.ZipVolume
+import com.github.nava2.aff4.model.rdf.annotations.RdfModel
 import com.github.nava2.aff4.rdf.RdfConnection
 import com.github.nava2.aff4.rdf.RdfExecutor
-import com.github.nava2.aff4.rdf.io.RdfModel
 import com.github.nava2.aff4.rdf.io.RdfModelParser
 import com.github.nava2.aff4.rdf.querySubjectsByType
 import com.google.inject.assistedinject.Assisted

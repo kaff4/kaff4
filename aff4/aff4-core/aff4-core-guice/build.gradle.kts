@@ -1,5 +1,8 @@
 dependencies {
-  api(kotlin("reflect"))
+  runtimeOnly(kotlin("reflect"))
+
   api(Dependencies.GUICE)
-  api(Dependencies.GUICE_ASSISTED_INJECT)
+  api(Dependencies.JAVAX_INJECT)
+
+  implementation(Dependencies.GUICE_ASSISTED_INJECT)
 }
