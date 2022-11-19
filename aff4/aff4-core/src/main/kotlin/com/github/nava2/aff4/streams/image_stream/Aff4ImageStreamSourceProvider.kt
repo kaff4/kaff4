@@ -19,13 +19,14 @@ import com.google.inject.assistedinject.AssistedInject
 import okio.FileSystem
 import okio.Source
 import okio.Timeout
+import java.io.Closeable
 import javax.inject.Provider
 
 class Aff4ImageStreamSourceProvider @AssistedInject internal constructor(
   aff4ImageBeviesFactory: Aff4ImageBevies.Factory,
   @ForImageRoot private val imageFileSystemProvider: Provider<FileSystem>,
   @Assisted val imageStream: ImageStream,
-) : VerifiableStreamProvider, Aff4StreamSourceProvider {
+) : VerifiableStreamProvider, Aff4StreamSourceProvider, Closeable {
 
   override val arn: Aff4Arn = imageStream.arn
   override val size: Long = imageStream.size
@@ -36,14 +37,29 @@ class Aff4ImageStreamSourceProvider @AssistedInject internal constructor(
   @Volatile
   private var verificationResult: VerifiableStreamProvider.Result? = null
 
-  override fun source(position: Long, timeout: Timeout): Source = Aff4ImageStreamSource(
-    aff4ImageBevies = aff4ImageBevies,
-    imageStream = imageStream,
-    position = position,
-    timeout = timeout,
-  )
+  @Volatile
+  private var closed: Boolean = false
+
+  override fun source(position: Long, timeout: Timeout): Source {
+    check(!closed) { "closed" }
+    return Aff4ImageStreamSource(
+      aff4ImageBevies = aff4ImageBevies,
+      imageStream = imageStream,
+      position = position,
+      timeout = timeout,
+    )
+  }
+
+  override fun close() {
+    if (closed) return
+    closed = true
+
+    aff4ImageBevies.close()
+  }
 
   override fun verify(aff4Model: Aff4Model, timeout: Timeout): VerifiableStreamProvider.Result {
+    check(!closed) { "closed" }
+
     val previousResult = verificationResult
     if (previousResult != null) {
       return previousResult
@@ -66,7 +82,7 @@ class Aff4ImageStreamSourceProvider @AssistedInject internal constructor(
   }
 
   override fun toString(): String {
-    return "Aff4ImageStream(${imageStream.arn})"
+    return "Aff4ImageStream(${imageStream.arn}, closed=$closed)"
   }
 
   private fun verifyLinearHashes(timeout: Timeout): Sequence<FailedHash> = sequence {

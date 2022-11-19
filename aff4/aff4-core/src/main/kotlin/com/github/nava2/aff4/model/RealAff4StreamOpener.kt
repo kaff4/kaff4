@@ -81,6 +81,8 @@ internal class RealAff4StreamOpener @Inject constructor(
   }
 
   private fun loadSourceProvider(subject: Aff4Arn): Aff4StreamSourceProvider {
+    check(!closed) { "Closed" }
+
     require(!subject.isHashDedupe()) { "Hash streams are not supported via this method." }
 
     return rdfExecutor.withReadOnlySession { connection: RdfConnection ->
