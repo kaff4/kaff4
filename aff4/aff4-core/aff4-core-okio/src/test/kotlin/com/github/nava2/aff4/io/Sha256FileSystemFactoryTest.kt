@@ -1,9 +1,12 @@
 package com.github.nava2.aff4.io
 
+import com.github.nava2.aff4.satisfies
 import com.github.nava2.test.GuiceExtension
 import okio.ByteString.Companion.encodeUtf8
 import okio.Path.Companion.toPath
+import org.assertj.core.api.AbstractObjectAssert
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.io.TempDir
@@ -11,16 +14,33 @@ import java.nio.file.Path
 import javax.inject.Inject
 
 @ExtendWith(GuiceExtension::class)
-class Sha256FileSystemFactoryTest {
+internal class Sha256FileSystemFactoryTest {
   @TempDir
   private lateinit var tempDirectory: Path
 
   @Inject
   private lateinit var sha256FileSystemFactory: Sha256FileSystemFactory
 
+  private lateinit var shaFileSystem: Sha256FileSystemFactory.MappedFileSystem
+
+  @BeforeEach
+  fun setup() {
+    shaFileSystem = sha256FileSystemFactory.create(tempDirectory)
+  }
+
+  @Test
+  fun `verify mapping uses sha256 with two char prefix`() {
+    // *NIX systems will use /
+    assertThat(shaFileSystem.mapExternalPath("foo/bar.txt".toPath()))
+      .isEqualTo("ff".toPath() / "ff4111e8e4ebd83e0173a4f765a6d9e71068b5732f1e0c3ba865dfe1b8c6fad2")
+
+    // dos use \\
+    assertThat(shaFileSystem.mapExternalPath("foo\\bar.txt".toPath()))
+      .isEqualTo("55".toPath() / "5509116d245044864c22a8c6aed0cd5139ad8a2851f86c386f2b6aa5e1496917")
+  }
+
   @Test
   fun `write file`() {
-    val shaFileSystem = sha256FileSystemFactory.create(tempDirectory)
     val fooBarTxt = "foo".toPath() / "bar.txt"
     assertThat(shaFileSystem).doesNotExist(fooBarTxt)
 
@@ -32,17 +52,13 @@ class Sha256FileSystemFactoryTest {
     assertThat(shaFileSystem).exists(fooBarTxt)
     assertThat(shaFileSystem).content(fooBarTxt, fooBarTxtContent)
 
-    assertThat(shaFileSystem.mappingsView).containsEntry(
-      fooBarTxt,
-      "ff".toPath() / "ff4111e8e4ebd83e0173a4f765a6d9e71068b5732f1e0c3ba865dfe1b8c6fad2"
-    )
+    assertThat(shaFileSystem).hasMappings(fooBarTxt)
 
     assertThat(shaFileSystem.list(fooBarTxt.parent!!)).containsExactly(fooBarTxt)
   }
 
   @Test
   fun `write multiple files file`() {
-    val shaFileSystem = sha256FileSystemFactory.create(tempDirectory)
     val fooBarTxt = "foo".toPath() / "bar.txt"
     val fooBazTxt = "foo".toPath() / "baz.txt"
 
@@ -64,20 +80,11 @@ class Sha256FileSystemFactoryTest {
     assertThat(shaFileSystem).content(fooBarTxt, fooBarTxtContent)
     assertThat(shaFileSystem).content(fooBazTxt, fooBazTxtContent)
 
-    assertThat(shaFileSystem.mappingsView)
-      .containsEntry(
-        fooBarTxt,
-        "ff".toPath() / "ff4111e8e4ebd83e0173a4f765a6d9e71068b5732f1e0c3ba865dfe1b8c6fad2"
-      )
-      .containsEntry(
-        fooBazTxt,
-        "ef".toPath() / "effa498b575546a19dc5242a525d665f14cbdb2e9be16561786e5c9937273a8f"
-      )
+    assertThat(shaFileSystem).hasMappings(fooBarTxt, fooBazTxt)
   }
 
   @Test
   fun `directory operations`() {
-    val shaFileSystem = sha256FileSystemFactory.create(tempDirectory)
     val fooBarTxt = "foo".toPath() / "bar.txt"
     val fooBazTxt = "foo".toPath() / "baz.txt"
 
@@ -96,8 +103,14 @@ class Sha256FileSystemFactoryTest {
 
     assertThat(shaFileSystem.list(fooBarTxt.parent!!)).containsExactlyInAnyOrder(fooBarTxt, fooBazTxt)
 
-    assertThat(shaFileSystem.listRecursively("".toPath()).toList()).containsExactlyInAnyOrder(
-      "foo".toPath(),
+    assertThat(shaFileSystem.listRecursively("".toPath()).toList())
+      .containsExactlyInAnyOrder(
+        "foo".toPath(),
+        fooBarTxt,
+        fooBazTxt,
+      )
+
+    assertThat(shaFileSystem).hasMappings(
       fooBarTxt,
       fooBazTxt,
     )
@@ -116,17 +129,13 @@ class Sha256FileSystemFactoryTest {
 
   @Test
   fun `delete file`() {
-    val shaFileSystem = sha256FileSystemFactory.create(tempDirectory)
     val fooBarTxt = "foo".toPath() / "bar.txt"
 
     shaFileSystem.write(fooBarTxt, mustCreate = true) { write("foobar\n".encodeUtf8()) }
 
     assertThat(shaFileSystem).exists(fooBarTxt)
 
-    assertThat(shaFileSystem.mappingsView).containsEntry(
-      fooBarTxt,
-      "ff".toPath() / "ff4111e8e4ebd83e0173a4f765a6d9e71068b5732f1e0c3ba865dfe1b8c6fad2"
-    )
+    assertThat(shaFileSystem).hasMappings(fooBarTxt)
 
     shaFileSystem.delete(fooBarTxt)
 
@@ -136,3 +145,14 @@ class Sha256FileSystemFactoryTest {
     assertThat(shaFileSystem).doesNotExist(fooBarTxt)
   }
 }
+
+private fun <SELF : AbstractObjectAssert<SELF, Sha256FileSystemFactory.MappedFileSystem>> SELF.hasMappings(
+  vararg paths: okio.Path,
+): SELF {
+  return satisfies { fs ->
+    assertThat(fs.mappingsView)
+      .containsAllEntriesOf(paths.associateWith { fs.mapExternalPath(it) })
+  }
+}
+
+private fun Sha256FileSystemFactory.MappedFileSystem.mapExternalPath(path: String) = mapExternalPath(path.toPath())

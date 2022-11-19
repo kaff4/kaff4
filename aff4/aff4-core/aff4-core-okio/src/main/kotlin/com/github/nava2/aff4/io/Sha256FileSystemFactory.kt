@@ -27,11 +27,16 @@ class Sha256FileSystemFactory {
 
     private val mappings = HashBiMap.create<Path, Path>()
 
+    internal fun mapExternalPath(path: Path): Path {
+      val normalized = path.normalized()
+      val sha256 = Buffer().use { it.write(normalized.toString().encodeUtf8()).sha256() }.hex()
+      return (sha256.substring(0..1).toPath() / sha256).normalized()
+    }
+
     override fun onPathParameter(path: Path, functionName: String, parameterName: String): Path {
       val normalized = path.normalized()
       val mappedPath = mappings.computeIfAbsent(normalized) {
-        val sha256 = Buffer().use { it.write(normalized.toString().encodeUtf8()).sha256() }.hex()
-        val shaPath = (sha256.substring(0..1).toPath() / sha256).normalized()
+        val shaPath = mapExternalPath(normalized)
 
         delegate.createDirectories(shaPath.parent!!)
 
