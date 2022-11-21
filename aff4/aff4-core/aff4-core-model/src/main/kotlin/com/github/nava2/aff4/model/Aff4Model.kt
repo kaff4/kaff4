@@ -25,4 +25,6 @@ interface Aff4Model : Closeable {
   }
 }
 
+inline fun <reified T : Aff4RdfModel> Aff4Model.get(subject: Aff4Arn): T = get(subject, T::class)
+
 inline fun <reified T : Aff4RdfModel> Aff4Model.query(): List<T> = query(T::class)

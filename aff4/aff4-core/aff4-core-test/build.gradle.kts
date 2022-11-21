@@ -1,7 +1,6 @@
 dependencies {
   implementation(kotlin("reflect"))
 
-  api(project(":aff4:aff4-core"))
   api(project(":aff4:aff4-core:aff4-core-guice"))
   api(project(":aff4:aff4-core:aff4-core-okio"))
 
@@ -11,6 +10,21 @@ dependencies {
   api(Dependencies.GUICE)
   api(Dependencies.OKIO)
 
+  implementation(project(":aff4:aff4-core"))
   implementation(project(":aff4:aff4-core:aff4-core-model"))
   implementation(project(":aff4:aff4-rdf:aff4-rdf-memory"))
+}
+
+val projectPath = project.path
+
+rootProject.allprojects {
+  val testTask by tasks.test
+
+  dependencies {
+    val thisProject = project(projectPath)
+    val testImplementationDependencies = configurations.getByName("testImplementation").dependencies
+    if (thisProject in testImplementationDependencies) {
+      testTask.jvmArgumentProviders.add { listOf("-Djunit.jupiter.extensions.autodetection.enabled=true") }
+    }
+  }
 }

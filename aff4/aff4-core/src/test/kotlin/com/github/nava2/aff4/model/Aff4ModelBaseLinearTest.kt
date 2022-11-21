@@ -1,6 +1,7 @@
 package com.github.nava2.aff4.model
 
 import com.github.nava2.aff4.Aff4ImageTestModule
+import com.github.nava2.aff4.BaseLinear
 import com.github.nava2.aff4.UnderTest
 import com.github.nava2.aff4.model.Aff4Container.ToolMetadata
 import com.github.nava2.aff4.model.rdf.Aff4ImagingOperation
@@ -17,23 +18,19 @@ import com.github.nava2.aff4.model.rdf.TimeStamps
 import com.github.nava2.aff4.model.rdf.ZipVolume
 import com.github.nava2.aff4.model.rdf.createArn
 import com.github.nava2.aff4.parseZonedDateTime
-import com.github.nava2.aff4.streams.compression.Aff4SnappyPlugin
 import com.github.nava2.aff4.streams.compression.SnappyCompression
-import com.github.nava2.test.GuiceExtension
 import com.github.nava2.test.GuiceModule
 import okio.ByteString.Companion.decodeHex
 import okio.Path.Companion.toPath
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import javax.inject.Inject
 import com.github.nava2.aff4.model.rdf.MapStream as AMap
 
-@ExtendWith(GuiceExtension::class)
 class Aff4ModelBaseLinearTest {
   @GuiceModule
-  val imageTestModule = Aff4ImageTestModule("Base-Linear.aff4", Aff4SnappyPlugin)
+  val module = Aff4ImageTestModule.BaseLinear
 
   @Inject
   private lateinit var valueFactory: ValueFactory

@@ -1,6 +1,6 @@
 package com.github.nava2.aff4
 
-import com.google.inject.BindingAnnotation
+import javax.inject.Qualifier
 
 /**
  * Defines a value that is provided from a test rule.
@@ -11,5 +11,5 @@ import com.google.inject.BindingAnnotation
   AnnotationTarget.FUNCTION,
   AnnotationTarget.FIELD,
 )
-@BindingAnnotation
+@Qualifier
 annotation class UnderTest

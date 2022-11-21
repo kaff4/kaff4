@@ -1,6 +1,7 @@
 package com.github.nava2.aff4.streams.map_stream
 
 import com.github.nava2.aff4.Aff4BaseStreamModule
+import com.github.nava2.aff4.UsingTemporary
 import com.github.nava2.aff4.container.Aff4ContainerBuilder
 import com.github.nava2.aff4.container.RealAff4ContainerBuilder
 import com.github.nava2.aff4.io.Sha256FileSystemFactory
@@ -23,7 +24,6 @@ import com.github.nava2.aff4.streams.compression.Aff4SnappyPlugin
 import com.github.nava2.aff4.streams.compression.SnappyCompression
 import com.github.nava2.aff4.streams.image_stream.Bevy
 import com.github.nava2.aff4.streams.symbolics.Symbolics
-import com.github.nava2.test.GuiceExtension
 import com.github.nava2.test.GuiceModule
 import okio.Buffer
 import okio.ByteString
@@ -35,16 +35,10 @@ import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.junit.jupiter.api.io.TempDir
-import java.nio.file.Path
 import java.util.function.Consumer
 import javax.inject.Inject
 
-@ExtendWith(GuiceExtension::class)
 class Aff4MapStreamSinkTest {
-  @TempDir
-  private lateinit var tempDirectory: Path
 
   @GuiceModule
   val modules = listOf(
@@ -66,10 +60,11 @@ class Aff4MapStreamSinkTest {
   @Inject
   private lateinit var sha256FileSystemFactory: Sha256FileSystemFactory
 
+  @UsingTemporary
+  private lateinit var tempFileSystem: FileSystem
+
   @Inject
   private lateinit var snappyCompression: SnappyCompression
-
-  private val tempFileSystem by lazy { FileSystem.SYSTEM.relativeTo(tempDirectory) }
 
   private val imageFileSystem by lazy { sha256FileSystemFactory.create(tempFileSystem, "sha256".toPath()) }
 

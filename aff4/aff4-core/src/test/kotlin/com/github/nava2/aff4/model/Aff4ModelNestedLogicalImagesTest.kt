@@ -7,19 +7,16 @@ import com.github.nava2.aff4.io.md5
 import com.github.nava2.aff4.io.use
 import com.github.nava2.aff4.model.Aff4Container.ToolMetadata
 import com.github.nava2.aff4.streams.compression.Aff4SnappyPlugin
-import com.github.nava2.test.GuiceExtension
 import com.github.nava2.test.GuiceModule
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import javax.inject.Inject
 
-@ExtendWith(GuiceExtension::class)
 class Aff4ModelNestedLogicalImagesTest {
   @GuiceModule
-  val imageTestModule = Aff4ImageTestModule(
-    imageName = "nested_logical_images.aff4",
+  val modules = listOf(
+    Aff4ImageTestModule("nested_logical_images.aff4"),
     Aff4SnappyPlugin,
     Aff4LogicalModule,
   )

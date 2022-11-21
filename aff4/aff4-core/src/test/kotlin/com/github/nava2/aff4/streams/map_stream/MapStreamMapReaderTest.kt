@@ -1,25 +1,23 @@
 package com.github.nava2.aff4.streams.map_stream
 
 import com.github.nava2.aff4.Aff4ImageTestModule
+import com.github.nava2.aff4.BaseLinear
 import com.github.nava2.aff4.UnderTest
 import com.github.nava2.aff4.interval_tree.Interval
 import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.model.rdf.MapStream
-import com.github.nava2.test.GuiceExtension
 import com.github.nava2.test.GuiceModule
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.ObjectAssert
 import org.eclipse.rdf4j.model.ValueFactory
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import java.util.function.Consumer
 import javax.inject.Inject
 
-@ExtendWith(GuiceExtension::class)
 class MapStreamMapReaderTest {
   @GuiceModule
-  val imageTestModule = Aff4ImageTestModule("Base-Linear.aff4")
+  val imageTestModule = Aff4ImageTestModule.BaseLinear
 
   @Inject
   @field:UnderTest

@@ -1,31 +1,26 @@
 package com.github.nava2.aff4.io
 
+import com.github.nava2.aff4.UsingTemporary
 import com.github.nava2.aff4.satisfies
-import com.github.nava2.test.GuiceExtension
 import okio.ByteString.Companion.encodeUtf8
+import okio.FileSystem
 import okio.Path.Companion.toPath
 import org.assertj.core.api.AbstractObjectAssert
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.junit.jupiter.api.io.TempDir
-import java.nio.file.Path
-import javax.inject.Inject
 
-@ExtendWith(GuiceExtension::class)
 internal class Sha256FileSystemFactoryTest {
-  @TempDir
-  private lateinit var tempDirectory: Path
+  @UsingTemporary
+  private lateinit var tempFileSystem: FileSystem
 
-  @Inject
-  private lateinit var sha256FileSystemFactory: Sha256FileSystemFactory
+  private val sha256FileSystemFactory = Sha256FileSystemFactory()
 
   private lateinit var shaFileSystem: Sha256FileSystemFactory.MappedFileSystem
 
   @BeforeEach
   fun setup() {
-    shaFileSystem = sha256FileSystemFactory.create(tempDirectory)
+    shaFileSystem = sha256FileSystemFactory.create(tempFileSystem, ".".toPath())
   }
 
   @Test
@@ -154,5 +149,3 @@ private fun <SELF : AbstractObjectAssert<SELF, Sha256FileSystemFactory.MappedFil
       .containsAllEntriesOf(paths.associateWith { fs.mapExternalPath(it) })
   }
 }
-
-private fun Sha256FileSystemFactory.MappedFileSystem.mapExternalPath(path: String) = mapExternalPath(path.toPath())

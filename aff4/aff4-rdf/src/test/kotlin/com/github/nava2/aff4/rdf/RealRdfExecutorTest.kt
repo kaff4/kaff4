@@ -2,7 +2,6 @@ package com.github.nava2.aff4.rdf
 
 import com.github.nava2.aff4.Aff4CoreModule
 import com.github.nava2.aff4.isIllegalStateException
-import com.github.nava2.test.GuiceExtension
 import com.github.nava2.test.GuiceModule
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -11,10 +10,8 @@ import org.assertj.core.api.ObjectAssert
 import org.eclipse.rdf4j.model.Statement
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import javax.inject.Inject
 
-@ExtendWith(GuiceExtension::class)
 internal class RealRdfExecutorTest {
   @GuiceModule
   val modules = listOf(Aff4CoreModule, MemoryRdfRepositoryPlugin)

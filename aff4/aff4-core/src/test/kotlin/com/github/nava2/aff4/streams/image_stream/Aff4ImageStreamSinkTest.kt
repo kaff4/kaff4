@@ -1,10 +1,9 @@
 package com.github.nava2.aff4.streams.image_stream
 
 import com.github.nava2.aff4.Aff4BaseStreamModule
+import com.github.nava2.aff4.UsingTemporary
 import com.github.nava2.aff4.container.Aff4ContainerBuilder
 import com.github.nava2.aff4.container.RealAff4ContainerBuilder
-import com.github.nava2.aff4.io.Sha256FileSystemFactory
-import com.github.nava2.aff4.io.relativeTo
 import com.github.nava2.aff4.io.repeatByteString
 import com.github.nava2.aff4.model.Aff4ContainerOpener
 import com.github.nava2.aff4.model.rdf.Aff4Arn
@@ -17,7 +16,6 @@ import com.github.nava2.aff4.rdf.MemoryRdfRepositoryPlugin
 import com.github.nava2.aff4.streams.TestAff4ContainerBuilderModule
 import com.github.nava2.aff4.streams.compression.Aff4SnappyPlugin
 import com.github.nava2.aff4.streams.compression.SnappyCompression
-import com.github.nava2.test.GuiceExtension
 import com.github.nava2.test.GuiceModule
 import okio.Buffer
 import okio.ByteString
@@ -31,15 +29,9 @@ import org.eclipse.rdf4j.model.ValueFactory
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.junit.jupiter.api.io.TempDir
-import java.nio.file.Path
 import javax.inject.Inject
 
-@ExtendWith(GuiceExtension::class)
 class Aff4ImageStreamSinkTest {
-  @TempDir
-  private lateinit var tempDirectory: Path
 
   @GuiceModule
   val modules = listOf(
@@ -53,9 +45,6 @@ class Aff4ImageStreamSinkTest {
   private lateinit var valueFactory: ValueFactory
 
   @Inject
-  private lateinit var sha256FileSystemFactory: Sha256FileSystemFactory
-
-  @Inject
   private lateinit var snappyCompression: SnappyCompression
 
   @Inject
@@ -64,11 +53,11 @@ class Aff4ImageStreamSinkTest {
   @Inject
   private lateinit var aff4ContainerBuilderFactory: Aff4ContainerBuilder.Factory
 
-  private val tempFileSystem by lazy { FileSystem.SYSTEM.relativeTo(tempDirectory) }
+  @UsingTemporary
+  private lateinit var outputFileSystem: FileSystem
 
-  private val outputFileSystem by lazy { tempFileSystem.relativeTo("output".toPath()) }
-
-  private val imageFileSystem by lazy { sha256FileSystemFactory.create(tempFileSystem, "sha256".toPath()) }
+  @UsingTemporary(useSha256 = true)
+  private lateinit var imageFileSystem: FileSystem
 
   private val dataBuffer = Buffer()
 
@@ -185,14 +174,13 @@ class Aff4ImageStreamSinkTest {
 
     val chunkSize = 40
     val chunksInSegment = 1
-    val containerArn = valueFactory.createIRI("aff4://bb362b22-649c-494b-923f-e4ed0c5afef4")
     val imageStream = ImageStream(
       arn = valueFactory.createIRI("aff4://99cc4380-308f-4235-838c-e20a8898ad00"),
       chunkSize = chunkSize,
       chunksInSegment = chunksInSegment,
       size = content.size.toLong(),
       compressionMethod = snappyCompression,
-      stored = containerArn,
+      stored = aff4ContainerBuilder.arn,
       linearHashes = listOf(HashType.SHA256, HashType.MD5).map { it.value(ByteString.EMPTY) },
     )
 
@@ -209,6 +197,7 @@ class Aff4ImageStreamSinkTest {
     )
 
     assertThat(writtenImageStream)
+      .usingRecursiveComparison()
       .isEqualTo(
         imageStream.copy(
           size = content.size.toLong(),

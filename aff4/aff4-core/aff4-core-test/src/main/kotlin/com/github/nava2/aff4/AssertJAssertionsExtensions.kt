@@ -4,7 +4,7 @@ import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.AbstractThrowableAssert
 import java.util.function.Consumer
 
-fun <SELF, ACTUAL> AbstractAssert<SELF, ACTUAL>.satisfies(consumer: (ACTUAL) -> Unit): SELF
+inline fun <SELF, ACTUAL> AbstractAssert<SELF, ACTUAL>.satisfies(crossinline consumer: (ACTUAL) -> Unit): SELF
   where SELF : AbstractAssert<SELF, ACTUAL> = satisfies(Consumer { consumer(it) })
 
 fun AbstractThrowableAssert<*, *>.isIllegalArgumentException(message: String): AbstractThrowableAssert<*, *> {
