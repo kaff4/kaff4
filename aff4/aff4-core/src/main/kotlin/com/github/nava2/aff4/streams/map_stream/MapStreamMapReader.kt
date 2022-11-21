@@ -1,23 +1,19 @@
 package com.github.nava2.aff4.streams.map_stream
 
+import com.github.nava2.aff4.container.ContainerDataFileSystemProvider
 import com.github.nava2.aff4.interval_tree.IntervalTree
-import com.github.nava2.aff4.meta.rdf.ContainerArn
-import com.github.nava2.aff4.meta.rdf.ForImageRoot
 import com.github.nava2.aff4.model.rdf.MapStream
 import com.github.nava2.aff4.streams.symbolics.Symbolics
-import okio.FileSystem
 import okio.buffer
 import org.eclipse.rdf4j.model.IRI
 import javax.inject.Inject
-import javax.inject.Provider
 import javax.inject.Singleton
 
 private const val ENTRIES_INSERT_CHUNK_SIZE = 50
 
 @Singleton
 internal class MapStreamMapReader @Inject constructor(
-  @ForImageRoot private val imageRootFileSystemProvider: Provider<FileSystem>,
-  @ContainerArn private val containerArnProvider: Provider<IRI>,
+  private val containerDataFileSystemProvider: ContainerDataFileSystemProvider,
   private val mapIdxFileReader: MapIdxFileReader,
   private val symbolics: Symbolics,
 ) {
@@ -45,10 +41,11 @@ internal class MapStreamMapReader @Inject constructor(
     mapStream: MapStream,
     index: List<IRI>
   ): Sequence<MapStreamEntry> = sequence {
-    val mapMapFile = mapStream.mapPath(containerArnProvider.get())
+    val mapMapFile = mapStream.mapPath
     val gapDefaultStream = mapStream.mapGapDefaultStream ?: symbolics.zero.arn
 
-    imageRootFileSystemProvider.get().source(mapMapFile).buffer().use { source ->
+    val mapStreamVolumeFileSystem = containerDataFileSystemProvider[mapStream.stored]
+    mapStreamVolumeFileSystem.source(mapMapFile).buffer().use { source ->
       while (!source.exhausted()) {
         source.require(MapStreamEntry.SIZE_BYTES)
 

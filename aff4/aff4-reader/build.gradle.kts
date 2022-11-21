@@ -10,6 +10,7 @@ dependencies {
   implementation(project(":aff4:aff4-core:aff4-core-guice"))
   implementation(project(":aff4:aff4-core:aff4-core-logging"))
   implementation(project(":aff4:aff4-core:aff4-core-model"))
+  implementation(project(":aff4:aff4-core:aff4-core-model:aff4-core-model-api"))
   implementation(project(":aff4:aff4-core:aff4-core-okio"))
   implementation(project(":aff4:aff4-rdf:aff4-rdf-memory"))
   implementation(project(":aff4:aff4-compression:aff4-compression-snappy"))

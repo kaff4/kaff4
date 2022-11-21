@@ -1,12 +1,11 @@
 package com.github.nava2.aff4.streams.image_stream
 
 import com.github.benmanes.caffeine.cache.Caffeine
+import com.github.nava2.aff4.container.ContainerDataFileSystemProvider
 import com.github.nava2.aff4.io.source
-import com.github.nava2.aff4.meta.rdf.ForImageRoot
 import com.github.nava2.aff4.model.rdf.HashType
 import com.github.nava2.aff4.streams.computeLinearHashes
 import okio.ByteString
-import okio.FileSystem
 import okio.Timeout
 import org.eclipse.rdf4j.model.IRI
 import java.nio.ByteBuffer
@@ -17,7 +16,7 @@ private const val BLOCK_HASH_VALUES_CACHE = 1024L
 
 @Singleton
 internal class ImageBlockHashVerification @Inject constructor(
-  @ForImageRoot private val fileSystem: FileSystem,
+  private val containerDataFileSystemProvider: ContainerDataFileSystemProvider,
 ) {
   private val expectedHashesCache = Caffeine.newBuilder()
     .maximumSize(BLOCK_HASH_VALUES_CACHE)
@@ -27,6 +26,8 @@ internal class ImageBlockHashVerification @Inject constructor(
     val expectedHashes = expectedHashesCache
       .get(CacheKey(bevy.arn, chunkIndex)) {
         timeout.throwIfReached()
+
+        val fileSystem by containerDataFileSystemProvider.lazy(bevy.stored)
 
         val byHashType = bevy.blockHashes.mapValues { (hashType, file) ->
           timeout.throwIfReached()

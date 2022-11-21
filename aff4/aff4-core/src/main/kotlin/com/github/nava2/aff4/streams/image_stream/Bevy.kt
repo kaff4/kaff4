@@ -1,22 +1,21 @@
 package com.github.nava2.aff4.streams.image_stream
 
+import com.github.nava2.aff4.container.ContainerDataFileSystemProvider
 import com.github.nava2.aff4.mapNotNullValues
-import com.github.nava2.aff4.meta.rdf.ForImageRoot
-import com.github.nava2.aff4.model.Aff4Model
+import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.model.rdf.HashType
 import com.github.nava2.aff4.model.rdf.ImageStream
 import com.github.nava2.aff4.model.rdf.createArn
 import com.github.nava2.aff4.model.rdf.toAff4Path
-import okio.FileSystem
 import okio.Path
-import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.ValueFactory
 import javax.inject.Inject
 
 private const val BEVY_FILENAME_PADDING_LENGTH = 8
 
 data class Bevy(
-  val arn: IRI,
+  val stored: Aff4Arn,
+  val arn: Aff4Arn,
   val index: Int,
   val dataSegment: Path,
   val indexSegment: Path,
@@ -39,7 +38,6 @@ data class Bevy(
   class Factory @Inject internal constructor(
     private val valueFactory: ValueFactory,
   ) {
-
     fun create(
       imageStream: ImageStream,
       index: Int,
@@ -48,9 +46,10 @@ data class Bevy(
       val imageArn = imageStream.arn
       val indexId = indexId(index)
       val arn = valueFactory.createArn("$imageArn/$indexId")
-      val imagePath = imageArn.toAff4Path(imageStream.stored!!)
+      val imagePath = imageArn.toAff4Path(imageStream.stored)
 
       return Bevy(
+        stored = imageStream.stored,
         arn = arn,
         index = index,
         dataSegment = imagePath / indexId,
@@ -61,16 +60,15 @@ data class Bevy(
   }
 
   class Opener @Inject internal constructor(
-    private val aff4Model: Aff4Model,
     private val bevyFactory: Factory,
-    @ForImageRoot private val imageFileSystem: FileSystem,
+    private val containerDataFileSystemProvider: ContainerDataFileSystemProvider,
   ) {
     fun open(
       imageStream: ImageStream,
       index: Int,
     ): Bevy {
       val bevy = bevyFactory.create(
-        imageStream = imageStream.copy(stored = imageStream.stored ?: aff4Model.containerArn),
+        imageStream = imageStream.copy(stored = imageStream.stored),
         index = index,
         blockHashes = HashType.values().toSet(),
       )
@@ -80,11 +78,12 @@ data class Bevy(
     private fun computeExistingBlockHashPaths(
       bevy: Bevy,
     ): Map<HashType, Path> {
+      val volumeFileStream = containerDataFileSystemProvider[bevy.stored]
       return bevy.blockHashes.mapNotNullValues { (hashType, shortPath) ->
         val longPath = bevy.indexSegment.parent!! / "${indexId(bevy.index)}.blockHash.${hashType.name.lowercase()}"
         when {
-          imageFileSystem.exists(shortPath) -> shortPath
-          imageFileSystem.exists(longPath) -> longPath
+          volumeFileStream.exists(shortPath) -> shortPath
+          volumeFileStream.exists(longPath) -> longPath
           else -> null
         }
       }

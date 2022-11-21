@@ -1,9 +1,9 @@
 package com.github.nava2.aff4.streams.map_stream
 
+import com.github.nava2.aff4.container.ContainerDataFileSystemProvider
 import com.github.nava2.aff4.io.concatLazily
 import com.github.nava2.aff4.io.sourceProvider
 import com.github.nava2.aff4.io.use
-import com.github.nava2.aff4.meta.rdf.ForImageRoot
 import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.model.Aff4StreamOpener
 import com.github.nava2.aff4.model.Aff4StreamSourceProvider
@@ -16,18 +16,18 @@ import com.github.nava2.aff4.streams.computeLinearHash
 import com.github.nava2.aff4.yieldNotNull
 import com.google.inject.assistedinject.Assisted
 import com.google.inject.assistedinject.AssistedInject
-import okio.FileSystem
 import okio.Path
 import okio.Source
 import okio.Timeout
-import org.eclipse.rdf4j.model.IRI
 
 class Aff4MapStreamSourceProvider @AssistedInject internal constructor(
   private val aff4StreamOpener: Aff4StreamOpener,
   private val mapStreamMapReader: MapStreamMapReader,
-  @ForImageRoot private val imageFileSystem: FileSystem,
+  containerDataFileSystemProvider: ContainerDataFileSystemProvider,
   @Assisted val mapStream: MapStream,
 ) : Aff4StreamSourceProvider, VerifiableStreamProvider {
+
+  private val imageFileSystem by containerDataFileSystemProvider.lazy(mapStream)
   private val map: MapStreamMap by lazy { mapStreamMapReader.loadMap(mapStream) }
 
   override val arn: Aff4Arn = mapStream.arn
@@ -58,7 +58,7 @@ class Aff4MapStreamSourceProvider @AssistedInject internal constructor(
 
       val failedHashes = mutableListOf<FailedHash>()
 
-      failedHashes += computeMapComponentHashes(aff4Model.containerArn, timeout)
+      failedHashes += computeMapComponentHashes(timeout)
 
       val imageStreamResult = mapStream.dependentStream
         ?.let { aff4StreamOpener.openStream(it) as VerifiableStreamProvider }
@@ -79,24 +79,18 @@ class Aff4MapStreamSourceProvider @AssistedInject internal constructor(
   }
 
   // https://github.com/aff4/Standard/blob/master/inprogress/AFF4StandardSpecification-v1.0a.md#map-hashes
-  private fun computeMapComponentHashes(containerArn: IRI, timeout: Timeout): Sequence<FailedHash> = sequence {
-    yieldNotNull(
-      maybeValidateHashComponent("idx", mapStream.idxPath(containerArn), mapStream.mapIdxHash, timeout),
-    )
-    yieldNotNull(
-      maybeValidateHashComponent("mapPoint", mapStream.mapPath(containerArn), mapStream.mapPointHash, timeout),
-    )
-    yieldNotNull(
-      maybeValidateHashComponent("mapPath", mapStream.mapPathPath(containerArn), mapStream.mapPathHash, timeout),
-    )
+  private fun computeMapComponentHashes(timeout: Timeout): Sequence<FailedHash> = sequence {
+    yieldNotNull(maybeValidateHashComponent("idx", mapStream.idxPath, mapStream.mapIdxHash, timeout))
+    yieldNotNull(maybeValidateHashComponent("mapPoint", mapStream.mapPath, mapStream.mapPointHash, timeout))
+    yieldNotNull(maybeValidateHashComponent("mapPath", mapStream.mapPathPath, mapStream.mapPathHash, timeout))
 
     val mapHash = mapStream.mapHash
     if (mapHash != null) {
       val maybeFailure = listOfNotNull(
         // H( map || idx || [mapPath] )
-        mapStream.mapPath(containerArn),
-        mapStream.idxPath(containerArn),
-        mapStream.mapPathPath(containerArn).takeIf { imageFileSystem.exists(it) },
+        mapStream.mapPath,
+        mapStream.idxPath,
+        mapStream.mapPathPath.takeIf { imageFileSystem.exists(it) },
       )
         .map { imageFileSystem.sourceProvider(it) }
         .concatLazily()

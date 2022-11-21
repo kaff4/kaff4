@@ -205,15 +205,15 @@ class Aff4MapStreamSinkTest {
     assertThat(finalDataStream.size).isEqualTo(expectedDataSize)
 
     // Golden value: just the data stream in the index
-    assertThat(imageFileSystem).md5(finalMapStream.idxPath(containerArn), "971209f68aaa555dc6bdd98a550d72c9")
+    assertThat(imageFileSystem).md5(finalMapStream.idxPath, "971209f68aaa555dc6bdd98a550d72c9")
 
     // Golden value: Map of only 3 entries first[0..9] -> first[10..14] -> second[0..10]. first[..] is split in two
     // because it was written out of order and the image stream doesn't line up. The entries are written in a consistent
     // random order.
-    assertThat(imageFileSystem).md5(finalMapStream.mapPath(containerArn), "9449f8b42685155358dce6bf517b0919")
+    assertThat(imageFileSystem).md5(finalMapStream.mapPath, "9449f8b42685155358dce6bf517b0919")
 
     // not supported today
-    assertThat(imageFileSystem).doesNotExist(finalMapStream.mapPathPath(containerArn))
+    assertThat(imageFileSystem).doesNotExist(finalMapStream.mapPathPath)
 
     assertThat(finalDataStream.linearHashes)
       .containsExactly(HashType.MD5.value("20c87aeb86f28ce61e041c322f2a626c".decodeHex()))
@@ -316,17 +316,17 @@ class Aff4MapStreamSinkTest {
     assertThat(finalDataStream.size).isEqualTo(0L)
 
     // Golden value: Empty targets file but does exist
-    assertThat(imageFileSystem).md5(finalMapStream.idxPath(containerArn), "4feb912cba2126fbf780da081a6eb349")
+    assertThat(imageFileSystem).md5(finalMapStream.idxPath, "4feb912cba2126fbf780da081a6eb349")
 
     // Golden value: Map of 4 entries 0xff -> 0x00 -> 0xaa -> 0x00. The values are randomly assorted to be:
     // 1. 0x00 @ 18482 for 5  * chunkSize
     // 2. 0xff @ 0     for 10 * chunkSize
     // 3. 0x00 @ 10240 for 5 * chunkSize
     // 4. 0xaa @ 15360 for 3 * chunkSize
-    assertThat(imageFileSystem).md5(finalMapStream.mapPath(containerArn), "d3a525cfeb5f58dbc81461c2697d8bfe")
+    assertThat(imageFileSystem).md5(finalMapStream.mapPath, "d3a525cfeb5f58dbc81461c2697d8bfe")
 
     // not supported today
-    assertThat(imageFileSystem).doesNotExist(finalMapStream.mapPathPath(containerArn))
+    assertThat(imageFileSystem).doesNotExist(finalMapStream.mapPathPath)
 
     assertThat(finalDataStream.linearHashes)
       .containsExactly(HashType.MD5.value("d41d8cd98f00b204e9800998ecf8427e".decodeHex()))
@@ -440,13 +440,13 @@ class Aff4MapStreamSinkTest {
     assertThat(finalDataStream.size).isEqualTo(expectedDataSize)
 
     // Golden value: Single target element
-    assertThat(imageFileSystem).md5(finalMapStream.idxPath(containerArn), "5e5729c273fb3b9059e7a6ad961c1e43")
+    assertThat(imageFileSystem).md5(finalMapStream.idxPath, "5e5729c273fb3b9059e7a6ad961c1e43")
 
     // Golden value: Map of 2 entries split by the position += 50 because all content is in the data stream
-    assertThat(imageFileSystem).md5(finalMapStream.mapPath(containerArn), "ab87d754cc3780936c071ac64281052a")
+    assertThat(imageFileSystem).md5(finalMapStream.mapPath, "ab87d754cc3780936c071ac64281052a")
 
     // not supported today
-    assertThat(imageFileSystem).doesNotExist(finalMapStream.mapPathPath(containerArn))
+    assertThat(imageFileSystem).doesNotExist(finalMapStream.mapPathPath)
 
     verifyWrittenStream(finalMapStream)
   }

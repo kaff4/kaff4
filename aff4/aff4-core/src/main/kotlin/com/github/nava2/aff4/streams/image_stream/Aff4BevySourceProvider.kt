@@ -1,20 +1,18 @@
 package com.github.nava2.aff4.streams.image_stream
 
+import com.github.nava2.aff4.container.ContainerDataFileSystemProvider
 import com.github.nava2.aff4.io.SourceProvider
-import com.github.nava2.aff4.meta.rdf.ForImageRoot
 import com.github.nava2.aff4.model.rdf.ImageStream
 import com.google.inject.assistedinject.Assisted
 import com.google.inject.assistedinject.AssistedInject
 import okio.Closeable
-import okio.FileSystem
 import okio.Source
 import okio.Timeout
-import javax.inject.Provider
 
 internal class Aff4BevySourceProvider @AssistedInject constructor(
   imageBlockHashVerification: ImageBlockHashVerification,
   bevyIndexReaderFactory: BevyIndexReader.Factory,
-  @ForImageRoot fileSystemProvider: Provider<FileSystem>,
+  containerDataFileSystemProvider: ContainerDataFileSystemProvider,
   @Assisted bevyChunkCache: BevyChunkCache,
   @Assisted imageStream: ImageStream,
   @Assisted val bevy: Bevy,
@@ -25,7 +23,7 @@ internal class Aff4BevySourceProvider @AssistedInject constructor(
     imageBlockHashVerification = imageBlockHashVerification,
     bevyIndexReader = bevyIndexReader,
     bevyChunkCache = bevyChunkCache,
-    fileSystem = fileSystemProvider.get(),
+    fileSystem = containerDataFileSystemProvider.get(imageStream),
     imageStream = imageStream,
     bevy = bevy,
   )

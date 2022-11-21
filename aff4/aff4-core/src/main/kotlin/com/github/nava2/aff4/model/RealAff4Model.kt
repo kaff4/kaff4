@@ -108,14 +108,14 @@ internal class RealAff4Model @AssistedInject constructor(
     private val assistedFactory: AssistedFactory,
   ) : Aff4Model.Loader {
     override fun load(containerContext: Aff4ContainerContext): RealAff4Model {
-      loadTurtle(containerContext.rdfExecutor, containerContext.imageFileSystem)
+      loadTurtle(containerContext.containerArn, containerContext.rdfExecutor, containerContext.imageFileSystem)
       return assistedFactory.create(containerContext = containerContext)
     }
 
-    private fun loadTurtle(rdfExecutor: RdfExecutor, imageFileSystem: FileSystem) {
+    private fun loadTurtle(containerArn: Aff4Arn, rdfExecutor: RdfExecutor, imageFileSystem: FileSystem) {
       rdfExecutor.withReadWriteSession { connection ->
         imageFileSystem.read("information.turtle".toPath()) {
-          inputStream().use { connection.addTurtle(it) }
+          inputStream().use { connection.addTurtle(containerArn, it) }
         }
       }
     }

@@ -13,7 +13,7 @@ import okio.Timeout
 import java.io.Closeable
 
 interface Aff4ContainerBuilder : Closeable {
-  val arn: Aff4Arn
+  val containerArn: Aff4Arn
 
   val defaultTimeout: Timeout
 
