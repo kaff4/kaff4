@@ -5,17 +5,14 @@ import com.github.nava2.aff4.isIllegalArgumentException
 import com.github.nava2.aff4.rdf.MemoryRdfRepositoryPlugin
 import com.github.nava2.aff4.rdf.RdfRepositoryModule
 import com.github.nava2.aff4.satisfies
-import com.github.nava2.test.GuiceExtension
 import com.github.nava2.test.GuiceModule
 import org.assertj.core.api.AbstractObjectAssert
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.eclipse.rdf4j.model.ValueFactory
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import javax.inject.Inject
 
-@ExtendWith(GuiceExtension::class)
 class MapStreamEntryTest {
   @GuiceModule
   val modules = listOf(RdfRepositoryModule, MemoryRdfRepositoryPlugin)

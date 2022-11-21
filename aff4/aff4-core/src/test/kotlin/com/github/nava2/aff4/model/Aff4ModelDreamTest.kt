@@ -7,7 +7,6 @@ import com.github.nava2.aff4.model.rdf.Hash
 import com.github.nava2.aff4.model.rdf.ZipSegment
 import com.github.nava2.aff4.model.rdf.createArn
 import com.github.nava2.aff4.parseZonedDateTime
-import com.github.nava2.test.GuiceExtension
 import com.github.nava2.test.GuiceModule
 import okio.ByteString.Companion.decodeHex
 import okio.FileSystem
@@ -15,13 +14,13 @@ import okio.Path.Companion.toPath
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import javax.inject.Inject
 
-@ExtendWith(GuiceExtension::class)
 class Aff4ModelDreamTest {
   @GuiceModule
-  val imageTestModule = Aff4ImageTestModule("dream.aff4")
+  val modules = listOf(
+    Aff4ImageTestModule("dream.aff4"),
+  )
 
   @Inject
   private lateinit var valueFactory: ValueFactory
@@ -44,7 +43,7 @@ class Aff4ModelDreamTest {
 
   @Test
   fun `loads files`() {
-    assertThat(aff4Model.query(FileImage::class)).singleElement().isEqualTo(
+    assertThat(aff4Model.query<FileImage>()).singleElement().isEqualTo(
       FileImage(
         arn = arn("aff4://5aea2dd0-32b4-4c61-a9db-677654be6f83//test_images/AFF4-L/dream.txt"),
         originalFileName = "./test_images/AFF4-L/dream.txt".toPath(),
@@ -56,7 +55,7 @@ class Aff4ModelDreamTest {
       ),
     )
 
-    val zipSegment = aff4Model.query(ZipSegment::class).single()
+    val zipSegment = aff4Model.query<ZipSegment>().single()
     assertThat(zipSegment).isEqualTo(
       ZipSegment(
         arn = arn("aff4://5aea2dd0-32b4-4c61-a9db-677654be6f83//test_images/AFF4-L/dream.txt"),

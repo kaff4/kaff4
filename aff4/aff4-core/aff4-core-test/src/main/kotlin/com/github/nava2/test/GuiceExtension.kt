@@ -11,9 +11,8 @@ import org.junit.jupiter.api.extension.AfterEachCallback
 import org.junit.jupiter.api.extension.BeforeAllCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.ExtensionContext
-import java.lang.reflect.Method
+import org.junit.jupiter.api.extension.ExtensionContext.Namespace
 import java.lang.reflect.ParameterizedType
-import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Provider
 import javax.inject.Singleton
@@ -25,22 +24,21 @@ import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.jvm.javaGetter
 import kotlin.reflect.jvm.javaType
 
-@Target(AnnotationTarget.PROPERTY, AnnotationTarget.CLASS)
+@Target(AnnotationTarget.PROPERTY)
 annotation class GuiceModule
 
 class GuiceExtension : BeforeEachCallback, AfterEachCallback, BeforeAllCallback {
 
-  private val modulePropertyMaps = ConcurrentHashMap<Class<*>, (Any) -> Collection<Module>>()
-
-  private val testInjectors = ConcurrentHashMap<Method, Injector>()
-
   override fun beforeAll(context: ExtensionContext) {
     val testClass = context.requiredTestClass
 
-    modulePropertyMaps.getOrPut(testClass) {
-      val properties = testClass.kotlin.getModuleProperties()
+    val store = context.getStore(getClassLevelNamespace(context))
 
-      return@getOrPut { instance ->
+    store.getOrComputeIfAbsent(testClass) {
+      val properties = testClass.kotlin.getModuleProperties()
+      if (properties.isEmpty()) return@getOrComputeIfAbsent null
+
+      val result = { instance: Any ->
         properties.flatMap { property ->
           val returnType = property.returnType
           when {
@@ -58,31 +56,49 @@ class GuiceExtension : BeforeEachCallback, AfterEachCallback, BeforeAllCallback 
           }
         }
       }
+
+      result
     }
   }
 
   override fun beforeEach(context: ExtensionContext) {
     val instance = context.requiredTestInstance
-    val providedModulesSupplier = modulePropertyMaps.getValue(context.requiredTestClass)
+    val modulesStore = context.getStore(getClassLevelNamespace(context))
+
+    @Suppress("UNCHECKED_CAST")
+    val providedModulesSupplier = modulesStore.get(context.requiredTestClass) as ((Any) -> List<Module>)?
+      ?: return
+
     val providedModules = providedModulesSupplier(instance)
 
     val modules = BASE_MODULES + providedModules
 
-    val injector = testInjectors.computeIfAbsent(context.requiredTestMethod) {
+    val injectorStore = context.getStore(getInjectorNamespace(context))
+
+    val injector = injectorStore.getOrComputeIfAbsent(context.requiredTestMethod) {
       Guice.createInjector(Stage.DEVELOPMENT, modules)
-    }
+    } as Injector
 
     injector.injectMembers(instance)
   }
 
   override fun afterEach(context: ExtensionContext) {
-    context.testMethod.ifPresent { method ->
-      val injector = testInjectors[method] ?: return@ifPresent
-      val cleanupActions = injector.getInstance<CleanupActions>()
-      cleanupActions.close()
+    val injectorStore = context.getStore(getInjectorNamespace(context))
+    val injector = injectorStore.get(context.requiredTestMethod) as? Injector
+      ?: return
 
-      testInjectors.remove(method)
-    }
+    val cleanupActions = injector.getInstance<CleanupActions>()
+    cleanupActions.close()
+
+    injectorStore.remove(context.requiredTestMethod)
+  }
+
+  private fun getClassLevelNamespace(context: ExtensionContext): Namespace {
+    return Namespace.create(GuiceExtension::class, context.requiredTestClass, "modules")
+  }
+
+  private fun getInjectorNamespace(context: ExtensionContext): Namespace {
+    return Namespace.create(GuiceExtension::class, context.requiredTestClass, context.requiredTestInstance, "injectors")
   }
 
   companion object {

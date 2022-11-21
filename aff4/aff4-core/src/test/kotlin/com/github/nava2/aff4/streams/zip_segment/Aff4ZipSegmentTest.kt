@@ -12,7 +12,6 @@ import com.github.nava2.aff4.model.VerifiableStreamProvider
 import com.github.nava2.aff4.model.rdf.HashType
 import com.github.nava2.aff4.model.rdf.ZipSegment
 import com.github.nava2.aff4.streams.hashingSink
-import com.github.nava2.test.GuiceExtension
 import com.github.nava2.test.GuiceModule
 import okio.ByteString.Companion.decodeHex
 import okio.ByteString.Companion.encodeUtf8
@@ -20,7 +19,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import javax.inject.Inject
 
 private const val DREAM_TXT_SIZE = 8688L
@@ -28,7 +26,6 @@ private val DREAM_FIRST_LINE = "I have a Dream by Martin Luther King, Jr; August
 private val DREAM_LAST_STANZA =
   "\"Free at last! free at last! Thank God Almighty, we are free at last!\"\n".encodeUtf8()
 
-@ExtendWith(GuiceExtension::class)
 class Aff4ZipSegmentTest {
   @GuiceModule
   val imageTestModules = listOf(
