@@ -11,4 +11,4 @@ import kotlin.annotation.AnnotationTarget.VALUE_PARAMETER
 @Target(ANNOTATION_CLASS, CLASS, FUNCTION, PROPERTY_GETTER, PROPERTY_SETTER, VALUE_PARAMETER)
 @Retention(AnnotationRetention.RUNTIME)
 @ScopeAnnotation
-annotation class ContainerScoped
+annotation class ImageScoped

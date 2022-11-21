@@ -23,10 +23,10 @@ internal class RealAff4Model @AssistedInject constructor(
   private val rdfExecutor: RdfExecutor,
   private val valueFactory: ValueFactory,
   private val rdfModelParser: RdfModelParser,
-  @Assisted override val containerContext: Aff4ContainerContext,
+  @Assisted override val containerContext: Aff4ImageContext,
 ) : Aff4Model {
-  override val imageRootFileSystem: FileSystem get() = containerContext.imageFileSystem
-  override val containerArn: Aff4Arn get() = containerContext.containerArn
+  override val imageRootFileSystem: FileSystem get() = containerContext.containers.single().dataFileSystem
+  override val containerArn: Aff4Arn get() = containerContext.containers.single().containerArn
 
   @Volatile
   private var closed = false
@@ -100,22 +100,24 @@ internal class RealAff4Model @AssistedInject constructor(
     modelArns.getOrPut(modelType) { modelType.findAnnotation<RdfModel>()!!.rdfType }
 
   internal interface AssistedFactory {
-    fun create(containerContext: Aff4ContainerContext): RealAff4Model
+    fun create(containerContext: Aff4ImageContext): RealAff4Model
   }
 
   @Singleton
   internal class Loader @Inject constructor(
     private val assistedFactory: AssistedFactory,
   ) : Aff4Model.Loader {
-    override fun load(containerContext: Aff4ContainerContext): RealAff4Model {
-      loadTurtle(containerContext.containerArn, containerContext.rdfExecutor, containerContext.imageFileSystem)
-      return assistedFactory.create(containerContext = containerContext)
+    override fun load(imageContext: Aff4ImageContext): RealAff4Model {
+      loadTurtles(imageContext.rdfExecutor, imageContext.containers)
+      return assistedFactory.create(containerContext = imageContext)
     }
 
-    private fun loadTurtle(containerArn: Aff4Arn, rdfExecutor: RdfExecutor, imageFileSystem: FileSystem) {
+    private fun loadTurtles(rdfExecutor: RdfExecutor, containers: Collection<Aff4Container>) {
       rdfExecutor.withReadWriteSession { connection ->
-        imageFileSystem.read("information.turtle".toPath()) {
-          inputStream().use { connection.addTurtle(containerArn, it) }
+        for (container in containers) {
+          container.dataFileSystem.read("information.turtle".toPath()) {
+            inputStream().use { connection.addTurtle(container.containerArn, it) }
+          }
         }
       }
     }

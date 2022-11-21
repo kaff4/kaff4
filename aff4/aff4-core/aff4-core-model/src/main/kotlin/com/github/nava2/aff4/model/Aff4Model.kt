@@ -8,7 +8,7 @@ import java.io.Closeable
 import kotlin.reflect.KClass
 
 interface Aff4Model : Closeable {
-  val containerContext: Aff4ContainerContext
+  val containerContext: Aff4ImageContext
 
   val imageRootFileSystem: FileSystem
   val containerArn: Aff4Arn
@@ -21,7 +21,7 @@ interface Aff4Model : Closeable {
   fun <T : Aff4RdfModel> querySubjectStartsWith(subjectPrefix: String, modelType: KClass<T>): List<T>
 
   interface Loader {
-    fun load(containerContext: Aff4ContainerContext): Aff4Model
+    fun load(imageContext: Aff4ImageContext): Aff4Model
   }
 }
 

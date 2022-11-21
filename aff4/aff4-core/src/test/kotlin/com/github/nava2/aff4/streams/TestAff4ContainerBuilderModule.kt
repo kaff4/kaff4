@@ -3,7 +3,7 @@ package com.github.nava2.aff4.streams
 import com.github.nava2.aff4.Aff4CoreModule
 import com.github.nava2.aff4.TestRandomsModule
 import com.github.nava2.aff4.container.Aff4ContainerBuilderModule
-import com.github.nava2.aff4.container.Aff4ContainerOpenerModule
+import com.github.nava2.aff4.container.Aff4ImageOpenerModule
 import com.github.nava2.guice.KAbstractModule
 
 object TestAff4ContainerBuilderModule : KAbstractModule() {
@@ -12,6 +12,6 @@ object TestAff4ContainerBuilderModule : KAbstractModule() {
     install(TestRandomsModule)
     install(Aff4CoreModule)
 
-    install(Aff4ContainerOpenerModule)
+    install(Aff4ImageOpenerModule)
   }
 }

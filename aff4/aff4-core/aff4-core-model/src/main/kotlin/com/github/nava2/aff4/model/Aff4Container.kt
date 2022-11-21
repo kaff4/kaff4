@@ -1,13 +1,13 @@
 package com.github.nava2.aff4.model
 
-import java.io.Closeable
+import com.github.nava2.aff4.model.rdf.Aff4Arn
+import okio.FileSystem
 
-interface Aff4Container : Closeable {
-  val aff4Model: Aff4Model
-  val streamOpener: Aff4StreamOpener
-
-  val metadata: ToolMetadata
-
+data class Aff4Container(
+  val containerArn: Aff4Arn,
+  val dataFileSystem: FileSystem,
+  val metadata: ToolMetadata,
+) {
   data class ToolMetadata(
     val version: String,
     val tool: String,

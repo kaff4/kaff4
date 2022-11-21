@@ -2,7 +2,7 @@ package com.github.nava2.aff4.model
 
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.benmanes.caffeine.cache.LoadingCache
-import com.github.nava2.aff4.container.ContainerScoped
+import com.github.nava2.aff4.container.ImageScoped
 import com.github.nava2.aff4.io.SourceProvider
 import com.github.nava2.aff4.io.bounded
 import com.github.nava2.aff4.model.rdf.Aff4Arn
@@ -27,7 +27,7 @@ import kotlin.reflect.full.findAnnotation
 
 private const val MAX_OPEN_STREAMS = 20L
 
-@ContainerScoped
+@ImageScoped
 internal class RealAff4StreamOpener @Inject constructor(
   private val rdfExecutor: RdfExecutor,
   private val rdfModelParser: RdfModelParser,
@@ -104,7 +104,7 @@ internal class RealAff4StreamOpener @Inject constructor(
       .toSet()
 
     val modelType = rdfTypes.asSequence().mapNotNull { type -> modelKlassesByRdfType[type] }
-      .firstOrNull() { TypeLiteral.get(it.java) in aff4StreamLoaderContexts }
+      .firstOrNull { TypeLiteral.get(it.java) in aff4StreamLoaderContexts }
       ?: error("Could not load Stream: $streamIri")
 
     val rdfModel = rdfModelParser.parse(connection, modelType, streamIri, statements)
