@@ -1,10 +1,10 @@
 package com.github.nava2.aff4.streams.zip_segment
 
+import com.github.nava2.aff4.container.ContainerDataFileSystemProvider
 import com.github.nava2.aff4.io.SourceProvider
 import com.github.nava2.aff4.io.buffer
 import com.github.nava2.aff4.io.sourceProvider
 import com.github.nava2.aff4.io.use
-import com.github.nava2.aff4.meta.rdf.ForImageRoot
 import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.model.Aff4StreamSourceProvider
 import com.github.nava2.aff4.model.VerifiableStreamProvider
@@ -14,17 +14,17 @@ import com.github.nava2.aff4.model.rdf.ZipSegment
 import com.github.nava2.aff4.streams.computeLinearHashes
 import com.google.inject.assistedinject.Assisted
 import com.google.inject.assistedinject.AssistedInject
-import okio.FileSystem
 import okio.Source
 import okio.Timeout
-import javax.inject.Provider
 
 internal class Aff4ZipSegmentSourceProvider @AssistedInject constructor(
-  @ForImageRoot private val imageRootFileSystemProvider: Provider<FileSystem>,
+  private val containerDataFileSystemProvider: ContainerDataFileSystemProvider,
   @Assisted val zipSegment: ZipSegment,
 ) : Aff4StreamSourceProvider,
   VerifiableStreamProvider,
-  SourceProvider<Source> by imageRootFileSystemProvider.get().sourceProvider(zipSegment.segmentPath).buffer() {
+  SourceProvider<Source> by containerDataFileSystemProvider.get(zipSegment)
+    .sourceProvider(zipSegment.segmentPath)
+    .buffer() {
 
   override val arn: Aff4Arn = zipSegment.arn
   override val size = zipSegment.size

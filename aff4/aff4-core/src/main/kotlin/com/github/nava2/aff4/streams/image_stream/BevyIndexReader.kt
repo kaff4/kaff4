@@ -1,12 +1,11 @@
 package com.github.nava2.aff4.streams.image_stream
 
+import com.github.nava2.aff4.container.ContainerDataFileSystemProvider
 import com.github.nava2.aff4.io.availableRange
-import com.github.nava2.aff4.meta.rdf.ForImageRoot
 import com.github.nava2.aff4.model.rdf.ImageStream
 import com.google.inject.assistedinject.Assisted
 import com.google.inject.assistedinject.AssistedInject
 import okio.BufferedSource
-import okio.FileSystem
 import okio.Timeout
 import okio.buffer
 import java.nio.ByteBuffer
@@ -16,10 +15,12 @@ private const val INDEX_BUFFER_VALUE_COUNT: Int = 20
 
 internal class BevyIndexReader @AssistedInject constructor(
   private val bevyIndexCache: BevyIndexCache,
-  @ForImageRoot private val fileSystem: FileSystem,
+  containerDataFileSystemProvider: ContainerDataFileSystemProvider,
   @Assisted imageStream: ImageStream,
   @Assisted private val bevy: Bevy,
 ) : AutoCloseable {
+
+  private val fileSystem = containerDataFileSystemProvider.get(imageStream)
 
   private val chunkSize = imageStream.chunkSize
 

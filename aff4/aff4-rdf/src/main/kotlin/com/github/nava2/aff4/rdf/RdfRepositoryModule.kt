@@ -1,6 +1,7 @@
 package com.github.nava2.aff4.rdf
 
 import com.github.nava2.guice.KAbstractModule
+import com.github.nava2.guice.assistedFactoryModule
 import com.github.nava2.guice.key
 import com.github.nava2.guice.to
 import com.google.inject.Provides
@@ -15,6 +16,9 @@ object RdfRepositoryModule : KAbstractModule() {
     requireBinding(key<RdfRepositoryConfiguration>())
 
     bind<RdfExecutor>().to<RealRdfExecutor>()
+
+    install(assistedFactoryModule<TurtleReaderAndInserter.Factory>())
+    install(assistedFactoryModule<RealMutableRdfConnection.Factory>())
   }
 
   @Provides

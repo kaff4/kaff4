@@ -33,7 +33,7 @@ internal class RealAff4ContainerBuilder @AssistedInject internal constructor(
 ) : Aff4ContainerBuilder {
 
   private val temporaryFileSystem: FileSystem = context.temporaryFileSystem
-  override val arn: Aff4Arn = context.arn
+  override val containerArn: Aff4Arn = context.arn
   override val defaultTimeout: Timeout = context.defaultTimeout
 
   init {
@@ -53,7 +53,12 @@ internal class RealAff4ContainerBuilder @AssistedInject internal constructor(
     check(!closed) { "closed" }
 
     val sink = sinks.computeIfAbsent(imageStream.arn) {
-      streamSinkFactory.createImageStreamSink(temporaryFileSystem, imageStream, blockHashTypes, timeout)
+      streamSinkFactory.createImageStreamSink(
+        outputFileSystem = temporaryFileSystem,
+        imageStream = imageStream.copy(stored = containerArn),
+        blockHashTypes = blockHashTypes,
+        timeout = timeout,
+      )
     }
     return sink as Aff4ImageStreamSink
   }
@@ -69,7 +74,7 @@ internal class RealAff4ContainerBuilder @AssistedInject internal constructor(
       streamSinkFactory.createMapStreamSink(
         outputFileSystem = temporaryFileSystem,
         dataStreamSink = dataStreamSink as Aff4ImageStreamSink,
-        mapStream = mapStream,
+        mapStream = mapStream.copy(stored = containerArn),
         timeout = timeout,
       )
     }
@@ -93,7 +98,7 @@ internal class RealAff4ContainerBuilder @AssistedInject internal constructor(
 
   override fun buildIntoDirectory(fileSystem: FileSystem, path: Path) {
     val outputFileSystem = fileSystem.relativeTo(path)
-    outputFileSystem.createDirectories("".toPath())
+    outputFileSystem.createDirectories(".".toPath())
 
     exportInto(outputFileSystem)
   }
@@ -108,7 +113,7 @@ internal class RealAff4ContainerBuilder @AssistedInject internal constructor(
     rdfExecutor.withReadWriteSession { connection ->
       rdfModelSerializer.serializeAllToConnection(connection, sinks.values.map { it.model })
 
-      containerMetaWriter.write(connection, temporaryFileSystem, arn)
+      containerMetaWriter.write(connection, temporaryFileSystem, containerArn)
     }
 
     val pathsAndMetadata = temporaryFileSystem.listRecursively(".".toPath())
@@ -132,7 +137,7 @@ internal class RealAff4ContainerBuilder @AssistedInject internal constructor(
   private fun setupContainerNamespaces() {
     rdfExecutor.withReadWriteSession { connection ->
       connection.apply {
-        setNamespace("", arn.stringValue())
+        setNamespace("", containerArn.stringValue())
         setNamespace("rdf", RdfSchema.SCHEMA)
         setNamespace("xsd", XsdSchema.SCHEMA)
         setNamespace("aff4", Aff4Schema.SCHEMA)

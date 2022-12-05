@@ -1,5 +1,6 @@
 package com.github.nava2.aff4.rdf
 
+import com.github.nava2.aff4.model.rdf.Aff4Arn
 import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.Resource
 import org.eclipse.rdf4j.model.Statement
@@ -9,7 +10,7 @@ import org.eclipse.rdf4j.rio.RDFFormat
 import java.io.InputStream
 
 interface MutableRdfConnection : QueryableRdfConnection {
-  fun addTurtle(input: InputStream)
+  fun addTurtle(containerArn: Aff4Arn, input: InputStream)
 
   /** @see [RepositoryConnection.add] */
   fun add(input: InputStream, dataFormat: RDFFormat, vararg contexts: Resource)

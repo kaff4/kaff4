@@ -180,7 +180,7 @@ class Aff4ImageStreamSinkTest {
       chunksInSegment = chunksInSegment,
       size = content.size.toLong(),
       compressionMethod = snappyCompression,
-      stored = aff4ContainerBuilder.arn,
+      stored = aff4ContainerBuilder.containerArn,
       linearHashes = listOf(HashType.SHA256, HashType.MD5).map { it.value(ByteString.EMPTY) },
     )
 

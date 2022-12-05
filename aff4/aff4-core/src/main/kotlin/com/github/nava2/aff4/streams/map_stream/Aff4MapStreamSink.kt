@@ -90,7 +90,7 @@ internal class Aff4MapStreamSink @AssistedInject constructor(
   }
 
   private fun writeMapMap() {
-    outputFileSystem.sink(mapStream.mapPath(mapStream.stored!!), mustCreate = true).buffer().use { mapEntrySink ->
+    outputFileSystem.sink(mapStream.mapPath, mustCreate = true).buffer().use { mapEntrySink ->
       // We intentionally shuffle the chunks to write them. This is an attempt to avoid the worst case interval inserts
       // for reader implementations - Be Kind!
       val shuffledEntryChunks = dataChunkSink.entryTree.compressedSequence()
@@ -107,7 +107,7 @@ internal class Aff4MapStreamSink @AssistedInject constructor(
   }
 
   private fun writeMapTargets() {
-    outputFileSystem.sink(mapStream.idxPath(mapStream.stored!!), mustCreate = true).buffer().use { mapIdxSink ->
+    outputFileSystem.sink(mapStream.idxPath, mustCreate = true).buffer().use { mapIdxSink ->
       val targetIriSortedByIndex = dataChunkSink.idxEntries.entries.asSequence().sortedBy { it.value }.map { it.key }
 
       for (target in targetIriSortedByIndex) {

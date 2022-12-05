@@ -9,6 +9,7 @@ private val currentConnection: ThreadLocal<QueryableRdfConnection?> = ThreadLoca
 
 @Singleton
 internal class RealRdfExecutor @Inject constructor(
+  private val realMutableRdfConnectionFactory: RealMutableRdfConnection.Factory,
   private val repository: Repository,
 ) : RdfExecutor {
   override fun <R> withReadOnlySession(block: (connection: RdfConnection) -> R): R {
@@ -27,7 +28,7 @@ internal class RealRdfExecutor @Inject constructor(
       is RdfConnection -> error("Can not promote read-only connection to read-write.")
       // Re-use an existing connection instance
       is MutableRdfConnection -> block(connection)
-      else -> executeSessionBlock(block, ::RealMutableRdfConnection)
+      else -> executeSessionBlock(block, realMutableRdfConnectionFactory::create)
     }
   }
 

@@ -15,6 +15,7 @@ dependencies {
   implementation(Dependencies.CAFFIENE)
   implementation(Dependencies.CHECKER_QUAL)
   implementation(Dependencies.GUAVA)
+  implementation(Dependencies.GUICE_ASSISTED_INJECT)
   implementation(Dependencies.RDF4J_REPOSITORY_SAIL)
   implementation(Dependencies.RDF4J_RIO_TURTLE)
   implementation(Dependencies.RDF4J_SAIL_API)

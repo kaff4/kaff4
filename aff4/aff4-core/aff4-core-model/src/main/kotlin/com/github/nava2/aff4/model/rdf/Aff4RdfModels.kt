@@ -38,12 +38,12 @@ data class MapStream(
   val mapPathHash: Hash? = null,
   val mapPointHash: Hash? = null,
   val size: Long,
-  val stored: Aff4Arn? = null,
+  override val stored: Aff4Arn,
   val target: Aff4Arn? = null,
-) : Aff4RdfBaseModels {
-  fun idxPath(containerArn: Aff4Arn) = arn.toAff4Path(stored ?: containerArn) / "idx"
-  fun mapPathPath(containerArn: Aff4Arn) = arn.toAff4Path(stored ?: containerArn) / "mapPath"
-  fun mapPath(containerArn: Aff4Arn) = arn.toAff4Path(stored ?: containerArn) / "map"
+) : Aff4RdfBaseModels, StoredRdfModel {
+  val idxPath = arn.toAff4Path(stored) / "idx"
+  val mapPathPath = arn.toAff4Path(stored) / "mapPath"
+  val mapPath = arn.toAff4Path(stored) / "map"
 }
 
 @RdfModel("aff4:Image")
@@ -66,10 +66,10 @@ data class ImageStream(
   val imageStreamHashes: List<Hash> = listOf(),
   @RdfValue("aff4:imageStreamIndexHash")
   val imageStreamIndexHashes: List<Hash> = listOf(),
-  val stored: Aff4Arn? = null,
+  override val stored: Aff4Arn,
   val target: Aff4Arn? = null,
   val version: Int = 1,
-) : Aff4RdfBaseModels {
+) : Aff4RdfBaseModels, StoredRdfModel {
   /** Maximum uncompressed size a bevy stores */
   val bevyMaxSize: Long = chunkSize.toLong() * chunksInSegment
 
@@ -162,8 +162,8 @@ data class ZipSegment(
   val size: Long,
   @RdfValue("aff4:hash")
   val linearHashes: List<Hash> = listOf(),
-  val stored: Aff4Arn,
-) : Aff4RdfBaseModels {
+  override val stored: Aff4Arn,
+) : Aff4RdfBaseModels, StoredRdfModel {
   val segmentPath = arn.toAff4Path(stored)
 }
 

@@ -1,11 +1,11 @@
 package com.github.nava2.aff4.streams.image_stream
 
+import com.github.nava2.aff4.container.ContainerDataFileSystemProvider
 import com.github.nava2.aff4.io.SourceProvider
 import com.github.nava2.aff4.io.buffer
 import com.github.nava2.aff4.io.concatLazily
 import com.github.nava2.aff4.io.sourceProvider
 import com.github.nava2.aff4.io.use
-import com.github.nava2.aff4.meta.rdf.ForImageRoot
 import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.model.Aff4StreamSourceProvider
 import com.github.nava2.aff4.model.VerifiableStreamProvider
@@ -16,15 +16,13 @@ import com.github.nava2.aff4.streams.computeLinearHashes
 import com.github.nava2.aff4.streams.hashingSink
 import com.google.inject.assistedinject.Assisted
 import com.google.inject.assistedinject.AssistedInject
-import okio.FileSystem
 import okio.Source
 import okio.Timeout
 import java.io.Closeable
-import javax.inject.Provider
 
 class Aff4ImageStreamSourceProvider @AssistedInject internal constructor(
   aff4ImageBeviesFactory: Aff4ImageBevies.Factory,
-  @ForImageRoot private val imageFileSystemProvider: Provider<FileSystem>,
+  private val containerDataFileSystemProvider: ContainerDataFileSystemProvider,
   @Assisted val imageStream: ImageStream,
 ) : VerifiableStreamProvider, Aff4StreamSourceProvider, Closeable {
 
@@ -107,7 +105,7 @@ class Aff4ImageStreamSourceProvider @AssistedInject internal constructor(
       .fold(blockHashes.associateWith { mutableListOf<SourceProvider<Source>>() }) { acc, bevy ->
         for ((hash, blockHashPath) in bevy.blockHashes) {
           val sources = acc.entries.single { it.key.forHashType == hash }.value
-          sources += imageFileSystemProvider.get().sourceProvider(blockHashPath)
+          sources += containerDataFileSystemProvider.get(imageStream).sourceProvider(blockHashPath)
         }
 
         acc
