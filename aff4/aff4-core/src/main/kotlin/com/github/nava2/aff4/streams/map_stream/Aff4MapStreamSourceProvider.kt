@@ -60,11 +60,12 @@ class Aff4MapStreamSourceProvider @AssistedInject internal constructor(
 
       failedHashes += computeMapComponentHashes(timeout)
 
-      val imageStreamResult = mapStream.dependentStream
-        ?.let { aff4StreamOpener.openStream(it) as VerifiableStreamProvider }
-        ?.verify(aff4Model, timeout)
-        ?: VerifiableStreamProvider.Result.Success
-      failedHashes += imageStreamResult.failedHashes
+      val dependentStreamVerificationResults = mapStream.dependentStreams.asSequence()
+        .map { aff4StreamOpener.openStream(it) as VerifiableStreamProvider }
+        .map { it.verify(aff4Model, timeout) }
+      for (dependentStreamResult in dependentStreamVerificationResults) {
+        failedHashes += dependentStreamResult.failedHashes
+      }
 
       // TODO Map block hash
 

@@ -8,6 +8,7 @@ import com.github.nava2.aff4.io.bounded
 import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.model.rdf.Aff4RdfModel
 import com.github.nava2.aff4.model.rdf.annotations.RdfModel
+import com.github.nava2.aff4.model.rdf.createAff4Iri
 import com.github.nava2.aff4.model.rdf.createArn
 import com.github.nava2.aff4.rdf.QueryableRdfConnection
 import com.github.nava2.aff4.rdf.RdfConnection
@@ -72,7 +73,8 @@ internal class RealAff4StreamOpener @Inject constructor(
     require(subject.isHashDedupe()) { "Hash streams are not supported via this method." }
 
     return rdfExecutor.withReadOnlySession { connection: RdfConnection ->
-      val statement = connection.queryStatements(subj = subject).use { it.single() }
+      val dataStream = connection.valueFactory.createAff4Iri("dataStream")
+      val statement = connection.queryStatements(subj = subject, pred = dataStream).use { it.single() }
 
       val dataStreamOffset = DataStreamOffsetReference.parse(connection.valueFactory, statement.`object` as Aff4Arn)
       val dataStreamProvider = openStream(dataStreamOffset.dataStream)

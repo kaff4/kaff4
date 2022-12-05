@@ -23,7 +23,8 @@ internal class MapIdxFileReader @Inject constructor(
     .maximumSize(MAP_TARGETS_CACHE_SIZE)
     .build<CacheKey, List<Aff4Arn>> { key ->
       containerDataFileSystemProvider[key.stored]
-        .source(key.mapIdxPath).buffer().use { s ->
+        .source(key.mapIdxPath).buffer()
+        .use { s ->
           s.lineSequence().map { valueFactory.createArn(it) }.toList()
         }
     }

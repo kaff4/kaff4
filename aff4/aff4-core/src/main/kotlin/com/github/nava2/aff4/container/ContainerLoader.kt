@@ -4,21 +4,56 @@ import com.github.nava2.aff4.container.RealAff4ImageOpener.LoadedContainersConte
 import com.github.nava2.aff4.io.relativeTo
 import com.github.nava2.aff4.model.Aff4Container
 import com.github.nava2.aff4.model.rdf.Aff4Arn
+import com.google.common.annotations.VisibleForTesting
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
 import okio.openZip
 import org.eclipse.rdf4j.model.ValueFactory
 import javax.inject.Inject
+import kotlin.io.path.name
+
+private val AFF4_STRIPE_PATTERNS = listOf(
+  Regex("[_.](?<index>\\d+)\\.aff4$"), // aff4-std: base-linear_1.aff4, base-linear.1.aff4
+  Regex("\\.aff4\\.(?<index>\\d+)$"), // community standard: base-linear.aff4.000
+)
 
 internal class ContainerLoader @Inject constructor(
   private val valueFactory: ValueFactory,
 ) {
   fun getContainersForImage(fileSystem: FileSystem, openPath: Path): List<LoadedContainersContext.Container> {
-    return listOf(
-      openContainer(fileSystem, openPath),
-    )
+    // if null, not striped
+    val stripeIndex = maybeExtractStripeIndex(openPath.toNioPath().name)
+      ?: return listOf(openContainer(fileSystem, openPath))
+
+    val containerName = stripeIndex.containerName
+    val stripedVolumePathsSorted = (openPath.parent?.let { fileSystem.list(it) } ?: listOf())
+      .asSequence()
+      .filter { it.toNioPath().name.startsWith(containerName) }
+      .mapNotNull { p -> maybeExtractStripeIndex(p.toNioPath().name)?.let { p to it.index } }
+      .sortedBy { (_, index) -> index }
+
+    return stripedVolumePathsSorted
+      .map { (p, _) -> openContainer(fileSystem, p) }
+      .toList()
   }
+
+  @VisibleForTesting
+  internal fun maybeExtractStripeIndex(name: String): StripeIndex? {
+    val match = AFF4_STRIPE_PATTERNS.firstNotNullOfOrNull { it.find(name) }
+
+    return match?.let { m ->
+      val containerName = name.substring(0 until m.range.first)
+      val stripeIndex = m.groups["index"]!!.value.toInt()
+      StripeIndex(containerName, stripeIndex)
+    }
+  }
+
+  @VisibleForTesting
+  internal data class StripeIndex(
+    val containerName: String,
+    val index: Int,
+  )
 
   private fun openContainer(fileSystem: FileSystem, path: Path): LoadedContainersContext.Container {
     val dataFileSystem = openDataFileSystem(fileSystem, path)
@@ -54,7 +89,12 @@ internal class ContainerLoader @Inject constructor(
 }
 
 private fun Path.getContainerName(): String {
-  return segments.last().substringBeforeLast(".aff4")
+  val lastSegment = segments.last()
+
+  val match = AFF4_STRIPE_PATTERNS.firstNotNullOfOrNull { it.find(lastSegment) }
+    ?: return lastSegment.substringBefore('.') // not striped
+
+  return lastSegment.substring(0 until match.range.first)
 }
 
 private fun Aff4Container.ToolMetadata.Companion.loadFromContainer(

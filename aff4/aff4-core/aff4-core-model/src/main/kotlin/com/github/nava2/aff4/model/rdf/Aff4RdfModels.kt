@@ -30,7 +30,8 @@ data class ZipVolume(
 @RdfModel("aff4:Map")
 data class MapStream(
   override val arn: Aff4Arn,
-  val dependentStream: Aff4Arn? = null,
+  @RdfValue("aff4:dependentStream")
+  val dependentStreams: Set<Aff4Arn> = setOf(),
   val mapGapDefaultStream: Aff4Arn? = null,
   val mapHash: Hash? = null,
   val blockMapHash: Hash? = null,
@@ -49,7 +50,7 @@ data class MapStream(
 @RdfModel("aff4:Image")
 data class Image(
   override val arn: Aff4Arn,
-  val dataStream: Aff4Arn,
+  val dataStream: Set<Aff4Arn>,
   val size: Long,
 ) : Aff4RdfBaseModels
 
@@ -67,7 +68,8 @@ data class ImageStream(
   @RdfValue("aff4:imageStreamIndexHash")
   val imageStreamIndexHashes: List<Hash> = listOf(),
   override val stored: Aff4Arn,
-  val target: Aff4Arn? = null,
+  @RdfValue("aff4:target")
+  val targets: Set<Aff4Arn> = setOf(),
   val version: Int = 1,
 ) : Aff4RdfBaseModels, StoredRdfModel {
   /** Maximum uncompressed size a bevy stores */
@@ -101,7 +103,7 @@ data class CaseNotes(
   val evidenceNumber: String? = null,
   val examiner: String? = null,
   val notes: String? = null,
-  val stored: Aff4Arn? = null,
+  val stored: Set<Aff4Arn>,
   val target: Aff4Arn? = null,
   val timestamp: ZonedDateTime,
 ) : Aff4RdfBaseModels
@@ -112,7 +114,7 @@ data class CaseDetails(
   val caseDescription: String? = null,
   val caseName: String? = null,
   val examiner: String? = null,
-  val stored: Aff4Arn? = null,
+  val stored: Set<Aff4Arn>,
   val target: Aff4Arn? = null,
 ) : Aff4RdfBaseModels
 
@@ -132,7 +134,7 @@ data class TimeStamps(
   val endTime: ZonedDateTime,
   val operation: Aff4ImagingOperation,
   val startTime: ZonedDateTime,
-  val stored: Aff4Arn? = null,
+  val stored: Set<Aff4Arn>,
   val target: Aff4Arn? = null,
   val timeSource: Aff4TimeSource,
 ) : Aff4RdfBaseModels

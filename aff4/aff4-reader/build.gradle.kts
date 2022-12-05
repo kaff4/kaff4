@@ -7,7 +7,6 @@ dependencies {
   implementation(Dependencies.RDF4J_MODEL_API)
 
   implementation(project(":aff4:aff4-core"))
-  implementation(project(":aff4:aff4-core:aff4-core-guice"))
   implementation(project(":aff4:aff4-core:aff4-core-logging"))
   implementation(project(":aff4:aff4-core:aff4-core-model"))
   implementation(project(":aff4:aff4-core:aff4-core-model:aff4-core-model-api"))

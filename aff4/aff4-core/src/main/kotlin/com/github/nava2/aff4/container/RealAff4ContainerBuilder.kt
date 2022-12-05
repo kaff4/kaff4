@@ -129,6 +129,7 @@ internal class RealAff4ContainerBuilder @AssistedInject internal constructor(
             }
           }
         }
+
         else -> error("Invalid metadata: $path -> $metadata")
       }
     }

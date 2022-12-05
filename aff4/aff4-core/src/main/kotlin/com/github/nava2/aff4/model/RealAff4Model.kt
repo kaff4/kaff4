@@ -1,6 +1,5 @@
 package com.github.nava2.aff4.model
 
-import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.model.rdf.Aff4RdfModel
 import com.github.nava2.aff4.model.rdf.ZipVolume
 import com.github.nava2.aff4.model.rdf.annotations.RdfModel
@@ -10,7 +9,6 @@ import com.github.nava2.aff4.rdf.io.RdfModelParser
 import com.github.nava2.aff4.rdf.querySubjectsByType
 import com.google.inject.assistedinject.Assisted
 import com.google.inject.assistedinject.AssistedInject
-import okio.FileSystem
 import okio.Path.Companion.toPath
 import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.ValueFactory
@@ -25,23 +23,14 @@ internal class RealAff4Model @AssistedInject constructor(
   private val rdfModelParser: RdfModelParser,
   @Assisted override val containerContext: Aff4ImageContext,
 ) : Aff4Model {
-  override val imageRootFileSystem: FileSystem get() = containerContext.containers.single().dataFileSystem
-  override val containerArn: Aff4Arn get() = containerContext.containers.single().containerArn
-
   @Volatile
   private var closed = false
 
   private val modelArns = mutableMapOf<KClass<*>, String>()
 
-  private val _container: ZipVolume? by lazy {
-    get(containerArn, ZipVolume::class)
+  override fun containerVolume(container: Aff4Container): ZipVolume? {
+    return getOrNull(container.containerArn)
   }
-
-  override val container: ZipVolume?
-    get() {
-      check(!closed) { "Closed" }
-      return _container
-    }
 
   override fun <T : Aff4RdfModel> query(modelType: KClass<T>): List<T> {
     return query { connection ->
@@ -59,6 +48,17 @@ internal class RealAff4Model @AssistedInject constructor(
     return query { connection ->
       val statements = connection.queryStatements(subj = subject).use { it.toList() }
       rdfModelParser.parse(connection, modelType, subject, statements)
+    }
+  }
+
+  override fun <T : Aff4RdfModel> getOrNull(subject: IRI, modelType: KClass<T>): T? {
+    return query { connection ->
+      val statements = connection.queryStatements(subj = subject).use { it.toList() }
+      if (statements.isNotEmpty()) {
+        rdfModelParser.parse(connection, modelType, subject, statements)
+      } else {
+        null
+      }
     }
   }
 

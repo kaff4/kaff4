@@ -2,6 +2,7 @@ package com.github.nava2.aff4.container
 
 import com.github.nava2.aff4.Aff4TestModule
 import com.github.nava2.aff4.ForImages
+import com.github.nava2.aff4.UsingTemporary
 import com.github.nava2.aff4.container.RealAff4ImageOpener.LoadedContainersContext
 import com.github.nava2.aff4.model.Aff4Container
 import com.github.nava2.aff4.model.rdf.createArn
@@ -9,7 +10,9 @@ import com.github.nava2.aff4.satisfies
 import com.github.nava2.guice.KAbstractModule
 import com.github.nava2.test.GuiceModule
 import okio.FileSystem
+import okio.Path
 import okio.Path.Companion.toPath
+import okio.buffer
 import okio.openZip
 import org.assertj.core.api.AbstractObjectAssert
 import org.assertj.core.api.Assertions.assertThat
@@ -17,9 +20,27 @@ import org.assertj.core.api.SoftAssertions
 import org.eclipse.rdf4j.model.ValueFactory
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
+import org.junit.jupiter.params.provider.ValueSource
+import java.util.stream.Stream
 import javax.inject.Inject
 
 internal class ContainerLoaderTest {
+  companion object {
+    @JvmStatic
+    @Suppress("UnusedPrivateMember")
+    private fun maybeExtractStripeIndexValidStripesProvider(): Stream<Arguments> = Stream.of(
+      Arguments.of("BaseLinear_1.aff4", "BaseLinear", 1),
+      Arguments.of("BaseLinear_2.aff4", "BaseLinear", 2),
+      Arguments.of("BaseLinear.good_2.aff4", "BaseLinear.good", 2),
+      Arguments.of("BaseLinear.3.aff4", "BaseLinear", 3),
+      Arguments.of("BaseLinear.aff4.0", "BaseLinear", 0),
+      Arguments.of("BaseLinear.aff4.001", "BaseLinear", 1),
+    )
+  }
+
   @GuiceModule
   val testModules = listOf(
     Aff4TestModule,
@@ -39,6 +60,9 @@ internal class ContainerLoaderTest {
   @Inject
   @field:ForImages
   private lateinit var imagesFileSystem: FileSystem
+
+  @UsingTemporary
+  private lateinit var workingFileSystem: FileSystem
 
   @Test
   fun `getContainersForImage opens an Base-Linear and extracts metadata`() {
@@ -94,6 +118,71 @@ internal class ContainerLoaderTest {
     )
   }
 
+  @ParameterizedTest(name = "maybeExtractStripeIndex({0}) = ({1}, {2})")
+  @MethodSource("maybeExtractStripeIndexValidStripesProvider")
+  fun `maybeExtractStripeIndex extract valid stripes`(fileName: String, containerName: String, index: Int) {
+    val stripeIndex = containerLoader.maybeExtractStripeIndex(fileName)
+    assertThat(stripeIndex).isNotNull()
+    assertThat(stripeIndex!!.containerName).isEqualTo(containerName)
+    assertThat(stripeIndex.index).isEqualTo(index)
+  }
+
+  @ParameterizedTest(name = "pattern => {0}")
+  @ValueSource(
+    strings = [
+//      "BaseLinear_%d.aff4",
+      "Base-1-Linear.aff4.%03d",
+      "Base-Linear.aff4.%d",
+    ]
+  )
+  fun `get extract valid stripes`(pattern: String) {
+    for ((index, stripe) in imagesFileSystem.list("base-linear_striped".toPath()).sortedBy { it.name }.withIndex()) {
+      val metadata = imagesFileSystem.metadata(stripe)
+      imagesFileSystem.source(stripe).buffer().use { source ->
+        val fileName = pattern.formatFile(index)
+
+        workingFileSystem.sink(fileName).buffer().use { sink ->
+          source.readFully(sink.buffer, metadata.size!!)
+        }
+      }
+    }
+
+    val imageName = pattern.substringBefore('_').substringBefore('.')
+
+    val expectedContainers = listOf(
+      LoadedContainersContext.Container(
+        container = Aff4Container(
+          containerArn = valueFactory.createArn("aff4://7cbb47d0-b04c-42bc-8c04-87b7782739ad"),
+          dataFileSystem = workingFileSystem.openZip(pattern.formatFile(0)),
+          metadata = Aff4Container.ToolMetadata("1.0", "Evimetry 2.2.0"),
+        ),
+        imageName = imageName,
+        containerFileSystem = workingFileSystem,
+        containerPath = pattern.formatFile(0),
+      ),
+      LoadedContainersContext.Container(
+        container = Aff4Container(
+          containerArn = valueFactory.createArn("aff4://51725cd9-3769-4be7-a8ab-94e3ea62bf9a"),
+          dataFileSystem = workingFileSystem.openZip(pattern.formatFile(1)),
+          metadata = Aff4Container.ToolMetadata("1.0", "Evimetry 2.2.0"),
+        ),
+        imageName = imageName,
+        containerFileSystem = workingFileSystem,
+        containerPath = pattern.formatFile(1),
+      ),
+    )
+
+    val containers = containerLoader.getContainersForImage(workingFileSystem, pattern.formatFile(1))
+    assertThat(containers).hasSize(2)
+
+    assertThat(containers[0])
+      .`as` { expectedContainers[0].container.containerArn.toString() }
+      .isEqual(expectedContainers[0])
+    assertThat(containers[1])
+      .`as` { expectedContainers[1].container.containerArn.toString() }
+      .isEqual(expectedContainers[1])
+  }
+
   private fun arn(iri: String) = valueFactory.createArn(iri)
 }
 
@@ -125,4 +214,8 @@ private fun <SELF : AbstractObjectAssert<SELF, LoadedContainersContext.Container
       .`as` { "container.dataFileSystem" }
       .isInstanceOf(expected.container.dataFileSystem.javaClass)
   }
+}
+
+private fun String.formatFile(index: Int): Path {
+  return String.format(this, index).toPath()
 }
