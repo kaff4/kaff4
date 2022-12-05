@@ -66,7 +66,7 @@ internal class ImageBlockHashVerification @Inject constructor(
     }
 
     check(verificationErrors.isEmpty()) {
-      "${bevy.arn}@$chunkIndex buff failed hashing: $verificationErrors"
+      "${bevy.arn}@$chunkIndex failed block-hash verification: $verificationErrors"
     }
   }
 

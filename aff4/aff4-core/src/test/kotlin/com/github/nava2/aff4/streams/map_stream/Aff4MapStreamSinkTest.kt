@@ -110,7 +110,7 @@ class Aff4MapStreamSinkTest {
     val mapStream = MapStream(
       arn = valueFactory.createIRI("aff4://cccccccc-7598-4283-b183-fc1424edf533"),
       mapGapDefaultStream = symbolics.zero.arn,
-      dependentStream = dataStream.arn,
+      dependentStreams = setOf(dataStream.arn),
       size = Long.MAX_VALUE,
       stored = containerArn,
     )
@@ -248,7 +248,7 @@ class Aff4MapStreamSinkTest {
     val mapStream = MapStream(
       arn = valueFactory.createIRI("aff4://bbbbbbbb-7598-4283-b183-fc1424edf533"),
       mapGapDefaultStream = symbolics.zero.arn,
-      dependentStream = dataStream.arn,
+      dependentStreams = setOf(dataStream.arn),
       size = Long.MAX_VALUE,
       stored = containerArn,
     )
@@ -352,7 +352,7 @@ class Aff4MapStreamSinkTest {
     val mapStream = MapStream(
       arn = valueFactory.createIRI("aff4://bbbbbbbb-7598-4283-b183-fc1424edf533"),
       mapGapDefaultStream = symbolics.zero.arn,
-      dependentStream = dataStream.arn,
+      dependentStreams = setOf(dataStream.arn),
       size = Long.MAX_VALUE,
       stored = containerArn,
     )

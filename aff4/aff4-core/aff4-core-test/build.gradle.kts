@@ -2,6 +2,7 @@ dependencies {
   implementation(kotlin("reflect"))
 
   api(project(":aff4:aff4-core:aff4-core-guice"))
+  api(project(":aff4:aff4-core:aff4-core-model"))
   api(project(":aff4:aff4-core:aff4-core-okio"))
 
   api(Dependencies.ASSERTJ_CORE)
@@ -11,7 +12,6 @@ dependencies {
   api(Dependencies.OKIO)
 
   implementation(project(":aff4:aff4-core"))
-  implementation(project(":aff4:aff4-core:aff4-core-model"))
   implementation(project(":aff4:aff4-rdf:aff4-rdf-memory"))
 }
 

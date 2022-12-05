@@ -61,7 +61,7 @@ private fun <T : Any> buildNonSubjectParamMap(
 
   for ((parameter, values) in aggregateValues) {
     parameterMap[parameter.parameter] = when (parameter.collectionType) {
-      null -> values.single()
+      null -> values.singleOrNull() ?: error("Found multiple values for ${parameter.parameter}: $values")
       List::class.java -> values
       Set::class.java -> values.toSet()
       else -> error("error: unsupported type: ${parameter.collectionType}")
