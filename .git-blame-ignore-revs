@@ -1,0 +1,3 @@
+# Fix line-endings dos2unix 
+# `find . -type f -name .git -not -name build -prune -o -name "*.kt" -exec dos2unix {} \;`
+57b5f4b
