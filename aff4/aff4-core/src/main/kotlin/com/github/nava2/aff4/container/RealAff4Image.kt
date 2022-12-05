@@ -1,14 +1,15 @@
 package com.github.nava2.aff4.container
 
 import com.github.nava2.aff4.model.Aff4Container
+import com.github.nava2.aff4.model.Aff4Image
 import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.model.Aff4StreamOpener
 
-internal class RealAff4Container(
+internal class RealAff4Image(
   override val aff4Model: Aff4Model,
   override val streamOpener: Aff4StreamOpener,
-  override val metadata: Aff4Container.ToolMetadata,
-) : Aff4Container {
+  override val containers: List<Aff4Container>,
+) : Aff4Image {
   @Volatile
   private var closed = false
 

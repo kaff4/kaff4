@@ -1,7 +1,7 @@
 package com.github.nava2.aff4
 
-import com.github.nava2.aff4.container.Aff4ContainerOpenerModule
-import com.github.nava2.aff4.model.Aff4ContainerOpener
+import com.github.nava2.aff4.container.Aff4ImageOpenerModule
+import com.github.nava2.aff4.model.Aff4ImageOpener
 import com.github.nava2.aff4.model.VerifiableStreamProvider
 import com.github.nava2.aff4.model.query
 import com.github.nava2.aff4.model.rdf.ImageStream
@@ -44,7 +44,7 @@ class Verify : Subcommand("verify", "Verify an image") {
     val modules = listOf(
       RandomsModule,
       MemoryRdfRepositoryPlugin,
-      Aff4ContainerOpenerModule,
+      Aff4ImageOpenerModule,
       Aff4CoreModule,
       Aff4BaseStreamModule,
       Aff4LogicalModule,
@@ -52,18 +52,18 @@ class Verify : Subcommand("verify", "Verify an image") {
     )
 
     val injector = Guice.createInjector(Stage.DEVELOPMENT, modules)
-    val aff4ContainerOpener = injector.getInstance<Aff4ContainerOpener>()
+    val aff4ImageOpener = injector.getInstance<Aff4ImageOpener>()
 
     logger.info("Verifying ${inputImages.size} images: $inputImages")
     for (imagePath in inputImages) {
-      verifyImage(aff4ContainerOpener, imagePath)
+      verifyImage(aff4ImageOpener, imagePath)
     }
   }
 
-  private fun verifyImage(aff4ContainerOpener: Aff4ContainerOpener, imagePath: Path) {
+  private fun verifyImage(aff4ImageOpener: Aff4ImageOpener, imagePath: Path) {
     logger.info("Opening image: $imagePath")
 
-    aff4ContainerOpener.open(FileSystem.SYSTEM, imagePath) { container ->
+    aff4ImageOpener.open(FileSystem.SYSTEM, imagePath) { container ->
       logger.debug("Opened image, querying streams")
 
       val model = container.aff4Model

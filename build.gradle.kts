@@ -111,6 +111,10 @@ subprojects {
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:${Versions.DETEKT}")
   }
 
+  tasks.named("check") {
+    dependsOn(tasks.named("projectHealth"))
+  }
+
   tasks.withType<Detekt>().configureEach {
     jvmTarget = Versions.JVM_BYTECODE_TARGET
   }

@@ -5,7 +5,7 @@ import com.github.nava2.aff4.UsingTemporary
 import com.github.nava2.aff4.container.Aff4ContainerBuilder
 import com.github.nava2.aff4.container.RealAff4ContainerBuilder
 import com.github.nava2.aff4.io.repeatByteString
-import com.github.nava2.aff4.model.Aff4ContainerOpener
+import com.github.nava2.aff4.model.Aff4ImageOpener
 import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.model.rdf.CompressionMethod
 import com.github.nava2.aff4.model.rdf.HashType
@@ -48,7 +48,7 @@ class Aff4ImageStreamSinkTest {
   private lateinit var snappyCompression: SnappyCompression
 
   @Inject
-  private lateinit var aff4ContainerOpener: Aff4ContainerOpener
+  private lateinit var aff4ImageOpener: Aff4ImageOpener
 
   @Inject
   private lateinit var aff4ContainerBuilderFactory: Aff4ContainerBuilder.Factory
@@ -211,7 +211,7 @@ class Aff4ImageStreamSinkTest {
   private fun verifyWrittenStream(writtenImageStream: ImageStream) {
     aff4ContainerBuilder.buildIntoDirectory(outputFileSystem, ".".toPath())
 
-    aff4ContainerOpener.open(outputFileSystem, ".".toPath()) { container ->
+    aff4ImageOpener.open(outputFileSystem, ".".toPath()) { container ->
       val openedImageStream = container.streamOpener.openStream(writtenImageStream.arn) as Aff4ImageStreamSourceProvider
       assertThat(openedImageStream.imageStream).isEqualTo(writtenImageStream)
 

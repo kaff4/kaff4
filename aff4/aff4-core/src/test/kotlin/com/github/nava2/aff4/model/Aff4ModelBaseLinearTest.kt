@@ -3,7 +3,6 @@ package com.github.nava2.aff4.model
 import com.github.nava2.aff4.Aff4ImageTestModule
 import com.github.nava2.aff4.BaseLinear
 import com.github.nava2.aff4.UnderTest
-import com.github.nava2.aff4.model.Aff4Container.ToolMetadata
 import com.github.nava2.aff4.model.rdf.Aff4ImagingOperation
 import com.github.nava2.aff4.model.rdf.Aff4Schema
 import com.github.nava2.aff4.model.rdf.Aff4TimeSource
@@ -18,6 +17,7 @@ import com.github.nava2.aff4.model.rdf.TimeStamps
 import com.github.nava2.aff4.model.rdf.ZipVolume
 import com.github.nava2.aff4.model.rdf.createArn
 import com.github.nava2.aff4.parseZonedDateTime
+import com.github.nava2.aff4.satisfies
 import com.github.nava2.aff4.streams.compression.SnappyCompression
 import com.github.nava2.test.GuiceModule
 import okio.ByteString.Companion.decodeHex
@@ -40,7 +40,7 @@ class Aff4ModelBaseLinearTest {
 
   @Inject
   @field:UnderTest
-  private lateinit var aff4Container: Aff4Container
+  private lateinit var aff4Image: Aff4Image
 
   @Inject
   @field:UnderTest
@@ -48,7 +48,11 @@ class Aff4ModelBaseLinearTest {
 
   @Test
   fun `model loads correctly`() {
-    assertThat(aff4Container.metadata).isEqualTo(ToolMetadata("1.0", "Evimetry 2.2.0"))
+    assertThat(aff4Image.containers).singleElement().satisfies { container ->
+      assertThat(container.metadata).isEqualTo(Aff4Container.ToolMetadata("1.0", "Evimetry 2.2.0"))
+      assertThat(container.containerArn).isEqualTo(arn("aff4://685e15cc-d0fb-4dbc-ba47-48117fc77044"))
+    }
+
     assertThat(aff4Model.container).isEqualTo(
       ZipVolume(
         arn = arn("aff4://685e15cc-d0fb-4dbc-ba47-48117fc77044"),

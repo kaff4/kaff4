@@ -10,7 +10,7 @@ import com.github.nava2.aff4.io.exists
 import com.github.nava2.aff4.io.md5
 import com.github.nava2.aff4.io.relativeTo
 import com.github.nava2.aff4.io.repeatByteString
-import com.github.nava2.aff4.model.Aff4ContainerOpener
+import com.github.nava2.aff4.model.Aff4ImageOpener
 import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.model.rdf.CompressionMethod
 import com.github.nava2.aff4.model.rdf.HashType
@@ -71,7 +71,7 @@ class Aff4MapStreamSinkTest {
   private val outputFileSystem by lazy { tempFileSystem.relativeTo("output".toPath()) }
 
   @Inject
-  private lateinit var aff4ContainerOpener: Aff4ContainerOpener
+  private lateinit var aff4ImageOpener: Aff4ImageOpener
 
   @Inject
   private lateinit var aff4ContainerBuilderFactory: Aff4ContainerBuilder.Factory
@@ -454,7 +454,7 @@ class Aff4MapStreamSinkTest {
   private fun verifyWrittenStream(writtenMapStream: MapStream) {
     aff4ContainerBuilder.buildIntoDirectory(outputFileSystem, ".".toPath())
 
-    aff4ContainerOpener.open(outputFileSystem, ".".toPath()) { container ->
+    aff4ImageOpener.open(outputFileSystem, ".".toPath()) { container ->
       val openedImageStream = container.streamOpener.openStream(writtenMapStream.arn) as Aff4MapStreamSourceProvider
       assertThat(openedImageStream.mapStream).isEqualTo(writtenMapStream)
 

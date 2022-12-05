@@ -9,7 +9,7 @@ import com.google.inject.Scopes
 import javax.inject.Provider
 import com.google.inject.Provider as GuiceProvider
 
-internal class ContainerScope : Scope {
+internal class ImageScope : Scope {
   private val values = ThreadLocal<MutableMap<Key<*>, Any>>()
 
   fun enter() {
@@ -79,7 +79,7 @@ internal class ContainerScope : Scope {
             append("If you got here then it means that")
             append(" your code asked for scoped ${T::class.qualifiedName} which should have been")
             append(" explicitly seeded in this scope by calling")
-            append(" ${ContainerScope::class.simpleName}.seed(), but was not.")
+            append(" ${ImageScope::class.simpleName}.seed(), but was not.")
           }
         )
       }

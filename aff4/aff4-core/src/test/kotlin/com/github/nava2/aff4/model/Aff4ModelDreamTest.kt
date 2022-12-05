@@ -7,6 +7,7 @@ import com.github.nava2.aff4.model.rdf.Hash
 import com.github.nava2.aff4.model.rdf.ZipSegment
 import com.github.nava2.aff4.model.rdf.createArn
 import com.github.nava2.aff4.parseZonedDateTime
+import com.github.nava2.aff4.satisfies
 import com.github.nava2.test.GuiceModule
 import okio.ByteString.Companion.decodeHex
 import okio.FileSystem
@@ -27,18 +28,20 @@ class Aff4ModelDreamTest {
 
   @Inject
   @field:UnderTest
-  private lateinit var aff4Container: Aff4Container
+  private lateinit var aff4Image: Aff4Image
 
   @Inject
   @field:UnderTest
   private lateinit var aff4Model: Aff4Model
 
-  private val imageFileSystem: FileSystem by lazy { aff4Model.imageRootFileSystem }
+  private val imageFileSystem: FileSystem by lazy { aff4Model.containerContext.containers.first().dataFileSystem }
 
   @Test
   fun `model loads correctly`() {
-    assertThat(aff4Container.metadata).isEqualTo(Aff4Container.ToolMetadata("1.1", "pyaff4"))
-    assertThat(aff4Model.containerArn).isEqualTo(arn("aff4://5aea2dd0-32b4-4c61-a9db-677654be6f83"))
+    assertThat(aff4Image.containers).singleElement().satisfies { container ->
+      assertThat(container.metadata).isEqualTo(Aff4Container.ToolMetadata("1.1", "pyaff4"))
+      assertThat(container.containerArn).isEqualTo(arn("aff4://5aea2dd0-32b4-4c61-a9db-677654be6f83"))
+    }
   }
 
   @Test
