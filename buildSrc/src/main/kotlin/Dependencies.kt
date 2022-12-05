@@ -4,6 +4,7 @@ object Dependencies {
   const val ASSERTJ_CORE = "org.assertj:assertj-core:3.22.0"
   const val JUNIT_JUIPTER_API = "org.junit.jupiter:junit-jupiter-api:${Versions.JUNIT}"
   const val JUNIT_JUIPTER_ENGINE = "org.junit.jupiter:junit-jupiter-engine:${Versions.JUNIT}"
+  const val JUNIT_JUPITER_PARAMS = "org.junit.jupiter:junit-jupiter-params:${Versions.JUNIT}"
 
   const val CAFFIENE = "com.github.ben-manes.caffeine:caffeine:3.1.0"
   const val CHECKER_QUAL = "org.checkerframework:checker-qual:3.21.4"
