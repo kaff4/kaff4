@@ -22,7 +22,6 @@ import com.github.nava2.aff4.model.rdf.createArn
 import com.github.nava2.aff4.parseZonedDateTime
 import com.github.nava2.aff4.streams.compression.SnappyCompression
 import com.github.nava2.test.GuiceModule
-import okio.ByteString.Companion.decodeHex
 import okio.Path.Companion.toPath
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
