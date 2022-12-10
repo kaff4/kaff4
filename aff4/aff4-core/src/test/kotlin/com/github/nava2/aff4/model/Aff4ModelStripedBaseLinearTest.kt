@@ -112,7 +112,7 @@ class Aff4ModelStripedBaseLinearTest {
     assertThat(aff4Model.query(Image::class)).containsExactly(
       Image(
         arn = diskImageArn,
-        dataStream = setOf(
+        dataStreams = setOf(
           arn("aff4://2dd04819-73c8-40e3-a32b-fdddb0317eac"),
           arn("aff4://363ac10c-8d8d-4905-ac25-a14aaddd8a41"),
         ),

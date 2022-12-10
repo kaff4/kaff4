@@ -173,7 +173,7 @@ internal class ContainerLoaderTest {
     )
 
     val containers = containerLoader.getContainersForImage(workingFileSystem, pattern.formatFile(1))
-    assertThat(cotainers).hasSize(2)
+    assertThat(containers).hasSize(2)
 
     assertThat(containers[0])
       .`as` { expectedContainers[0].container.containerArn.toString() }
