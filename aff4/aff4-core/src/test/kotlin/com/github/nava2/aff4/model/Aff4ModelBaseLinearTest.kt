@@ -3,6 +3,7 @@ package com.github.nava2.aff4.model
 import com.github.nava2.aff4.Aff4ImageTestModule
 import com.github.nava2.aff4.BaseLinear
 import com.github.nava2.aff4.UnderTest
+import com.github.nava2.aff4.io.decode
 import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.model.rdf.Aff4ImagingOperation
 import com.github.nava2.aff4.model.rdf.Aff4Schema
@@ -93,7 +94,7 @@ class Aff4ModelBaseLinearTest {
     assertThat(aff4Model.query(Image::class)).containsExactly(
       Image(
         arn = diskImageArn,
-        dataStream = setOf(mapArn),
+        dataStreams = setOf(mapArn),
         size = 268435456L,
       ),
     )

@@ -130,7 +130,7 @@ internal class ContainerLoaderTest {
   @ParameterizedTest(name = "pattern => {0}")
   @ValueSource(
     strings = [
-//      "BaseLinear_%d.aff4",
+      "BaseLinear_%d.aff4",
       "Base-1-Linear.aff4.%03d",
       "Base-Linear.aff4.%d",
     ]
@@ -173,7 +173,7 @@ internal class ContainerLoaderTest {
     )
 
     val containers = containerLoader.getContainersForImage(workingFileSystem, pattern.formatFile(1))
-    assertThat(containers).hasSize(2)
+    assertThat(cotainers).hasSize(2)
 
     assertThat(containers[0])
       .`as` { expectedContainers[0].container.containerArn.toString() }
