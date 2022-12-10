@@ -24,6 +24,7 @@ dependencies {
   implementation(project(":aff4:aff4-core:aff4-core-kotlin"))
   implementation(project(":aff4:aff4-rdf"))
 
+  testImplementation(Dependencies.JUNIT_JUPITER_PARAMS)
   testImplementation(Dependencies.RDF4J_MODEL)
 
   testImplementation(project(":aff4:aff4-rdf:aff4-rdf-memory"))
