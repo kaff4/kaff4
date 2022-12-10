@@ -3,6 +3,7 @@ package com.github.nava2.aff4.model
 import com.github.nava2.aff4.Aff4ImageTestModule
 import com.github.nava2.aff4.BaseLinearStriped
 import com.github.nava2.aff4.UnderTest
+import com.github.nava2.aff4.io.decode
 import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.model.rdf.Aff4ImagingOperation
 import com.github.nava2.aff4.model.rdf.Aff4Schema
@@ -348,17 +349,4 @@ class Aff4ModelStripedBaseLinearTest {
   private fun arn(iri: String) = valueFactory.createArn(iri)
 
   private fun aff4Type(localName: String) = valueFactory.createArn(Aff4Schema.SCHEMA, localName)
-}
-
-fun Hash.Sha512.Companion.decode(hex: String): Hash.Sha512 {
-  return Hash.Sha512(hex.decodeHex())
-}
-fun Hash.Sha256.Companion.decode(hex: String): Hash.Sha256 {
-  return Hash.Sha256(hex.decodeHex())
-}
-fun Hash.Sha1.Companion.decode(hex: String): Hash.Sha1 {
-  return Hash.Sha1(hex.decodeHex())
-}
-fun Hash.Md5.Companion.decode(hex: String): Hash.Md5 {
-  return Hash.Md5(hex.decodeHex())
 }
