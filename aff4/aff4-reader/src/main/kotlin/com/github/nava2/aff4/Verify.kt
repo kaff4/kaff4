@@ -2,6 +2,7 @@ package com.github.nava2.aff4
 
 import com.github.nava2.aff4.container.Aff4ImageOpenerModule
 import com.github.nava2.aff4.model.Aff4ImageOpener
+import com.github.nava2.aff4.model.Aff4ImageOpenerFactory
 import com.github.nava2.aff4.model.VerifiableStreamProvider
 import com.github.nava2.aff4.model.query
 import com.github.nava2.aff4.model.rdf.ImageStream
@@ -9,10 +10,7 @@ import com.github.nava2.aff4.model.rdf.MapStream
 import com.github.nava2.aff4.model.rdf.ZipSegment
 import com.github.nava2.aff4.rdf.MemoryRdfRepositoryPlugin
 import com.github.nava2.aff4.streams.compression.Aff4SnappyPlugin
-import com.github.nava2.guice.getInstance
 import com.github.nava2.logging.Logging
-import com.google.inject.Guice
-import com.google.inject.Stage
 import kotlinx.cli.ArgType
 import kotlinx.cli.Subcommand
 import kotlinx.cli.vararg
@@ -41,7 +39,7 @@ class Verify : Subcommand("verify", "Verify an image") {
   }
 
   override fun execute() {
-    val modules = listOf(
+    val aff4ImageOpenerFactory = Aff4ImageOpenerFactory(
       RandomsModule,
       MemoryRdfRepositoryPlugin,
       Aff4ImageOpenerModule,
@@ -51,11 +49,10 @@ class Verify : Subcommand("verify", "Verify an image") {
       Aff4SnappyPlugin,
     )
 
-    val injector = Guice.createInjector(Stage.DEVELOPMENT, modules)
-    val aff4ImageOpener = injector.getInstance<Aff4ImageOpener>()
-
     logger.info("Verifying ${inputImages.size} images: $inputImages")
     for (imagePath in inputImages) {
+      val aff4ImageOpener = aff4ImageOpenerFactory.create()
+
       verifyImage(aff4ImageOpener, imagePath)
     }
   }
@@ -74,7 +71,7 @@ class Verify : Subcommand("verify", "Verify an image") {
 
       for (stream in streams) {
         val streamOpener = container.streamOpener.openStream(stream.arn)
-        streamOpener as? VerifiableStreamProvider ?: continue
+        if (streamOpener !is VerifiableStreamProvider) continue
 
         val result = streamOpener.verify(model)
         check(result !is VerifiableStreamProvider.Result.Failed) {

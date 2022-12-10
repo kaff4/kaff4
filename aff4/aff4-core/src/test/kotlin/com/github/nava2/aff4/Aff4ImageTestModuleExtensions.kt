@@ -11,3 +11,11 @@ val Aff4ImageTestModule.Companion.BaseLinear: Module
       install(Aff4SnappyPlugin)
     }
   }
+
+val Aff4ImageTestModule.Companion.BaseLinearStriped: Module
+  get() = object : KAbstractModule() {
+    override fun configure() {
+      install(Aff4ImageTestModule(imageName = "base-linear_striped/Base-Linear_2.aff4"))
+      install(Aff4SnappyPlugin)
+    }
+  }

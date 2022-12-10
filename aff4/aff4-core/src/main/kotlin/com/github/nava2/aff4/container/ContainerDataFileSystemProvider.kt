@@ -13,8 +13,12 @@ internal class ContainerDataFileSystemProvider @Inject constructor(
   @ImageScoped private val containerContextProvider: Provider<Aff4ImageContext>,
 ) {
   operator fun get(containerArn: Aff4Arn): FileSystem {
-    val container = containerContextProvider.get().containers.single()
-    return container.dataFileSystem
+    val containers = containerContextProvider.get().containers
+
+    val requestedContainer = containers.firstOrNull { it.containerArn == containerArn }
+      ?: error("Unknown container requested: $containerArn")
+
+    return requestedContainer.dataFileSystem
   }
 
   fun get(storedRdfModel: StoredRdfModel): FileSystem {

@@ -22,16 +22,6 @@ internal class ContainerLoader @Inject constructor(
   private val valueFactory: ValueFactory,
 ) {
   fun getContainersForImage(fileSystem: FileSystem, openPath: Path): List<LoadedContainersContext.Container> {
-    val loadedContainers = loadContainersForImage(fileSystem, openPath)
-
-    check(loadedContainers.size == 1) {
-      "Striped containers are not supported at this time"
-    }
-    return loadedContainers
-  }
-
-  @VisibleForTesting
-  internal fun loadContainersForImage(fileSystem: FileSystem, openPath: Path): List<LoadedContainersContext.Container> {
     // if null, not striped
     val stripeIndex = maybeExtractStripeIndex(openPath.toNioPath().name)
       ?: return listOf(openContainer(fileSystem, openPath))

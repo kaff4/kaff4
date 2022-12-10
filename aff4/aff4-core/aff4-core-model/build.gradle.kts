@@ -6,10 +6,10 @@ dependencies {
   api(project(":aff4:aff4-plugin"))
   api(project(":aff4:aff4-rdf"))
 
+  api(Dependencies.GUICE)
   api(Dependencies.OKIO)
   api(Dependencies.RDF4J_MODEL_API)
 
-  implementation(Dependencies.GUICE)
   implementation(Dependencies.JAVAX_INJECT)
 
   implementation(project(":aff4:aff4-core:aff4-core-guice"))
