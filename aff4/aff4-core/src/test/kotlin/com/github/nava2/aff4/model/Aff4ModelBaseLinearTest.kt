@@ -94,7 +94,7 @@ class Aff4ModelBaseLinearTest {
     assertThat(aff4Model.query(Image::class)).containsExactly(
       Image(
         arn = diskImageArn,
-        dataStream = setOf(mapArn),
+        dataStreams = setOf(mapArn),
         size = 268435456L,
       ),
     )

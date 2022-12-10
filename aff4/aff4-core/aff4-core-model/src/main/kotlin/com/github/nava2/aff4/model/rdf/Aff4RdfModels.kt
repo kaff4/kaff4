@@ -50,7 +50,8 @@ data class MapStream(
 @RdfModel("aff4:Image")
 data class Image(
   override val arn: Aff4Arn,
-  val dataStream: Set<Aff4Arn>,
+  @RdfValue("aff4:dataStream")
+  val dataStreams: Set<Aff4Arn>,
   val size: Long,
 ) : Aff4RdfBaseModels
 
