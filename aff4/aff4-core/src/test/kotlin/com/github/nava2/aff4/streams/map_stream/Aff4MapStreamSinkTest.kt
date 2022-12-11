@@ -104,7 +104,7 @@ class Aff4MapStreamSinkTest {
       size = Long.MAX_VALUE,
       compressionMethod = CompressionMethod.None,
       stored = containerArn,
-      linearHashes = listOf(HashType.MD5).map { it.value(ByteString.EMPTY) },
+      linearHashes = listOf(HashType.MD5).map { it.value(ByteString.EMPTY) }.toSet(),
     )
 
     val mapStream = MapStream(
@@ -242,7 +242,7 @@ class Aff4MapStreamSinkTest {
       size = Long.MAX_VALUE,
       compressionMethod = CompressionMethod.None,
       stored = containerArn,
-      linearHashes = listOf(HashType.MD5).map { it.value(ByteString.EMPTY) },
+      linearHashes = listOf(HashType.MD5).map { it.value(ByteString.EMPTY) }.toSet(),
     )
 
     val mapStream = MapStream(
@@ -346,7 +346,7 @@ class Aff4MapStreamSinkTest {
       size = Long.MAX_VALUE,
       compressionMethod = snappyCompression,
       stored = containerArn,
-      linearHashes = listOf(HashType.MD5).map { it.value(ByteString.EMPTY) },
+      linearHashes = listOf(HashType.MD5).map { it.value(ByteString.EMPTY) }.toSet(),
     )
 
     val mapStream = MapStream(

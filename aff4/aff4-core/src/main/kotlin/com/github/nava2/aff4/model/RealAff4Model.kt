@@ -1,8 +1,8 @@
 package com.github.nava2.aff4.model
 
 import com.github.nava2.aff4.model.rdf.Aff4RdfModel
-import com.github.nava2.aff4.model.rdf.ZipVolume
 import com.github.nava2.aff4.model.rdf.annotations.RdfModel
+import com.github.nava2.aff4.model.rdf.evaluateSequence
 import com.github.nava2.aff4.rdf.RdfConnection
 import com.github.nava2.aff4.rdf.RdfExecutor
 import com.github.nava2.aff4.rdf.io.RdfModelParser
@@ -11,11 +11,18 @@ import com.google.inject.assistedinject.Assisted
 import com.google.inject.assistedinject.AssistedInject
 import okio.Path.Companion.toPath
 import org.eclipse.rdf4j.model.IRI
+import org.eclipse.rdf4j.model.Resource
+import org.eclipse.rdf4j.model.Statement
 import org.eclipse.rdf4j.model.ValueFactory
+import org.eclipse.rdf4j.query.GraphQuery
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
+
+private val PATTERN_ORDER_BY = Regex("\\s+order by\\s+", RegexOption.IGNORE_CASE)
+
+private const val CONNECTION_CHUNK_SIZE = 4096
 
 internal class RealAff4Model @AssistedInject constructor(
   private val rdfExecutor: RdfExecutor,
@@ -28,20 +35,58 @@ internal class RealAff4Model @AssistedInject constructor(
 
   private val modelArns = mutableMapOf<KClass<*>, String>()
 
-  override fun containerVolume(container: Aff4Container): ZipVolume? {
-    return getOrNull(container.containerArn)
-  }
+  override fun <T : Aff4RdfModel> query(modelType: KClass<T>): Sequence<T> {
+    val modelRdfType = getModelRdfType(modelType)
+    var subjects: List<Resource>? = null
 
-  override fun <T : Aff4RdfModel> query(modelType: KClass<T>): List<T> {
-    return query { connection ->
-      val modelRdfType = getModelRdfType(modelType)
-      val subjects = connection.querySubjectsByType(connection.namespaces.iriFromTurtle(modelRdfType))
+    val bindings = mutableMapOf<String, Resource>()
 
-      subjects.map { subject ->
-        val statements = connection.queryStatements(subj = subject).use { it.toList() }
-        rdfModelParser.parse(connection, modelType, subject, statements)
+    return paginated(
+      queryProvider = { connection ->
+        val querySubjects = subjects ?: run {
+          val queriedSubjects = connection.querySubjectsByType(connection.namespaces.iriFromTurtle(modelRdfType))
+          subjects = queriedSubjects
+          queriedSubjects
+        }
+
+        buildString {
+          appendLine(
+            """
+            CONSTRUCT { ?s ?p ?o }
+            WHERE {
+              ?s ?p ?o .
+            """.trimIndent()
+          )
+
+          append("    FILTER( ?s IN (")
+            .append(
+              querySubjects.joinToString { subj ->
+                val binding = "subj_%03d".format(bindings.size)
+                bindings[binding] = subj
+                "?$binding"
+              }
+            )
+            .appendLine("))")
+
+          appendLine('}')
+          appendLine("ORDER BY ?s ?p ?o")
+        }
+      },
+      bindingsProvider = {
+        setBinding("type", valueFactory.createIRI(modelRdfType))
+        for ((binding, value) in bindings) {
+          setBinding(binding, value)
+        }
+      },
+      consumeStatements = { connection, subject, statements ->
+        rdfModelParser.parse(
+          rdfConnection = connection,
+          type = modelType,
+          subject = subject,
+          statements = statements,
+        )
       }
-    }
+    )
   }
 
   override fun <T : Aff4RdfModel> get(subject: IRI, modelType: KClass<T>): T {
@@ -51,38 +96,97 @@ internal class RealAff4Model @AssistedInject constructor(
     }
   }
 
-  override fun <T : Aff4RdfModel> getOrNull(subject: IRI, modelType: KClass<T>): T? {
-    return query { connection ->
-      val statements = connection.queryStatements(subj = subject).use { it.toList() }
-      if (statements.isNotEmpty()) {
-        rdfModelParser.parse(connection, modelType, subject, statements)
-      } else {
-        null
+  private fun <R> paginated(
+    queryProvider: (connection: RdfConnection) -> String,
+    bindingsProvider: GraphQuery.(connection: RdfConnection) -> Unit = {},
+    consumeStatements: (connection: RdfConnection, subject: Resource, statements: Collection<Statement>) -> R,
+  ): Sequence<R> {
+    return sequence {
+      var offset = 0
+
+      val statementBuffer = mutableListOf<Statement>()
+
+      do {
+        val (results, queryResultCount) = query { connection ->
+          val query = queryProvider(connection)
+          check(PATTERN_ORDER_BY in query) {
+            "Must have 'ORDER BY' clause: $query"
+          }
+
+          val q = connection.prepareGraphQuery(
+            """
+            $query
+            LIMIT $CONNECTION_CHUNK_SIZE
+            OFFSET $offset
+            """.trimIndent()
+          )
+
+          q.bindingsProvider(connection)
+
+          var queryResultCount = 0
+
+          val results = mutableListOf<R>()
+          for (statement in q.evaluateSequence()) {
+            queryResultCount += 1
+
+            val lastStatement = statementBuffer.lastOrNull()
+            if (lastStatement?.subject != statement.subject) {
+              if (lastStatement != null) {
+                results += consumeStatements(connection, lastStatement.subject, statementBuffer)
+                statementBuffer.clear()
+              }
+            }
+
+            statementBuffer += statement
+          }
+
+          // Often we don't fill the full chunk size, so we should avoid an extra query
+          if (queryResultCount < CONNECTION_CHUNK_SIZE && statementBuffer.isNotEmpty()) {
+            val firstStatement = statementBuffer.first()
+            results += consumeStatements(connection, firstStatement.subject, statementBuffer)
+            statementBuffer.clear()
+          }
+
+          offset += queryResultCount
+          results to queryResultCount
+        }
+
+        yieldAll(results)
+      } while (queryResultCount > 0)
+
+      if (statementBuffer.isNotEmpty()) {
+        val lastResult = query { connection ->
+          consumeStatements(connection, statementBuffer.first().subject, statementBuffer)
+        }
+        yield(lastResult)
       }
     }
   }
 
-  override fun <T : Aff4RdfModel> querySubjectStartsWith(subjectPrefix: String, modelType: KClass<T>): List<T> {
-    return query { connection ->
-      val q = connection.prepareGraphQuery(
+  override fun <T : Aff4RdfModel> querySubjectStartsWith(subjectPrefix: String, modelType: KClass<T>): Sequence<T> {
+    return paginated(
+      queryProvider = {
         """
-          CONSTRUCT { ?s ?p ?o }
-          WHERE {
+            CONSTRUCT { ?s ?p ?o }
+            WHERE {
               ?s ?p ?o .
-            FILTER (strstarts(str(?s), ?q))
-          }
-          LIMIT 1000
+                FILTER (strstarts(str(?s), ?q))
+            }
+            ORDER BY ?s ?p ?o
         """.trimIndent()
-      )
-
-      q.setBinding("q", valueFactory.createLiteral(subjectPrefix))
-
-      val statementsBySubject = q.evaluate().use { r -> r.toList() }.groupBy { it.subject }
-
-      statementsBySubject.entries.map { (subject, statements) ->
-        rdfModelParser.parse(connection, modelType, subject, statements)
+      },
+      bindingsProvider = {
+        setBinding("q", valueFactory.createLiteral(subjectPrefix))
+      },
+      consumeStatements = { connection, subject, statements ->
+        rdfModelParser.parse(
+          rdfConnection = connection,
+          type = modelType,
+          subject = subject,
+          statements = statements,
+        )
       }
-    }
+    )
   }
 
   override fun close() {
@@ -93,7 +197,7 @@ internal class RealAff4Model @AssistedInject constructor(
   private inline fun <T> query(crossinline block: (connection: RdfConnection) -> T): T {
     check(!closed) { "Closed" }
 
-    return rdfExecutor.withReadOnlySession<T> { block(it) }
+    return rdfExecutor.withReadOnlySession { block(it) }
   }
 
   private fun getModelRdfType(modelType: KClass<*>) =

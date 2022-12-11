@@ -2,6 +2,7 @@ package com.github.nava2.aff4.model
 
 import com.github.nava2.aff4.Aff4ImageTestModule
 import com.github.nava2.aff4.UnderTest
+import com.github.nava2.aff4.io.decode
 import com.github.nava2.aff4.model.rdf.FileImage
 import com.github.nava2.aff4.model.rdf.Hash
 import com.github.nava2.aff4.model.rdf.ZipSegment
@@ -9,7 +10,6 @@ import com.github.nava2.aff4.model.rdf.createArn
 import com.github.nava2.aff4.parseZonedDateTime
 import com.github.nava2.aff4.satisfies
 import com.github.nava2.test.GuiceModule
-import okio.ByteString.Companion.decodeHex
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import org.assertj.core.api.Assertions.assertThat
@@ -46,7 +46,7 @@ class Aff4ModelDreamTest {
 
   @Test
   fun `loads files`() {
-    assertThat(aff4Model.query<FileImage>()).singleElement().isEqualTo(
+    assertThat(aff4Model.query<FileImage>().toSet()).singleElement().isEqualTo(
       FileImage(
         arn = arn("aff4://5aea2dd0-32b4-4c61-a9db-677654be6f83//test_images/AFF4-L/dream.txt"),
         originalFileName = "./test_images/AFF4-L/dream.txt".toPath(),
@@ -63,9 +63,9 @@ class Aff4ModelDreamTest {
       ZipSegment(
         arn = arn("aff4://5aea2dd0-32b4-4c61-a9db-677654be6f83//test_images/AFF4-L/dream.txt"),
         size = 8688,
-        linearHashes = listOf(
-          Hash.Md5("75d83773f8d431a3ca91bfb8859e486d".decodeHex()),
-          Hash.Sha1("9ae1b46bead70c322eef7ac8bc36a8ea2055595c".decodeHex()),
+        linearHashes = setOf(
+          Hash.Md5.decode("75d83773f8d431a3ca91bfb8859e486d"),
+          Hash.Sha1.decode("9ae1b46bead70c322eef7ac8bc36a8ea2055595c"),
         ),
         stored = arn("aff4://5aea2dd0-32b4-4c61-a9db-677654be6f83"),
       ),

@@ -1,6 +1,7 @@
 package com.github.nava2.aff4.model.rdf
 
 import com.github.nava2.aff4.model.Aff4Model
+import com.github.nava2.aff4.model.querySubjectStartsWith
 import com.github.nava2.aff4.model.rdf.annotations.RdfModel
 import com.github.nava2.aff4.model.rdf.annotations.RdfValue
 import okio.Path
@@ -20,7 +21,7 @@ data class BlockHashes(
 @RdfModel("aff4:ZipVolume")
 data class ZipVolume(
   override val arn: Aff4Arn,
-  val contains: List<Resource> = listOf(),
+  val contains: Set<Resource> = setOf(),
   val creationTime: ZonedDateTime,
   @RdfValue("aff4:interface")
   val interfaceType: Resource, // todo this should be an enum?
@@ -63,11 +64,11 @@ data class ImageStream(
   val size: Long,
   val compressionMethod: CompressionMethod = CompressionMethod.None,
   @RdfValue("aff4:hash")
-  val linearHashes: List<Hash> = listOf(),
+  val linearHashes: Set<Hash> = setOf(),
   @RdfValue("aff4:imageStreamHash")
-  val imageStreamHashes: List<Hash> = listOf(),
+  val imageStreamHashes: Set<Hash> = setOf(),
   @RdfValue("aff4:imageStreamIndexHash")
-  val imageStreamIndexHashes: List<Hash> = listOf(),
+  val imageStreamIndexHashes: Set<Hash> = setOf(),
   override val stored: Aff4Arn,
   @RdfValue("aff4:target")
   val targets: Set<Aff4Arn> = setOf(),
@@ -93,7 +94,7 @@ data class ImageStream(
   }
 
   fun queryBlockHashes(aff4Model: Aff4Model): List<BlockHashes> {
-    return aff4Model.querySubjectStartsWith("$arn/blockhash.", BlockHashes::class)
+    return aff4Model.querySubjectStartsWith<BlockHashes>("$arn/blockhash.").toList()
   }
 }
 
@@ -164,7 +165,7 @@ data class ZipSegment(
   override val arn: Aff4Arn,
   val size: Long,
   @RdfValue("aff4:hash")
-  val linearHashes: List<Hash> = listOf(),
+  val linearHashes: Set<Hash> = setOf(),
   override val stored: Aff4Arn,
 ) : Aff4RdfBaseModels, StoredRdfModel {
   val segmentPath = arn.toAff4Path(stored)

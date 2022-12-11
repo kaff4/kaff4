@@ -64,7 +64,7 @@ class Verify : Subcommand("verify", "Verify an image") {
       logger.debug("Opened image, querying streams")
 
       val model = container.aff4Model
-      val streams = model.query<ImageStream>() + model.query<MapStream>() + model.query<ZipSegment>()
+      val streams = (model.query<ImageStream>() + model.query<MapStream>() + model.query<ZipSegment>()).toList()
 
       logger.info("Verifying ${streams.size} streams")
       logger.debug("Verifying [${streams.size}] = [\n\t${streams.joinToString("\n\t")}\n]")

@@ -114,7 +114,9 @@ internal class Aff4ImageStreamSink @AssistedInject constructor(
 
     imageStream = imageStream.copy(
       size = dataPosition,
-      linearHashes = linearHashSinks.entries.map { (hashType, sink) -> hashType.value(sink.hash) },
+      linearHashes = linearHashSinks.entries.asSequence()
+        .map { (hashType, sink) -> hashType.value(sink.hash) }
+        .toSet(),
     )
   }
 

@@ -4,10 +4,12 @@ import com.github.nava2.aff4.Aff4BaseStreamModule
 import com.github.nava2.aff4.UsingTemporary
 import com.github.nava2.aff4.container.Aff4ContainerBuilder
 import com.github.nava2.aff4.container.RealAff4ContainerBuilder
+import com.github.nava2.aff4.io.decode
 import com.github.nava2.aff4.io.repeatByteString
 import com.github.nava2.aff4.model.Aff4ImageOpener
 import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.model.rdf.CompressionMethod
+import com.github.nava2.aff4.model.rdf.Hash
 import com.github.nava2.aff4.model.rdf.HashType
 import com.github.nava2.aff4.model.rdf.ImageStream
 import com.github.nava2.aff4.model.rdf.None
@@ -19,7 +21,6 @@ import com.github.nava2.aff4.streams.compression.SnappyCompression
 import com.github.nava2.test.GuiceModule
 import okio.Buffer
 import okio.ByteString
-import okio.ByteString.Companion.decodeHex
 import okio.ByteString.Companion.encodeUtf8
 import okio.FileSystem
 import okio.Path.Companion.toPath
@@ -93,7 +94,7 @@ class Aff4ImageStreamSinkTest {
       size = Long.MAX_VALUE,
       compressionMethod = CompressionMethod.None,
       stored = containerArn,
-      linearHashes = listOf(HashType.SHA256, HashType.MD5).map { it.value(ByteString.EMPTY) },
+      linearHashes = listOf(HashType.SHA256, HashType.MD5).map { it.value(ByteString.EMPTY) }.toSet(),
     )
 
     val content = "abcdefghijklmno".encodeUtf8()
@@ -105,16 +106,14 @@ class Aff4ImageStreamSinkTest {
         imageStreamSink.imageStream
       }
 
-    val md5LinearHash = HashType.MD5.value("8a7319dbf6544a7422c9e25452580ea5".decodeHex())
-    val sha256LinearHash = HashType.SHA256.value(
-      "41c7760c50efde99bf574ed8fffc7a6dd3405d546d3da929b214c8945acf8a97".decodeHex(),
-    )
+    val md5LinearHash = Hash.Md5.decode("8a7319dbf6544a7422c9e25452580ea5")
+    val sha256LinearHash = Hash.Sha256.decode("41c7760c50efde99bf574ed8fffc7a6dd3405d546d3da929b214c8945acf8a97")
 
     assertThat(writtenImageStream)
       .isEqualTo(
         imageStream.copy(
           size = content.size.toLong(),
-          linearHashes = listOf(sha256LinearHash, md5LinearHash),
+          linearHashes = setOf(sha256LinearHash, md5LinearHash),
         )
       )
 
@@ -132,7 +131,7 @@ class Aff4ImageStreamSinkTest {
       size = Long.MAX_VALUE,
       compressionMethod = CompressionMethod.None,
       stored = containerArn,
-      linearHashes = listOf(HashType.SHA256, HashType.MD5).map { it.value(ByteString.EMPTY) },
+      linearHashes = listOf(HashType.SHA256, HashType.MD5).map { it.value(ByteString.EMPTY) }.toSet(),
     )
 
     val content = "abcdefghijklmno".encodeUtf8()
@@ -152,16 +151,14 @@ class Aff4ImageStreamSinkTest {
         imageStreamSink.imageStream
       }
 
-    val md5LinearHash = HashType.MD5.value("8a7319dbf6544a7422c9e25452580ea5".decodeHex())
-    val sha256LinearHash = HashType.SHA256.value(
-      "41c7760c50efde99bf574ed8fffc7a6dd3405d546d3da929b214c8945acf8a97".decodeHex(),
-    )
+    val md5LinearHash = Hash.Md5.decode("8a7319dbf6544a7422c9e25452580ea5")
+    val sha256LinearHash = Hash.Sha256.decode("41c7760c50efde99bf574ed8fffc7a6dd3405d546d3da929b214c8945acf8a97")
 
     assertThat(writtenImageStream)
       .isEqualTo(
         imageStream.copy(
           size = content.size.toLong(),
-          linearHashes = listOf(sha256LinearHash, md5LinearHash),
+          linearHashes = setOf(sha256LinearHash, md5LinearHash),
         )
       )
 
@@ -181,7 +178,7 @@ class Aff4ImageStreamSinkTest {
       size = content.size.toLong(),
       compressionMethod = snappyCompression,
       stored = aff4ContainerBuilder.containerArn,
-      linearHashes = listOf(HashType.SHA256, HashType.MD5).map { it.value(ByteString.EMPTY) },
+      linearHashes = listOf(HashType.SHA256, HashType.MD5).map { it.value(ByteString.EMPTY) }.toSet(),
     )
 
     val writtenImageStream = aff4ContainerBuilder.createImageStream(imageStream, listOf())
@@ -191,17 +188,15 @@ class Aff4ImageStreamSinkTest {
         imageStreamSink.imageStream
       }
 
-    val md5LinearHash = HashType.MD5.value("6d0bb00954ceb7fbee436bb55a8397a9".decodeHex())
-    val sha256LinearHash = HashType.SHA256.value(
-      "cd00e292c5970d3c5e2f0ffa5171e555bc46bfc4faddfb4a418b6840b86e79a3".decodeHex(),
-    )
+    val md5LinearHash = Hash.Md5.decode("6d0bb00954ceb7fbee436bb55a8397a9")
+    val sha256LinearHash = Hash.Sha256.decode("cd00e292c5970d3c5e2f0ffa5171e555bc46bfc4faddfb4a418b6840b86e79a3")
 
     assertThat(writtenImageStream)
       .usingRecursiveComparison()
       .isEqualTo(
         imageStream.copy(
           size = content.size.toLong(),
-          linearHashes = listOf(sha256LinearHash, md5LinearHash),
+          linearHashes = setOf(sha256LinearHash, md5LinearHash),
         )
       )
 
