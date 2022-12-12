@@ -15,6 +15,7 @@ import com.github.nava2.aff4.model.rdf.DiskImage
 import com.github.nava2.aff4.model.rdf.Hash
 import com.github.nava2.aff4.model.rdf.Image
 import com.github.nava2.aff4.model.rdf.ImageStream
+import com.github.nava2.aff4.model.rdf.MapStream
 import com.github.nava2.aff4.model.rdf.TimeStamps
 import com.github.nava2.aff4.model.rdf.ZipVolume
 import com.github.nava2.aff4.model.rdf.createArn
@@ -29,7 +30,6 @@ import org.eclipse.rdf4j.model.ValueFactory
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import javax.inject.Inject
-import com.github.nava2.aff4.model.rdf.MapStream as AMap
 
 class Aff4ModelBaseLinearTest {
   @GuiceModule
@@ -73,7 +73,7 @@ class Aff4ModelBaseLinearTest {
         creationTime = parseZonedDateTime("2016-12-07T03:40:09.126Z"),
         interfaceType = aff4Type("Volume"),
         stored = "Base-Linear.aff4".toPath(),
-        contains = listOf(
+        contains = setOf(
           arn("aff4://c1a6ab35-d46a-4c37-9bfe-0b3e4f0f1ca3"),
           arn("aff4://c215ba20-5648-4209-a793-1f918c723610"),
           arn("aff4://c21070c3-6d57-4f3b-9276-f83b6bfed5ae"),
@@ -91,7 +91,7 @@ class Aff4ModelBaseLinearTest {
     val mapArn = arn("aff4://fcbfdce7-4488-4677-abf6-08bc931e195b")
     val imageStreamArn = arn("aff4://c215ba20-5648-4209-a793-1f918c723610")
 
-    assertThat(aff4Model.query(Image::class)).containsExactly(
+    assertThat(aff4Model.query<Image>().toSet()).containsExactly(
       Image(
         arn = diskImageArn,
         dataStreams = setOf(mapArn),
@@ -99,8 +99,8 @@ class Aff4ModelBaseLinearTest {
       ),
     )
 
-    assertThat(aff4Model.query(AMap::class)).containsExactly(
-      AMap(
+    assertThat(aff4Model.query<MapStream>().toSet()).containsExactly(
+      MapStream(
         arn = mapArn,
         blockMapHash = Hash.Sha512(
           (
@@ -132,24 +132,24 @@ class Aff4ModelBaseLinearTest {
       ),
     )
 
-    assertThat(aff4Model.query(ImageStream::class)).containsExactly(
+    assertThat(aff4Model.query<ImageStream>().toSet()).containsExactly(
       ImageStream(
         arn = imageStreamArn,
         chunkSize = 32768,
         chunksInSegment = 2048,
         size = 3964928,
         compressionMethod = snappyCompression,
-        linearHashes = listOf(
+        linearHashes = setOf(
           Hash.Sha1.decode("fbac22cca549310bc5df03b7560afcf490995fbb"),
           Hash.Md5.decode("d5825dc1152a42958c8219ff11ed01a3"),
         ),
-        imageStreamHashes = listOf(
+        imageStreamHashes = setOf(
           Hash.Sha512.decode(
             "7c909ad458a90ca083cf2d10848fb3aaee7d9ac008605f85aef1ac2db8249973ac7b6716f3250edb80219ff628d" +
               "6fb4873c33c59de0a3e6c7657e234e7ba0db3"
           ),
         ),
-        imageStreamIndexHashes = listOf(
+        imageStreamIndexHashes = setOf(
           Hash.Sha512.decode(
             "c663bc90d996d2c9699e00dc1ea2c55b3724f1eaca2b92119bb7c764aad222eed321cb00ee67899c027f6837a3bd" +
               "8f789a96adb6e9df51629b3cac0b6f9f0722"
@@ -161,7 +161,7 @@ class Aff4ModelBaseLinearTest {
       ),
     )
 
-    assertThat(aff4Model.query(BlockHashes::class)).containsExactly(
+    assertThat(aff4Model.query<BlockHashes>().toSet()).containsExactly(
       BlockHashes(
         arn = arn("aff4://c215ba20-5648-4209-a793-1f918c723610/", "blockhash.md5"),
         hash = Hash.Sha512.decode(
@@ -182,7 +182,7 @@ class Aff4ModelBaseLinearTest {
   @Suppress("LongMethod")
   @Test
   fun `loads aff4 metadata`() {
-    assertThat(aff4Model.query(DiskImage::class)).containsExactly(
+    assertThat(aff4Model.query<DiskImage>().toSet()).containsExactly(
       DiskImage(
         arn = diskImageArn,
         size = 268435456L,
@@ -202,7 +202,7 @@ class Aff4ModelBaseLinearTest {
       ),
     )
 
-    assertThat(aff4Model.query(CaseNotes::class)).containsExactlyInAnyOrder(
+    assertThat(aff4Model.query<CaseNotes>().toSet()).containsExactlyInAnyOrder(
       CaseNotes(
         arn = arn("aff4://427e2078-b010-462b-ba7c-f286b390ba94"),
         caseNumber = "Case ID: 1SR Canonical",
@@ -225,7 +225,7 @@ class Aff4ModelBaseLinearTest {
       ),
     )
 
-    assertThat(aff4Model.query(CaseDetails::class)).containsExactly(
+    assertThat(aff4Model.query<CaseDetails>().toSet()).containsExactly(
       CaseDetails(
         arn = arn("aff4://c1a6ab35-d46a-4c37-9bfe-0b3e4f0f1ca3"),
         caseDescription = "Canonical Image Generation Test Case",
@@ -236,7 +236,7 @@ class Aff4ModelBaseLinearTest {
       ),
     )
 
-    assertThat(aff4Model.query(TimeStamps::class)).containsExactly(
+    assertThat(aff4Model.query<TimeStamps>().toSet()).containsExactly(
       TimeStamps(
         arn = arn("aff4://db69295f-70c3-4e82-9530-a39507f1447b"),
         endTime = parseZonedDateTime("2016-12-07T03:40:09.28Z"),

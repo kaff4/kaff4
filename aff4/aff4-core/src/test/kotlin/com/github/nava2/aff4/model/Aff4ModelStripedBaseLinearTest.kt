@@ -73,7 +73,7 @@ class Aff4ModelStripedBaseLinearTest {
         creationTime = parseZonedDateTime("2016-12-07T03:40:12.185Z"),
         interfaceType = aff4Type("Volume"),
         stored = "Base-Linear_1.aff4".toPath(),
-        contains = listOf(
+        contains = setOf(
           arn("aff4://1311a313-e27a-4756-8bb5-22c984061270"),
           arn("aff4://a04a9189-5e92-4024-a577-37d6cfa72594"),
           arn("aff4://2dd04819-73c8-40e3-a32b-fdddb0317eac"),
@@ -88,7 +88,7 @@ class Aff4ModelStripedBaseLinearTest {
         creationTime = parseZonedDateTime("2016-12-07T03:40:12.185Z"),
         interfaceType = aff4Type("Volume"),
         stored = "Base-Linear_2.aff4".toPath(),
-        contains = listOf(
+        contains = setOf(
           arn("aff4://363ac10c-8d8d-4905-ac25-a14aaddd8a41"),
           arn("aff4://b33a5803-ef89-4463-94ce-f265ec7eb9f1"),
           arn("aff4://951b3e29-6549-4266-8e81-3f88ddba61ae"),
@@ -100,7 +100,7 @@ class Aff4ModelStripedBaseLinearTest {
       ),
     ).associateBy { it.arn }
 
-    assertThat(aff4Model.query<ZipVolume>()).allSatisfy { zipVolume ->
+    assertThat(aff4Model.query<ZipVolume>().toSet()).allSatisfy { zipVolume ->
       val expectedZipVolume = expectedZipVolumes.getValue(zipVolume.arn)
       assertThat(zipVolume).isEqualTo(expectedZipVolume)
     }
@@ -109,7 +109,7 @@ class Aff4ModelStripedBaseLinearTest {
   @Suppress("LongMethod")
   @Test
   fun `loads images`() {
-    assertThat(aff4Model.query(Image::class)).containsExactly(
+    assertThat(aff4Model.query<Image>().toSet()).containsExactly(
       Image(
         arn = diskImageArn,
         dataStreams = setOf(
@@ -185,26 +185,26 @@ class Aff4ModelStripedBaseLinearTest {
       ),
     )
 
-    assertThat(aff4Model.query<MapStream>()).containsExactlyInAnyOrderElementsOf(expectedMapStreams)
+    assertThat(aff4Model.query<MapStream>().toSet()).containsExactlyInAnyOrderElementsOf(expectedMapStreams)
 
-    assertThat(aff4Model.query<ImageStream>()).containsExactlyInAnyOrder(
+    assertThat(aff4Model.query<ImageStream>().toSet()).containsExactlyInAnyOrder(
       ImageStream(
         arn = arn("aff4://3bf0bd14-1ef9-4185-8b0a-2c7d511b4d30"),
         chunkSize = 32768,
         chunksInSegment = 2048,
         size = 1966080,
         compressionMethod = snappyCompression,
-        linearHashes = listOf(
+        linearHashes = setOf(
           Hash.Sha1.decode("5d14518149402e3935930b389564c9dc8c674fd1"),
           Hash.Md5.decode("8eaf5dd1e12e4dd8cc9c68be51660e4d"),
         ),
-        imageStreamHashes = listOf(
+        imageStreamHashes = setOf(
           Hash.Sha512.decode(
             "30dfba8269539ee364361d17b4518c32cd367079aa99ff7ee96918ec027ecbceff1334f1f2" +
               "ed2f1046ef433c6ceaf644b7dd55401e7dda46ad1393be73ee24a8"
           ),
         ),
-        imageStreamIndexHashes = listOf(
+        imageStreamIndexHashes = setOf(
           Hash.Sha512.decode(
             "09a5148b36ac629eb48af0f60263a7dcb81e186908b50544561954acd32810f94a19554d5f9" +
               "06363079a03e4186ee9fe73860fbd0e87a2e55a31dc1dafd79e07"
@@ -220,17 +220,17 @@ class Aff4ModelStripedBaseLinearTest {
         chunksInSegment = 2048,
         size = 1998848,
         compressionMethod = snappyCompression,
-        linearHashes = listOf(
+        linearHashes = setOf(
           Hash.Sha1.decode("00412c53666cd74c81d5703c77d865145dde1082"),
           Hash.Md5.decode("b20122bc5e70fafb582820a25f895646"),
         ),
-        imageStreamHashes = listOf(
+        imageStreamHashes = setOf(
           Hash.Sha512.decode(
             "574e12d53b6a609ad7340cbd7359243fe058876381cd82d6357da19052ed89007aa6e2e635" +
               "87ef8605c9de41691cd12689257e513af8c30a6777f6840c6d76b7"
           ),
         ),
-        imageStreamIndexHashes = listOf(
+        imageStreamIndexHashes = setOf(
           Hash.Sha512.decode(
             "2364325d0822af6bbd5221813ac04d957f39c652de4a8151ebd8bea4b571f1a5f2dde0ba7a2" +
               "dc274a936705b2e08dc9d6d957cf24ba7e7304cdd5e8aa19a8127"
@@ -242,7 +242,7 @@ class Aff4ModelStripedBaseLinearTest {
       ),
     )
 
-    assertThat(aff4Model.query(BlockHashes::class)).containsExactlyInAnyOrder(
+    assertThat(aff4Model.query<BlockHashes>().toSet()).containsExactlyInAnyOrder(
       BlockHashes(
         arn = arn("aff4://a04a9189-5e92-4024-a577-37d6cfa72594/", "blockhash.md5"),
         hash = Hash.Sha512.decode(
@@ -277,7 +277,7 @@ class Aff4ModelStripedBaseLinearTest {
   @Suppress("LongMethod")
   @Test
   fun `loads aff4 metadata`() {
-    assertThat(aff4Model.query(DiskImage::class)).containsExactly(
+    assertThat(aff4Model.query<DiskImage>().toSet()).containsExactly(
       DiskImage(
         arn = diskImageArn,
         size = 268435456L,
@@ -297,7 +297,7 @@ class Aff4ModelStripedBaseLinearTest {
       ),
     )
 
-    assertThat(aff4Model.query(CaseNotes::class)).containsExactlyInAnyOrder(
+    assertThat(aff4Model.query<CaseNotes>().toSet()).containsExactlyInAnyOrder(
       CaseNotes(
         arn = arn("aff4://a393456b-1c6f-48f2-aefd-45157d997493"),
         caseNumber = "Case ID: 1SR Canonical",
@@ -320,7 +320,7 @@ class Aff4ModelStripedBaseLinearTest {
       ),
     )
 
-    assertThat(aff4Model.query(CaseDetails::class)).containsExactly(
+    assertThat(aff4Model.query<CaseDetails>().toSet()).containsExactly(
       CaseDetails(
         arn = arn("aff4://0adda6d6-97c5-4842-8981-dec2a3373215"),
         caseDescription = "Canonical Image Generation Test Case",
@@ -331,7 +331,7 @@ class Aff4ModelStripedBaseLinearTest {
       ),
     )
 
-    assertThat(aff4Model.query(TimeStamps::class)).containsExactly(
+    assertThat(aff4Model.query<TimeStamps>().toSet()).containsExactly(
       TimeStamps(
         arn = arn("aff4://1311a313-e27a-4756-8bb5-22c984061270"),
         startTime = parseZonedDateTime("2016-12-07T03:40:12.190Z"),

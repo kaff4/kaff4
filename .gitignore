@@ -46,3 +46,6 @@ hs_err_pid*
 
 # IDEA
 .idea/*.xml
+
+# Peazip
+.ptmp*
