@@ -1,6 +1,6 @@
+import Versions.configureJavaToolchain
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
   kotlin("jvm") version Versions.KOTLIN
@@ -18,12 +18,14 @@ buildscript {
 
 java {
   toolchain {
-    languageVersion.set(JavaLanguageVersion.of(Versions.JVM_BYTECODE_TARGET))
+    configureJavaToolchain()
   }
 }
 
 kotlin {
-  jvmToolchain(Versions.JVM_BYTECODE_TARGET.toInt())
+  jvmToolchain {
+    configureJavaToolchain()
+  }
 }
 
 allprojects {
@@ -55,8 +57,8 @@ allprojects {
 subprojects {
   apply {
     plugin("org.jetbrains.kotlin.jvm")
-    plugin("io.gitlab.arturbosch.detekt") 
-    plugin("maven-publish") 
+    plugin("io.gitlab.arturbosch.detekt")
+    plugin("maven-publish")
   }
 
   repositories {
@@ -110,10 +112,10 @@ subprojects {
   }
 
   tasks.withType<Detekt>().configureEach {
-    jvmTarget = Versions.JVM_BYTECODE_TARGET
+    jvmTarget = "18"
   }
   tasks.withType<DetektCreateBaselineTask>().configureEach {
-    jvmTarget = Versions.JVM_BYTECODE_TARGET
+    jvmTarget = "18"
   }
 
   tasks.withType<Detekt>().configureEach {
