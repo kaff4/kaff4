@@ -37,7 +37,9 @@ internal class RdfModelParserTest {
 
   @Test
   fun `primitive properties - long`() {
-    data class PrimitiveModelClass @RdfModel("test://primitive-model-class") constructor(
+    data class PrimitiveModelClass
+    @RdfModel("test://primitive-model-class")
+    constructor(
       @RdfSubject
       val subject: Resource,
       @RdfValue("test:longValue")
@@ -68,7 +70,9 @@ internal class RdfModelParserTest {
 
   @Test
   fun `primitive properties - string`() {
-    data class PrimitiveModelClass @RdfModel("test://primitive-model-class") constructor(
+    data class PrimitiveModelClass
+    @RdfModel("test://primitive-model-class")
+    constructor(
       @RdfSubject
       val subject: Resource,
       @RdfValue("test:stringValue")
@@ -109,7 +113,9 @@ internal class RdfModelParserTest {
 
   @Test
   fun `inherit annotations`() {
-    data class PrimitiveModelClass @RdfModel("test://primitive-model-class") constructor(
+    data class PrimitiveModelClass
+    @RdfModel("test://primitive-model-class")
+    constructor(
       override val subject: Resource,
       override val intValue: Int,
     ) : ExtendWithSubject
@@ -136,7 +142,9 @@ internal class RdfModelParserTest {
 
   @Test
   fun `primitive properties - int`() {
-    data class PrimitiveModelClass @RdfModel("test://primitive-model-class") constructor(
+    data class PrimitiveModelClass
+    @RdfModel("test://primitive-model-class")
+    constructor(
       @RdfSubject
       val subject: Resource,
       @RdfValue("test:intValue")
