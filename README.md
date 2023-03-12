@@ -52,4 +52,7 @@ For individual projects, see `./gradlew :path:to:project:licenseReport`
     * [ ] Create report for `verify` subcommand
 * [ ] Logical
     * [ ] Implement file system walking
-  
+
+## Development Dependencies
+
+* Java 19 JVM: `brew install --cask temurin`
