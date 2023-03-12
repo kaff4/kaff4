@@ -555,7 +555,6 @@ class IntervalTree<T : Interval> : Iterable<T> {
       if (!n.isNil && n.maxEnd > t.start) {
         while (true) {
           if (n.overlaps(t)) {
-
             // This node overlaps. There may be a lesser overlapper
             // down the left subtree. No need to consider the right
             // as all overlappers there will be greater.
@@ -566,14 +565,12 @@ class IntervalTree<T : Interval> : Iterable<T> {
               break
             }
           } else {
-
             // This node doesn't overlap.
             // Check the left subtree if an overlapper may be there
             val left: Node = n.left
             if (!left.isNil && left.maxEnd > t.start) {
               n = left
             } else {
-
               // Left subtree cannot contain an overlapper. Check the
               // right sub-tree.
               if (n.start >= t.endExclusive) {

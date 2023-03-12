@@ -6,7 +6,7 @@ plugins {
   kotlin("jvm") version Versions.KOTLIN
   id("io.gitlab.arturbosch.detekt") version Versions.DETEKT
   id("com.jaredsburrows.license") version "0.9.0"
-  id("com.autonomousapps.dependency-analysis") version "1.14.1"
+  id("com.autonomousapps.dependency-analysis") version "1.19.0"
   `maven-publish`
 }
 
@@ -20,6 +20,10 @@ java {
   toolchain {
     languageVersion.set(JavaLanguageVersion.of(Versions.JVM_BYTECODE_TARGET))
   }
+}
+
+kotlin {
+  jvmToolchain(Versions.JVM_BYTECODE_TARGET.toInt())
 }
 
 allprojects {
@@ -85,16 +89,6 @@ subprojects {
 
   tasks.test {
     useJUnitPlatform()
-  }
-
-  val compileKotlin: KotlinCompile by tasks
-  compileKotlin.kotlinOptions {
-    jvmTarget = Versions.JVM_BYTECODE_TARGET
-  }
-
-  val compileTestKotlin: KotlinCompile by tasks
-  compileTestKotlin.kotlinOptions {
-    jvmTarget = Versions.JVM_BYTECODE_TARGET
   }
 
   detekt {
