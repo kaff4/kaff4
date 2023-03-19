@@ -1,4 +1,4 @@
-package com.github.nava2.aff4.container
+package com.github.nava2.guice.action_scoped
 
 import com.google.inject.ScopeAnnotation
 import kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS
@@ -11,4 +11,4 @@ import kotlin.annotation.AnnotationTarget.VALUE_PARAMETER
 @Target(ANNOTATION_CLASS, CLASS, FUNCTION, PROPERTY_GETTER, PROPERTY_SETTER, VALUE_PARAMETER)
 @Retention(AnnotationRetention.RUNTIME)
 @ScopeAnnotation
-annotation class ImageScoped
+annotation class ActionScoped

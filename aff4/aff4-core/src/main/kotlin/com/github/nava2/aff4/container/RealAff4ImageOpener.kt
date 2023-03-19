@@ -4,14 +4,14 @@ import com.github.nava2.aff4.model.Aff4Container
 import com.github.nava2.aff4.model.Aff4Image
 import com.github.nava2.aff4.model.Aff4ImageOpener
 import com.github.nava2.aff4.model.Aff4ImageOpener.Aff4ContainerWithResources
+import com.github.nava2.guice.action_scoped.ActionScope
 import com.github.nava2.guice.key
 import okio.FileSystem
 import okio.Path
 import javax.inject.Inject
-import javax.inject.Named
 
 internal class RealAff4ImageOpener @Inject constructor(
-  @Named("imageScope") private val imageScope: ImageScope,
+  private val actionScope: ActionScope,
   private val containerLoader: ContainerLoader,
   private val aff4ImageProvider: com.google.inject.Provider<Aff4Image>,
 ) : Aff4ImageOpener {
@@ -23,12 +23,14 @@ internal class RealAff4ImageOpener @Inject constructor(
 
     val openedContainer = containers.single { it.containerPath == path }
 
-    imageScope.enter()
+    val action = actionScope.start(
+      mapOf(
+        key<LoadedContainersContext>() to LoadedContainersContext(imageName = openedContainer.imageName, containers),
+      )
+    )
 
-    imageScope.seed(key(), LoadedContainersContext(imageName = openedContainer.imageName, containers))
-
-    val aff4Container = imageScope.scope(key(), aff4ImageProvider).get()
-    return Aff4ContainerWithResources(aff4Container) { imageScope.exit() }
+    val aff4Container = actionScope.scope(key(), aff4ImageProvider).get()
+    return Aff4ContainerWithResources(aff4Container) { action.close() }
   }
 
   data class LoadedContainersContext(

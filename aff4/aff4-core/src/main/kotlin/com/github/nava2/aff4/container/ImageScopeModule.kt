@@ -1,23 +1,38 @@
 package com.github.nava2.aff4.container
 
 import com.github.nava2.guice.KAbstractModule
+import com.github.nava2.guice.action_scoped.ActionScope
+import com.github.nava2.guice.action_scoped.ActionScopeModule
+import com.github.nava2.guice.action_scoped.ActionScoped
 import com.github.nava2.guice.key
-import com.google.inject.Provides
-import javax.inject.Named
+import javax.inject.Provider
 
 class ImageScopeModule : KAbstractModule() {
-  private val imageScope = ImageScope()
-
   override fun configure() {
-    // tell Guice about the scope
-    bindScope(ImageScoped::class.java, imageScope)
+    install(ActionScopeModule)
 
     bind(key<RealAff4ImageOpener.LoadedContainersContext>())
-      .toProvider(ImageScope.seededKeyProvider())
-      .`in`(ImageScoped::class.java)
+      .toProvider(seededKeyProvider())
+      .`in`(ActionScoped::class.java)
   }
 
-  @Provides
-  @Named("imageScope")
-  internal fun provideImageScope(): ImageScope = imageScope
+  /**
+   * Returns a provider that always throws exception complaining that the object
+   * in question must be seeded before it can be injected.
+   *
+   * @return typed provider
+   */
+  private inline fun <reified T> seededKeyProvider(): Provider<T> {
+    return Provider<T> {
+      error(
+        buildString {
+          append("If you got here then it means that you've tried to use an Image type ")
+          append(" without opening an action scope and providing it as a seeded value.")
+          append(" Your code asked for scoped ${T::class.qualifiedName} which should have been")
+          append(" explicitly seeded in this scope by calling")
+          append(" ${ActionScope::class.simpleName}.start(mapOf(...)), but was not.")
+        }
+      )
+    }
+  }
 }

@@ -2,7 +2,6 @@ package com.github.nava2.aff4.model
 
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.benmanes.caffeine.cache.LoadingCache
-import com.github.nava2.aff4.container.ImageScoped
 import com.github.nava2.aff4.io.SourceProvider
 import com.github.nava2.aff4.io.bounded
 import com.github.nava2.aff4.model.rdf.Aff4Arn
@@ -16,6 +15,7 @@ import com.github.nava2.aff4.rdf.RdfExecutor
 import com.github.nava2.aff4.rdf.io.RdfModelParser
 import com.github.nava2.aff4.streams.Aff4StreamLoaderContext
 import com.github.nava2.aff4.streams.symbolics.Symbolics
+import com.github.nava2.guice.action_scoped.ActionScoped
 import com.google.inject.TypeLiteral
 import okio.Closeable
 import okio.Source
@@ -28,7 +28,7 @@ import kotlin.reflect.full.findAnnotation
 
 private const val MAX_OPEN_STREAMS = 20L
 
-@ImageScoped
+@ActionScoped
 internal class RealAff4StreamOpener @Inject constructor(
   private val rdfExecutor: RdfExecutor,
   private val rdfModelParser: RdfModelParser,
