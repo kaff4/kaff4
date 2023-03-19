@@ -116,9 +116,27 @@ class ActionScope internal constructor() : Scope {
     }
   }
 
+  internal data class Chain(
+    val keys: List<ActionKey>,
+  ) {
+    fun <R> runInScope(block: () -> R): R {
+      scopeStacks.set(ArrayDeque(keys))
+
+      try {
+        return Action(mapOf()).use {
+          block()
+        }
+      } finally {
+        scopeStacks.remove()
+      }
+    }
+  }
+
   companion object {
     private val seedMaps = ConcurrentHashMap<ActionKey, MutableMap<Key<*>, Any>>()
     private val scopeStacks = ThreadLocal.withInitial<ArrayDeque<ActionKey>> { ArrayDeque() }
+
+    internal fun currentChain(): Chain = Chain(scopeStacks.get().toList())
 
     /**
      * Returns a provider that always throws exception complaining that the object
