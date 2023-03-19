@@ -7,6 +7,7 @@ import java.util.concurrent.RunnableFuture
 import java.util.concurrent.TimeUnit
 
 internal class ActionScopingExecutorService constructor(
+  private val actionScope: ActionScope,
   private val actionChain: ActionScope.Chain,
   private val delegateExecutorService: ExecutorService,
 ) : AbstractExecutorService() {
@@ -16,7 +17,7 @@ internal class ActionScopingExecutorService constructor(
 
   override fun <T : Any?> newTaskFor(callable: Callable<T>): RunnableFuture<T> {
     return super.newTaskFor {
-      actionChain.runInScope {
+      actionChain.runInScope(actionScope) {
         callable.call()
       }
     }
@@ -24,7 +25,7 @@ internal class ActionScopingExecutorService constructor(
 
   override fun <T : Any?> newTaskFor(runnable: Runnable, value: T): RunnableFuture<T> {
     val wrappedRunnable = Runnable {
-      actionChain.runInScope {
+      actionChain.runInScope(actionScope) {
         runnable.run()
       }
     }
@@ -44,8 +45,10 @@ internal class ActionScopingExecutorService constructor(
   override fun shutdownNow(): List<Runnable> = delegateExecutorService.shutdownNow()
 
   override fun isTerminated(): Boolean = delegateExecutorService.isTerminated
-}
 
-fun ActionScope.Companion.wrapExecutorInScope(executorService: ExecutorService): ExecutorService {
-  return ActionScopingExecutorService(currentChain(), executorService)
+  companion object {
+    fun ActionScope.wrapExecutorInScope(executorService: ExecutorService): ExecutorService {
+      return ActionScopingExecutorService(this, currentChain(), executorService)
+    }
+  }
 }

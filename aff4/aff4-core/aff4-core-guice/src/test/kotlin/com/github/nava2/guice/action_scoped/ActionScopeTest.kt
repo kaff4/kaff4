@@ -1,22 +1,25 @@
 package com.github.nava2.guice.action_scoped
 
-import com.github.nava2.aff4.containsExactlyInAnyOrderEntriesOf
+import com.github.nava2.aff4.containsAllEntriesOf
 import com.github.nava2.aff4.isIllegalStateException
 import com.github.nava2.aff4.isInstanceOf
 import com.github.nava2.guice.KAbstractModule
 import com.github.nava2.guice.getInstance
 import com.github.nava2.guice.getProvider
 import com.github.nava2.guice.key
-import com.google.inject.Guice
+import com.github.nava2.test.GuiceModule
+import com.google.inject.Injector
 import com.google.inject.OutOfScopeException
 import com.google.inject.ProvisionException
+import com.google.inject.util.Modules
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import javax.inject.Inject
 
 internal class ActionScopeTest {
-  private val injector = Guice.createInjector(
+  @GuiceModule
+  val module = Modules.combine(
     ActionScopeModule,
     object : KAbstractModule() {
       override fun configure() {
@@ -25,7 +28,11 @@ internal class ActionScopeTest {
     },
   )
 
-  private val actionScope = injector.getInstance<ActionScope>()
+  @Inject
+  private lateinit var injector: Injector
+
+  @Inject
+  private lateinit var actionScope: ActionScope
 
   @Test
   fun `seededKeyProvider() immediately throws`() {
@@ -65,7 +72,7 @@ internal class ActionScopeTest {
     ) {
       val currentActionKey = actionScope.currentActionKey()
       assertThat(actionScope.getSeedMap(currentActionKey))
-        .containsExactlyInAnyOrderEntriesOf(
+        .containsAllEntriesOf(
           key<ActionScope.ActionKey>() to currentActionKey,
           key<SimpleDataClass1>() to simpleInjectable,
         )
@@ -102,7 +109,7 @@ internal class ActionScopeTest {
     ) {
       val currentActionKey = actionScope.currentActionKey()
       assertThat(actionScope.getSeedMap(currentActionKey))
-        .containsExactlyInAnyOrderEntriesOf(
+        .containsAllEntriesOf(
           key<ActionScope.ActionKey>() to currentActionKey,
           key<SimpleDataClass1>() to simpleInjectable,
         )
@@ -113,7 +120,7 @@ internal class ActionScopeTest {
       assertThat(firstNotScoped).isEqualTo(secondNotScoped)
 
       assertThat(actionScope.getSeedMap(currentActionKey))
-        .containsExactlyInAnyOrderEntriesOf(
+        .containsAllEntriesOf(
           key<ActionScope.ActionKey>() to currentActionKey,
           key<SimpleDataClass1>() to simpleInjectable,
         )
@@ -139,7 +146,7 @@ internal class ActionScopeTest {
     ) {
       val parentActionKey = actionScope.currentActionKey()
       assertThat(actionScope.getSeedMap(parentActionKey))
-        .containsExactlyInAnyOrderEntriesOf(
+        .containsAllEntriesOf(
           key<ActionScope.ActionKey>() to parentActionKey,
           key<SimpleDataClass1>() to parentValue,
         )
@@ -149,7 +156,7 @@ internal class ActionScopeTest {
         val childActionKey = actionScope.currentActionKey()
 
         assertThat(actionScope.getSeedMap(childActionKey))
-          .containsExactlyInAnyOrderEntriesOf(
+          .containsAllEntriesOf(
             key<ActionScope.ActionKey>() to childActionKey,
             key<SimpleDataClass2>() to childValue,
           )
@@ -158,7 +165,7 @@ internal class ActionScopeTest {
         assertThat(childInjector.getInstance<SimpleDataClass2>()).isEqualTo(childValue)
 
         assertThat(actionScope.computeFullCurrentSeedMap())
-          .containsExactlyInAnyOrderEntriesOf(
+          .containsAllEntriesOf(
             key<ActionScope.ActionKey>() to childActionKey,
             key<SimpleDataClass1>() to parentValue,
             key<SimpleDataClass2>() to childValue,
@@ -167,7 +174,7 @@ internal class ActionScopeTest {
 
       // after closing child scope, we have no effects
       assertThat(actionScope.getSeedMap(parentActionKey))
-        .containsExactlyInAnyOrderEntriesOf(
+        .containsAllEntriesOf(
           key<ActionScope.ActionKey>() to parentActionKey,
           key<SimpleDataClass1>() to parentValue,
         )
@@ -185,7 +192,7 @@ internal class ActionScopeTest {
     ) {
       val parentActionKey = actionScope.currentActionKey()
       assertThat(actionScope.getSeedMap(parentActionKey))
-        .containsExactlyInAnyOrderEntriesOf(
+        .containsAllEntriesOf(
           key<ActionScope.ActionKey>() to parentActionKey,
           key<SimpleDataClass1>() to parentValue,
         )
@@ -195,14 +202,14 @@ internal class ActionScopeTest {
         val childActionKey = actionScope.currentActionKey()
 
         assertThat(actionScope.getSeedMap(childActionKey))
-          .containsExactlyInAnyOrderEntriesOf(
+          .containsAllEntriesOf(
             key<ActionScope.ActionKey>() to childActionKey,
             key<SimpleDataClass1>() to childValue,
           )
         assertThat(injector.getInstance<SimpleDataClass1>()).isEqualTo(childValue)
 
         assertThat(actionScope.computeFullCurrentSeedMap())
-          .containsExactlyInAnyOrderEntriesOf(
+          .containsAllEntriesOf(
             key<ActionScope.ActionKey>() to childActionKey,
             key<SimpleDataClass1>() to childValue,
           )
@@ -210,7 +217,7 @@ internal class ActionScopeTest {
 
       // after closing child scope, we have no effects
       assertThat(actionScope.getSeedMap(parentActionKey))
-        .containsExactlyInAnyOrderEntriesOf(
+        .containsAllEntriesOf(
           key<ActionScope.ActionKey>() to parentActionKey,
           key<SimpleDataClass1>() to parentValue,
         )
@@ -219,14 +226,14 @@ internal class ActionScopeTest {
 
   @Test
   fun `@ActionScoped provider gives current key`() {
-    val outOfScopeProvider = injector.getProvider(ActionScope.ActionKey.GUICE_ACTION_KEY)
+    val outOfScopeProvider = injector.getProvider(key<ActionScope.ActionKey>())
     assertThatThrownBy { outOfScopeProvider.get() }
       .isInstanceOf<ProvisionException>()
       .hasCauseInstanceOf(OutOfScopeException::class.java)
 
     actionScope.runInNewScope {
       val expected = actionScope.currentActionKey()
-      val provider = injector.getProvider(ActionScope.ActionKey.GUICE_ACTION_KEY)
+      val provider = injector.getProvider(key<ActionScope.ActionKey>())
       assertThat(provider.get())
         .isSameAs(expected)
         .isSameAs(provider.get())
@@ -255,6 +262,29 @@ internal class ActionScopeTest {
     }
       .isInstanceOf<ProvisionException>()
       .hasCauseInstanceOf(OutOfScopeException::class.java)
+  }
+
+  @Test
+  fun `chains scope correctly and consistently`() {
+    val unscopedChain = actionScope.currentChain()
+    assertThat(unscopedChain).isEqualTo(ActionScope.Chain(listOf()))
+
+    actionScope.runInNewScope {
+      val parentActionKey = actionScope.currentActionKey()
+
+      val parentChain = actionScope.currentChain()
+      assertThat(parentChain.keys).containsExactly(parentActionKey)
+
+      actionScope.runInNewScope {
+        val childActionKey = actionScope.currentActionKey()
+
+        val childChain = actionScope.currentChain()
+        assertThat(childChain.keys).containsExactly(parentActionKey, childActionKey)
+      }
+
+      val parentChainPostChild = actionScope.currentChain()
+      assertThat(parentChainPostChild.keys).containsExactly(parentActionKey)
+    }
   }
 }
 
