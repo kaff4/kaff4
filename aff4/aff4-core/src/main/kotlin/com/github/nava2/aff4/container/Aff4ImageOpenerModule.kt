@@ -9,6 +9,7 @@ import com.github.nava2.aff4.model.Aff4StreamOpener
 import com.github.nava2.aff4.model.Aff4StreamOpenerModule
 import com.github.nava2.aff4.rdf.RdfExecutor
 import com.github.nava2.guice.KAbstractModule
+import com.github.nava2.guice.action_scoped.ActionScoped
 import com.github.nava2.guice.to
 import com.google.inject.Provides
 
@@ -23,20 +24,20 @@ object Aff4ImageOpenerModule : KAbstractModule() {
   }
 
   @Provides
-  @ImageScoped
+  @ActionScoped
   internal fun providesAff4Model(
     aff4ModelLoader: Aff4Model.Loader,
-    @ImageScoped aff4ImageContext: Aff4ImageContext,
+    @ActionScoped aff4ImageContext: Aff4ImageContext,
   ): Aff4Model {
     return aff4ModelLoader.load(aff4ImageContext)
   }
 
   @Provides
-  @ImageScoped
+  @ActionScoped
   internal fun providesAff4Image(
     aff4Model: Aff4Model,
     streamOpener: Aff4StreamOpener,
-    @ImageScoped loadedContainersContext: RealAff4ImageOpener.LoadedContainersContext,
+    @ActionScoped loadedContainersContext: RealAff4ImageOpener.LoadedContainersContext,
   ): Aff4Image {
     return RealAff4Image(
       aff4Model = aff4Model,
@@ -46,10 +47,10 @@ object Aff4ImageOpenerModule : KAbstractModule() {
   }
 
   @Provides
-  @ImageScoped
+  @ActionScoped
   internal fun providesImageContext(
     rdfExecutor: RdfExecutor,
-    @ImageScoped loadedContainersContext: RealAff4ImageOpener.LoadedContainersContext,
+    @ActionScoped loadedContainersContext: RealAff4ImageOpener.LoadedContainersContext,
   ) = Aff4ImageContext(
     imageName = loadedContainersContext.imageName,
     rdfExecutor = rdfExecutor,

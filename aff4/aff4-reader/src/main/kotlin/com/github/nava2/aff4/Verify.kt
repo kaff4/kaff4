@@ -12,12 +12,14 @@ import com.github.nava2.aff4.rdf.MemoryRdfRepositoryPlugin
 import com.github.nava2.aff4.streams.compression.Aff4SnappyPlugin
 import com.github.nava2.logging.Logging
 import kotlinx.cli.ArgType
+import kotlinx.cli.ExperimentalCli
 import kotlinx.cli.Subcommand
 import kotlinx.cli.vararg
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
 
+@ExperimentalCli
 class Verify : Subcommand("verify", "Verify an image") {
   private val logger = Logging.getLogger()
 

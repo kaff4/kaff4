@@ -3,6 +3,7 @@ package com.github.nava2.aff4.container
 import com.github.nava2.aff4.model.Aff4ImageContext
 import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.model.rdf.StoredRdfModel
+import com.github.nava2.guice.action_scoped.ActionScoped
 import okio.FileSystem
 import javax.inject.Inject
 import javax.inject.Provider
@@ -10,7 +11,7 @@ import javax.inject.Singleton
 
 @Singleton
 internal class ContainerDataFileSystemProvider @Inject constructor(
-  @ImageScoped private val containerContextProvider: Provider<Aff4ImageContext>,
+  @ActionScoped private val containerContextProvider: Provider<Aff4ImageContext>,
 ) {
   operator fun get(containerArn: Aff4Arn): FileSystem {
     val containers = containerContextProvider.get().containers
