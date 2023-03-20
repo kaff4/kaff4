@@ -12,3 +12,7 @@ inline fun <reified F> assistedFactoryModule(setupFn: FactoryModuleBuilder.() ->
 inline fun <reified T, reified U : T> FactoryModuleBuilder.implement(): FactoryModuleBuilder {
   return implement(T::class.java, U::class.java)
 }
+
+inline fun <reified T> FactoryModuleBuilder.build(): Module {
+  return build(T::class.java)
+}
