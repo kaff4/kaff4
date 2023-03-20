@@ -2,6 +2,7 @@ package com.github.nava2.aff4.model
 
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.benmanes.caffeine.cache.LoadingCache
+import com.github.nava2.aff4.io.AutoCloseableSourceProvider
 import com.github.nava2.aff4.io.SourceProvider
 import com.github.nava2.aff4.io.bounded
 import com.github.nava2.aff4.model.rdf.Aff4Arn
@@ -22,11 +23,21 @@ import okio.Source
 import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.Statement
 import org.eclipse.rdf4j.model.ValueFactory
+import java.lang.reflect.InvocationHandler
+import java.lang.reflect.Method
+import java.lang.reflect.ParameterizedType
+import java.lang.reflect.Proxy
 import javax.inject.Inject
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.jvm.javaMethod
+import kotlin.reflect.jvm.javaType
 
-private const val MAX_OPEN_STREAMS = 20L
+private val closeableMethods = setOf(
+  AutoCloseable::close.javaMethod,
+  Closeable::close.javaMethod,
+  java.io.Closeable::close.javaMethod,
+)
 
 @ActionScoped
 internal class RealAff4StreamOpener @Inject constructor(
@@ -48,24 +59,53 @@ internal class RealAff4StreamOpener @Inject constructor(
 
   private val aff4StreamLoaderContexts = aff4StreamLoaderContexts.associateBy { it.configTypeLiteral }
 
-  private val openStreams: LoadingCache<Aff4Arn, Aff4StreamSourceProvider> = Caffeine.newBuilder()
-    .maximumSize(MAX_OPEN_STREAMS)
-    .removalListener<Aff4Arn, SourceProvider<Source>> { _, provider, _ ->
-      (provider as? Closeable)?.close()
-    }
+  private val openStreams: LoadingCache<Aff4Arn, AutoCloseableSourceProvider<Source>> = Caffeine.newBuilder()
+    .weakValues()
     .build(::loadSourceProvider)
 
-  override fun openStream(arn: Aff4Arn): SourceProvider<Source> {
-    check(!closed) { "Closed" }
+  private inner class ProxyCloseHandler(
+    private val delegate: Aff4StreamSourceProvider,
+  ) : InvocationHandler {
+    override fun invoke(proxy: Any, method: Method, args: Array<out Any>?): Any? {
+      return if (method in closeableMethods) {
+        openStreams.invalidate(delegate.arn)
+
+        if (delegate is AutoCloseable) {
+          delegate.close()
+        }
+
+        Unit
+      } else {
+        if (args == null) {
+          method.invoke(delegate)
+        } else {
+          @Suppress("SpreadOperator") // can't optimize for java call
+          method.invoke(delegate, *args)
+        }
+      }
+    }
+  }
+
+  override fun openStream(arn: Aff4Arn): AutoCloseableSourceProvider<Source> {
+    check(!closed) { "closed" }
+
+    data class WrappedNoOpCloseableSourceProvider(
+      private val delegate: SourceProvider<Source>,
+    ) : AutoCloseableSourceProvider<Source>, SourceProvider<Source> by delegate {
+      override fun close() = Unit
+
+      init {
+        require(delegate !is AutoCloseable) {
+          "This class is intended to be used with non-closeable values"
+        }
+      }
+    }
 
     val symbolic = symbolics.maybeGetProvider(arn)
-    if (symbolic != null) return symbolic
-
-    // We do not hold open offset stream providers as they are just 'views' over a real stream provider
-    return if (!arn.isHashDedupe()) {
-      openStreams[arn]!!
-    } else {
-      loadHashDedupedStream(arn)
+    return when {
+      symbolic != null -> WrappedNoOpCloseableSourceProvider(symbolic)
+      arn.isHashDedupe() -> WrappedNoOpCloseableSourceProvider(loadHashDedupedStream(arn))
+      else -> openStreams[arn]!!
     }
   }
 
@@ -82,16 +122,29 @@ internal class RealAff4StreamOpener @Inject constructor(
     }
   }
 
-  private fun loadSourceProvider(subject: Aff4Arn): Aff4StreamSourceProvider {
-    check(!closed) { "Closed" }
+  private fun loadSourceProvider(subject: Aff4Arn): AutoCloseableSourceProvider<Source> {
+    check(!closed) { "closed" }
 
     require(!subject.isHashDedupe()) { "Hash streams are not supported via this method." }
 
-    return rdfExecutor.withReadOnlySession { connection: RdfConnection ->
+    val streamSourceProvider = rdfExecutor.withReadOnlySession { connection: RdfConnection ->
       val statements = connection.queryStatements(subj = subject).use { it.toList() }
 
       loadStreamFromRdf(connection, rdfModelParser, subject, statements)
     }
+
+    val expectedInterfaces = setOf(
+      AutoCloseableSourceProvider::class.java,
+    )
+    val implementedInterfaces = streamSourceProvider::class.getImplementedInterfacesForProxy()
+
+    val proxy = Proxy.newProxyInstance(
+      Aff4StreamSourceProvider::class.java.classLoader,
+      (implementedInterfaces + expectedInterfaces).toTypedArray(),
+      ProxyCloseHandler(streamSourceProvider),
+    ) as AutoCloseableSourceProvider<Source>
+
+    return proxy
   }
 
   private fun loadStreamFromRdf(
@@ -145,3 +198,27 @@ private fun Aff4Arn.isHashDedupe(): Boolean {
     iriValue.endsWith("==") &&
     iriValue.indexOf(':', startIndex = "aff4:".length) != -1
 }
+
+private const val INTERFACE_LOOKUP_CACHE_MAX_SIZE = 20L
+
+private val interfacesCache = Caffeine.newBuilder()
+  .weakKeys()
+  .weakValues()
+  .maximumSize(INTERFACE_LOOKUP_CACHE_MAX_SIZE)
+  .build<KClass<*>, Set<Class<*>>> { key ->
+    key.supertypes.asSequence()
+      .filter { type ->
+        val klass = type.classifier as? KClass<*>
+        klass?.isAbstract == true && klass.constructors.isEmpty()
+      }
+      .mapNotNull {
+        when (val type = it.javaType) {
+          is Class<*> -> type
+          is ParameterizedType -> type.rawType as Class<*>
+          else -> null
+        }
+      }
+      .toSet()
+  }
+
+private fun KClass<*>.getImplementedInterfacesForProxy(): Set<Class<out Any>> = interfacesCache[this]!!
