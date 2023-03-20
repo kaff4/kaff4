@@ -38,21 +38,18 @@ internal class RealAff4Model @AssistedInject constructor(
 
   override fun <T : Aff4RdfModel> query(modelType: KClass<T>): Sequence<T> {
     val modelRdfTypes = getModelRdfTypes(modelType)
-    var subjects: List<Resource>? = null
-
     val bindings = mutableMapOf<String, Resource>()
 
     return sequence {
       for (modelRdfType in modelRdfTypes) {
         yieldAll(
-          queryPaginatedSubjects(subjects, modelRdfType, bindings, modelType)
+          queryPaginatedSubjects(modelRdfType, bindings, modelType)
         )
       }
     }
   }
 
   private fun <T : Aff4RdfModel> queryPaginatedSubjects(
-    subjects: List<Resource>?,
     modelRdfType: String,
     bindings: MutableMap<String, Resource>,
     modelType: KClass<T>
@@ -60,16 +57,16 @@ internal class RealAff4Model @AssistedInject constructor(
     val queryProvider = object : (RdfConnection) -> String {
       private lateinit var querySubjects: List<Resource>
 
-      init {
-        if (subjects != null) {
-          querySubjects = subjects
-        }
-      }
-
-      override fun invoke(connection: RdfConnection): String {
+      @Synchronized
+      private fun getSubjects(connection: RdfConnection): List<Resource> {
         if (!::querySubjects.isInitialized) {
           querySubjects = connection.querySubjectsByType(connection.namespaces.iriFromTurtle(modelRdfType))
         }
+        return querySubjects
+      }
+
+      override fun invoke(connection: RdfConnection): String {
+        val subjects = getSubjects(connection)
 
         return buildString {
           appendLine(
@@ -82,7 +79,7 @@ internal class RealAff4Model @AssistedInject constructor(
 
           append("    FILTER( ?s IN (")
             .append(
-              querySubjects.joinToString { subj ->
+              subjects.joinToString { subj ->
                 val binding = "subj_%03d".format(bindings.size)
                 bindings[binding] = subj
                 "?$binding"
@@ -99,7 +96,6 @@ internal class RealAff4Model @AssistedInject constructor(
     return paginated(
       queryProvider = queryProvider,
       bindingsProvider = {
-        setBinding("type", valueFactory.createIRI(modelRdfType))
         for ((binding, value) in bindings) {
           setBinding(binding, value)
         }
