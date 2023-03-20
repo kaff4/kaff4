@@ -3,7 +3,7 @@ package com.github.nava2.aff4.container
 import com.github.nava2.aff4.model.Aff4Container
 import com.github.nava2.aff4.model.Aff4Image
 import com.github.nava2.aff4.model.Aff4ImageOpener
-import com.github.nava2.aff4.model.Aff4ImageOpener.Aff4ContainerWithResources
+import com.github.nava2.aff4.model.Aff4ImageOpener.Aff4ImageWithResources
 import com.github.nava2.guice.action_scoped.ActionScope
 import com.github.nava2.guice.key
 import okio.FileSystem
@@ -15,7 +15,7 @@ internal class RealAff4ImageOpener @Inject constructor(
   private val containerLoader: ContainerLoader,
   private val aff4ImageProvider: com.google.inject.Provider<Aff4Image>,
 ) : Aff4ImageOpener {
-  override fun manualOpen(fileSystem: FileSystem, path: Path): Aff4ContainerWithResources {
+  override fun manualOpen(fileSystem: FileSystem, path: Path): Aff4ImageWithResources {
     val containers = containerLoader.getContainersForImage(fileSystem, path)
     check(containers.isNotEmpty()) {
       "Failed to load image [$path]: no containers found."
@@ -29,8 +29,8 @@ internal class RealAff4ImageOpener @Inject constructor(
       )
     )
 
-    val aff4Container = actionScope.scope(key(), aff4ImageProvider).get()
-    return Aff4ContainerWithResources(aff4Container) { action.close() }
+    val aff4Image = actionScope.scope(key<Aff4Image>(), aff4ImageProvider).get()
+    return Aff4ImageWithResources(aff4Image) { action.close() }
   }
 
   data class LoadedContainersContext(
