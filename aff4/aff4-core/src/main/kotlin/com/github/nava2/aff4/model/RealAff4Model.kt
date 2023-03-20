@@ -2,6 +2,7 @@ package com.github.nava2.aff4.model
 
 import com.github.nava2.aff4.model.rdf.Aff4RdfModel
 import com.github.nava2.aff4.model.rdf.annotations.RdfModel
+import com.github.nava2.aff4.model.rdf.annotations.allRdfTypes
 import com.github.nava2.aff4.model.rdf.evaluateSequence
 import com.github.nava2.aff4.rdf.RdfConnection
 import com.github.nava2.aff4.rdf.RdfExecutor
@@ -33,23 +34,44 @@ internal class RealAff4Model @AssistedInject constructor(
   @Volatile
   private var closed = false
 
-  private val modelArns = mutableMapOf<KClass<*>, String>()
+  private val modelArns = mutableMapOf<KClass<*>, Set<String>>()
 
   override fun <T : Aff4RdfModel> query(modelType: KClass<T>): Sequence<T> {
-    val modelRdfType = getModelRdfType(modelType)
+    val modelRdfTypes = getModelRdfTypes(modelType)
     var subjects: List<Resource>? = null
 
     val bindings = mutableMapOf<String, Resource>()
 
-    return paginated(
-      queryProvider = { connection ->
-        val querySubjects = subjects ?: run {
-          val queriedSubjects = connection.querySubjectsByType(connection.namespaces.iriFromTurtle(modelRdfType))
-          subjects = queriedSubjects
-          queriedSubjects
+    return sequence {
+      for (modelRdfType in modelRdfTypes) {
+        yieldAll(
+          queryPaginatedSubjects(subjects, modelRdfType, bindings, modelType)
+        )
+      }
+    }
+  }
+
+  private fun <T : Aff4RdfModel> queryPaginatedSubjects(
+    subjects: List<Resource>?,
+    modelRdfType: String,
+    bindings: MutableMap<String, Resource>,
+    modelType: KClass<T>
+  ): Sequence<T> {
+    val queryProvider = object : (RdfConnection) -> String {
+      private lateinit var querySubjects: List<Resource>
+
+      init {
+        if (subjects != null) {
+          querySubjects = subjects
+        }
+      }
+
+      override fun invoke(connection: RdfConnection): String {
+        if (!::querySubjects.isInitialized) {
+          querySubjects = connection.querySubjectsByType(connection.namespaces.iriFromTurtle(modelRdfType))
         }
 
-        buildString {
+        return buildString {
           appendLine(
             """
             CONSTRUCT { ?s ?p ?o }
@@ -71,9 +93,13 @@ internal class RealAff4Model @AssistedInject constructor(
           appendLine('}')
           appendLine("ORDER BY ?s ?p ?o")
         }
-      },
+      }
+    }
+
+    return paginated(
+      queryProvider = queryProvider,
       bindingsProvider = {
-        setBinding("type", valueFactory.createIRI(modelRdfType))
+        setBinding("types", valueFactory.createIRI(modelRdfType))
         for ((binding, value) in bindings) {
           setBinding(binding, value)
         }
@@ -200,8 +226,9 @@ internal class RealAff4Model @AssistedInject constructor(
     return rdfExecutor.withReadOnlySession { block(it) }
   }
 
-  private fun getModelRdfType(modelType: KClass<*>) =
-    modelArns.getOrPut(modelType) { modelType.findAnnotation<RdfModel>()!!.rdfType }
+  private fun getModelRdfTypes(modelType: KClass<*>): Set<String> {
+    return modelArns.getOrPut(modelType) { modelType.findAnnotation<RdfModel>()!!.allRdfTypes }
+  }
 
   internal interface AssistedFactory {
     fun create(containerContext: Aff4ImageContext): RealAff4Model
