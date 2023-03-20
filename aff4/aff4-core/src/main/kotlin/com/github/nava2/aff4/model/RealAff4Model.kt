@@ -99,7 +99,7 @@ internal class RealAff4Model @AssistedInject constructor(
     return paginated(
       queryProvider = queryProvider,
       bindingsProvider = {
-        setBinding("types", valueFactory.createIRI(modelRdfType))
+        setBinding("type", valueFactory.createIRI(modelRdfType))
         for ((binding, value) in bindings) {
           setBinding(binding, value)
         }
