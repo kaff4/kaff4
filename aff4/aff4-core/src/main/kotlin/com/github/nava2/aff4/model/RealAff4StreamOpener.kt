@@ -8,6 +8,7 @@ import com.github.nava2.aff4.io.bounded
 import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.model.rdf.Aff4RdfModel
 import com.github.nava2.aff4.model.rdf.annotations.RdfModel
+import com.github.nava2.aff4.model.rdf.annotations.allRdfTypes
 import com.github.nava2.aff4.model.rdf.createAff4Iri
 import com.github.nava2.aff4.model.rdf.createArn
 import com.github.nava2.aff4.rdf.QueryableRdfConnection
@@ -50,12 +51,15 @@ internal class RealAff4StreamOpener @Inject constructor(
   @Volatile
   private var closed = false
 
-  private val modelKlassesByRdfType = rdfExecutor.withReadOnlySession { connection ->
-    modelKlasses.associateBy { klass ->
-      val rdfModelType = klass.findAnnotation<RdfModel>()!!.rdfType
-      connection.namespaces.iriFromTurtle(rdfModelType)
+  private val modelKlassesByRdfType: Map<IRI, KClass<out Aff4RdfModel>> =
+    rdfExecutor.withReadOnlySession { connection ->
+      modelKlasses.asSequence()
+        .flatMap { klass ->
+          val rdfModelTypes = klass.findAnnotation<RdfModel>()!!.allRdfTypes
+          rdfModelTypes.map { connection.namespaces.iriFromTurtle(it) to klass }
+        }
+        .toMap()
     }
-  }
 
   private val aff4StreamLoaderContexts = aff4StreamLoaderContexts.associateBy { it.configTypeLiteral }
 

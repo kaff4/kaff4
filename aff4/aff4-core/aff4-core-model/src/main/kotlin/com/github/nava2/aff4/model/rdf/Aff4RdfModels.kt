@@ -160,7 +160,7 @@ data class DiskImage(
   val diskSerial: String,
 ) : Aff4RdfBaseModels
 
-@RdfModel("aff4:zip_segment")
+@RdfModel("aff4:ZipSegment", "aff4:zip_segment")
 data class ZipSegment(
   override val arn: Aff4Arn,
   val size: Long,

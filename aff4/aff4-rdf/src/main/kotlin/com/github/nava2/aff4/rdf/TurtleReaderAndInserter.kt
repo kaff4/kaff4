@@ -4,6 +4,7 @@ import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.model.rdf.Aff4RdfModel
 import com.github.nava2.aff4.model.rdf.StoredRdfModel
 import com.github.nava2.aff4.model.rdf.annotations.RdfModel
+import com.github.nava2.aff4.model.rdf.annotations.allRdfTypes
 import com.github.nava2.aff4.model.rdf.createAff4Iri
 import com.github.nava2.aff4.rdf.schema.RdfSchema
 import com.google.inject.assistedinject.Assisted
@@ -30,7 +31,7 @@ internal class TurtleReaderAndInserter @AssistedInject constructor(
   private val modelsRequiringSubjects by lazy(LazyThreadSafetyMode.NONE) {
     aff4ModelClasses.asSequence()
       .filter { StoredRdfModel::class.isSuperclassOf(it) }
-      .map { it.findAnnotation<RdfModel>()!!.rdfType }
+      .flatMap { it.findAnnotation<RdfModel>()!!.allRdfTypes }
       .map { valueFactory.createAff4Iri(it.substringAfter(':')) }
       .toSet()
   }
