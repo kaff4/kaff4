@@ -36,7 +36,7 @@ class ActionScope internal constructor() : Scope {
   }
 
   fun start(seedMap: Map<Key<*>, Any>): Action {
-    return Action(seedMap)
+    return Action(this, seedMap)
   }
 
   fun <R> runInNewScope(seedMap: Map<Key<*>, Any> = mapOf(), block: () -> R): R {
@@ -90,13 +90,17 @@ class ActionScope internal constructor() : Scope {
 
   internal data class ActionKey(val uuid: UUID) {
     companion object {
-      internal val GUICE_ACTION_KEY: Key<ActionKey> = key()
-
       fun generate(): ActionKey = ActionKey(UUID.randomUUID())
     }
   }
 
+  private fun addDefaultSeeds(map: MutableMap<Key<*>, Any>, key: ActionKey) = map.apply {
+    put(key<ActionKey>(), key)
+    put(key<ActionScopedExecutors>(), ActionScopedExecutors(this@ActionScope))
+  }
+
   class Action internal constructor(
+    actionScope: ActionScope,
     seedMap: Map<Key<*>, Any>,
   ) : AutoCloseable {
     private val key: ActionKey = ActionKey.generate()
@@ -104,7 +108,7 @@ class ActionScope internal constructor() : Scope {
 
     init {
       seedMaps[key] = seedMap.toMutableMap().apply {
-        put(ActionKey.GUICE_ACTION_KEY, key)
+        actionScope.addDefaultSeeds(this, key)
       }
       currentStack.addLast(key)
     }
@@ -115,6 +119,24 @@ class ActionScope internal constructor() : Scope {
       seedMaps.remove(key)
     }
   }
+
+  internal data class Chain(
+    val keys: List<ActionKey>,
+  ) {
+    fun <R> runInScope(actionScope: ActionScope, block: () -> R): R {
+      scopeStacks.set(ArrayDeque(keys))
+
+      try {
+        return Action(actionScope, mapOf()).use {
+          block()
+        }
+      } finally {
+        scopeStacks.remove()
+      }
+    }
+  }
+
+  internal fun currentChain(): Chain = Chain(scopeStacks.get().toList())
 
   companion object {
     private val seedMaps = ConcurrentHashMap<ActionKey, MutableMap<Key<*>, Any>>()

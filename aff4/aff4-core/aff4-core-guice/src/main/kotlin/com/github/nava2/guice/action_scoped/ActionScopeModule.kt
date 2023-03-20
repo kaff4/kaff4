@@ -1,6 +1,7 @@
 package com.github.nava2.guice.action_scoped
 
 import com.github.nava2.guice.KAbstractModule
+import com.github.nava2.guice.key
 
 object ActionScopeModule : KAbstractModule() {
   private val actionScope = ActionScope()
@@ -11,6 +12,7 @@ object ActionScopeModule : KAbstractModule() {
 
     bind<ActionScope>().toInstance(actionScope)
 
-    bind(ActionScope.ActionKey.GUICE_ACTION_KEY).inActionScope()
+    bind(key<ActionScope.ActionKey>()).inActionScope()
+    bind<ActionScopedExecutors>().inActionScope()
   }
 }

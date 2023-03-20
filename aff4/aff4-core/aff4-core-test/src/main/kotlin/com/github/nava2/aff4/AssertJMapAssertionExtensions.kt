@@ -7,3 +7,9 @@ fun <SELF : AbstractMapAssert<SELF, ACTUAL, K, V>, ACTUAL : Map<K, V>, K, V> SEL
 ): SELF {
   return containsExactlyInAnyOrderEntriesOf(entries.toMap())
 }
+
+fun <SELF : AbstractMapAssert<SELF, ACTUAL, K, V>, ACTUAL : Map<K, V>, K, V> SELF.containsAllEntriesOf(
+  vararg entries: Pair<K, V>,
+): SELF {
+  return containsAllEntriesOf(entries.toMap())
+}
