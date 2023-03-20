@@ -1,6 +1,7 @@
 dependencies {
   api(Dependencies.GUAVA)
   api(Dependencies.GUICE)
+  api(Dependencies.JAVAX_INJECT)
   api(Dependencies.OKIO)
   api(Dependencies.RDF4J_MODEL_API)
   api(Dependencies.RDF4J_QUERY)

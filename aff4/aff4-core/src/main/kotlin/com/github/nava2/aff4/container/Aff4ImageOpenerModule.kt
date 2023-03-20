@@ -7,6 +7,8 @@ import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.model.Aff4ModelModule
 import com.github.nava2.aff4.model.Aff4StreamOpener
 import com.github.nava2.aff4.model.Aff4StreamOpenerModule
+import com.github.nava2.aff4.model.dialect.ToolDialect
+import com.github.nava2.aff4.model.dialect.ToolDialectResolver
 import com.github.nava2.aff4.rdf.RdfExecutor
 import com.github.nava2.guice.KAbstractModule
 import com.github.nava2.guice.action_scoped.ActionScoped
@@ -56,4 +58,19 @@ object Aff4ImageOpenerModule : KAbstractModule() {
     rdfExecutor = rdfExecutor,
     containers = loadedContainersContext.containers.map { it.container },
   )
+
+  // TODO Test only one per action
+  @Provides
+  @ActionScoped
+  internal fun providesToolDialect(
+    @ActionScoped loadedContainersContext: RealAff4ImageOpener.LoadedContainersContext,
+    toolDialectResolver: ToolDialectResolver,
+  ): ToolDialect {
+    val toolMetadata = loadedContainersContext.containers.asSequence()
+      .map { it.container.metadata }
+      .distinct()
+      .single()
+
+    return toolDialectResolver.forTool(toolMetadata)
+  }
 }
