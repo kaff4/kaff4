@@ -87,12 +87,13 @@ internal class VerifyAction @Inject constructor(
     stream: Aff4RdfBaseModels,
     model: Aff4Model
   ): VerificationResult {
-    val streamProvider = container.streamOpener.openStream(stream.arn)
-    if (streamProvider !is VerifiableStreamProvider) return VerificationResult.Unsupported(stream.arn)
+    return container.streamOpener.openStream(stream.arn).use { streamProvider ->
+      if (streamProvider !is VerifiableStreamProvider) return@use VerificationResult.Unsupported(stream.arn)
 
-    return when (val result = streamProvider.verify(model)) {
-      is VerifiableStreamProvider.Result.Failed -> VerificationResult.Failure(stream.arn, result.failedHashes)
-      VerifiableStreamProvider.Result.Success -> VerificationResult.Success(stream.arn)
+      when (val result = streamProvider.verify(model)) {
+        is VerifiableStreamProvider.Result.Failed -> VerificationResult.Failure(stream.arn, result.failedHashes)
+        VerifiableStreamProvider.Result.Success -> VerificationResult.Success(stream.arn)
+      }
     }
   }
 }
