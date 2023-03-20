@@ -20,6 +20,10 @@ abstract class KAbstractModule protected constructor() : AbstractModule() {
     return requireBinding(T::class.java)
   }
 
+  protected inline fun <reified T> requireBinding(annotatedWith: KClass<out Annotation>) {
+    return requireBinding(key<T>(annotatedWith))
+  }
+
   protected inline fun <reified T> bindSet(
     block: KSetMultibinderHelper<T>.() -> Unit
   ): Multibinder<T> {
