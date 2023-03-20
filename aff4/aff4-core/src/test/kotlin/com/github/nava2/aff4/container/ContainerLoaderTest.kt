@@ -9,6 +9,7 @@ import com.github.nava2.aff4.model.rdf.createArn
 import com.github.nava2.aff4.satisfies
 import com.github.nava2.guice.KAbstractModule
 import com.github.nava2.test.GuiceModule
+import com.google.inject.util.Modules
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
@@ -42,7 +43,7 @@ internal class ContainerLoaderTest {
   }
 
   @GuiceModule
-  val testModules = listOf(
+  val module = Modules.combine(
     Aff4TestModule,
     object : KAbstractModule() {
       override fun configure() {

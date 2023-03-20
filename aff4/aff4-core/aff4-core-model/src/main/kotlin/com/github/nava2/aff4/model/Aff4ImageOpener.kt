@@ -4,7 +4,7 @@ import okio.FileSystem
 import okio.Path
 
 interface Aff4ImageOpener {
-  fun manualOpen(fileSystem: FileSystem, path: Path): Aff4ContainerWithResources
+  fun manualOpen(fileSystem: FileSystem, path: Path): Aff4ImageWithResources
 
   fun <R> open(fileSystem: FileSystem, path: Path, block: (container: Aff4Image) -> R): R {
     return manualOpen(fileSystem, path).use { wrapper ->
@@ -12,7 +12,7 @@ interface Aff4ImageOpener {
     }
   }
 
-  class Aff4ContainerWithResources(
+  class Aff4ImageWithResources(
     val aff4Image: Aff4Image,
     private val closeable: AutoCloseable,
   ) : AutoCloseable {

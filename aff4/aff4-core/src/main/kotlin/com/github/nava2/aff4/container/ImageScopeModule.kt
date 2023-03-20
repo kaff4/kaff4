@@ -7,7 +7,7 @@ import com.github.nava2.guice.action_scoped.ActionScoped
 import com.github.nava2.guice.key
 import javax.inject.Provider
 
-class ImageScopeModule : KAbstractModule() {
+object ImageScopeModule : KAbstractModule() {
   override fun configure() {
     install(ActionScopeModule)
 

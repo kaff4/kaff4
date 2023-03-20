@@ -15,12 +15,12 @@ import com.google.inject.Provides
 
 object Aff4ImageOpenerModule : KAbstractModule() {
   override fun configure() {
-    install(ImageScopeModule())
-
-    bind<Aff4ImageOpener>().to<RealAff4ImageOpener>()
+    install(ImageScopeModule)
 
     install(Aff4ModelModule)
     install(Aff4StreamOpenerModule)
+
+    bind<Aff4ImageOpener>().to<RealAff4ImageOpener>()
   }
 
   @Provides
