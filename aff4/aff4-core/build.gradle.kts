@@ -12,10 +12,10 @@ dependencies {
   api(project(":aff4:aff4-core:aff4-core-model"))
   api(project(":aff4:aff4-core:aff4-core-okio"))
 
-  implementation(Dependencies.GUICE_ASSISTED_INJECT)
-  implementation(Dependencies.GUAVA)
   implementation(Dependencies.CAFFIENE)
   implementation(Dependencies.CHECKER_QUAL)
+  implementation(Dependencies.GUAVA)
+  implementation(Dependencies.GUICE_ASSISTED_INJECT)
   implementation(Dependencies.RDF4J_QUERY)
   implementation(Dependencies.RDF4J_REPOSITORY_API)
   implementation(Dependencies.RDF4J_RIO_API)
