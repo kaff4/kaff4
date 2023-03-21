@@ -1,5 +1,6 @@
 package com.github.nava2.aff4.model.rdf
 
+import com.github.nava2.aff4.model.Aff4LogicalStandardToolDialect.RdfStandardType
 import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.model.querySubjectStartsWith
 import com.github.nava2.aff4.model.rdf.annotations.RdfModel
@@ -11,6 +12,7 @@ import java.time.ZonedDateTime
 sealed interface Aff4RdfBaseModels : Aff4RdfModel
 
 @RdfModel("aff4:BlockHashes")
+@RdfStandardType("aff4:BlockHashes")
 data class BlockHashes(
   override val arn: Aff4Arn,
   val hash: Hash,
@@ -19,6 +21,7 @@ data class BlockHashes(
 }
 
 @RdfModel("aff4:ZipVolume")
+@RdfStandardType("aff4:ZipVolume")
 data class ZipVolume(
   override val arn: Aff4Arn,
   val contains: Set<Resource> = setOf(),
@@ -29,6 +32,7 @@ data class ZipVolume(
 ) : Aff4RdfBaseModels
 
 @RdfModel("aff4:Map")
+@RdfStandardType("aff4:Map")
 data class MapStream(
   override val arn: Aff4Arn,
   @RdfValue("aff4:dependentStream")
@@ -49,6 +53,7 @@ data class MapStream(
 }
 
 @RdfModel("aff4:Image")
+@RdfStandardType("aff4:Image")
 data class Image(
   override val arn: Aff4Arn,
   @RdfValue("aff4:dataStream")
@@ -57,6 +62,7 @@ data class Image(
 ) : Aff4RdfBaseModels
 
 @RdfModel("aff4:ImageStream")
+@RdfStandardType("aff4:ImageStream")
 data class ImageStream(
   override val arn: Aff4Arn,
   val chunkSize: Int,
@@ -99,6 +105,7 @@ data class ImageStream(
 }
 
 @RdfModel("aff4:CaseNotes")
+@RdfStandardType("aff4:CaseNotes")
 data class CaseNotes(
   override val arn: Aff4Arn,
   val caseNumber: String? = null,
@@ -111,6 +118,7 @@ data class CaseNotes(
 ) : Aff4RdfBaseModels
 
 @RdfModel("aff4:CaseDetails")
+@RdfStandardType("aff4:CaseDetails")
 data class CaseDetails(
   override val arn: Aff4Arn,
   val caseDescription: String? = null,
@@ -131,6 +139,7 @@ enum class Aff4TimeSource {
 }
 
 @RdfModel("aff4:TimeStamps")
+@RdfStandardType("aff4:TimeStamps")
 data class TimeStamps(
   override val arn: Aff4Arn,
   val endTime: ZonedDateTime,
@@ -142,6 +151,7 @@ data class TimeStamps(
 ) : Aff4RdfBaseModels
 
 @RdfModel("aff4:DiskImage")
+@RdfStandardType("aff4:DiskImage")
 data class DiskImage(
   override val arn: Aff4Arn,
   val size: Long,
@@ -161,6 +171,7 @@ data class DiskImage(
 ) : Aff4RdfBaseModels
 
 @RdfModel("aff4:ZipSegment", "aff4:zip_segment")
+@RdfStandardType("aff4:ZipSegment")
 data class ZipSegment(
   override val arn: Aff4Arn,
   val size: Long,
@@ -172,6 +183,7 @@ data class ZipSegment(
 }
 
 @RdfModel("aff4:FileImage")
+@RdfStandardType("aff4:FileImage")
 data class FileImage(
   override val arn: Aff4Arn,
   val originalFileName: Path,

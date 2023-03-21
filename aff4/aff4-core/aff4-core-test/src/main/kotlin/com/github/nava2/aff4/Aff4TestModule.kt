@@ -1,6 +1,7 @@
 package com.github.nava2.aff4
 
 import com.github.nava2.aff4.io.relativeTo
+import com.github.nava2.aff4.model.rdf.Aff4RdfModelPlugin
 import com.github.nava2.aff4.rdf.MemoryRdfRepositoryPlugin
 import com.github.nava2.guice.KAbstractModule
 import com.google.inject.Provides
@@ -16,6 +17,7 @@ object Aff4TestModule : KAbstractModule() {
 
     install(TestRandomsModule)
     install(MemoryRdfRepositoryPlugin)
+    install(Aff4RdfModelPlugin)
   }
 
   @Provides
