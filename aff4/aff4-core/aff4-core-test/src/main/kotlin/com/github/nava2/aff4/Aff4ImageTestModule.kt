@@ -55,6 +55,7 @@ abstract class Aff4ImageTestModule(val imageName: String) : KAbstractModule() {
 
     private var imageWithResources: Aff4ImageOpener.Aff4ImageWithResources? = null
 
+    @Synchronized
     fun openImage(imageName: String): Aff4Image {
       check(imageWithResources == null) { "Can not open multiple images" }
 
