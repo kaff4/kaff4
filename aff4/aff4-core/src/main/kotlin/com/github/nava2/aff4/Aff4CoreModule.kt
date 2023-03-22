@@ -1,5 +1,6 @@
 package com.github.nava2.aff4
 
+import com.github.nava2.aff4.dialects.DialectsModule
 import com.github.nava2.aff4.model.rdf.Aff4RdfModelPlugin
 import com.github.nava2.aff4.rdf.RdfRepositoryModule
 import com.github.nava2.aff4.rdf.io.RdfModelParserModule
@@ -12,6 +13,7 @@ object Aff4CoreModule : KAbstractModule() {
     install(RdfRepositoryModule)
     install(RdfModelParserModule)
     install(Aff4RdfModelPlugin)
+    install(DialectsModule)
   }
 
   override fun equals(other: Any?): Boolean = this === other

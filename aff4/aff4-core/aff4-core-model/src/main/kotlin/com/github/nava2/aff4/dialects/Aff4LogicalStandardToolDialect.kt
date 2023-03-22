@@ -1,5 +1,7 @@
-package com.github.nava2.aff4.model
+package com.github.nava2.aff4.dialects
 
+import com.github.nava2.aff4.model.Aff4Container
+import com.github.nava2.aff4.model.dialect.Aff4ToolDialectModule
 import com.github.nava2.aff4.model.dialect.DialectTypeResolver
 import com.github.nava2.aff4.model.dialect.ToolDialect
 import com.github.nava2.aff4.model.rdf.Aff4RdfModel
@@ -24,7 +26,9 @@ class Aff4LogicalStandardToolDialect internal constructor(
   annotation class RdfStandardType(val rdfType: String)
 
   object Module : KAbstractModule() {
-    override fun configure() = Unit
+    override fun configure() {
+      install(Aff4ToolDialectModule)
+    }
 
     @Singleton
     @Provides

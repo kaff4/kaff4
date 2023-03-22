@@ -1,6 +1,6 @@
 package com.github.nava2.aff4.model.rdf
 
-import com.github.nava2.aff4.model.Aff4LogicalStandardToolDialect.RdfStandardType
+import com.github.nava2.aff4.dialects.Aff4LogicalStandardToolDialect.RdfStandardType
 import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.model.querySubjectStartsWith
 import com.github.nava2.aff4.model.rdf.annotations.RdfModel

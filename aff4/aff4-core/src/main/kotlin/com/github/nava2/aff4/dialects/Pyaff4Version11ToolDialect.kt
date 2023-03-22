@@ -1,6 +1,7 @@
 package com.github.nava2.aff4.dialects
 
 import com.github.nava2.aff4.model.Aff4Container
+import com.github.nava2.aff4.model.dialect.Aff4ToolDialectModule
 import com.github.nava2.aff4.model.dialect.DefaultToolDialect
 import com.github.nava2.aff4.model.dialect.DialectTypeResolver
 import com.github.nava2.aff4.model.dialect.ToolDialect
@@ -16,6 +17,8 @@ class Pyaff4Version11ToolDialect private constructor(override val typeResolver: 
 
   object Module : KAbstractModule() {
     override fun configure() {
+      install(Aff4ToolDialectModule)
+
       bindSet<ToolDialect> {
         to<Pyaff4Version11ToolDialect>()
       }
