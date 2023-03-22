@@ -1,14 +1,14 @@
 package com.github.nava2.aff4.model
 
+import com.github.nava2.aff4.model.dialect.ToolDialect
 import com.github.nava2.aff4.model.rdf.Aff4RdfModel
 import com.github.nava2.aff4.model.rdf.TurtleIri
-import com.github.nava2.aff4.model.rdf.annotations.RdfModel
-import com.github.nava2.aff4.model.rdf.annotations.allRdfTypes
 import com.github.nava2.aff4.model.rdf.evaluateSequence
 import com.github.nava2.aff4.rdf.RdfConnection
 import com.github.nava2.aff4.rdf.RdfExecutor
 import com.github.nava2.aff4.rdf.io.RdfModelParser
 import com.github.nava2.aff4.rdf.querySubjectsByType
+import com.github.nava2.guice.action_scoped.ActionScoped
 import com.google.inject.assistedinject.Assisted
 import com.google.inject.assistedinject.AssistedInject
 import okio.Path.Companion.toPath
@@ -20,7 +20,6 @@ import org.eclipse.rdf4j.query.GraphQuery
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.reflect.KClass
-import kotlin.reflect.full.findAnnotation
 
 private val PATTERN_ORDER_BY = Regex("\\s+order by\\s+", RegexOption.IGNORE_CASE)
 
@@ -30,12 +29,11 @@ internal class RealAff4Model @AssistedInject constructor(
   private val rdfExecutor: RdfExecutor,
   private val valueFactory: ValueFactory,
   private val rdfModelParser: RdfModelParser,
+  @ActionScoped private val toolDialect: ToolDialect,
   @Assisted override val containerContext: Aff4ImageContext,
 ) : Aff4Model {
   @Volatile
   private var closed = false
-
-  private val modelArns = mutableMapOf<KClass<*>, Collection<TurtleIri>>()
 
   override fun <T : Aff4RdfModel> query(modelType: KClass<T>): Sequence<T> {
     val modelRdfTypes = getModelRdfTypes(modelType)
@@ -224,9 +222,7 @@ internal class RealAff4Model @AssistedInject constructor(
   }
 
   private fun getModelRdfTypes(modelType: KClass<*>): Collection<TurtleIri> {
-    return modelArns.getOrPut(modelType) {
-      modelType.findAnnotation<RdfModel>()!!.allRdfTypes
-    }
+    return toolDialect.typeResolver.getAll(modelType)
   }
 
   internal interface AssistedFactory {

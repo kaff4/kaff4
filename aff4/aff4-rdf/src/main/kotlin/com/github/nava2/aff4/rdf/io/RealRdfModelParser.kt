@@ -1,6 +1,7 @@
 package com.github.nava2.aff4.rdf.io
 
 import com.github.nava2.aff4.rdf.QueryableRdfConnection
+import com.github.nava2.guice.action_scoped.ActionScoped
 import org.eclipse.rdf4j.model.Resource
 import org.eclipse.rdf4j.model.Statement
 import javax.inject.Inject
@@ -8,7 +9,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 
 internal class RealRdfModelParser @Inject constructor(
-  private val rdfAnnotationTypeInfoLookup: RdfAnnotationTypeInfo.Lookup,
+  @ActionScoped private val rdfAnnotationTypeInfoLookup: RdfAnnotationTypeInfo.Lookup,
   private val valueConverterProvider: RdfValueConverterProvider,
 ) : RdfModelParser {
   override fun <T : Any> parse(

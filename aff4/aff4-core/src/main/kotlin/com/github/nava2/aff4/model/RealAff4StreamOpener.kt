@@ -5,11 +5,10 @@ import com.github.benmanes.caffeine.cache.LoadingCache
 import com.github.nava2.aff4.io.AutoCloseableSourceProvider
 import com.github.nava2.aff4.io.SourceProvider
 import com.github.nava2.aff4.io.bounded
+import com.github.nava2.aff4.model.dialect.ToolDialect
 import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.model.rdf.Aff4RdfModel
 import com.github.nava2.aff4.model.rdf.TurtleIri
-import com.github.nava2.aff4.model.rdf.annotations.RdfModel
-import com.github.nava2.aff4.model.rdf.annotations.allRdfTypes
 import com.github.nava2.aff4.model.rdf.createAff4Iri
 import com.github.nava2.aff4.model.rdf.createArn
 import com.github.nava2.aff4.rdf.QueryableRdfConnection
@@ -31,7 +30,6 @@ import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Proxy
 import javax.inject.Inject
 import kotlin.reflect.KClass
-import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.jvm.javaMethod
 import kotlin.reflect.jvm.javaType
 
@@ -47,6 +45,7 @@ internal class RealAff4StreamOpener @Inject constructor(
   private val rdfModelParser: RdfModelParser,
   private val modelKlasses: Set<KClass<out Aff4RdfModel>>,
   aff4StreamLoaderContexts: Set<Aff4StreamLoaderContext>,
+  @ActionScoped private val toolDialect: ToolDialect,
   private val symbolics: Symbolics,
 ) : Aff4StreamOpener {
   @Volatile
@@ -56,7 +55,7 @@ internal class RealAff4StreamOpener @Inject constructor(
     rdfExecutor.withReadOnlySession { connection ->
       modelKlasses.asSequence()
         .flatMap { klass ->
-          val rdfModelTypes = klass.findAnnotation<RdfModel>()!!.allRdfTypes
+          val rdfModelTypes = toolDialect.typeResolver.getAll(klass).asSequence()
           rdfModelTypes.map { connection.namespaces.iriFromTurtle(it) to klass }
         }
         .toMap()

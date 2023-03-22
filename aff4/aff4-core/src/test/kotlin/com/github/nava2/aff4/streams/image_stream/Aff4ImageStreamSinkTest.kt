@@ -1,6 +1,7 @@
 package com.github.nava2.aff4.streams.image_stream
 
 import com.github.nava2.aff4.Aff4BaseStreamModule
+import com.github.nava2.aff4.TestToolDialectModule
 import com.github.nava2.aff4.UsingTemporary
 import com.github.nava2.aff4.container.Aff4ContainerBuilder
 import com.github.nava2.aff4.container.RealAff4ContainerBuilder
@@ -43,6 +44,7 @@ class Aff4ImageStreamSinkTest {
     Aff4BaseStreamModule,
     MemoryRdfRepositoryPlugin,
     Aff4SnappyPlugin,
+    TestToolDialectModule(),
   )
 
   @Inject

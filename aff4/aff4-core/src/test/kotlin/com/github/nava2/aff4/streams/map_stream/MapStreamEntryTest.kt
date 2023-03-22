@@ -1,11 +1,14 @@
 package com.github.nava2.aff4.streams.map_stream
 
+import com.github.nava2.aff4.Aff4CoreModule
+import com.github.nava2.aff4.TestActionScopeModule
+import com.github.nava2.aff4.container.Aff4ImageOpenerModule
 import com.github.nava2.aff4.io.md5
 import com.github.nava2.aff4.isIllegalArgumentException
 import com.github.nava2.aff4.rdf.MemoryRdfRepositoryPlugin
-import com.github.nava2.aff4.rdf.RdfRepositoryModule
 import com.github.nava2.aff4.satisfies
 import com.github.nava2.test.GuiceModule
+import com.google.inject.util.Modules
 import org.assertj.core.api.AbstractObjectAssert
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -15,7 +18,12 @@ import javax.inject.Inject
 
 class MapStreamEntryTest {
   @GuiceModule
-  val modules = listOf(RdfRepositoryModule, MemoryRdfRepositoryPlugin)
+  val module = Modules.combine(
+    MemoryRdfRepositoryPlugin,
+    Aff4CoreModule,
+    Aff4ImageOpenerModule,
+    TestActionScopeModule,
+  )
 
   @Inject
   private lateinit var valueFactory: ValueFactory
