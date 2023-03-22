@@ -39,7 +39,7 @@ interface DialectTypeResolver {
     private val primaryMappings = mutableMapOf<KClass<out Aff4RdfModel>, TurtleIri>()
     private val mappings = ArrayListMultimap.create<KClass<out Aff4RdfModel>, TurtleIri>()
 
-    protected fun register(
+    fun register(
       klass: KClass<out Aff4RdfModel>,
       primaryValue: TurtleIri,
       additionalValues: Collection<TurtleIri>,

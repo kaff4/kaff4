@@ -1,7 +1,7 @@
 package com.github.nava2.aff4.streams.zip_segment
 
 import com.github.nava2.aff4.Aff4ImageTestModule
-import com.github.nava2.aff4.Aff4LogicalModule
+import com.github.nava2.aff4.Dream
 import com.github.nava2.aff4.UnderTest
 import com.github.nava2.aff4.io.buffer
 import com.github.nava2.aff4.io.md5
@@ -28,10 +28,7 @@ private val DREAM_LAST_STANZA =
 
 class Aff4ZipSegmentTest {
   @GuiceModule
-  val imageTestModules = listOf(
-    Aff4ImageTestModule(imageName = "dream.aff4"),
-    Aff4LogicalModule,
-  )
+  val imageTestModules = Aff4ImageTestModule.Dream
 
   @Inject
   private lateinit var valueFactory: ValueFactory
