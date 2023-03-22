@@ -17,7 +17,7 @@ import com.google.inject.Provider as GuiceProvider
 class ActionScope internal constructor() : Scope {
   override fun <T : Any> scope(key: Key<T>, unscoped: GuiceProvider<T>): GuiceProvider<T> {
     return GuiceProvider {
-      val currentScopedMap = getCurrentSeedMap()
+      val currentScopedMap = getCurrentSeedMap(key)
 
       var current = resolveScopedKeyOrNull(key)
       if (current == null && key !in currentScopedMap) {
@@ -58,7 +58,7 @@ class ActionScope internal constructor() : Scope {
       )
   }
 
-  private fun getCurrentSeedMap(): MutableMap<Key<*>, Any> = getSeedMap(currentActionKey())
+  private fun getCurrentSeedMap(key: Key<*>? = null): MutableMap<Key<*>, Any> = getSeedMap(currentActionKey(key), key)
 
   private fun <T : Any> resolveScopedKeyOrNull(key: Key<T>): T? {
     val currentStack = scopeStacks.get()
@@ -75,8 +75,17 @@ class ActionScope internal constructor() : Scope {
   }
 
   @VisibleForTesting
-  internal fun currentActionKey() = scopeStacks.get().lastOrNull()
-    ?: throw OutOfScopeException("Not in action scope, use [runInNewScope<>()]")
+  internal fun currentActionKey(key: Key<*>? = null): ActionKey {
+    return scopeStacks.get().lastOrNull()
+      ?: throw OutOfScopeException(
+        buildString {
+          append("Not in action scope, use [runInNewScope<>()]")
+          if (key != null) {
+            append(" failing to resolve $key")
+          }
+        }
+      )
+  }
 
   @VisibleForTesting
   internal fun computeFullCurrentSeedMap(): Map<Key<*>, Any> {

@@ -1,6 +1,6 @@
 package com.github.nava2.guice.action_scoped
 
-import com.github.nava2.aff4.containsExactlyInAnyOrderEntriesOf
+import com.github.nava2.aff4.containsAllEntriesOf
 import com.github.nava2.test.GuiceModule
 import com.google.inject.Key
 import com.google.inject.OutOfScopeException
@@ -32,46 +32,57 @@ class ActionScopedExecutorsTest {
 
   @Test
   fun `creating a task in an executor correctly copies the context chain and creates a new context per action`() {
-    val parentKey = Key.get(Int::class.java, Names.named("parent"))
-    actionScope.runInNewScope(mapOf(parentKey to 1)) {
+    val parentKey = Key.get(String::class.java, Names.named("parent"))
+    val parentValue = "parent"
+    actionScope.runInNewScope(mapOf(parentKey to parentValue)) {
       val parentActionKey = actionScope.currentActionKey()
 
-      val childKey = Key.get(Int::class.java, Names.named("child"))
-      actionScope.runInNewScope(mapOf(childKey to 2)) {
+      val childKey = Key.get(String::class.java, Names.named("child"))
+      val childValue = "child"
+      actionScope.runInNewScope(mapOf(childKey to childValue)) {
         val childActionKey = actionScope.currentActionKey()
 
         val executors = actionScopedExecutorsProvider.get()
         val executor = executors.newFixedThreadPool(nThreads = 1)
+        var completedAction = false
         try {
-          executor.execute {
+          executor.submit {
             assertThat(actionScope.currentActionKey())
               .isNotIn(parentActionKey, childActionKey)
 
             assertThat(actionScope.computeFullCurrentSeedMap())
-              .containsExactlyInAnyOrderEntriesOf(
-                parentKey to 1,
-                childKey to 2,
+              .containsAllEntriesOf(
+                parentKey to parentValue,
+                childKey to childValue,
               )
 
-            val nestedKey = Key.get(Int::class.java, Names.named("nested"))
-            actionScope.runInNewScope(mapOf(nestedKey to 3)) {
+            val nestedKey = Key.get(String::class.java, Names.named("nested"))
+            val nestedValue = "nested"
+            actionScope.runInNewScope(mapOf(nestedKey to nestedValue)) {
               assertThat(actionScope.computeFullCurrentSeedMap())
-                .containsExactlyInAnyOrderEntriesOf(
-                  parentKey to 1,
-                  childKey to 2,
-                  nestedKey to 3,
+                .containsAllEntriesOf(
+                  parentKey to parentValue,
+                  childKey to childValue,
+                  nestedKey to nestedValue,
                 )
             }
 
             assertThat(actionScope.computeFullCurrentSeedMap())
-              .containsExactlyInAnyOrderEntriesOf(
-                parentKey to 1,
-                childKey to 2,
+              .containsAllEntriesOf(
+                parentKey to parentValue,
+                childKey to childValue,
               )
+
+            completedAction = true
           }
+            .get()
         } finally {
           executor.shutdown()
         }
+
+        assertThat(completedAction)
+          .`as` { "Action did not complete successfully" }
+          .isTrue()
       }
     }
   }
