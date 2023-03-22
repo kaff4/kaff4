@@ -32,7 +32,7 @@ class Pyaff4Version11ToolDialect private constructor(override val typeResolver: 
       val dreamDialectTypeResolver = DialectTypeResolver.Builder.withExisting(defaultToolDialect.typeResolver)
         .apply {
           remove(ZipSegment::class)
-          register(ZipSegment::class, "aff4:zip_segment")
+          register(ZipSegment::class, "aff4:zip_segment", "aff4:ZipSegment")
         }
         .build()
       return Pyaff4Version11ToolDialect(dreamDialectTypeResolver)
