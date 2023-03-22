@@ -1,12 +1,11 @@
 package com.github.nava2.aff4.model
 
 import com.github.nava2.aff4.Aff4ImageTestModule
-import com.github.nava2.aff4.Aff4LogicalModule
+import com.github.nava2.aff4.NestedLogicalImages
 import com.github.nava2.aff4.UnderTest
 import com.github.nava2.aff4.io.md5
 import com.github.nava2.aff4.io.use
 import com.github.nava2.aff4.satisfies
-import com.github.nava2.aff4.streams.compression.Aff4SnappyPlugin
 import com.github.nava2.test.GuiceModule
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
@@ -15,11 +14,7 @@ import javax.inject.Inject
 
 class Aff4ModelNestedLogicalImagesTest {
   @GuiceModule
-  val modules = listOf(
-    Aff4ImageTestModule("nested_logical_images.aff4"),
-    Aff4SnappyPlugin,
-    Aff4LogicalModule,
-  )
+  val module = Aff4ImageTestModule.NestedLogicalImages
 
   @Inject
   private lateinit var valueFactory: ValueFactory

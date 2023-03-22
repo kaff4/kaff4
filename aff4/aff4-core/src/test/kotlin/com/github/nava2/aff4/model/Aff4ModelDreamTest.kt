@@ -1,6 +1,7 @@
 package com.github.nava2.aff4.model
 
 import com.github.nava2.aff4.Aff4ImageTestModule
+import com.github.nava2.aff4.Dream
 import com.github.nava2.aff4.UnderTest
 import com.github.nava2.aff4.io.decode
 import com.github.nava2.aff4.model.rdf.FileImage
@@ -19,9 +20,7 @@ import javax.inject.Inject
 
 class Aff4ModelDreamTest {
   @GuiceModule
-  val modules = listOf(
-    Aff4ImageTestModule("dream.aff4"),
-  )
+  val module = Aff4ImageTestModule.Dream
 
   @Inject
   private lateinit var valueFactory: ValueFactory

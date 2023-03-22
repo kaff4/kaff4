@@ -10,14 +10,18 @@ import okio.FileSystem
 import okio.Path.Companion.toPath
 import javax.inject.Singleton
 
-class Aff4ImageTestModule(private val imageName: String) : KAbstractModule() {
+abstract class Aff4ImageTestModule(val imageName: String) : KAbstractModule() {
   override fun configure() {
     install(Aff4TestModule)
 
     install(Aff4ImageOpenerModule)
     install(Aff4CoreModule)
     install(Aff4BaseStreamModule)
+
+    configureOther()
   }
+
+  protected open fun configureOther() = Unit
 
   @Provides
   @UnderTest
