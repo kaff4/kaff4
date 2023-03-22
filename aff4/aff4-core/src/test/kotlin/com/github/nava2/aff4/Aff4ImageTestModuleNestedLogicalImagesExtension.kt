@@ -1,6 +1,6 @@
 package com.github.nava2.aff4
 
-import com.github.nava2.aff4.dialects.Pyaff4Version11ToolDialect
+import com.github.nava2.aff4.model.dialect.Pyaff4Version11ToolDialect
 import com.github.nava2.aff4.streams.compression.Aff4SnappyPlugin
 
 val Aff4ImageTestModule.Companion.NestedLogicalImages: Aff4ImageTestModule
