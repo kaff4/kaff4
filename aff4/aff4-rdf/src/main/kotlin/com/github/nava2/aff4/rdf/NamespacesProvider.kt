@@ -1,5 +1,6 @@
 package com.github.nava2.aff4.rdf
 
+import com.github.nava2.aff4.model.rdf.TurtleIri
 import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.ValueFactory
 
@@ -16,8 +17,8 @@ class NamespacesProvider internal constructor(
     return tryFindPrefix(prefix) ?: throw IllegalArgumentException("Prefix not found: $prefix")
   }
 
-  fun iriFromTurtle(turtleIri: String): IRI {
-    val (prefix, localName) = turtleIri.split(':')
+  fun iriFromTurtle(iri: TurtleIri): IRI {
+    val (prefix, localName) = iri
     val namespace = fromPrefix(prefix)
     return valueFactory.createIRI(namespace, localName)
   }

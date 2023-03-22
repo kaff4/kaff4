@@ -7,6 +7,7 @@ import com.github.nava2.aff4.io.SourceProvider
 import com.github.nava2.aff4.io.bounded
 import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.model.rdf.Aff4RdfModel
+import com.github.nava2.aff4.model.rdf.TurtleIri
 import com.github.nava2.aff4.model.rdf.annotations.RdfModel
 import com.github.nava2.aff4.model.rdf.annotations.allRdfTypes
 import com.github.nava2.aff4.model.rdf.createAff4Iri
@@ -158,7 +159,7 @@ internal class RealAff4StreamOpener @Inject constructor(
     statements: List<Statement>
   ): Aff4StreamSourceProvider {
     val rdfTypes = statements.asSequence()
-      .filter { it.predicate == connection.namespaces.iriFromTurtle("rdf:type") }
+      .filter { it.predicate == connection.namespaces.iriFromTurtle(TurtleIri.RDF_TYPE) }
       .mapNotNull { it.`object` as? Aff4Arn }
       .toSet()
 

@@ -1,6 +1,7 @@
 package com.github.nava2.aff4.rdf.io
 
 import com.github.benmanes.caffeine.cache.Caffeine
+import com.github.nava2.aff4.model.rdf.TurtleIri.Companion.toTurtleIri
 import com.github.nava2.aff4.model.rdf.annotations.RdfModel
 import com.github.nava2.aff4.model.rdf.annotations.RdfSubject
 import com.github.nava2.aff4.model.rdf.annotations.RdfValue
@@ -72,10 +73,10 @@ internal data class RdfAnnotationTypeInfo<T : Any>(
           continue
         }
 
-        val predicate = namespacesProvider.iriFromTurtle(
+        val predicateIriString =
           findAnnotation<RdfValue>(memoizedPropertyMaps, type, parameter)?.turtleRdfIri
             ?: "aff4:${parameter.name}"
-        )
+        val predicate = namespacesProvider.iriFromTurtle(predicateIriString.toTurtleIri())
 
         otherParams.put(predicate, propertyInfo)
       }
@@ -83,7 +84,7 @@ internal data class RdfAnnotationTypeInfo<T : Any>(
       val rdfType = (type.findAnnotation<RdfModel>() ?: constructor.findAnnotation())!!.rdfType
       return RdfAnnotationTypeInfo(
         klass = type,
-        rdfType = namespacesProvider.iriFromTurtle(rdfType),
+        rdfType = namespacesProvider.iriFromTurtle(rdfType.toTurtleIri()),
         subjectProperties = subjectParams,
         otherProperties = otherParams.build(),
       )

@@ -32,7 +32,7 @@ internal class TurtleReaderAndInserter @AssistedInject constructor(
     aff4ModelClasses.asSequence()
       .filter { StoredRdfModel::class.isSuperclassOf(it) }
       .flatMap { it.findAnnotation<RdfModel>()!!.allRdfTypes }
-      .map { valueFactory.createAff4Iri(it.substringAfter(':')) }
+      .map { valueFactory.createAff4Iri(it.localName) }
       .toSet()
   }
 

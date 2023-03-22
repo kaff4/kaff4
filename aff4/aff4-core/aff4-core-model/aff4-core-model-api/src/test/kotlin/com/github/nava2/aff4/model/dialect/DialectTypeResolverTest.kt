@@ -2,9 +2,10 @@ package com.github.nava2.aff4.model.dialect
 
 import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.model.rdf.Aff4RdfModel
-import com.github.nava2.aff4.model.rdf.TurtleIri
+import com.github.nava2.aff4.model.rdf.TurtleIri.Companion.toTurtleIri
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import kotlin.reflect.KClass
 
 internal class DialectTypeResolverTest {
   @Test
@@ -12,7 +13,7 @@ internal class DialectTypeResolverTest {
     val typeResolver = DialectTypeResolver.Builder.empty().build()
 
     assertThat(typeResolver[SimpleModel::class]).isNull()
-    assertThat(typeResolver[TurtleIri(SIMPLE_IRI)]).isNull()
+    assertThat(typeResolver[SIMPLE_IRI]).isNull()
   }
 
   @Test
@@ -21,11 +22,11 @@ internal class DialectTypeResolverTest {
       .register(SimpleModel::class, SIMPLE_IRI)
       .build()
 
-    assertThat(typeResolver[SimpleModel::class]).isEqualTo(TurtleIri(SIMPLE_IRI))
-    assertThat(typeResolver[TurtleIri(SIMPLE_IRI)]).isEqualTo(SimpleModel::class)
+    assertThat(typeResolver[SimpleModel::class]).isEqualTo(SIMPLE_IRI.toTurtleIri())
+    assertThat(typeResolver[SIMPLE_IRI]).isEqualTo(SimpleModel::class)
 
     assertThat(typeResolver[AnotherSimpleModel::class]).isNull()
-    assertThat(typeResolver[TurtleIri(ANOTHER_IRI)]).isNull()
+    assertThat(typeResolver[ANOTHER_IRI]).isNull()
   }
 
   @Test
@@ -34,12 +35,12 @@ internal class DialectTypeResolverTest {
       .register(SimpleModel::class, SIMPLE_IRI, SIMPLE_2_IRI)
       .build()
 
-    assertThat(typeResolver[SimpleModel::class]).isEqualTo(TurtleIri(SIMPLE_IRI))
-    assertThat(typeResolver[TurtleIri(SIMPLE_IRI)]).isEqualTo(SimpleModel::class)
-    assertThat(typeResolver[TurtleIri(SIMPLE_2_IRI)]).isEqualTo(SimpleModel::class)
+    assertThat(typeResolver[SimpleModel::class]).isEqualTo(SIMPLE_IRI.toTurtleIri())
+    assertThat(typeResolver[SIMPLE_IRI]).isEqualTo(SimpleModel::class)
+    assertThat(typeResolver[SIMPLE_2_IRI]).isEqualTo(SimpleModel::class)
 
     assertThat(typeResolver[AnotherSimpleModel::class]).isNull()
-    assertThat(typeResolver[TurtleIri(ANOTHER_IRI)]).isNull()
+    assertThat(typeResolver[ANOTHER_IRI]).isNull()
   }
 
   @Test
@@ -51,12 +52,12 @@ internal class DialectTypeResolverTest {
       .register<AnotherSimpleModel>()
       .build()
 
-    assertThat(typeResolver[SimpleModel::class]).isEqualTo(TurtleIri(SIMPLE_IRI))
-    assertThat(typeResolver[TurtleIri(SIMPLE_IRI)]).isEqualTo(SimpleModel::class)
-    assertThat(typeResolver[TurtleIri(SIMPLE_2_IRI)]).isEqualTo(SimpleModel::class)
+    assertThat(typeResolver[SimpleModel::class]).isEqualTo(SIMPLE_IRI.toTurtleIri())
+    assertThat(typeResolver[SIMPLE_IRI]).isEqualTo(SimpleModel::class)
+    assertThat(typeResolver[SIMPLE_2_IRI]).isEqualTo(SimpleModel::class)
 
-    assertThat(typeResolver[AnotherSimpleModel::class]).isEqualTo(TurtleIri(ANOTHER_IRI))
-    assertThat(typeResolver[TurtleIri(ANOTHER_IRI)]).isEqualTo(AnotherSimpleModel::class)
+    assertThat(typeResolver[AnotherSimpleModel::class]).isEqualTo(ANOTHER_IRI.toTurtleIri())
+    assertThat(typeResolver[ANOTHER_IRI]).isEqualTo(AnotherSimpleModel::class)
   }
 }
 
@@ -74,3 +75,5 @@ private data class AnotherSimpleModel(override val arn: Aff4Arn) : Aff4RdfModel
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class TestRdfModel(val primaryType: String, vararg val rdfTypes: String)
+
+private operator fun DialectTypeResolver.get(iri: String): KClass<*>? = get(iri.toTurtleIri())

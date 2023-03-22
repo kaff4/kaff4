@@ -1,5 +1,8 @@
 package com.github.nava2.aff4.model.rdf.annotations
 
+import com.github.nava2.aff4.model.rdf.TurtleIri
+import com.github.nava2.aff4.model.rdf.TurtleIri.Companion.toTurtleIri
+
 /**
  * Defines the [rdfType] of an [Aff4Model] type.
  */
@@ -16,12 +19,12 @@ annotation class RdfModel(
   vararg val synonyms: String,
 )
 
-val RdfModel.allRdfTypes: Set<String>
+val RdfModel.allRdfTypes: Set<TurtleIri>
   get() = if (synonyms.isEmpty()) {
-    setOf(rdfType)
+    setOf(rdfType.toTurtleIri())
   } else {
     buildSet {
-      add(rdfType)
-      addAll(synonyms)
+      add(rdfType.toTurtleIri())
+      addAll(synonyms.asSequence().map { it.toTurtleIri() })
     }
   }

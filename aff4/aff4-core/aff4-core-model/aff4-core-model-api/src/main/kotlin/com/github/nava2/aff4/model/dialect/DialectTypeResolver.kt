@@ -2,6 +2,7 @@ package com.github.nava2.aff4.model.dialect
 
 import com.github.nava2.aff4.model.rdf.Aff4RdfModel
 import com.github.nava2.aff4.model.rdf.TurtleIri
+import com.github.nava2.aff4.model.rdf.TurtleIri.Companion.toTurtleIri
 import com.google.common.collect.ArrayListMultimap
 import com.google.common.collect.ImmutableListMultimap
 import com.google.common.collect.ImmutableMap
@@ -98,7 +99,7 @@ interface DialectTypeResolver {
       primaryValue: String,
       vararg additionalValues: String,
     ): SimpleBuilder {
-      return register(klass, TurtleIri(primaryValue), additionalValues.map { TurtleIri(it) })
+      return register(klass, primaryValue.toTurtleIri(), additionalValues.map { it.toTurtleIri() })
     }
 
     operator fun set(klass: KClass<*>, value: String): SimpleBuilder {
@@ -121,7 +122,7 @@ interface DialectTypeResolver {
         "Can not register $klass without $annotationKlass present"
       }
       val (primaryIri, synonyms) = annotation.extractor()
-      register(klass, TurtleIri(primaryIri), synonyms.map { TurtleIri(it) })
+      register(klass, primaryIri.toTurtleIri(), synonyms.map { it.toTurtleIri() })
       return this
     }
 
