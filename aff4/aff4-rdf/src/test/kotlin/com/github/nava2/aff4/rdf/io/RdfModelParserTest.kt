@@ -11,6 +11,7 @@ import com.github.nava2.aff4.rdf.MemoryRdfRepositoryPlugin
 import com.github.nava2.aff4.rdf.MutableRdfConnection
 import com.github.nava2.aff4.rdf.RdfExecutor
 import com.github.nava2.test.GuiceModule
+import com.google.inject.util.Modules
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.Resource
@@ -24,7 +25,11 @@ import java.lang.Long as JLong
 
 internal class RdfModelParserTest {
   @GuiceModule
-  val modules = listOf(Aff4CoreModule, MemoryRdfRepositoryPlugin)
+  val module = Modules.combine(
+    Aff4CoreModule,
+    MemoryRdfRepositoryPlugin,
+    RdfModelParserModule,
+  )
 
   @Inject
   lateinit var rdfExecutor: RdfExecutor
@@ -37,17 +42,6 @@ internal class RdfModelParserTest {
 
   @Test
   fun `primitive properties - long`() {
-    data class PrimitiveModelClass
-    @RdfModel("test://primitive-model-class")
-    constructor(
-      @RdfSubject
-      val subject: Resource,
-      @RdfValue("test:longValue")
-      val longValue: Long,
-      @RdfValue("test:jlongValue")
-      val jlongValue: JLong,
-    )
-
     val subject = setupStatements {
       val subject = createIRI("test://deadbeef")
       add(
@@ -59,9 +53,9 @@ internal class RdfModelParserTest {
       subject
     }
 
-    val expectedModel = PrimitiveModelClass(subject, 100L, 200L as JLong)
+    val expectedModel = PrimitiveModelWithLong(subject, 100L, 200L as JLong)
 
-    val actualModel = queryModel<PrimitiveModelClass>(subject)
+    val actualModel = queryModel<PrimitiveModelWithLong>(subject)
 
     assertThat(actualModel).isEqualTo(expectedModel)
 
@@ -70,15 +64,6 @@ internal class RdfModelParserTest {
 
   @Test
   fun `primitive properties - string`() {
-    data class PrimitiveModelClass
-    @RdfModel("test://primitive-model-class")
-    constructor(
-      @RdfSubject
-      val subject: Resource,
-      @RdfValue("test:stringValue")
-      val stringValue: String,
-    )
-
     val subject = setupStatements {
       val subject = createIRI("test://deadbeef")
       add(
@@ -89,37 +74,17 @@ internal class RdfModelParserTest {
       subject
     }
 
-    val expectedModel = PrimitiveModelClass(subject, "FooBar")
+    val expectedModel = PrimitiveModelWithString(subject, "FooBar")
 
-    val actualModel = queryModel<PrimitiveModelClass>(subject)
+    val actualModel = queryModel<PrimitiveModelWithString>(subject)
 
     assertThat(actualModel).isEqualTo(expectedModel)
 
     verifyRoundTrip(expectedModel)
   }
 
-  interface WithSubject {
-    @RdfSubject
-    val subject: Resource
-
-    @RdfValue("invalid:intValue")
-    val intValue: Int
-  }
-
-  interface ExtendWithSubject : WithSubject {
-    @RdfValue("test:intValue")
-    override val intValue: Int
-  }
-
   @Test
   fun `inherit annotations`() {
-    data class PrimitiveModelClass
-    @RdfModel("test://primitive-model-class")
-    constructor(
-      override val subject: Resource,
-      override val intValue: Int,
-    ) : ExtendWithSubject
-
     val subject = setupStatements {
       val subject = createArn("test://deadbeef")
       add(
@@ -131,9 +96,9 @@ internal class RdfModelParserTest {
       subject
     }
 
-    val expectedModel = PrimitiveModelClass(subject, 100)
+    val expectedModel = ModelClassExtendWithSubject(subject, 100)
 
-    val actualModel = queryModel<PrimitiveModelClass>(subject)
+    val actualModel = queryModel<ModelClassExtendWithSubject>(subject)
 
     assertThat(actualModel).isEqualTo(expectedModel)
 
@@ -142,17 +107,6 @@ internal class RdfModelParserTest {
 
   @Test
   fun `primitive properties - int`() {
-    data class PrimitiveModelClass
-    @RdfModel("test://primitive-model-class")
-    constructor(
-      @RdfSubject
-      val subject: Resource,
-      @RdfValue("test:intValue")
-      val intValue: Int,
-      @RdfValue("test:jintValue")
-      val jintValue: JInteger,
-    )
-
     val subject = setupStatements {
       val subject = createArn("test://deadbeef")
       add(
@@ -164,9 +118,9 @@ internal class RdfModelParserTest {
       subject
     }
 
-    val expectedModel = PrimitiveModelClass(subject, 100, 200 as JInteger)
+    val expectedModel = PrimitiveModelWithInt(subject, 100, 200 as JInteger)
 
-    val actualModel = queryModel<PrimitiveModelClass>(subject)
+    val actualModel = queryModel<PrimitiveModelWithInt>(subject)
 
     assertThat(actualModel).isEqualTo(expectedModel)
 
@@ -210,3 +164,54 @@ internal class RdfModelParserTest {
     }
   }
 }
+
+internal data class PrimitiveModelWithLong
+@RdfModel("test://primitive-model-with-long")
+constructor(
+  @RdfSubject
+  val subject: Resource,
+  @RdfValue("test:longValue")
+  val longValue: Long,
+  @RdfValue("test:jlongValue")
+  val jlongValue: JLong,
+)
+
+internal data class PrimitiveModelWithString
+@RdfModel("test://primitive-model-with-string")
+constructor(
+  @RdfSubject
+  val subject: Resource,
+  @RdfValue("test:stringValue")
+  val stringValue: String,
+)
+
+interface WithSubject {
+  @RdfSubject
+  val subject: Resource
+
+  @RdfValue("invalid:intValue")
+  val intValue: Int
+}
+
+interface ExtendWithSubject : WithSubject {
+  @RdfValue("test:intValue")
+  override val intValue: Int
+}
+
+internal data class ModelClassExtendWithSubject
+@RdfModel("test://extend-with-subject")
+constructor(
+  override val subject: Resource,
+  override val intValue: Int,
+) : ExtendWithSubject
+
+internal data class PrimitiveModelWithInt
+@RdfModel("test://primitive-model-with-int")
+constructor(
+  @RdfSubject
+  val subject: Resource,
+  @RdfValue("test:intValue")
+  val intValue: Int,
+  @RdfValue("test:jintValue")
+  val jintValue: JInteger,
+)
