@@ -2,7 +2,12 @@
 
 package com.github.nava2.aff4.rdf.io
 
-import com.github.nava2.aff4.Aff4CoreModule
+import com.github.nava2.aff4.TestActionScopeModule
+import com.github.nava2.aff4.TestToolDialectModule
+import com.github.nava2.aff4.model.Aff4Container
+import com.github.nava2.aff4.model.dialect.DefaultToolDialect
+import com.github.nava2.aff4.model.dialect.DialectTypeResolver
+import com.github.nava2.aff4.model.dialect.ToolDialect
 import com.github.nava2.aff4.model.rdf.annotations.RdfModel
 import com.github.nava2.aff4.model.rdf.annotations.RdfSubject
 import com.github.nava2.aff4.model.rdf.annotations.RdfValue
@@ -10,6 +15,7 @@ import com.github.nava2.aff4.model.rdf.createArn
 import com.github.nava2.aff4.rdf.MemoryRdfRepositoryPlugin
 import com.github.nava2.aff4.rdf.MutableRdfConnection
 import com.github.nava2.aff4.rdf.RdfExecutor
+import com.github.nava2.guice.to
 import com.github.nava2.test.GuiceModule
 import com.google.inject.util.Modules
 import org.assertj.core.api.Assertions.assertThat
@@ -17,8 +23,10 @@ import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.Resource
 import org.eclipse.rdf4j.model.Value
 import org.eclipse.rdf4j.model.ValueFactory
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.Long
 import java.lang.Integer as JInteger
 import java.lang.Long as JLong
@@ -26,9 +34,12 @@ import java.lang.Long as JLong
 internal class RdfModelParserTest {
   @GuiceModule
   val module = Modules.combine(
-    Aff4CoreModule,
     MemoryRdfRepositoryPlugin,
     RdfModelParserModule,
+    TestActionScopeModule,
+    TestToolDialectModule {
+      to<CustomToolDialect>()
+    },
   )
 
   @Inject
@@ -38,7 +49,18 @@ internal class RdfModelParserTest {
   lateinit var rdfModelParser: RdfModelParser
 
   @Inject
-  lateinit var rdfModelSerializer: RdfModelSerializer
+  private lateinit var rdfModelSerializerFactory: RdfModelSerializer.Factory
+
+  @Inject
+  @field:DefaultToolDialect
+  private lateinit var defaultToolDialect: ToolDialect
+
+  private lateinit var rdfModelSerializer: RdfModelSerializer
+
+  @BeforeEach
+  fun setup() {
+    rdfModelSerializer = rdfModelSerializerFactory.create(defaultToolDialect)
+  }
 
   @Test
   fun `primitive properties - long`() {
@@ -163,6 +185,18 @@ internal class RdfModelParserTest {
       rdfConnection.setNamespace(prefix, name)
     }
   }
+}
+
+@Singleton
+private class CustomToolDialect @Inject constructor() : ToolDialect {
+  override val typeResolver: DialectTypeResolver = DialectTypeResolver.Builder.empty()
+    .register(ModelClassExtendWithSubject::class, "test://extend-with-subject")
+    .register(PrimitiveModelWithInt::class, "test://primitive-model-class")
+    .register(PrimitiveModelWithString::class, "test://primitive-model-with-string")
+    .register(PrimitiveModelWithLong::class, "test://primitive-model-with-long")
+    .build()
+
+  override fun isApplicable(toolMetadata: Aff4Container.ToolMetadata): Boolean = true
 }
 
 internal data class PrimitiveModelWithLong

@@ -3,6 +3,7 @@ dependencies {
 
   api(project(":aff4:aff4-core:aff4-core-guice"))
   api(project(":aff4:aff4-core:aff4-core-model"))
+  api(project(":aff4:aff4-core:aff4-core-model:aff4-core-model-api"))
   api(project(":aff4:aff4-core:aff4-core-okio"))
 
   api(Dependencies.ASSERTJ_CORE)

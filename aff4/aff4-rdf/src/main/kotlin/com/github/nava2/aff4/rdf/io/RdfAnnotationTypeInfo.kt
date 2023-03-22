@@ -1,6 +1,7 @@
 package com.github.nava2.aff4.rdf.io
 
 import com.github.benmanes.caffeine.cache.Caffeine
+import com.github.nava2.aff4.model.dialect.ToolDialect
 import com.github.nava2.aff4.model.rdf.TurtleIri.Companion.toTurtleIri
 import com.github.nava2.aff4.model.rdf.annotations.RdfModel
 import com.github.nava2.aff4.model.rdf.annotations.RdfSubject
@@ -37,8 +38,14 @@ internal data class RdfAnnotationTypeInfo<T : Any>(
 
   val requiredParameters = constructor.parameters.filter { !it.isOptional }.toSet()
 
-  @Singleton
-  class Lookup @Inject constructor() {
+  class Lookup private constructor(
+    private val toolDialect: ToolDialect,
+  ) {
+    @Singleton
+    class Factory @Inject internal constructor() {
+      fun withDialect(toolDialect: ToolDialect) = Lookup(toolDialect)
+    }
+
     private val cache = Caffeine.newBuilder()
       .maximumSize(CACHE_SIZE)
       .build<KClass<*>, RdfAnnotationTypeInfo<*>>()
@@ -81,10 +88,10 @@ internal data class RdfAnnotationTypeInfo<T : Any>(
         otherParams.put(predicate, propertyInfo)
       }
 
-      val rdfType = (type.findAnnotation<RdfModel>() ?: constructor.findAnnotation())!!.rdfType
+      val rdfType = toolDialect.typeResolver.getValue(type)
       return RdfAnnotationTypeInfo(
         klass = type,
-        rdfType = namespacesProvider.iriFromTurtle(rdfType.toTurtleIri()),
+        rdfType = namespacesProvider.iriFromTurtle(rdfType),
         subjectProperties = subjectParams,
         otherProperties = otherParams.build(),
       )

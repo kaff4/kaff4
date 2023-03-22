@@ -11,25 +11,24 @@ import com.github.nava2.guice.KAbstractModule
 import com.github.nava2.guice.key
 import com.github.nava2.guice.to
 import com.github.nava2.test.GuiceModule
+import com.google.inject.util.Modules
 import org.assertj.core.api.Assertions.assertThat
-import org.eclipse.rdf4j.model.ValueFactory
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory
 import org.junit.jupiter.api.Test
 import javax.inject.Inject
 import javax.inject.Provider
 
 internal class Aff4LogicalStandardToolDialectTest {
   @GuiceModule
-  val module = object : KAbstractModule() {
-    override fun configure() {
-      install(Aff4TestModule)
-      bind<ValueFactory>().toInstance(SimpleValueFactory.getInstance())
-
-      install(Aff4LogicalStandardToolDialect.Module)
-      bind(key<ToolDialect>(DefaultToolDialect::class))
-        .to<Aff4LogicalStandardToolDialect>()
-    }
-  }
+  val module = Modules.combine(
+    Aff4TestModule,
+    Aff4LogicalStandardToolDialect.Module,
+    object : KAbstractModule() {
+      override fun configure() {
+        bind(key<ToolDialect>(DefaultToolDialect::class))
+          .to<Aff4LogicalStandardToolDialect>()
+      }
+    },
+  )
 
   @Inject
   private lateinit var aff4LogicalStandardToolDialect: Aff4LogicalStandardToolDialect

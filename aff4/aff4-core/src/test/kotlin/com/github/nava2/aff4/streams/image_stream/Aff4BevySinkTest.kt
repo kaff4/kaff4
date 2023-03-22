@@ -1,6 +1,6 @@
 package com.github.nava2.aff4.streams.image_stream
 
-import com.github.nava2.aff4.Aff4CoreModule
+import com.github.nava2.aff4.TestActionScopeModule
 import com.github.nava2.aff4.UsingTemporary
 import com.github.nava2.aff4.io.content
 import com.github.nava2.aff4.io.md5
@@ -12,8 +12,10 @@ import com.github.nava2.aff4.model.rdf.None
 import com.github.nava2.aff4.model.rdf.hash
 import com.github.nava2.aff4.model.rdf.toAff4Path
 import com.github.nava2.aff4.rdf.MemoryRdfRepositoryPlugin
+import com.github.nava2.aff4.streams.TestAff4ContainerBuilderModule
 import com.github.nava2.aff4.streams.compression.SnappyCompression
 import com.github.nava2.test.GuiceModule
+import com.google.inject.util.Modules
 import okio.ByteString
 import okio.ByteString.Companion.encodeUtf8
 import okio.ByteString.Companion.toByteString
@@ -26,11 +28,11 @@ import org.junit.jupiter.api.Test
 import javax.inject.Inject
 
 class Aff4BevySinkTest {
-
   @GuiceModule
-  val modules = listOf(
-    Aff4CoreModule,
+  val module = Modules.combine(
+    TestAff4ContainerBuilderModule,
     MemoryRdfRepositoryPlugin,
+    TestActionScopeModule,
   )
 
   @Inject
