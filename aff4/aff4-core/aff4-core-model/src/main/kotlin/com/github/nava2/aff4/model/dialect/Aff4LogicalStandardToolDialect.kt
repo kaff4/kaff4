@@ -1,9 +1,6 @@
-package com.github.nava2.aff4.dialects
+package com.github.nava2.aff4.model.dialect
 
 import com.github.nava2.aff4.model.Aff4Container
-import com.github.nava2.aff4.model.dialect.Aff4ToolDialectModule
-import com.github.nava2.aff4.model.dialect.DialectTypeResolver
-import com.github.nava2.aff4.model.dialect.ToolDialect
 import com.github.nava2.aff4.model.rdf.Aff4RdfModel
 import com.github.nava2.guice.KAbstractModule
 import com.google.inject.Provides

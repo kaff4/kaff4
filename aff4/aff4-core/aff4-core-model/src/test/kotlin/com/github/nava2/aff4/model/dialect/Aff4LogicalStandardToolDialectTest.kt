@@ -1,9 +1,7 @@
-package com.github.nava2.aff4.model
+package com.github.nava2.aff4.model.dialect
 
 import com.github.nava2.aff4.Aff4TestModule
-import com.github.nava2.aff4.dialects.Aff4LogicalStandardToolDialect
-import com.github.nava2.aff4.model.dialect.DefaultToolDialect
-import com.github.nava2.aff4.model.dialect.ToolDialect
+import com.github.nava2.aff4.model.Aff4Container
 import com.github.nava2.aff4.model.rdf.FileImage
 import com.github.nava2.aff4.model.rdf.ImageStream
 import com.github.nava2.aff4.model.rdf.MapStream

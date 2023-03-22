@@ -1,6 +1,6 @@
 package com.github.nava2.aff4
 
-import com.github.nava2.aff4.dialects.DialectsModule
+import com.github.nava2.aff4.model.dialect.DialectsModule
 import com.github.nava2.aff4.model.rdf.Aff4RdfModelPlugin
 import com.github.nava2.aff4.rdf.RdfRepositoryModule
 import com.github.nava2.aff4.rdf.io.RdfModelParserModule
