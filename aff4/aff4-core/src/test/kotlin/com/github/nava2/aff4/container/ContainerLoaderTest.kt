@@ -1,6 +1,9 @@
 package com.github.nava2.aff4.container
 
+import com.github.nava2.aff4.Aff4ImageTestModule
 import com.github.nava2.aff4.Aff4TestModule
+import com.github.nava2.aff4.BaseLinear
+import com.github.nava2.aff4.Dream
 import com.github.nava2.aff4.ForImages
 import com.github.nava2.aff4.UsingTemporary
 import com.github.nava2.aff4.container.RealAff4ImageOpener.LoadedContainersContext
@@ -67,7 +70,7 @@ internal class ContainerLoaderTest {
 
   @Test
   fun `getContainersForImage opens an Base-Linear and extracts metadata`() {
-    val imagePath = "Base-Linear.aff4".toPath()
+    val imagePath = Aff4ImageTestModule.BaseLinear.imagePath
     val containers = containerLoader.getContainersForImage(imagesFileSystem, imagePath)
     assertThat(containers).singleElement().isEqual(
       LoadedContainersContext.Container(
@@ -85,7 +88,7 @@ internal class ContainerLoaderTest {
 
   @Test
   fun `getContainersForImage opens dream and extracts metadata`() {
-    val imagePath = "dream.aff4".toPath()
+    val imagePath = Aff4ImageTestModule.Dream.imagePath
     val containers = containerLoader.getContainersForImage(imagesFileSystem, imagePath)
     assertThat(containers).singleElement().isEqual(
       LoadedContainersContext.Container(

@@ -13,9 +13,7 @@ import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace
 import java.lang.reflect.ParameterizedType
-import javax.inject.Inject
 import javax.inject.Provider
-import javax.inject.Singleton
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
@@ -79,6 +77,10 @@ class GuiceExtension : BeforeEachCallback, AfterEachCallback, BeforeAllCallback 
       Guice.createInjector(Stage.DEVELOPMENT, modules)
     } as Injector
 
+    for (lifecycleAction in injector.getInstance<Set<TestLifecycleAction>>()) {
+      lifecycleAction.beforeEach()
+    }
+
     injector.injectMembers(instance)
   }
 
@@ -87,8 +89,9 @@ class GuiceExtension : BeforeEachCallback, AfterEachCallback, BeforeAllCallback 
     val injector = injectorStore.get(context.requiredTestMethod) as? Injector
       ?: return
 
-    val cleanupActions = injector.getInstance<CleanupActions>()
-    cleanupActions.close()
+    for (lifecycleAction in injector.getInstance<Set<TestLifecycleAction>>()) {
+      lifecycleAction.afterEach()
+    }
 
     injectorStore.remove(context.requiredTestMethod)
   }
@@ -107,29 +110,16 @@ class GuiceExtension : BeforeEachCallback, AfterEachCallback, BeforeAllCallback 
     )
   }
 
-  @Singleton
-  class CleanupActions @Inject internal constructor() : AutoCloseable {
-    private val cleanups = mutableListOf<() -> Unit>()
-
-    fun register(action: () -> Unit) {
-      cleanups += action
-    }
-
-    fun register(autoCloseable: AutoCloseable) {
-      cleanups += autoCloseable::close
-    }
-
-    override fun close() {
-      for (action in cleanups) {
-        action()
-      }
-    }
+  interface TestLifecycleAction {
+    fun beforeEach(): Unit = Unit
+    fun afterEach(): Unit = Unit
   }
 
   private object TestModule : KAbstractModule() {
     override fun configure() {
       bind<Sha256FileSystemFactory>().toProvider(Provider { Sha256FileSystemFactory() })
-      bind<CleanupActions>()
+
+      bindSet<TestLifecycleAction> { }
     }
   }
 }

@@ -11,7 +11,7 @@ dependencies {
   api(Dependencies.JAVAX_INJECT)
   api(Dependencies.OKIO)
   api(Dependencies.RDF4J_MODEL_API)
-  
+
   testImplementation(Dependencies.RDF4J_MODEL)
 
   testImplementation(project(":aff4:aff4-core:aff4-core-test"))
