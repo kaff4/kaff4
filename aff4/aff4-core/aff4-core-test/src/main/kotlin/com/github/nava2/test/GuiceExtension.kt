@@ -79,6 +79,10 @@ class GuiceExtension : BeforeEachCallback, AfterEachCallback, BeforeAllCallback 
       Guice.createInjector(Stage.DEVELOPMENT, modules)
     } as Injector
 
+    for (lifecycleAction in injector.getInstance<Set<TestLifecycleAction>>()) {
+      lifecycleAction.beforeEach()
+    }
+
     injector.injectMembers(instance)
   }
 
@@ -89,6 +93,10 @@ class GuiceExtension : BeforeEachCallback, AfterEachCallback, BeforeAllCallback 
 
     val cleanupActions = injector.getInstance<CleanupActions>()
     cleanupActions.close()
+
+    for (lifecycleAction in injector.getInstance<Set<TestLifecycleAction>>()) {
+      lifecycleAction.afterEach()
+    }
 
     injectorStore.remove(context.requiredTestMethod)
   }
@@ -105,6 +113,11 @@ class GuiceExtension : BeforeEachCallback, AfterEachCallback, BeforeAllCallback 
     private val BASE_MODULES = listOf<Module>(
       TestModule,
     )
+  }
+
+  interface TestLifecycleAction {
+    fun beforeEach(): Unit = Unit
+    fun afterEach(): Unit = Unit
   }
 
   @Singleton
@@ -130,6 +143,8 @@ class GuiceExtension : BeforeEachCallback, AfterEachCallback, BeforeAllCallback 
     override fun configure() {
       bind<Sha256FileSystemFactory>().toProvider(Provider { Sha256FileSystemFactory() })
       bind<CleanupActions>()
+
+      bindSet<TestLifecycleAction> { }
     }
   }
 }
