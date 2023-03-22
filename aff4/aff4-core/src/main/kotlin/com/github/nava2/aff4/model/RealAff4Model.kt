@@ -1,6 +1,7 @@
 package com.github.nava2.aff4.model
 
 import com.github.nava2.aff4.model.rdf.Aff4RdfModel
+import com.github.nava2.aff4.model.rdf.TurtleIri
 import com.github.nava2.aff4.model.rdf.annotations.RdfModel
 import com.github.nava2.aff4.model.rdf.annotations.allRdfTypes
 import com.github.nava2.aff4.model.rdf.evaluateSequence
@@ -34,7 +35,7 @@ internal class RealAff4Model @AssistedInject constructor(
   @Volatile
   private var closed = false
 
-  private val modelArns = mutableMapOf<KClass<*>, Set<String>>()
+  private val modelArns = mutableMapOf<KClass<*>, Collection<TurtleIri>>()
 
   override fun <T : Aff4RdfModel> query(modelType: KClass<T>): Sequence<T> {
     val modelRdfTypes = getModelRdfTypes(modelType)
@@ -50,7 +51,7 @@ internal class RealAff4Model @AssistedInject constructor(
   }
 
   private fun <T : Aff4RdfModel> queryPaginatedSubjects(
-    modelRdfType: String,
+    modelRdfType: TurtleIri,
     bindings: MutableMap<String, Resource>,
     modelType: KClass<T>
   ): Sequence<T> {
@@ -222,8 +223,10 @@ internal class RealAff4Model @AssistedInject constructor(
     return rdfExecutor.withReadOnlySession { block(it) }
   }
 
-  private fun getModelRdfTypes(modelType: KClass<*>): Set<String> {
-    return modelArns.getOrPut(modelType) { modelType.findAnnotation<RdfModel>()!!.allRdfTypes }
+  private fun getModelRdfTypes(modelType: KClass<*>): Collection<TurtleIri> {
+    return modelArns.getOrPut(modelType) {
+      modelType.findAnnotation<RdfModel>()!!.allRdfTypes
+    }
   }
 
   internal interface AssistedFactory {

@@ -5,7 +5,7 @@ import com.github.nava2.aff4.model.Aff4Container
 import com.github.nava2.aff4.model.rdf.FileImage
 import com.github.nava2.aff4.model.rdf.ImageStream
 import com.github.nava2.aff4.model.rdf.MapStream
-import com.github.nava2.aff4.model.rdf.TurtleIri
+import com.github.nava2.aff4.model.rdf.TurtleIri.Companion.toTurtleIri
 import com.github.nava2.aff4.model.rdf.ZipSegment
 import com.github.nava2.guice.KAbstractModule
 import com.github.nava2.guice.key
@@ -47,10 +47,10 @@ internal class Aff4LogicalStandardToolDialectTest {
 
     assertThat(
       listOf(
-        MapStream::class to TurtleIri("aff4:Map"),
-        ImageStream::class to TurtleIri("aff4:ImageStream"),
-        ZipSegment::class to TurtleIri("aff4:ZipSegment"),
-        FileImage::class to TurtleIri("aff4:FileImage"),
+        MapStream::class to "aff4:Map".toTurtleIri(),
+        ImageStream::class to "aff4:ImageStream".toTurtleIri(),
+        ZipSegment::class to "aff4:ZipSegment".toTurtleIri(),
+        FileImage::class to "aff4:FileImage".toTurtleIri(),
       )
     ).allSatisfy { (klass, iri) ->
       assertThat(typeResolver[klass]).isEqualTo(iri)
