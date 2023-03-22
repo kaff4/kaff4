@@ -9,17 +9,19 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotations
 
 interface DialectTypeResolver {
-  val primaryBindings: ImmutableMap<KClass<out Aff4RdfModel>, TurtleIri>
-  val bindings: ImmutableListMultimap<KClass<out Aff4RdfModel>, TurtleIri>
+  val primaryBindings: ImmutableMap<KClass<*>, TurtleIri>
+  val bindings: ImmutableListMultimap<KClass<*>, TurtleIri>
 
-  operator fun get(klass: KClass<out Aff4RdfModel>): TurtleIri?
-  fun getValue(klass: KClass<out Aff4RdfModel>): TurtleIri {
+  operator fun get(klass: KClass<*>): TurtleIri?
+  fun getValue(klass: KClass<*>): TurtleIri {
     return get(klass)
       ?: throw NoSuchElementException("Key $klass does not exist")
   }
 
-  operator fun get(iri: TurtleIri): KClass<out Aff4RdfModel>?
-  fun getValue(iri: TurtleIri): KClass<out Aff4RdfModel>? {
+  fun getAll(klass: KClass<*>): List<TurtleIri>
+
+  operator fun get(iri: TurtleIri): KClass<*>?
+  fun getValue(iri: TurtleIri): KClass<*>? {
     return get(iri)
       ?: throw NoSuchElementException("Key $iri does not exist")
   }
@@ -36,11 +38,11 @@ interface DialectTypeResolver {
   }
 
   open class BuilderBase<SELF : BuilderBase<SELF>> internal constructor() {
-    private val primaryMappings = mutableMapOf<KClass<out Aff4RdfModel>, TurtleIri>()
-    private val mappings = ArrayListMultimap.create<KClass<out Aff4RdfModel>, TurtleIri>()
+    private val primaryMappings = mutableMapOf<KClass<*>, TurtleIri>()
+    private val mappings = ArrayListMultimap.create<KClass<*>, TurtleIri>()
 
     fun register(
-      klass: KClass<out Aff4RdfModel>,
+      klass: KClass<*>,
       primaryValue: TurtleIri,
       additionalValues: Collection<TurtleIri>,
     ): SELF {
@@ -56,7 +58,7 @@ interface DialectTypeResolver {
       return this as SELF
     }
 
-    fun remove(klass: KClass<out Aff4RdfModel>): TurtleIri? {
+    fun remove(klass: KClass<*>): TurtleIri? {
       mappings.removeAll(klass)
       return primaryMappings.remove(klass)
     }
@@ -69,11 +71,11 @@ interface DialectTypeResolver {
     }
 
     private data class ImmutableTypeResolver(
-      override val primaryBindings: ImmutableMap<KClass<out Aff4RdfModel>, TurtleIri>,
-      override val bindings: ImmutableListMultimap<KClass<out Aff4RdfModel>, TurtleIri>,
+      override val primaryBindings: ImmutableMap<KClass<*>, TurtleIri>,
+      override val bindings: ImmutableListMultimap<KClass<*>, TurtleIri>,
     ) : DialectTypeResolver {
       private val inverse by lazy(LazyThreadSafetyMode.NONE) {
-        ImmutableMap.builder<TurtleIri, KClass<out Aff4RdfModel>>()
+        ImmutableMap.builder<TurtleIri, KClass<*>>()
           .apply {
             for ((klass, iri) in bindings.entries()) {
               put(iri, klass)
@@ -82,21 +84,24 @@ interface DialectTypeResolver {
           .buildOrThrow()
       }
 
-      override fun get(klass: KClass<out Aff4RdfModel>): TurtleIri? = primaryBindings[klass]
-      override fun get(iri: TurtleIri): KClass<out Aff4RdfModel>? = inverse[iri]
+      override fun get(klass: KClass<*>): TurtleIri? = primaryBindings[klass]
+      override fun getAll(klass: KClass<*>): List<TurtleIri> {
+        return bindings[klass] ?: listOf()
+      }
+      override fun get(iri: TurtleIri): KClass<*>? = inverse[iri]
     }
   }
 
   class SimpleBuilder internal constructor() : BuilderBase<SimpleBuilder>() {
     fun register(
-      klass: KClass<out Aff4RdfModel>,
+      klass: KClass<*>,
       primaryValue: String,
       vararg additionalValues: String,
     ): SimpleBuilder {
       return register(klass, TurtleIri(primaryValue), additionalValues.map { TurtleIri(it) })
     }
 
-    operator fun set(klass: KClass<out Aff4RdfModel>, value: String): SimpleBuilder {
+    operator fun set(klass: KClass<*>, value: String): SimpleBuilder {
       return register(klass, value)
     }
 
@@ -111,7 +116,7 @@ interface DialectTypeResolver {
     private val annotationKlass: KClass<A>,
     private val extractor: A.() -> Pair<String, Set<String>>,
   ) : BuilderBase<AnnotationBasedBuilder<A>>() {
-    fun register(klass: KClass<out Aff4RdfModel>): AnnotationBasedBuilder<A> {
+    fun register(klass: KClass<*>): AnnotationBasedBuilder<A> {
       val annotation = checkNotNull(klass.findAnnotations(annotationKlass).singleOrNull()) {
         "Can not register $klass without $annotationKlass present"
       }
