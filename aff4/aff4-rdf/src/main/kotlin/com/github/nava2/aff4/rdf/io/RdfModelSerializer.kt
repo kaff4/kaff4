@@ -1,20 +1,25 @@
 package com.github.nava2.aff4.rdf.io
 
+import com.github.nava2.aff4.model.dialect.ToolDialect
 import com.github.nava2.aff4.rdf.QueryableRdfConnection
 import com.github.nava2.aff4.rdf.RdfValueConverter
 import com.github.nava2.aff4.rdf.schema.RdfSchema
 import com.github.nava2.aff4.yieldNotNull
+import com.google.inject.assistedinject.Assisted
+import com.google.inject.assistedinject.AssistedInject
 import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.Resource
 import org.eclipse.rdf4j.model.Statement
 import org.eclipse.rdf4j.model.ValueFactory
-import javax.inject.Inject
 import kotlin.LazyThreadSafetyMode.NONE
 
-class RdfModelSerializer @Inject internal constructor(
-  private val rdfAnnotationTypeInfoLookup: RdfAnnotationTypeInfo.Lookup,
+class RdfModelSerializer @AssistedInject internal constructor(
+  rdfAnnotationTypeInfoLookupFactory: RdfAnnotationTypeInfo.Lookup.Factory,
   private val valueConverterProvider: RdfValueConverterProvider,
+  @Assisted toolDialect: ToolDialect,
 ) {
+  private val rdfAnnotationTypeInfoLookup = rdfAnnotationTypeInfoLookupFactory.withDialect(toolDialect)
+
   fun <T : Any> serialize(connection: QueryableRdfConnection, value: T): Sequence<Statement> = sequence {
     val rdfInfo = rdfAnnotationTypeInfoLookup.get(value.javaClass.kotlin, connection.namespaces)
 
@@ -56,5 +61,9 @@ class RdfModelSerializer @Inject internal constructor(
   ): Statement? {
     val convertedValue = serialize(info.elementType, value)
     return convertedValue?.let { valueFactory.createStatement(subject, predicate, it) }
+  }
+
+  interface Factory {
+    fun create(toolDialect: ToolDialect): RdfModelSerializer
   }
 }

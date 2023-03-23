@@ -10,26 +10,17 @@ import com.github.nava2.guice.key
 import com.github.nava2.test.GuiceModule
 import com.google.inject.util.Modules
 import org.assertj.core.api.Assertions.assertThat
-import org.eclipse.rdf4j.model.ValueFactory
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory
 import org.junit.jupiter.api.Test
 import javax.inject.Inject
 
 internal class ToolDialectResolverTest {
   @GuiceModule
   val module = Modules.combine(
-    Modules.override(Aff4TestModule)
-      .with(
-        object : KAbstractModule() {
-          override fun configure() {
-            bind(key<ToolDialect>(DefaultToolDialect::class))
-              .toInstance(DefaultToolDialectImpl)
-          }
-        },
-      ),
+    Aff4TestModule,
     object : KAbstractModule() {
       override fun configure() {
-        bind<ValueFactory>().toInstance(SimpleValueFactory.getInstance())
+        bind(key<ToolDialect>(DefaultToolDialect::class))
+          .toInstance(DefaultToolDialectImpl)
 
         bindSet<ToolDialect> {
           toInstance(ToolDialectOne)

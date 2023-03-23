@@ -1,6 +1,7 @@
 package com.github.nava2.aff4.streams.map_stream
 
 import com.github.nava2.aff4.Aff4BaseStreamModule
+import com.github.nava2.aff4.TestActionScopeModule
 import com.github.nava2.aff4.UsingTemporary
 import com.github.nava2.aff4.container.Aff4ContainerBuilder
 import com.github.nava2.aff4.container.RealAff4ContainerBuilder
@@ -11,6 +12,8 @@ import com.github.nava2.aff4.io.md5
 import com.github.nava2.aff4.io.relativeTo
 import com.github.nava2.aff4.io.repeatByteString
 import com.github.nava2.aff4.model.Aff4ImageOpener
+import com.github.nava2.aff4.model.dialect.DefaultToolDialect
+import com.github.nava2.aff4.model.dialect.ToolDialect
 import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.model.rdf.CompressionMethod
 import com.github.nava2.aff4.model.rdf.HashType
@@ -25,6 +28,7 @@ import com.github.nava2.aff4.streams.compression.SnappyCompression
 import com.github.nava2.aff4.streams.image_stream.Bevy
 import com.github.nava2.aff4.streams.symbolics.Symbolics
 import com.github.nava2.test.GuiceModule
+import com.google.inject.util.Modules
 import okio.Buffer
 import okio.ByteString
 import okio.ByteString.Companion.decodeHex
@@ -41,11 +45,12 @@ import javax.inject.Inject
 class Aff4MapStreamSinkTest {
 
   @GuiceModule
-  val modules = listOf(
+  val module = Modules.combine(
     TestAff4ContainerBuilderModule,
     Aff4BaseStreamModule,
     MemoryRdfRepositoryPlugin,
     Aff4SnappyPlugin,
+    TestActionScopeModule,
   )
 
   @Inject
@@ -65,6 +70,10 @@ class Aff4MapStreamSinkTest {
 
   @Inject
   private lateinit var snappyCompression: SnappyCompression
+
+  @Inject
+  @field:DefaultToolDialect
+  private lateinit var toolDialect: ToolDialect
 
   private val imageFileSystem by lazy { sha256FileSystemFactory.create(tempFileSystem, "sha256".toPath()) }
 
@@ -88,6 +97,7 @@ class Aff4MapStreamSinkTest {
       Aff4ContainerBuilder.Context(
         temporaryFileSystem = imageFileSystem,
         arn = containerArn,
+        toolDialect = toolDialect,
       ),
     ) as RealAff4ContainerBuilder
   }

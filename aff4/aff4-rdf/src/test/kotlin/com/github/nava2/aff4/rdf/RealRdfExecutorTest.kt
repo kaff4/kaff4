@@ -1,8 +1,11 @@
 package com.github.nava2.aff4.rdf
 
 import com.github.nava2.aff4.Aff4CoreModule
+import com.github.nava2.aff4.TestActionScopeModule
+import com.github.nava2.aff4.container.Aff4ImageOpenerModule
 import com.github.nava2.aff4.isIllegalStateException
 import com.github.nava2.test.GuiceModule
+import com.google.inject.util.Modules
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.assertj.core.api.Assertions.fail
@@ -14,7 +17,12 @@ import javax.inject.Inject
 
 internal class RealRdfExecutorTest {
   @GuiceModule
-  val modules = listOf(Aff4CoreModule, MemoryRdfRepositoryPlugin)
+  val module = Modules.combine(
+    Aff4CoreModule,
+    MemoryRdfRepositoryPlugin,
+    Aff4ImageOpenerModule,
+    TestActionScopeModule,
+  )
 
   @Inject
   lateinit var realRdfExecutor: RealRdfExecutor

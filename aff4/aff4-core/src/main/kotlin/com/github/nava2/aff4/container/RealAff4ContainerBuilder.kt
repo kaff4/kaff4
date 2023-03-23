@@ -28,10 +28,11 @@ internal class RealAff4ContainerBuilder @AssistedInject internal constructor(
   private val streamSinkFactory: Aff4StreamSinkFactory,
   private val rdfExecutor: RdfExecutor,
   private val containerMetaWriter: ContainerMetaWriter,
-  private val rdfModelSerializer: RdfModelSerializer,
+  rdfModelSerializerFactory: RdfModelSerializer.Factory,
   @Assisted context: Aff4ContainerBuilder.Context,
 ) : Aff4ContainerBuilder {
 
+  private val rdfModelSerializer = rdfModelSerializerFactory.create(context.toolDialect)
   private val temporaryFileSystem: FileSystem = context.temporaryFileSystem
   override val containerArn: Aff4Arn = context.arn
   override val defaultTimeout: Timeout = context.defaultTimeout

@@ -2,6 +2,7 @@ dependencies {
   implementation(kotlin("reflect"))
 
   api(project(":aff4:aff4-core:aff4-core-guice"))
+  api(project(":aff4:aff4-core:aff4-core-model:aff4-core-model-api"))
   api(project(":aff4:aff4-rdf:aff4-rdf-api"))
 
   api(Dependencies.GUICE)
@@ -21,7 +22,6 @@ dependencies {
   implementation(Dependencies.RDF4J_SAIL_API)
 
   implementation(project(":aff4:aff4-core:aff4-core-kotlin"))
-  implementation(project(":aff4:aff4-core:aff4-core-model:aff4-core-model-api"))
 
   testImplementation(project(":aff4:aff4-core"))
   testImplementation(project(":aff4:aff4-core:aff4-core-model"))

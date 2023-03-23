@@ -10,9 +10,7 @@ import com.github.nava2.aff4.container.RealAff4ImageOpener.LoadedContainersConte
 import com.github.nava2.aff4.model.Aff4Container
 import com.github.nava2.aff4.model.rdf.createArn
 import com.github.nava2.aff4.satisfies
-import com.github.nava2.guice.KAbstractModule
 import com.github.nava2.test.GuiceModule
-import com.google.inject.util.Modules
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
@@ -22,7 +20,6 @@ import org.assertj.core.api.AbstractObjectAssert
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions
 import org.eclipse.rdf4j.model.ValueFactory
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -46,14 +43,7 @@ internal class ContainerLoaderTest {
   }
 
   @GuiceModule
-  val module = Modules.combine(
-    Aff4TestModule,
-    object : KAbstractModule() {
-      override fun configure() {
-        bind<ValueFactory>().toInstance(SimpleValueFactory.getInstance())
-      }
-    }
-  )
+  val module = Aff4TestModule
 
   @Inject
   private lateinit var containerLoader: ContainerLoader

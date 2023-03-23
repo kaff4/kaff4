@@ -5,6 +5,8 @@ import com.github.nava2.guice.to
 
 object MemoryRdfRepositoryPlugin : KAff4Plugin(pluginIdentifier = "kaff4:aff4-rdf-memory") {
   override fun configurePlugin() {
+    install(RdfRepositoryModule)
+
     bindRdfRepositoryConfiguration().to<MemoryRdfRepositoryConfiguration>()
   }
 }

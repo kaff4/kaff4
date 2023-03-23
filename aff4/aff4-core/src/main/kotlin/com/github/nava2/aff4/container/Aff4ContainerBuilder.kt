@@ -2,6 +2,7 @@ package com.github.nava2.aff4.container
 
 import com.github.nava2.aff4.io.SeekableSink
 import com.github.nava2.aff4.io.SizedSink
+import com.github.nava2.aff4.model.dialect.ToolDialect
 import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.model.rdf.HashType
 import com.github.nava2.aff4.model.rdf.ImageStream
@@ -36,6 +37,7 @@ interface Aff4ContainerBuilder : Closeable {
   data class Context(
     val temporaryFileSystem: FileSystem,
     val arn: Aff4Arn,
+    val toolDialect: ToolDialect,
     val defaultTimeout: Timeout = Timeout.NONE,
   )
 

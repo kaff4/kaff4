@@ -7,6 +7,8 @@ import com.github.nava2.aff4.container.RealAff4ContainerBuilder
 import com.github.nava2.aff4.io.decode
 import com.github.nava2.aff4.io.repeatByteString
 import com.github.nava2.aff4.model.Aff4ImageOpener
+import com.github.nava2.aff4.model.dialect.DefaultToolDialect
+import com.github.nava2.aff4.model.dialect.ToolDialect
 import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.model.rdf.CompressionMethod
 import com.github.nava2.aff4.model.rdf.Hash
@@ -19,6 +21,7 @@ import com.github.nava2.aff4.streams.TestAff4ContainerBuilderModule
 import com.github.nava2.aff4.streams.compression.Aff4SnappyPlugin
 import com.github.nava2.aff4.streams.compression.SnappyCompression
 import com.github.nava2.test.GuiceModule
+import com.google.inject.util.Modules
 import okio.Buffer
 import okio.ByteString
 import okio.ByteString.Companion.encodeUtf8
@@ -35,7 +38,7 @@ import javax.inject.Inject
 class Aff4ImageStreamSinkTest {
 
   @GuiceModule
-  val modules = listOf(
+  val module = Modules.combine(
     TestAff4ContainerBuilderModule,
     Aff4BaseStreamModule,
     MemoryRdfRepositoryPlugin,
@@ -53,6 +56,10 @@ class Aff4ImageStreamSinkTest {
 
   @Inject
   private lateinit var aff4ContainerBuilderFactory: Aff4ContainerBuilder.Factory
+
+  @Inject
+  @field:DefaultToolDialect
+  private lateinit var toolDialect: ToolDialect
 
   @UsingTemporary
   private lateinit var outputFileSystem: FileSystem
@@ -72,6 +79,7 @@ class Aff4ImageStreamSinkTest {
       Aff4ContainerBuilder.Context(
         temporaryFileSystem = imageFileSystem,
         arn = containerArn,
+        toolDialect = toolDialect,
       ),
     ) as RealAff4ContainerBuilder
   }
