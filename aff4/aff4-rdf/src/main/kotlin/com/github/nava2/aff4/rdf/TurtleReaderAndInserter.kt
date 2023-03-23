@@ -1,12 +1,12 @@
 package com.github.nava2.aff4.rdf
 
+import com.github.nava2.aff4.model.dialect.ToolDialect
 import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.model.rdf.Aff4RdfModel
 import com.github.nava2.aff4.model.rdf.StoredRdfModel
-import com.github.nava2.aff4.model.rdf.annotations.RdfModel
-import com.github.nava2.aff4.model.rdf.annotations.allRdfTypes
 import com.github.nava2.aff4.model.rdf.createAff4Iri
 import com.github.nava2.aff4.rdf.schema.RdfSchema
+import com.github.nava2.guice.action_scoped.ActionScoped
 import com.google.inject.assistedinject.Assisted
 import com.google.inject.assistedinject.AssistedInject
 import org.eclipse.rdf4j.model.Resource
@@ -14,11 +14,11 @@ import org.eclipse.rdf4j.model.Statement
 import org.eclipse.rdf4j.repository.RepositoryConnection
 import org.eclipse.rdf4j.repository.util.RDFInserter
 import kotlin.reflect.KClass
-import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.isSuperclassOf
 
 internal class TurtleReaderAndInserter @AssistedInject constructor(
   aff4ModelClasses: Set<KClass<out Aff4RdfModel>>,
+  @ActionScoped toolDialect: ToolDialect,
   @Assisted private val containerArn: Aff4Arn,
   @Assisted private val connection: RepositoryConnection,
 ) : RDFInserter(connection) {
@@ -31,7 +31,7 @@ internal class TurtleReaderAndInserter @AssistedInject constructor(
   private val modelsRequiringSubjects by lazy(LazyThreadSafetyMode.NONE) {
     aff4ModelClasses.asSequence()
       .filter { StoredRdfModel::class.isSuperclassOf(it) }
-      .flatMap { it.findAnnotation<RdfModel>()!!.allRdfTypes }
+      .flatMap { toolDialect.typeResolver.getAll(it) }
       .map { valueFactory.createAff4Iri(it.localName) }
       .toSet()
   }

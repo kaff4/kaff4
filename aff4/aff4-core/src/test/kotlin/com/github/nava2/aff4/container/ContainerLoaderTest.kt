@@ -5,12 +5,15 @@ import com.github.nava2.aff4.Aff4TestModule
 import com.github.nava2.aff4.BaseLinear
 import com.github.nava2.aff4.Dream
 import com.github.nava2.aff4.ForImages
+import com.github.nava2.aff4.TestActionScopeModule
+import com.github.nava2.aff4.TestToolDialectModule
 import com.github.nava2.aff4.UsingTemporary
 import com.github.nava2.aff4.container.RealAff4ImageOpener.LoadedContainersContext
 import com.github.nava2.aff4.model.Aff4Container
 import com.github.nava2.aff4.model.rdf.createArn
 import com.github.nava2.aff4.satisfies
 import com.github.nava2.test.GuiceModule
+import com.google.inject.util.Modules
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
@@ -43,7 +46,11 @@ internal class ContainerLoaderTest {
   }
 
   @GuiceModule
-  val module = Aff4TestModule
+  val module = Modules.combine(
+    Aff4TestModule,
+    TestActionScopeModule,
+    TestToolDialectModule(),
+  )
 
   @Inject
   private lateinit var containerLoader: ContainerLoader

@@ -1,9 +1,12 @@
 package com.github.nava2.aff4.streams.map_stream
 
+import com.github.nava2.aff4.Aff4CoreModule
+import com.github.nava2.aff4.TestActionScopeModule
+import com.github.nava2.aff4.container.Aff4ImageOpenerModule
 import com.github.nava2.aff4.interval_tree.IntervalTree
 import com.github.nava2.aff4.rdf.MemoryRdfRepositoryPlugin
-import com.github.nava2.aff4.rdf.RdfRepositoryModule
 import com.github.nava2.test.GuiceModule
+import com.google.inject.util.Modules
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
 import org.junit.jupiter.api.Test
@@ -11,7 +14,12 @@ import javax.inject.Inject
 
 class MapStreamEntryIntervalTreeExtensionsTest {
   @GuiceModule
-  val modules = listOf(RdfRepositoryModule, MemoryRdfRepositoryPlugin)
+  val module = Modules.combine(
+    MemoryRdfRepositoryPlugin,
+    Aff4CoreModule,
+    Aff4ImageOpenerModule,
+    TestActionScopeModule,
+  )
 
   @Inject
   private lateinit var valueFactory: ValueFactory
