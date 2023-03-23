@@ -3,7 +3,6 @@ package com.github.nava2.aff4.rdf.io
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.nava2.aff4.model.dialect.ToolDialect
 import com.github.nava2.aff4.model.rdf.TurtleIri.Companion.toTurtleIri
-import com.github.nava2.aff4.model.rdf.annotations.RdfModel
 import com.github.nava2.aff4.model.rdf.annotations.RdfSubject
 import com.github.nava2.aff4.model.rdf.annotations.RdfValue
 import com.github.nava2.aff4.rdf.NamespacesProvider
@@ -18,7 +17,6 @@ import kotlin.reflect.KParameter
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
 import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.isAccessible
@@ -100,9 +98,9 @@ internal data class RdfAnnotationTypeInfo<T : Any>(
 }
 
 private fun <T : Any> findRdfConstructor(type: KClass<T>): KFunction<T> {
-  val constructor = type.constructors.firstOrNull { ctor -> ctor.hasAnnotation<RdfModel>() }
-    ?: type.primaryConstructor
-    ?: error("Class $type is does not have a constructor supporting @${RdfModel::class} annotations")
+  val constructor = checkNotNull(type.primaryConstructor) {
+    "Class $type is does not have a primary constructor, is it an interface?"
+  }
   constructor.isAccessible = true
   return constructor
 }

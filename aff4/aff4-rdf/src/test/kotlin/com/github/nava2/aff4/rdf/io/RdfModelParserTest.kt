@@ -8,7 +8,6 @@ import com.github.nava2.aff4.model.Aff4Container
 import com.github.nava2.aff4.model.dialect.DefaultToolDialect
 import com.github.nava2.aff4.model.dialect.DialectTypeResolver
 import com.github.nava2.aff4.model.dialect.ToolDialect
-import com.github.nava2.aff4.model.rdf.annotations.RdfModel
 import com.github.nava2.aff4.model.rdf.annotations.RdfSubject
 import com.github.nava2.aff4.model.rdf.annotations.RdfValue
 import com.github.nava2.aff4.model.rdf.createArn
@@ -199,9 +198,7 @@ private class CustomToolDialect @Inject constructor() : ToolDialect {
   override fun isApplicable(toolMetadata: Aff4Container.ToolMetadata): Boolean = true
 }
 
-internal data class PrimitiveModelWithLong
-@RdfModel("test://primitive-model-with-long")
-constructor(
+internal data class PrimitiveModelWithLong(
   @RdfSubject
   val subject: Resource,
   @RdfValue("test:longValue")
@@ -210,9 +207,7 @@ constructor(
   val jlongValue: JLong,
 )
 
-internal data class PrimitiveModelWithString
-@RdfModel("test://primitive-model-with-string")
-constructor(
+internal data class PrimitiveModelWithString(
   @RdfSubject
   val subject: Resource,
   @RdfValue("test:stringValue")
@@ -232,16 +227,12 @@ interface ExtendWithSubject : WithSubject {
   override val intValue: Int
 }
 
-internal data class ModelClassExtendWithSubject
-@RdfModel("test://extend-with-subject")
-constructor(
+internal data class ModelClassExtendWithSubject(
   override val subject: Resource,
   override val intValue: Int,
 ) : ExtendWithSubject
 
-internal data class PrimitiveModelWithInt
-@RdfModel("test://primitive-model-with-int")
-constructor(
+internal data class PrimitiveModelWithInt(
   @RdfSubject
   val subject: Resource,
   @RdfValue("test:intValue")
