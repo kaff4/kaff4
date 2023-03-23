@@ -1,27 +1,31 @@
 package com.github.nava2.aff4.container
 
 import com.github.nava2.aff4.Aff4TestModule
+import com.github.nava2.aff4.TestActionScopeModule
+import com.github.nava2.aff4.TestToolDialectModule
+import com.github.nava2.aff4.isInstanceOf
 import com.github.nava2.aff4.model.Aff4Container
-import com.github.nava2.aff4.model.dialect.DefaultToolDialect
 import com.github.nava2.aff4.model.dialect.DialectTypeResolver
 import com.github.nava2.aff4.model.dialect.ToolDialect
 import com.github.nava2.guice.KAbstractModule
-import com.github.nava2.guice.key
+import com.github.nava2.guice.to
 import com.github.nava2.test.GuiceModule
 import com.google.inject.util.Modules
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import javax.inject.Inject
+import javax.inject.Singleton
 
 internal class ToolDialectResolverTest {
   @GuiceModule
   val module = Modules.combine(
     Aff4TestModule,
+    TestActionScopeModule,
+    TestToolDialectModule {
+      to<DefaultToolDialectImpl>()
+    },
     object : KAbstractModule() {
       override fun configure() {
-        bind(key<ToolDialect>(DefaultToolDialect::class))
-          .toInstance(DefaultToolDialectImpl)
-
         bindSet<ToolDialect> {
           toInstance(ToolDialectOne)
           toInstance(ToolDialectTwo)
@@ -44,7 +48,7 @@ internal class ToolDialectResolverTest {
   @Test
   fun `resolver returns default dialect if none are found`() {
     assertThat(toolDialectResolver.forTool(Aff4Container.ToolMetadata("V", "T")))
-      .isEqualTo(DefaultToolDialectImpl)
+      .isInstanceOf<DefaultToolDialectImpl>()
   }
 }
 
@@ -54,8 +58,7 @@ private object ToolDialectOne : ToolDialect {
     tool = "One",
   )
 
-  override val typeResolver: DialectTypeResolver
-    get() = TODO("Not yet implemented")
+  override val typeResolver: DialectTypeResolver = DialectTypeResolver.EMPTY
 
   override fun isApplicable(toolMetadata: Aff4Container.ToolMetadata): Boolean {
     return toolMetadata == this.toolMetadata
@@ -68,17 +71,17 @@ private object ToolDialectTwo : ToolDialect {
     tool = "Two",
   )
 
-  override val typeResolver: DialectTypeResolver
-    get() = TODO("Not yet implemented")
+  override val typeResolver: DialectTypeResolver = DialectTypeResolver.EMPTY
 
   override fun isApplicable(toolMetadata: Aff4Container.ToolMetadata): Boolean {
     return toolMetadata == this.toolMetadata
   }
 }
 
-private object DefaultToolDialectImpl : ToolDialect {
-  override val typeResolver: DialectTypeResolver
-    get() = TODO("Not yet implemented")
+@Singleton
+private class DefaultToolDialectImpl @Inject constructor() : ToolDialect {
+
+  override val typeResolver: DialectTypeResolver = DialectTypeResolver.EMPTY
 
   override fun isApplicable(toolMetadata: Aff4Container.ToolMetadata): Boolean {
     error("This should not be called")

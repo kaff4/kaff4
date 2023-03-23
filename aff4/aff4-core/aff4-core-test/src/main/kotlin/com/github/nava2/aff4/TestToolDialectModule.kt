@@ -14,8 +14,8 @@ import com.google.inject.binder.LinkedBindingBuilder
 import com.google.inject.binder.ScopedBindingBuilder
 import com.google.inject.util.Modules
 
-class TestToolDialectModule(
-  customBindingProvider: LinkedBindingBuilder<ToolDialect>.() -> ScopedBindingBuilder = {
+data class TestToolDialectModule(
+  val customBindingProvider: LinkedBindingBuilder<ToolDialect>.() -> ScopedBindingBuilder = {
     to<Aff4LogicalStandardToolDialect>()
   },
 ) : Module by Modules.override(DialectsModule).with(

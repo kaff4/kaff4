@@ -189,7 +189,7 @@ internal class RdfModelParserTest {
 
 @Singleton
 private class CustomToolDialect @Inject constructor() : ToolDialect {
-  override val typeResolver: DialectTypeResolver = DialectTypeResolver.Builder.empty()
+  override val typeResolver: DialectTypeResolver = DialectTypeResolver.Builder.newBuilder()
     .register(ModelClassExtendWithSubject::class, "test://extend-with-subject")
     .register(PrimitiveModelWithInt::class, "test://primitive-model-class")
     .register(PrimitiveModelWithString::class, "test://primitive-model-with-string")

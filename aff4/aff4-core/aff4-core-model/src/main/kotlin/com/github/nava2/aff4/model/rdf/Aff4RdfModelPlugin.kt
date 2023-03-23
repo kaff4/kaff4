@@ -1,7 +1,6 @@
 package com.github.nava2.aff4.model.rdf
 
 import com.github.nava2.aff4.plugins.KAff4Plugin
-import com.github.nava2.guice.to
 
 object Aff4RdfModelPlugin : KAff4Plugin(pluginIdentifier = "kaff4:aff4-rdf-models") {
   override fun configurePlugin() {
