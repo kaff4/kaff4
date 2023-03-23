@@ -8,6 +8,7 @@ import javax.inject.Inject
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 
+@ActionScoped
 internal class RealRdfModelParser @Inject constructor(
   @ActionScoped private val rdfAnnotationTypeInfoLookup: RdfAnnotationTypeInfo.Lookup,
   private val valueConverterProvider: RdfValueConverterProvider,

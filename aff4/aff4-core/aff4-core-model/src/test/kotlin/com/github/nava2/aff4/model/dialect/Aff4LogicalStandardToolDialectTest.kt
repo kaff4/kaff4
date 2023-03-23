@@ -1,6 +1,7 @@
 package com.github.nava2.aff4.model.dialect
 
 import com.github.nava2.aff4.Aff4TestModule
+import com.github.nava2.aff4.TestActionScopeModule
 import com.github.nava2.aff4.model.Aff4Container
 import com.github.nava2.aff4.model.rdf.FileImage
 import com.github.nava2.aff4.model.rdf.ImageStream
@@ -8,6 +9,7 @@ import com.github.nava2.aff4.model.rdf.MapStream
 import com.github.nava2.aff4.model.rdf.TurtleIri.Companion.toTurtleIri
 import com.github.nava2.aff4.model.rdf.ZipSegment
 import com.github.nava2.guice.KAbstractModule
+import com.github.nava2.guice.action_scoped.ActionScoped
 import com.github.nava2.guice.key
 import com.github.nava2.guice.to
 import com.github.nava2.test.GuiceModule
@@ -21,11 +23,16 @@ internal class Aff4LogicalStandardToolDialectTest {
   @GuiceModule
   val module = Modules.combine(
     Aff4TestModule,
+    TestActionScopeModule,
     Aff4LogicalStandardToolDialect.Module,
     object : KAbstractModule() {
       override fun configure() {
         bind(key<ToolDialect>(DefaultToolDialect::class))
           .to<Aff4LogicalStandardToolDialect>()
+
+        bind<ToolDialect>()
+          .to<Aff4LogicalStandardToolDialect>()
+          .`in`(ActionScoped::class.java)
       }
     },
   )

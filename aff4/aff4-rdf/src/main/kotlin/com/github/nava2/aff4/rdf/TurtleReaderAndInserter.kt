@@ -13,13 +13,12 @@ import org.eclipse.rdf4j.model.Resource
 import org.eclipse.rdf4j.model.Statement
 import org.eclipse.rdf4j.repository.RepositoryConnection
 import org.eclipse.rdf4j.repository.util.RDFInserter
-import javax.inject.Provider
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSuperclassOf
 
 internal class TurtleReaderAndInserter @AssistedInject constructor(
   aff4ModelClasses: Set<KClass<out Aff4RdfModel>>,
-  @ActionScoped private val toolDialectProvider: Provider<ToolDialect>,
+  @ActionScoped toolDialect: ToolDialect,
   @Assisted private val containerArn: Aff4Arn,
   @Assisted private val connection: RepositoryConnection,
 ) : RDFInserter(connection) {
@@ -30,7 +29,6 @@ internal class TurtleReaderAndInserter @AssistedInject constructor(
   private val subjects = mutableMapOf<Resource, ModelData>()
 
   private val modelsRequiringSubjects by lazy(LazyThreadSafetyMode.NONE) {
-    val toolDialect = toolDialectProvider.get()
     aff4ModelClasses.asSequence()
       .filter { StoredRdfModel::class.isSuperclassOf(it) }
       .flatMap { toolDialect.typeResolver.getAll(it) }

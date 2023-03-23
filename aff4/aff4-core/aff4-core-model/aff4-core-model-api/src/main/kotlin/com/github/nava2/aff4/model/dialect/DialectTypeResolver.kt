@@ -28,7 +28,7 @@ interface DialectTypeResolver {
   }
 
   object Builder {
-    fun empty(): SimpleBuilder = SimpleBuilder()
+    fun newBuilder(): SimpleBuilder = SimpleBuilder()
 
     fun withExisting(typeResolver: DialectTypeResolver): SimpleBuilder = SimpleBuilder(typeResolver)
 
@@ -38,7 +38,7 @@ interface DialectTypeResolver {
     ): AnnotationBasedBuilder<A> = AnnotationBasedBuilder(annotationKlass, extractor)
   }
 
-  open class BuilderBase<SELF : BuilderBase<SELF>> internal constructor() {
+  open class BuilderBase<out SELF : BuilderBase<SELF>> internal constructor() {
     private val primaryMappings = mutableMapOf<KClass<*>, TurtleIri>()
     private val mappings = ArrayListMultimap.create<KClass<*>, TurtleIri>()
 
@@ -129,5 +129,9 @@ interface DialectTypeResolver {
     inline fun <reified T : Aff4RdfModel> register(): AnnotationBasedBuilder<A> {
       return register(T::class)
     }
+  }
+
+  companion object {
+    val EMPTY = Builder.newBuilder().build()
   }
 }

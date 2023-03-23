@@ -10,7 +10,7 @@ import kotlin.reflect.KClass
 internal class DialectTypeResolverTest {
   @Test
   fun `SimpleBuilder - Empty never resolves`() {
-    val typeResolver = DialectTypeResolver.Builder.empty().build()
+    val typeResolver = DialectTypeResolver.EMPTY
 
     assertThat(typeResolver[SimpleModel::class]).isNull()
     assertThat(typeResolver[SIMPLE_IRI]).isNull()
@@ -18,7 +18,7 @@ internal class DialectTypeResolverTest {
 
   @Test
   fun `SimpleBuilder - registered types resolve`() {
-    val typeResolver = DialectTypeResolver.Builder.empty()
+    val typeResolver = DialectTypeResolver.Builder.newBuilder()
       .register(SimpleModel::class, SIMPLE_IRI)
       .build()
 
@@ -31,7 +31,7 @@ internal class DialectTypeResolverTest {
 
   @Test
   fun `SimpleBuilder - allows duplicate IRIs, returns primary for KClass key`() {
-    val typeResolver = DialectTypeResolver.Builder.empty()
+    val typeResolver = DialectTypeResolver.Builder.newBuilder()
       .register(SimpleModel::class, SIMPLE_IRI, SIMPLE_2_IRI)
       .build()
 

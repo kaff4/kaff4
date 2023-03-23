@@ -196,8 +196,8 @@ class MapStreamEntryTest {
   }
 }
 
-private fun <SELF> AbstractObjectAssert<SELF, MapStreamEntry>.canNotMerge(other: MapStreamEntry): SELF
-  where SELF : AbstractObjectAssert<SELF, MapStreamEntry> {
+private fun <SELF> SELF.canNotMerge(other: MapStreamEntry): SELF
+  where SELF : AbstractObjectAssert<out SELF, MapStreamEntry> {
   return satisfies { entry: MapStreamEntry ->
     assertThat(entry.canMerge(other)).`as` { "!entry.canMerge(other) [entry=$entry, other=$other]" }.isFalse()
 
