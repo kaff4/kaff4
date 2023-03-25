@@ -31,7 +31,7 @@
   "ReturnCount",
 )
 
-package com.github.nava2.aff4.interval_tree
+package com.github.nava2.interval_tree
 
 import com.google.common.annotations.VisibleForTesting
 import java.util.Optional

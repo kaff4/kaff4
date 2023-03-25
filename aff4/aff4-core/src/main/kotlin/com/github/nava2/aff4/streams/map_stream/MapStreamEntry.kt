@@ -1,7 +1,7 @@
 package com.github.nava2.aff4.streams.map_stream
 
-import com.github.nava2.aff4.interval_tree.Interval
 import com.github.nava2.aff4.model.rdf.Aff4Arn
+import com.github.nava2.interval_tree.Interval
 import okio.BufferedSink
 
 data class MapStreamEntry(

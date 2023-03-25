@@ -26,7 +26,7 @@
   "LargeClass",
 )
 
-package com.github.nava2.aff4.interval_tree
+package com.github.nava2.interval_tree
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy

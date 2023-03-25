@@ -21,7 +21,7 @@
 // SOFTWARE.
 //
 // Original: https://github.com/charcuterie/interval-tree/blob/65dc2fc8f754127aa09fba0dff6f43b10ac151cb/src/datastructures/Interval.java
-package com.github.nava2.aff4.interval_tree
+package com.github.nava2.interval_tree
 
 /**
  * Closed-open, [), interval on the integer number line.

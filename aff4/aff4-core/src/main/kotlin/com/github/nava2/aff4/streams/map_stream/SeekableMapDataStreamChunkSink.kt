@@ -1,9 +1,9 @@
 package com.github.nava2.aff4.streams.map_stream
 
-import com.github.nava2.aff4.interval_tree.IntervalTree
 import com.github.nava2.aff4.io.Seekable
 import com.github.nava2.aff4.model.rdf.Aff4Arn
 import com.github.nava2.aff4.streams.Aff4Sink
+import com.github.nava2.interval_tree.IntervalTree
 import okio.Buffer
 import okio.Timeout
 
