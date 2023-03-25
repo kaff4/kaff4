@@ -1,9 +1,9 @@
 package com.github.nava2.aff4.streams.map_stream
 
 import com.github.nava2.aff4.container.ContainerDataFileSystemProvider
-import com.github.nava2.aff4.interval_tree.IntervalTree
 import com.github.nava2.aff4.model.rdf.MapStream
 import com.github.nava2.aff4.streams.symbolics.Symbolics
+import com.github.nava2.interval_tree.IntervalTree
 import okio.buffer
 import org.eclipse.rdf4j.model.IRI
 import javax.inject.Inject

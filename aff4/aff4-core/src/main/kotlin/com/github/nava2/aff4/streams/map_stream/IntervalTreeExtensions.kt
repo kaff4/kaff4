@@ -1,7 +1,7 @@
 package com.github.nava2.aff4.streams.map_stream
 
-import com.github.nava2.aff4.interval_tree.IntervalTree
 import com.github.nava2.aff4.yieldNotNull
+import com.github.nava2.interval_tree.IntervalTree
 import java.util.SortedSet
 
 private fun Sequence<MapStreamEntry>.compressed(requireSort: Boolean): Sequence<MapStreamEntry> = sequence {

@@ -1,7 +1,7 @@
 package com.github.nava2.aff4.streams.map_stream
 
-import com.github.nava2.aff4.interval_tree.Interval
-import com.github.nava2.aff4.interval_tree.IntervalTree
+import com.github.nava2.interval_tree.Interval
+import com.github.nava2.interval_tree.IntervalTree
 import com.google.common.base.MoreObjects
 import org.eclipse.rdf4j.model.IRI
 import java.util.SortedSet

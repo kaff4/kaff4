@@ -3,9 +3,9 @@ package com.github.nava2.aff4.streams.map_stream
 import com.github.nava2.aff4.Aff4ImageTestModule
 import com.github.nava2.aff4.BaseLinear
 import com.github.nava2.aff4.UnderTest
-import com.github.nava2.aff4.interval_tree.Interval
 import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.model.rdf.MapStream
+import com.github.nava2.interval_tree.Interval
 import com.github.nava2.test.GuiceModule
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.ObjectAssert
