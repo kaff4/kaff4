@@ -1,13 +1,10 @@
 package com.github.nava2.guice.action_scoped
 
-import com.github.nava2.aff4.containsAllEntriesOf
-import com.github.nava2.aff4.isIllegalStateException
-import com.github.nava2.aff4.isInstanceOf
-import com.github.nava2.guice.KAbstractModule
-import com.github.nava2.guice.getInstance
-import com.github.nava2.guice.getProvider
-import com.github.nava2.guice.key
+import com.github.nava2.guice.action_scoped.assertj.containsAllEntriesOf
+import com.github.nava2.guice.action_scoped.assertj.isIllegalStateException
+import com.github.nava2.guice.action_scoped.assertj.isInstanceOf
 import com.github.nava2.test.GuiceModule
+import com.google.inject.AbstractModule
 import com.google.inject.Injector
 import com.google.inject.OutOfScopeException
 import com.google.inject.ProvisionException
@@ -21,9 +18,9 @@ internal class ActionScopeTest {
   @GuiceModule
   val module = Modules.combine(
     ActionScopeModule,
-    object : KAbstractModule() {
+    object : AbstractModule() {
       override fun configure() {
-        bind<SimpleDataClass1>().inActionScope()
+        bind(key<SimpleDataClass1>()).inActionScope()
       }
     },
   )
@@ -93,9 +90,9 @@ internal class ActionScopeTest {
   @Test
   fun `injecting non-scoped values does not update current seed map`() {
     val childInjector = injector.createChildInjector(
-      object : KAbstractModule() {
+      object : AbstractModule() {
         override fun configure() {
-          bind<SimpleDataClass2>()
+          bind(key<SimpleDataClass2>())
             .toProvider { SimpleDataClass2("PROVIDER") }
         }
       }
@@ -130,9 +127,9 @@ internal class ActionScopeTest {
   @Test
   fun `entering multiple scopes does not effect parent scopes`() {
     val childInjector = injector.createChildInjector(
-      object : KAbstractModule() {
+      object : AbstractModule() {
         override fun configure() {
-          bind<SimpleDataClass2>().inActionScope()
+          bind(key<SimpleDataClass2>()).inActionScope()
         }
       }
     )

@@ -2,7 +2,6 @@
 
 package com.github.nava2.guice.action_scoped
 
-import com.github.nava2.guice.key
 import com.google.common.annotations.VisibleForTesting
 import com.google.inject.Key
 import com.google.inject.OutOfScopeException

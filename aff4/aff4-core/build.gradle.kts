@@ -12,6 +12,8 @@ dependencies {
   api(project(":aff4:aff4-core:aff4-core-model"))
   api(project(":aff4:aff4-core:aff4-core-okio"))
 
+  implementation(project(":guice-action-scoped"))
+
   implementation(Dependencies.CAFFIENE)
   implementation(Dependencies.CHECKER_QUAL)
   implementation(Dependencies.GUAVA)
