@@ -1,6 +1,6 @@
 package com.github.nava2.guice.action_scoped
 
-import com.github.nava2.aff4.containsAllEntriesOf
+import com.github.nava2.guice.action_scoped.assertj.containsAllEntriesOf
 import com.github.nava2.test.GuiceModule
 import com.google.inject.Key
 import com.google.inject.OutOfScopeException

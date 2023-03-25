@@ -12,6 +12,8 @@ dependencies {
   api(Dependencies.GUICE)
   api(Dependencies.OKIO)
 
+  implementation(project(":guice-action-scoped"))
+
   implementation(project(":aff4:aff4-core"))
   implementation(project(":aff4:aff4-rdf:aff4-rdf-memory"))
 }
