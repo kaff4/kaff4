@@ -44,6 +44,9 @@ allprojects {
 
   repositories {
     mavenCentral()
+    maven {
+      url = uri("https://s01.oss.sonatype.org/content/repositories/releases/")
+    }
   }
 
   licenseReport {
@@ -65,24 +68,22 @@ subprojects {
     mavenLocal()
   }
 
-  if (project.name != "interval-tree") {
-    publishing {
-      publications {
-        create<MavenPublication>("maven") {
-          from(components["kotlin"])
+  publishing {
+    publications {
+      create<MavenPublication>("maven") {
+        from(components["kotlin"])
 
-          pom {
-            licenses {
-              license {
-                name.set("MIT License")
-                url.set("https://opensource.org/licenses/MIT")
-              }
+        pom {
+          licenses {
+            license {
+              name.set("MIT License")
+              url.set("https://opensource.org/licenses/MIT")
             }
-            scm {
-              connection.set("scm:git:https://github.com/Nava2/kaff4.git")
-              developerConnection.set("scm:git:ssh://github.com:Nava2/kaff4.git")
-              url.set("https://github.com/Nava2/kaff4")
-            }
+          }
+          scm {
+            connection.set("scm:git:https://github.com/Nava2/kaff4.git")
+            developerConnection.set("scm:git:ssh://github.com:Nava2/kaff4.git")
+            url.set("https://github.com/Nava2/kaff4")
           }
         }
       }

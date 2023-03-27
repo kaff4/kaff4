@@ -18,6 +18,8 @@ object Dependencies {
 
   const val JODA_TIME = "joda-time:joda-time:2.10.14"
 
+  const val KINTERVAL_TREE = "net.navatwo:kinterval-tree:0.1.0"
+
   const val LOG4J_API = "org.apache.logging.log4j:log4j-api:${Versions.LOG4J}"
   const val LOG4J_CORE = "org.apache.logging.log4j:log4j-core:${Versions.LOG4J}"
   const val LOG4J_SLF4J = "org.apache.logging.log4j:log4j-slf4j-impl:${Versions.LOG4J}"

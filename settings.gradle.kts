@@ -2,7 +2,6 @@ rootProject.name = "kaff4"
 
 include(
   "guice-action-scoped",
-  "interval-tree",
   "aff4:aff4-compression:aff4-compression-snappy",
   "aff4:aff4-core",
   "aff4:aff4-core:aff4-core-kotlin",
