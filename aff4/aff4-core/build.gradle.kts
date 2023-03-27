@@ -5,7 +5,7 @@ dependencies {
   api(Dependencies.JAVAX_INJECT)
   api(Dependencies.OKIO)
   api(Dependencies.RDF4J_MODEL_API)
-  api(project(":interval-tree"))
+  api(Dependencies.KINTERVAL_TREE)
 
   api(project(":aff4:aff4-core:aff4-core-guice"))
   api(project(":aff4:aff4-core:aff4-core-model:aff4-core-model-api"))
