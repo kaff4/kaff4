@@ -8,7 +8,7 @@ import com.github.nava2.aff4.model.rdf.ImageStream
 import com.github.nava2.aff4.model.rdf.MapStream
 import com.github.nava2.aff4.model.rdf.TurtleIri.Companion.toTurtleIri
 import com.github.nava2.aff4.model.rdf.ZipSegment
-import com.github.nava2.guice.KAbstractModule
+import com.github.nava2.guice.KAff4AbstractModule
 import com.github.nava2.guice.action_scoped.ActionScoped
 import com.github.nava2.guice.key
 import com.github.nava2.guice.to
@@ -25,7 +25,7 @@ internal class Aff4LogicalStandardToolDialectTest {
     Aff4TestModule,
     TestActionScopeModule,
     Aff4LogicalStandardToolDialect.Module,
-    object : KAbstractModule() {
+    object : KAff4AbstractModule() {
       override fun configure() {
         bind(key<ToolDialect>(DefaultToolDialect::class))
           .to<Aff4LogicalStandardToolDialect>()

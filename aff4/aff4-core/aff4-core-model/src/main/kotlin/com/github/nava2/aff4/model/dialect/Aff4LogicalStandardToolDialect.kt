@@ -2,7 +2,7 @@ package com.github.nava2.aff4.model.dialect
 
 import com.github.nava2.aff4.model.Aff4Container
 import com.github.nava2.aff4.model.rdf.Aff4RdfModel
-import com.github.nava2.guice.KAbstractModule
+import com.github.nava2.guice.KAff4AbstractModule
 import com.google.inject.Provides
 import javax.inject.Singleton
 import kotlin.annotation.AnnotationRetention.RUNTIME
@@ -22,7 +22,7 @@ class Aff4LogicalStandardToolDialect internal constructor(
   @Retention(RUNTIME)
   annotation class RdfStandardType(val rdfType: String)
 
-  object Module : KAbstractModule() {
+  object Module : KAff4AbstractModule() {
     override fun configure() {
       install(Aff4ToolDialectModule)
     }

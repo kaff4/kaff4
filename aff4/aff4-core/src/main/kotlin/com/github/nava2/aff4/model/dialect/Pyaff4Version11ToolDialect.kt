@@ -2,7 +2,7 @@ package com.github.nava2.aff4.model.dialect
 
 import com.github.nava2.aff4.model.Aff4Container
 import com.github.nava2.aff4.model.rdf.ZipSegment
-import com.github.nava2.guice.KAbstractModule
+import com.github.nava2.guice.KAff4AbstractModule
 import com.google.inject.Provides
 import javax.inject.Singleton
 
@@ -11,7 +11,7 @@ class Pyaff4Version11ToolDialect private constructor(override val typeResolver: 
     return toolMetadata == Aff4Container.ToolMetadata(version = "1.1", tool = "pyaff4")
   }
 
-  object Module : KAbstractModule() {
+  object Module : KAff4AbstractModule() {
     override fun configure() {
       install(Aff4ToolDialectModule)
 

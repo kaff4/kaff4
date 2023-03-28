@@ -1,9 +1,9 @@
 package com.github.nava2.aff4.rdf.io.literals
 
 import com.github.nava2.aff4.rdf.RdfValueConverter
-import com.github.nava2.guice.KAbstractModule
+import com.github.nava2.guice.KAff4AbstractModule
 
-internal object RdfLiteralConvertersModule : KAbstractModule() {
+internal object RdfLiteralConvertersModule : KAff4AbstractModule() {
   override fun configure() {
     bindSet<RdfValueConverter<*>> {
       to<StringRdfConverter>()

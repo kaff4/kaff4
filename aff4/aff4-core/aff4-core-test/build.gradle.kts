@@ -7,11 +7,12 @@ dependencies {
   api(project(":aff4:aff4-core:aff4-core-okio"))
 
   api(Dependencies.ASSERTJ_CORE)
+  api(Dependencies.GUICE)
   api(Dependencies.JAVAX_INJECT)
   api(Dependencies.JUNIT_JUIPTER_API)
-  api(Dependencies.GUICE)
   api(Dependencies.OKIO)
 
+  implementation(Dependencies.MISK_INJECT)
   implementation(project(":guice-action-scoped"))
 
   implementation(project(":aff4:aff4-core"))

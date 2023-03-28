@@ -1,7 +1,7 @@
 package com.github.nava2.test
 
 import com.github.nava2.aff4.io.Sha256FileSystemFactory
-import com.github.nava2.guice.KAbstractModule
+import com.github.nava2.guice.KAff4AbstractModule
 import com.github.nava2.guice.getInstance
 import com.google.inject.Guice
 import com.google.inject.Injector
@@ -115,7 +115,7 @@ class GuiceExtension : BeforeEachCallback, AfterEachCallback, BeforeAllCallback 
     fun afterEach(): Unit = Unit
   }
 
-  private object TestModule : KAbstractModule() {
+  private object TestModule : KAff4AbstractModule() {
     override fun configure() {
       bind<Sha256FileSystemFactory>().toProvider(Provider { Sha256FileSystemFactory() })
 

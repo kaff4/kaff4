@@ -1,11 +1,11 @@
 package com.github.nava2.aff4.model
 
-import com.github.nava2.guice.KAbstractModule
+import com.github.nava2.guice.KAff4AbstractModule
 import com.github.nava2.guice.assistedFactoryModule
 import com.github.nava2.guice.to
 import java.util.Objects
 
-object Aff4ModelModule : KAbstractModule() {
+object Aff4ModelModule : KAff4AbstractModule() {
   override fun configure() {
     binder().requireAtInjectOnConstructors()
 

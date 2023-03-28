@@ -4,9 +4,9 @@ import com.github.nava2.aff4.model.rdf.Aff4RdfModel
 import com.github.nava2.aff4.model.rdf.CompressionMethod
 import com.github.nava2.aff4.rdf.RdfRepositoryConfiguration
 import com.github.nava2.aff4.rdf.RdfValueConverter
-import com.github.nava2.guice.KAbstractModule
+import com.github.nava2.guice.KAff4AbstractModule
 import com.github.nava2.guice.KSetMultibinderHelper
-import com.google.inject.binder.AnnotatedBindingBuilder
+import com.google.inject.Binder
 import javax.inject.Qualifier
 import kotlin.annotation.AnnotationTarget.PROPERTY
 import kotlin.annotation.AnnotationTarget.VALUE_PARAMETER
@@ -19,7 +19,7 @@ import kotlin.reflect.KClass
  */
 abstract class KAff4Plugin protected constructor(
   pluginIdentifier: String,
-) : KAbstractModule() {
+) : KAff4AbstractModule() {
 
   val pluginIdentifier = PluginIdentifier(name = pluginIdentifier)
 
@@ -39,7 +39,9 @@ abstract class KAff4Plugin protected constructor(
 
   protected abstract fun configurePlugin()
 
-  protected fun bindRdfRepositoryConfiguration(): AnnotatedBindingBuilder<RdfRepositoryConfiguration> = bind()
+  override fun binder(): Binder = super.binder().skipSources(KAff4Plugin::class.java)
+
+  protected fun bindRdfRepositoryConfiguration(): KotlinAnnotatedBindingBuilder<in RdfRepositoryConfiguration> = bind()
 
   protected inline fun bindRdfValueConverters(
     crossinline block: KSetMultibinderHelper<RdfValueConverter<*>>.() -> Unit,

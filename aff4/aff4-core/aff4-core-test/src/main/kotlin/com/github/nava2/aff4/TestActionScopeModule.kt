@@ -1,12 +1,12 @@
 package com.github.nava2.aff4
 
-import com.github.nava2.guice.KAbstractModule
+import com.github.nava2.guice.KAff4AbstractModule
 import com.github.nava2.guice.action_scoped.ActionScope
 import com.github.nava2.guice.action_scoped.ActionScopeModule
 import com.github.nava2.test.GuiceExtension
 import javax.inject.Inject
 
-object TestActionScopeModule : KAbstractModule() {
+object TestActionScopeModule : KAff4AbstractModule() {
   override fun configure() {
     install(ActionScopeModule)
 

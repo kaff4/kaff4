@@ -8,6 +8,7 @@ dependencies {
   api(project(":aff4:aff4-core:aff4-core-guice"))
 
   implementation(Dependencies.GUICE)
+  implementation(Dependencies.MISK_INJECT)
 
   implementation(kotlin("reflect"))
 }

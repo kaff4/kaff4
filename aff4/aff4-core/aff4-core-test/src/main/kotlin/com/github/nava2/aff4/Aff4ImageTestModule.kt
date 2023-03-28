@@ -3,7 +3,7 @@ package com.github.nava2.aff4
 import com.github.nava2.aff4.container.Aff4ImageOpenerModule
 import com.github.nava2.aff4.model.Aff4Image
 import com.github.nava2.aff4.model.Aff4ImageOpener
-import com.github.nava2.guice.KAbstractModule
+import com.github.nava2.guice.KAff4AbstractModule
 import com.github.nava2.test.GuiceExtension
 import com.google.inject.Provides
 import okio.FileSystem
@@ -11,7 +11,7 @@ import okio.Path.Companion.toPath
 import javax.inject.Inject
 import javax.inject.Singleton
 
-abstract class Aff4ImageTestModule(val imageName: String) : KAbstractModule() {
+abstract class Aff4ImageTestModule(val imageName: String) : KAff4AbstractModule() {
   val imagePath = imageName.toPath()
 
   override fun configure() {

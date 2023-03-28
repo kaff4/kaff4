@@ -79,22 +79,16 @@ class OkioTempFileSystemExtension : BeforeEachCallback, AfterEachCallback {
     @Suppress("UNCHECKED_CAST")
     val tempDirectories = store.get(KEY_PROPERTY_TEMP_DIRS, List::class.java) as? List<Path> ?: listOf()
 
-    val suppressedExceptions = mutableListOf<Exception>()
     for (childDir in tempDirectories) {
       try {
         systemFileSystem.deleteRecursively(childDir)
-      } catch (ex: Exception) {
-        suppressedExceptions += ex
+      } catch (_: Exception) {
       }
     }
 
-    if (suppressedExceptions.isNotEmpty()) {
-      error(
-        "Failed to delete directories due to exceptions: " +
-          suppressedExceptions.joinToString("\n") { it.stackTraceToString() }
-      )
+    try {
+      systemFileSystem.delete(rootDir)
+    } catch (_: Exception) {
     }
-
-    systemFileSystem.delete(rootDir)
   }
 }
