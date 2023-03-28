@@ -7,6 +7,7 @@ dependencies {
   api(project(":aff4:aff4-core:aff4-core-model:aff4-core-model-api"))
 
   implementation(Dependencies.GUICE)
+  implementation(Dependencies.MISK_INJECT)
   implementation("org.xerial.snappy:snappy-java:1.1.8.4")
 
   implementation(project(":aff4:aff4-core:aff4-core-guice"))

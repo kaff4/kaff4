@@ -9,12 +9,12 @@ import com.github.nava2.aff4.model.Aff4StreamOpener
 import com.github.nava2.aff4.model.Aff4StreamOpenerModule
 import com.github.nava2.aff4.model.dialect.ToolDialect
 import com.github.nava2.aff4.rdf.RdfExecutor
-import com.github.nava2.guice.KAbstractModule
+import com.github.nava2.guice.KAff4AbstractModule
 import com.github.nava2.guice.action_scoped.ActionScoped
 import com.github.nava2.guice.to
 import com.google.inject.Provides
 
-object Aff4ImageOpenerModule : KAbstractModule() {
+object Aff4ImageOpenerModule : KAff4AbstractModule() {
   override fun configure() {
     install(ImageScopeModule)
 

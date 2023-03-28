@@ -5,7 +5,7 @@ import com.github.nava2.aff4.model.dialect.DefaultToolDialect
 import com.github.nava2.aff4.model.dialect.DialectsModule
 import com.github.nava2.aff4.model.dialect.ToolDialect
 import com.github.nava2.aff4.model.rdf.Aff4RdfModelPlugin
-import com.github.nava2.guice.KAbstractModule
+import com.github.nava2.guice.KAff4AbstractModule
 import com.github.nava2.guice.action_scoped.ActionScoped
 import com.github.nava2.guice.key
 import com.github.nava2.guice.to
@@ -19,7 +19,7 @@ data class TestToolDialectModule(
     to<Aff4LogicalStandardToolDialect>()
   },
 ) : Module by Modules.override(DialectsModule).with(
-  object : KAbstractModule() {
+  object : KAff4AbstractModule() {
     override fun configure() {
       install(Aff4RdfModelPlugin)
       install(Aff4LogicalStandardToolDialect.Module)
@@ -27,7 +27,7 @@ data class TestToolDialectModule(
       bind(key<ToolDialect>(DefaultToolDialect::class))
         .customBindingProvider()
 
-      bind<ToolDialect>()
+      bind(ToolDialect::class.java)
         .customBindingProvider()
         .`in`(ActionScoped::class.java)
     }

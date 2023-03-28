@@ -1,6 +1,6 @@
 package com.github.nava2.aff4.rdf
 
-import com.github.nava2.guice.KAbstractModule
+import com.github.nava2.guice.KAff4AbstractModule
 import com.github.nava2.guice.assistedFactoryModule
 import com.github.nava2.guice.key
 import com.github.nava2.guice.to
@@ -9,7 +9,7 @@ import org.eclipse.rdf4j.repository.Repository
 import org.eclipse.rdf4j.repository.sail.SailRepository
 import javax.inject.Singleton
 
-object RdfRepositoryModule : KAbstractModule() {
+object RdfRepositoryModule : KAff4AbstractModule() {
   override fun configure() {
     binder().requireAtInjectOnConstructors()
 

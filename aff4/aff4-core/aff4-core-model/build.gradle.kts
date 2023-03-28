@@ -12,6 +12,8 @@ dependencies {
   api(Dependencies.OKIO)
   api(Dependencies.RDF4J_MODEL_API)
 
+  implementation(Dependencies.MISK_INJECT)
+
   testImplementation(Dependencies.RDF4J_MODEL)
 
   testImplementation(project(":guice-action-scoped"))

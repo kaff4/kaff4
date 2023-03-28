@@ -7,7 +7,7 @@ import com.github.nava2.aff4.isInstanceOf
 import com.github.nava2.aff4.model.Aff4Container
 import com.github.nava2.aff4.model.dialect.DialectTypeResolver
 import com.github.nava2.aff4.model.dialect.ToolDialect
-import com.github.nava2.guice.KAbstractModule
+import com.github.nava2.guice.KAff4AbstractModule
 import com.github.nava2.guice.to
 import com.github.nava2.test.GuiceModule
 import com.google.inject.util.Modules
@@ -24,7 +24,7 @@ internal class ToolDialectResolverTest {
     TestToolDialectModule {
       to<DefaultToolDialectImpl>()
     },
-    object : KAbstractModule() {
+    object : KAff4AbstractModule() {
       override fun configure() {
         bindSet<ToolDialect> {
           toInstance(ToolDialectOne)

@@ -7,9 +7,9 @@ import com.github.nava2.aff4.container.Aff4ContainerBuilderModule
 import com.github.nava2.aff4.container.Aff4ImageOpenerModule
 import com.github.nava2.aff4.model.Aff4StreamOpenerModule
 import com.github.nava2.aff4.model.rdf.Aff4RdfModelPlugin
-import com.github.nava2.guice.KAbstractModule
+import com.github.nava2.guice.KAff4AbstractModule
 
-object TestAff4ContainerBuilderModule : KAbstractModule() {
+object TestAff4ContainerBuilderModule : KAff4AbstractModule() {
   override fun configure() {
     install(TestRandomsModule)
     install(TestActionScopeModule)

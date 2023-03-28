@@ -3,6 +3,7 @@ dependencies {
 
   implementation(Dependencies.GUICE)
   implementation(Dependencies.JAVAX_INJECT)
+  implementation(Dependencies.MISK_INJECT)
   implementation(Dependencies.RDF4J_SAIL_API)
   implementation(Dependencies.RDF4J_REPOSITORY_SAIL_MEMORY)
 
