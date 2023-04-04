@@ -10,6 +10,11 @@ the [AFF4 file format](https://github.com/aff4/Standard).
 
 This library is built to run in any JVM-based environment.
 
+## Warranty
+
+This software has no warranty, it might eat your lunch for all we know. Use at your own risk and cross-validate with
+other tools. We are not responsible for any usages or outcomes from using this software.
+
 ## What works today
 
 * Reading
