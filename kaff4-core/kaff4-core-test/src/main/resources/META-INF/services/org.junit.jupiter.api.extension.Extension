@@ -1,2 +1,2 @@
-com.github.nava2.test.OkioTempFileSystemExtension
-com.github.nava2.test.GuiceExtension
+net.navatwo.test.OkioTempFileSystemExtension
+net.navatwo.test.GuiceExtension
