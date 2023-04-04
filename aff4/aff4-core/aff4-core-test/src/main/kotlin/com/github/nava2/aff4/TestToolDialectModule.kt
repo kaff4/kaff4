@@ -10,7 +10,6 @@ import misk.scope.ActionScopedProviderModule
 import javax.inject.Inject
 import javax.inject.Provider
 
-// TODO separate
 object TestToolDialectModule : KAff4AbstractModule() {
   override fun configure() {
     install(DialectsModule)

@@ -3,7 +3,6 @@ dependencies {
 
   api(project(":aff4:aff4-core:aff4-core-guice"))
   api(project(":aff4:aff4-core:aff4-core-model"))
-  api(project(":aff4:aff4-core:aff4-core-model:aff4-core-model-api"))
   api(project(":aff4:aff4-core:aff4-core-okio"))
 
   api(Dependencies.ASSERTJ_CORE)
@@ -17,6 +16,7 @@ dependencies {
   implementation(project(":guice-action-scoped"))
 
   implementation(project(":aff4:aff4-core"))
+  implementation(project(":aff4:aff4-core:aff4-core-model:aff4-core-model-api"))
   implementation(project(":aff4:aff4-rdf:aff4-rdf-memory"))
 }
 
