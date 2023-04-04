@@ -49,7 +49,7 @@ internal class ContainerLoaderTest {
   val module = Modules.combine(
     Aff4TestModule,
     TestActionScopeModule,
-    TestToolDialectModule(),
+    TestToolDialectModule,
   )
 
   @Inject
