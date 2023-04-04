@@ -5,7 +5,9 @@ import java.util.concurrent.Executors
 import javax.inject.Inject
 import javax.inject.Singleton
 
-// TODO separate
+/**
+ * Runs code in a separate thread. This is typically used to avoid collisions between action scopes in tests.
+ */
 @Singleton
 class OffTestThreadExecutor @Inject internal constructor() : GuiceExtension.TestLifecycleAction {
 

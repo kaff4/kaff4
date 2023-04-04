@@ -13,7 +13,6 @@ dependencies {
 
   implementation(Dependencies.MISK_INJECT)
   implementation(Dependencies.MISK_ACTION_SCOPES)
-  implementation(project(":guice-action-scoped"))
 
   implementation(project(":aff4:aff4-core"))
   implementation(project(":aff4:aff4-core:aff4-core-model:aff4-core-model-api"))

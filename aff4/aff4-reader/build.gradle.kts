@@ -8,7 +8,6 @@ dependencies {
   implementation(Dependencies.OKIO)
   implementation(Dependencies.RDF4J_MODEL_API)
   implementation("org.jetbrains.kotlinx:kotlinx-cli:0.3.5")
-  implementation(project(":guice-action-scoped"))
 
   implementation(project(":aff4:aff4-core"))
   implementation(project(":aff4:aff4-core:aff4-core-logging"))

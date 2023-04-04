@@ -12,7 +12,6 @@ dependencies {
   api(Dependencies.RDF4J_RIO_API)
   api(Dependencies.RDF4J_QUERY)
 
-  implementation(project(":guice-action-scoped"))
   implementation(Dependencies.APACHE_COMMONS_LANG)
   implementation(Dependencies.CAFFIENE)
   implementation(Dependencies.CHECKER_QUAL)
