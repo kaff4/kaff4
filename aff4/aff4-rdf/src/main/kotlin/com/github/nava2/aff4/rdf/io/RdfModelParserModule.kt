@@ -3,10 +3,11 @@ package com.github.nava2.aff4.rdf.io
 import com.github.nava2.aff4.model.dialect.ToolDialect
 import com.github.nava2.aff4.rdf.io.literals.RdfLiteralConvertersModule
 import com.github.nava2.guice.KAff4AbstractModule
-import com.github.nava2.guice.action_scoped.ActionScoped
 import com.github.nava2.guice.assistedFactoryModule
-import com.github.nava2.guice.to
-import com.google.inject.Provides
+import misk.scope.ActionScoped
+import misk.scope.ActionScopedProvider
+import misk.scope.ActionScopedProviderModule
+import javax.inject.Inject
 
 object RdfModelParserModule : KAff4AbstractModule() {
   override fun configure() {
@@ -16,12 +17,17 @@ object RdfModelParserModule : KAff4AbstractModule() {
     install(assistedFactoryModule<RdfModelSerializer.Factory>())
 
     bind<RdfModelParser>().to<RealRdfModelParser>()
+    install(object : ActionScopedProviderModule() {
+      override fun configureProviders() {
+        bindProvider(RdfAnnotationTypeInfo.Lookup::class, RdfAnnotationTypeInfoLookupProvider::class)
+      }
+    })
   }
 
-  @Provides
-  @ActionScoped
-  internal fun providesRdfAnnotationTypeInfoLookup(
-    rdfAnnotationTypeInfo: RdfAnnotationTypeInfo.Lookup.Factory,
-    @ActionScoped toolDialect: ToolDialect,
-  ): RdfAnnotationTypeInfo.Lookup = rdfAnnotationTypeInfo.withDialect(toolDialect)
+  private class RdfAnnotationTypeInfoLookupProvider @Inject constructor(
+    private val rdfAnnotationTypeInfo: RdfAnnotationTypeInfo.Lookup.Factory,
+    private val toolDialectProvider: ActionScoped<ToolDialect>,
+  ) : ActionScopedProvider<RdfAnnotationTypeInfo.Lookup> {
+    override fun get(): RdfAnnotationTypeInfo.Lookup = rdfAnnotationTypeInfo.withDialect(toolDialectProvider.get())
+  }
 }

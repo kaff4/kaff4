@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 dependencies {
   implementation(Dependencies.GUICE)
   implementation(Dependencies.JAVAX_INJECT)
+  implementation(Dependencies.MISK_ACTION_SCOPES)
   implementation(Dependencies.LOG4J_API)
   implementation(Dependencies.OKIO)
   implementation(Dependencies.RDF4J_MODEL_API)

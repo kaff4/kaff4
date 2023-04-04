@@ -17,8 +17,8 @@ import com.github.nava2.aff4.rdf.RdfExecutor
 import com.github.nava2.aff4.rdf.io.RdfModelParser
 import com.github.nava2.aff4.streams.Aff4StreamLoaderContext
 import com.github.nava2.aff4.streams.symbolics.Symbolics
-import com.github.nava2.guice.action_scoped.ActionScoped
 import com.google.inject.TypeLiteral
+import misk.scope.ActionScoped
 import okio.Closeable
 import okio.Source
 import org.eclipse.rdf4j.model.IRI
@@ -39,27 +39,30 @@ private val closeableMethods = setOf(
   java.io.Closeable::close.javaMethod,
 )
 
-@ActionScoped
 internal class RealAff4StreamOpener @Inject constructor(
   private val rdfExecutor: RdfExecutor,
   private val rdfModelParser: RdfModelParser,
   private val modelKlasses: Set<KClass<out Aff4RdfModel>>,
   aff4StreamLoaderContexts: Set<Aff4StreamLoaderContext>,
-  @ActionScoped private val toolDialect: ToolDialect,
+  private val toolDialectProvider: ActionScoped<ToolDialect>,
   private val symbolics: Symbolics,
 ) : Aff4StreamOpener {
   @Volatile
   private var closed = false
 
-  private val modelKlassesByRdfType: Map<IRI, KClass<out Aff4RdfModel>> =
-    rdfExecutor.withReadOnlySession { connection ->
+  private fun getModelKlassesByTypes(types: Set<IRI>): Set<KClass<out Aff4RdfModel>> {
+    return rdfExecutor.withReadOnlySession { connection ->
       modelKlasses.asSequence()
         .flatMap { klass ->
-          val rdfModelTypes = toolDialect.typeResolver.getAll(klass).asSequence()
-          rdfModelTypes.map { connection.namespaces.iriFromTurtle(it) to klass }
+          val rdfModelTypes = toolDialectProvider.get().typeResolver.getAll(klass)
+          rdfModelTypes.asSequence()
+            .map { connection.namespaces.iriFromTurtle(it) to klass }
+            .filter { (iri, _) -> iri in types }
+            .map { (_, klass) -> klass }
         }
-        .toMap()
+        .toSet()
     }
+  }
 
   private val aff4StreamLoaderContexts = aff4StreamLoaderContexts.associateBy { it.configTypeLiteral }
 
@@ -162,7 +165,7 @@ internal class RealAff4StreamOpener @Inject constructor(
       .mapNotNull { it.`object` as? Aff4Arn }
       .toSet()
 
-    val modelType = rdfTypes.asSequence().mapNotNull { type -> modelKlassesByRdfType[type] }
+    val modelType = getModelKlassesByTypes(rdfTypes)
       .firstOrNull { TypeLiteral.get(it.java) in aff4StreamLoaderContexts }
       ?: error("Could not load Stream: $streamIri")
 

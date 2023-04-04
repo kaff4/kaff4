@@ -19,6 +19,7 @@ dependencies {
   implementation(Dependencies.GUAVA)
   implementation(Dependencies.GUICE_ASSISTED_INJECT)
   implementation(Dependencies.MISK_INJECT)
+  implementation(Dependencies.MISK_ACTION_SCOPES)
   implementation(Dependencies.RDF4J_QUERY)
   implementation(Dependencies.RDF4J_REPOSITORY_API)
   implementation(Dependencies.RDF4J_RIO_API)

@@ -21,6 +21,7 @@ import com.github.nava2.aff4.streams.TestAff4ContainerBuilderModule
 import com.github.nava2.aff4.streams.compression.Aff4SnappyPlugin
 import com.github.nava2.aff4.streams.compression.SnappyCompression
 import com.github.nava2.test.GuiceModule
+import com.github.nava2.test.OffTestThreadExecutor
 import com.google.inject.util.Modules
 import okio.Buffer
 import okio.ByteString
@@ -56,6 +57,9 @@ class Aff4ImageStreamSinkTest {
 
   @Inject
   private lateinit var aff4ContainerBuilderFactory: Aff4ContainerBuilder.Factory
+
+  @Inject
+  private lateinit var offTestThreadExecutor: OffTestThreadExecutor
 
   @Inject
   @field:DefaultToolDialect
@@ -214,11 +218,14 @@ class Aff4ImageStreamSinkTest {
   private fun verifyWrittenStream(writtenImageStream: ImageStream) {
     aff4ContainerBuilder.buildIntoDirectory(outputFileSystem, ".".toPath())
 
-    aff4ImageOpener.open(outputFileSystem, ".".toPath()) { container ->
-      val openedImageStream = container.streamOpener.openStream(writtenImageStream.arn) as Aff4ImageStreamSourceProvider
-      assertThat(openedImageStream.imageStream).isEqualTo(writtenImageStream)
+    offTestThreadExecutor.synchronous {
+      aff4ImageOpener.open(outputFileSystem, ".".toPath()) { container ->
+        val openedImageStream =
+          container.streamOpener.openStream(writtenImageStream.arn) as Aff4ImageStreamSourceProvider
+        assertThat(openedImageStream.imageStream).isEqualTo(writtenImageStream)
 
-      openedImageStream.verify(container.aff4Model)
+        openedImageStream.verify(container.aff4Model)
+      }
     }
   }
 }

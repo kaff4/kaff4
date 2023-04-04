@@ -28,6 +28,7 @@ import com.github.nava2.aff4.streams.compression.SnappyCompression
 import com.github.nava2.aff4.streams.image_stream.Bevy
 import com.github.nava2.aff4.streams.symbolics.Symbolics
 import com.github.nava2.test.GuiceModule
+import com.github.nava2.test.OffTestThreadExecutor
 import com.google.inject.util.Modules
 import okio.Buffer
 import okio.ByteString
@@ -64,6 +65,9 @@ class Aff4MapStreamSinkTest {
 
   @Inject
   private lateinit var sha256FileSystemFactory: Sha256FileSystemFactory
+
+  @Inject
+  private lateinit var offTestThreadExecutor: OffTestThreadExecutor
 
   @UsingTemporary
   private lateinit var tempFileSystem: FileSystem
@@ -464,11 +468,13 @@ class Aff4MapStreamSinkTest {
   private fun verifyWrittenStream(writtenMapStream: MapStream) {
     aff4ContainerBuilder.buildIntoDirectory(outputFileSystem, ".".toPath())
 
-    aff4ImageOpener.open(outputFileSystem, ".".toPath()) { container ->
-      val openedImageStream = container.streamOpener.openStream(writtenMapStream.arn) as Aff4MapStreamSourceProvider
-      assertThat(openedImageStream.mapStream).isEqualTo(writtenMapStream)
+    offTestThreadExecutor.synchronous {
+      aff4ImageOpener.open(outputFileSystem, ".".toPath()) { container ->
+        val openedImageStream = container.streamOpener.openStream(writtenMapStream.arn) as Aff4MapStreamSourceProvider
+        assertThat(openedImageStream.mapStream).isEqualTo(writtenMapStream)
 
-      openedImageStream.verify(container.aff4Model)
+        openedImageStream.verify(container.aff4Model)
+      }
     }
   }
 }

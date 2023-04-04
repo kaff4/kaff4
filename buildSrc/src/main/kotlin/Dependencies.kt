@@ -22,7 +22,8 @@ object Dependencies {
   const val LOG4J_CORE = "org.apache.logging.log4j:log4j-core:${Versions.LOG4J}"
   const val LOG4J_SLF4J = "org.apache.logging.log4j:log4j-slf4j-impl:${Versions.LOG4J}"
 
-  const val MISK_INJECT = "com.squareup.misk:misk-inject:0.24.0"
+  const val MISK_INJECT = "com.squareup.misk:misk-inject:${Versions.MISK}"
+  const val MISK_ACTION_SCOPES = "com.squareup.misk:misk-action-scopes:${Versions.MISK}"
 
   const val OKIO = "com.squareup.okio:okio:3.1.0"
 

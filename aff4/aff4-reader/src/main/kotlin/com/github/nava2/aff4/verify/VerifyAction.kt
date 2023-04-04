@@ -9,11 +9,14 @@ import com.github.nava2.aff4.model.rdf.Aff4RdfBaseModels
 import com.github.nava2.aff4.model.rdf.ImageStream
 import com.github.nava2.aff4.model.rdf.MapStream
 import com.github.nava2.aff4.model.rdf.ZipSegment
-import com.github.nava2.guice.action_scoped.ActionScopedExecutors
 import com.github.nava2.logging.Logging
+import misk.scope.ActionScope
+import misk.scope.executor.ActionScopedExecutorService
 import okio.FileSystem
 import okio.Path
 import java.util.concurrent.Callable
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import java.util.concurrent.ThreadFactory
 import javax.inject.Inject
 import javax.inject.Provider
@@ -24,7 +27,7 @@ private val logger = Logging.getLogger()
 @Singleton
 internal class VerifyAction @Inject constructor(
   private val imageOpener: Aff4ImageOpener,
-  private val executorsProvider: Provider<ActionScopedExecutors>,
+  private val actionScopeProvider: Provider<ActionScope>,
 ) {
   fun execute(inputImages: List<Path>, verifyThreadCount: Int) {
     logger.info("Verifying ${inputImages.size} images: $inputImages")
@@ -45,17 +48,7 @@ internal class VerifyAction @Inject constructor(
       logger.info("Verifying ${streams.size} streams")
       logger.debug("Verifying [${streams.size}] = [\n\t${streams.joinToString("\n\t")}\n]")
 
-      val executor = executorsProvider.get().newFixedThreadPool(
-        nThreads = verifyThreadCount,
-        threadFactory = object : ThreadFactory {
-          private var counter = 0
-
-          @Synchronized
-          override fun newThread(r: Runnable): Thread {
-            return Thread(r, "VerifyWorker-${counter++}")
-          }
-        }
-      )
+      val executor = setupExecutorService(verifyThreadCount)
 
       try {
         val tasks = streams.map { stream ->
@@ -80,6 +73,22 @@ internal class VerifyAction @Inject constructor(
     }
 
     logger.info("Verified image: $imagePath")
+  }
+
+  private fun setupExecutorService(verifyThreadCount: Int): ExecutorService {
+    val wrappedExecutor = Executors.newFixedThreadPool(
+      verifyThreadCount,
+      object : ThreadFactory {
+        private var counter = 0
+
+        @Synchronized
+        override fun newThread(r: Runnable): Thread {
+          return Thread(r, "VerifyWorker-${counter++}")
+        }
+      }
+    )
+
+    return ActionScopedExecutorService(wrappedExecutor, actionScopeProvider.get())
   }
 
   private fun verifyStream(

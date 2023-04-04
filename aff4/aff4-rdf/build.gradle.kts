@@ -19,6 +19,7 @@ dependencies {
   implementation(Dependencies.GUAVA)
   implementation(Dependencies.GUICE_ASSISTED_INJECT)
   implementation(Dependencies.MISK_INJECT)
+  implementation(Dependencies.MISK_ACTION_SCOPES)
   implementation(Dependencies.RDF4J_REPOSITORY_SAIL)
   implementation(Dependencies.RDF4J_RIO_TURTLE)
   implementation(Dependencies.RDF4J_SAIL_API)

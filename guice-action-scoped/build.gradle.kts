@@ -15,6 +15,7 @@ dependencies {
 
   implementation("javax.inject:javax.inject:1")
   implementation("com.google.guava:guava:31.1-jre")
+  implementation(Dependencies.MISK_ACTION_SCOPES)
 
   // TODO Move to library, too
   testImplementation(project(":aff4:aff4-core:aff4-core-test"))

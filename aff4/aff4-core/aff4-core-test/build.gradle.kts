@@ -13,6 +13,7 @@ dependencies {
   api(Dependencies.OKIO)
 
   implementation(Dependencies.MISK_INJECT)
+  implementation(Dependencies.MISK_ACTION_SCOPES)
   implementation(project(":guice-action-scoped"))
 
   implementation(project(":aff4:aff4-core"))
