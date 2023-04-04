@@ -7,10 +7,10 @@ dependencies {
   api(Dependencies.RDF4J_MODEL_API)
   api(Dependencies.KINTERVAL_TREE)
 
-  api(project(":aff4:aff4-core:aff4-core-guice"))
-  api(project(":aff4:aff4-core:aff4-core-model:aff4-core-model-api"))
-  api(project(":aff4:aff4-core:aff4-core-model"))
-  api(project(":aff4:aff4-core:aff4-core-okio"))
+  api(project(":kaff4-core:kaff4-core-guice"))
+  api(project(":kaff4-core:kaff4-core-model:kaff4-core-model-api"))
+  api(project(":kaff4-core:kaff4-core-model"))
+  api(project(":kaff4-core:kaff4-core-okio"))
 
   implementation(Dependencies.CAFFIENE)
   implementation(Dependencies.CHECKER_QUAL)
@@ -23,14 +23,14 @@ dependencies {
   implementation(Dependencies.RDF4J_RIO_API)
   implementation("io.github.zabuzard.fastcdc4j:fastcdc4j:1.3")
 
-  implementation(project(":aff4:aff4-core:aff4-core-kotlin"))
-  implementation(project(":aff4:aff4-rdf"))
+  implementation(project(":kaff4-core:kaff4-core-kotlin"))
+  implementation(project(":kaff4-rdf"))
 
   testImplementation(Dependencies.JUNIT_JUPITER_PARAMS)
 
-  testImplementation(project(":aff4:aff4-rdf:aff4-rdf-memory"))
-  testImplementation(project(":aff4:aff4-compression:aff4-compression-snappy"))
-  testImplementation(project(":aff4:aff4-core:aff4-core-test"))
+  testImplementation(project(":kaff4-rdf:kaff4-rdf-memory"))
+  testImplementation(project(":kaff4-compression:kaff4-compression-snappy"))
+  testImplementation(project(":kaff4-core:kaff4-core-test"))
 }
 
 useJunit5()

@@ -3,7 +3,7 @@ dependencies {
 
   implementation(Dependencies.OKIO)
 
-  testImplementation(project(":aff4:aff4-core:aff4-core-test"))
+  testImplementation(project(":kaff4-core:kaff4-core-test"))
 }
 
 useJunit5()

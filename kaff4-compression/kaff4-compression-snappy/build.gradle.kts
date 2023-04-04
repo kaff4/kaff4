@@ -3,12 +3,12 @@ dependencies {
 
   api(Dependencies.JAVAX_INJECT)
 
-  api(project(":aff4:aff4-plugin"))
-  api(project(":aff4:aff4-core:aff4-core-model:aff4-core-model-api"))
+  api(project(":kaff4-plugin"))
+  api(project(":kaff4-core:kaff4-core-model:kaff4-core-model-api"))
 
   implementation(Dependencies.GUICE)
   implementation(Dependencies.MISK_INJECT)
   implementation("org.xerial.snappy:snappy-java:1.1.8.4")
 
-  implementation(project(":aff4:aff4-core:aff4-core-guice"))
+  implementation(project(":kaff4-core:kaff4-core-guice"))
 }

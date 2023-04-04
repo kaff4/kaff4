@@ -1,9 +1,9 @@
 dependencies {
   implementation(kotlin("reflect"))
 
-  api(project(":aff4:aff4-core:aff4-core-guice"))
-  api(project(":aff4:aff4-core:aff4-core-model:aff4-core-model-api"))
-  api(project(":aff4:aff4-rdf:aff4-rdf-api"))
+  api(project(":kaff4-core:kaff4-core-guice"))
+  api(project(":kaff4-core:kaff4-core-model:kaff4-core-model-api"))
+  api(project(":kaff4-rdf:kaff4-rdf-api"))
 
   api(Dependencies.GUICE)
   api(Dependencies.JAVAX_INJECT)
@@ -23,12 +23,12 @@ dependencies {
   implementation(Dependencies.RDF4J_RIO_TURTLE)
   implementation(Dependencies.RDF4J_SAIL_API)
 
-  implementation(project(":aff4:aff4-core:aff4-core-kotlin"))
+  implementation(project(":kaff4-core:kaff4-core-kotlin"))
 
-  testImplementation(project(":aff4:aff4-core"))
-  testImplementation(project(":aff4:aff4-core:aff4-core-model"))
-  testImplementation(project(":aff4:aff4-core:aff4-core-test"))
-  testImplementation(project(":aff4:aff4-rdf:aff4-rdf-memory"))
+  testImplementation(project(":kaff4-core"))
+  testImplementation(project(":kaff4-core:kaff4-core-model"))
+  testImplementation(project(":kaff4-core:kaff4-core-test"))
+  testImplementation(project(":kaff4-rdf:kaff4-rdf-memory"))
 }
 
 useJunit5()
