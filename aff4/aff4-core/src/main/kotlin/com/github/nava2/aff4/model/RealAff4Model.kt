@@ -8,9 +8,9 @@ import com.github.nava2.aff4.rdf.RdfConnection
 import com.github.nava2.aff4.rdf.RdfExecutor
 import com.github.nava2.aff4.rdf.io.RdfModelParser
 import com.github.nava2.aff4.rdf.querySubjectsByType
-import com.github.nava2.guice.action_scoped.ActionScoped
 import com.google.inject.assistedinject.Assisted
 import com.google.inject.assistedinject.AssistedInject
+import misk.scope.ActionScoped
 import okio.Path.Companion.toPath
 import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.Resource
@@ -29,7 +29,7 @@ internal class RealAff4Model @AssistedInject constructor(
   private val rdfExecutor: RdfExecutor,
   private val valueFactory: ValueFactory,
   private val rdfModelParser: RdfModelParser,
-  @ActionScoped private val toolDialect: ToolDialect,
+  private val toolDialectProvider: ActionScoped<ToolDialect>,
   @Assisted override val containerContext: Aff4ImageContext,
 ) : Aff4Model {
   @Volatile
@@ -222,7 +222,7 @@ internal class RealAff4Model @AssistedInject constructor(
   }
 
   private fun getModelRdfTypes(modelType: KClass<*>): Collection<TurtleIri> {
-    return toolDialect.typeResolver.getAll(modelType)
+    return toolDialectProvider.get().typeResolver.getAll(modelType)
   }
 
   internal interface AssistedFactory {

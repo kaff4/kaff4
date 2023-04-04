@@ -10,9 +10,9 @@ import com.github.nava2.aff4.model.Aff4ImageOpener
 import com.github.nava2.aff4.model.Aff4Model
 import com.github.nava2.aff4.model.dialect.DefaultToolDialect
 import com.github.nava2.aff4.model.dialect.ToolDialect
-import com.github.nava2.guice.action_scoped.ActionScoped
 import com.github.nava2.test.GuiceModule
 import com.google.inject.util.Modules
+import misk.scope.ActionScoped
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import org.assertj.core.api.Assertions.assertThat
@@ -20,7 +20,6 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import javax.inject.Inject
-import javax.inject.Provider
 
 private const val BASE_LINEAR_NAME = "Base-Linear"
 private const val BASE_LINEAR_IMAGE = "$BASE_LINEAR_NAME.aff4"
@@ -42,20 +41,16 @@ internal class Aff4ImageOpenerModuleTest {
   private lateinit var imagesFileSystem: FileSystem
 
   @Inject
-  @field:ActionScoped
-  private lateinit var aff4ModelProvider: Provider<Aff4Model>
+  private lateinit var aff4ModelProvider: ActionScoped<Aff4Model>
 
   @Inject
-  @field:ActionScoped
-  private lateinit var aff4ImageProvider: Provider<Aff4Image>
+  private lateinit var aff4ImageProvider: ActionScoped<Aff4Image>
 
   @Inject
-  @field:ActionScoped
-  private lateinit var aff4ImageContextProvider: Provider<Aff4ImageContext>
+  private lateinit var aff4ImageContextProvider: ActionScoped<Aff4ImageContext>
 
   @Inject
-  @field:ActionScoped
-  private lateinit var toolDialectProvider: Provider<ToolDialect>
+  private lateinit var toolDialectProvider: ActionScoped<ToolDialect>
 
   @Inject
   @field:DefaultToolDialect

@@ -1,16 +1,15 @@
 package com.github.nava2.aff4.rdf.io
 
 import com.github.nava2.aff4.rdf.QueryableRdfConnection
-import com.github.nava2.guice.action_scoped.ActionScoped
+import misk.scope.ActionScoped
 import org.eclipse.rdf4j.model.Resource
 import org.eclipse.rdf4j.model.Statement
 import javax.inject.Inject
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 
-@ActionScoped
 internal class RealRdfModelParser @Inject constructor(
-  @ActionScoped private val rdfAnnotationTypeInfoLookup: RdfAnnotationTypeInfo.Lookup,
+  private val rdfAnnotationTypeInfoLookupProvider: ActionScoped<RdfAnnotationTypeInfo.Lookup>,
   private val valueConverterProvider: RdfValueConverterProvider,
 ) : RdfModelParser {
   override fun <T : Any> parse(
@@ -19,7 +18,7 @@ internal class RealRdfModelParser @Inject constructor(
     subject: Resource,
     statements: Collection<Statement>,
   ): T {
-    val rdfAnnotationTypeInfo = rdfAnnotationTypeInfoLookup.get(type, rdfConnection.namespaces)
+    val rdfAnnotationTypeInfo = rdfAnnotationTypeInfoLookupProvider.get().get(type, rdfConnection.namespaces)
 
     val parameterMap = LinkedHashMap<KParameter, Any?>(rdfAnnotationTypeInfo.requiredParameters.size)
     for (subjectInfo in rdfAnnotationTypeInfo.subjectProperties) {

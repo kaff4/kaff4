@@ -10,41 +10,37 @@ import com.github.nava2.aff4.model.Aff4StreamOpenerModule
 import com.github.nava2.aff4.model.dialect.ToolDialect
 import com.github.nava2.aff4.rdf.RdfExecutor
 import com.github.nava2.guice.KAff4AbstractModule
-import com.github.nava2.guice.action_scoped.ActionScoped
+import misk.scope.ActionScoped
+import misk.scope.ActionScopedProvider
+import misk.scope.ActionScopedProviderModule
 import javax.inject.Inject
-import javax.inject.Provider
 
 object Aff4ImageOpenerModule : KAff4AbstractModule() {
   override fun configure() {
-    install(ImageScopeModule)
-
     install(Aff4ModelModule)
     install(Aff4StreamOpenerModule)
 
     bind<Aff4ImageOpener>().to<RealAff4ImageOpener>()
 
-    bind<Aff4Model>()
-      .toProvider(Aff4ModelActionScopedProvider::class.java)
-      .`in`(ActionScoped::class.java)
+    install(
+      object : ActionScopedProviderModule() {
+        override fun configureProviders() {
+          bindSeedData(RealAff4ImageOpener.LoadedContainersContext::class)
 
-    bind<Aff4Image>()
-      .toProvider(Aff4ImageActionScopedProvider::class.java)
-      .`in`(ActionScoped::class.java)
-
-    bind<Aff4ImageContext>()
-      .toProvider(Aff4ImageContextActionScopedProvider::class.java)
-      .`in`(ActionScoped::class.java)
-
-    bind<ToolDialect>()
-      .toProvider(Aff4ToolDialectActionScopedProvider::class.java)
-      .`in`(ActionScoped::class.java)
+          bindProvider(Aff4Model::class, Aff4ModelActionScopedProvider::class)
+          bindProvider(Aff4Image::class, Aff4ImageActionScopedProvider::class)
+          bindProvider(Aff4ImageContext::class, Aff4ImageContextActionScopedProvider::class)
+          bindProvider(ToolDialect::class, Aff4ToolDialectActionScopedProvider::class)
+        }
+      }
+    )
   }
 
   private class Aff4ImageActionScopedProvider @Inject constructor(
-    @ActionScoped private val aff4ModelProvider: Provider<Aff4Model>,
+    private val aff4ModelProvider: ActionScoped<Aff4Model>,
     private val streamOpener: Aff4StreamOpener,
-    private val loadedContainersContextProvider: Provider<RealAff4ImageOpener.LoadedContainersContext>,
-  ) : Provider<Aff4Image> {
+    private val loadedContainersContextProvider: ActionScoped<RealAff4ImageOpener.LoadedContainersContext>,
+  ) : ActionScopedProvider<Aff4Image> {
     override fun get() = RealAff4Image(
       aff4Model = aff4ModelProvider.get(),
       streamOpener = streamOpener,
@@ -54,8 +50,8 @@ object Aff4ImageOpenerModule : KAff4AbstractModule() {
 
   private class Aff4ImageContextActionScopedProvider @Inject constructor(
     private val rdfExecutor: RdfExecutor,
-    @ActionScoped private val loadedContainersContextProvider: Provider<RealAff4ImageOpener.LoadedContainersContext>,
-  ) : Provider<Aff4ImageContext> {
+    private val loadedContainersContextProvider: ActionScoped<RealAff4ImageOpener.LoadedContainersContext>,
+  ) : ActionScopedProvider<Aff4ImageContext> {
     override fun get(): Aff4ImageContext {
       val loadedContainersContext = loadedContainersContextProvider.get()
       return Aff4ImageContext(
@@ -68,15 +64,15 @@ object Aff4ImageOpenerModule : KAff4AbstractModule() {
 
   private class Aff4ModelActionScopedProvider @Inject constructor(
     private val aff4ModelLoader: Aff4Model.Loader,
-    @ActionScoped private val aff4ImageContextProvider: Provider<Aff4ImageContext>,
-  ) : Provider<Aff4Model> {
+    private val aff4ImageContextProvider: ActionScoped<Aff4ImageContext>,
+  ) : ActionScopedProvider<Aff4Model> {
     override fun get() = aff4ModelLoader.load(aff4ImageContextProvider.get())
   }
 
   private class Aff4ToolDialectActionScopedProvider @Inject constructor(
-    @ActionScoped private val loadedContainersContextProvider: Provider<RealAff4ImageOpener.LoadedContainersContext>,
+    private val loadedContainersContextProvider: ActionScoped<RealAff4ImageOpener.LoadedContainersContext>,
     private val toolDialectResolver: ToolDialectResolver,
-  ) : Provider<ToolDialect> {
+  ) : ActionScopedProvider<ToolDialect> {
     override fun get(): ToolDialect {
       val loadedContainersContext = loadedContainersContextProvider.get()
       val toolMetadata = loadedContainersContext.containers.asSequence()

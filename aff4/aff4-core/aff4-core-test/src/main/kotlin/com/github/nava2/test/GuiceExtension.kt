@@ -119,7 +119,9 @@ class GuiceExtension : BeforeEachCallback, AfterEachCallback, BeforeAllCallback 
     override fun configure() {
       bind<Sha256FileSystemFactory>().toProvider(Provider { Sha256FileSystemFactory() })
 
-      bindSet<TestLifecycleAction> { }
+      bindSet<TestLifecycleAction> {
+        to<OffTestThreadExecutor>()
+      }
     }
   }
 }

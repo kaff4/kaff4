@@ -4,8 +4,9 @@ import com.github.nava2.aff4.model.Aff4Container
 import com.github.nava2.aff4.model.Aff4Image
 import com.github.nava2.aff4.model.Aff4ImageOpener
 import com.github.nava2.aff4.model.Aff4ImageOpener.Aff4ImageWithResources
-import com.github.nava2.guice.action_scoped.ActionScope
 import com.github.nava2.guice.key
+import misk.scope.ActionScope
+import misk.scope.ActionScoped
 import okio.FileSystem
 import okio.Path
 import javax.inject.Inject
@@ -13,7 +14,7 @@ import javax.inject.Inject
 internal class RealAff4ImageOpener @Inject constructor(
   private val actionScope: ActionScope,
   private val containerLoader: ContainerLoader,
-  private val aff4ImageProvider: com.google.inject.Provider<Aff4Image>,
+  private val imageProvider: ActionScoped<Aff4Image>,
 ) : Aff4ImageOpener {
   override fun manualOpen(fileSystem: FileSystem, path: Path): Aff4ImageWithResources {
     val containers = containerLoader.getContainersForImage(fileSystem, path)
@@ -23,13 +24,13 @@ internal class RealAff4ImageOpener @Inject constructor(
 
     val openedContainer = containers.single { it.containerPath == path }
 
-    val action = actionScope.start(
+    val action = actionScope.enter(
       mapOf(
         key<LoadedContainersContext>() to LoadedContainersContext(imageName = openedContainer.imageName, containers),
       )
     )
 
-    val aff4Image = actionScope.scope(key<Aff4Image>(), aff4ImageProvider).get()
+    val aff4Image = imageProvider.get()
     return Aff4ImageWithResources(aff4Image) { action.close() }
   }
 

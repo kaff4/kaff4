@@ -6,9 +6,9 @@ import com.github.nava2.aff4.model.rdf.Aff4RdfModel
 import com.github.nava2.aff4.model.rdf.StoredRdfModel
 import com.github.nava2.aff4.model.rdf.createAff4Iri
 import com.github.nava2.aff4.rdf.schema.RdfSchema
-import com.github.nava2.guice.action_scoped.ActionScoped
 import com.google.inject.assistedinject.Assisted
 import com.google.inject.assistedinject.AssistedInject
+import misk.scope.ActionScoped
 import org.eclipse.rdf4j.model.Resource
 import org.eclipse.rdf4j.model.Statement
 import org.eclipse.rdf4j.repository.RepositoryConnection
@@ -18,7 +18,7 @@ import kotlin.reflect.full.isSuperclassOf
 
 internal class TurtleReaderAndInserter @AssistedInject constructor(
   aff4ModelClasses: Set<KClass<out Aff4RdfModel>>,
-  @ActionScoped toolDialect: ToolDialect,
+  toolDialectProvider: ActionScoped<ToolDialect>,
   @Assisted private val containerArn: Aff4Arn,
   @Assisted private val connection: RepositoryConnection,
 ) : RDFInserter(connection) {
@@ -31,7 +31,7 @@ internal class TurtleReaderAndInserter @AssistedInject constructor(
   private val modelsRequiringSubjects by lazy(LazyThreadSafetyMode.NONE) {
     aff4ModelClasses.asSequence()
       .filter { StoredRdfModel::class.isSuperclassOf(it) }
-      .flatMap { toolDialect.typeResolver.getAll(it) }
+      .flatMap { toolDialectProvider.get().typeResolver.getAll(it) }
       .map { valueFactory.createAff4Iri(it.localName) }
       .toSet()
   }
