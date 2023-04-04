@@ -1,16 +1,26 @@
-# kaff4
+# kaff4 - Kotlin AFF4[-L]
+
+![License](https://img.shields.io/github/license/Nava2/kaff4)
+
+![Build](https://img.shields.io/github/actions/workflow/status/Nava2/kaff4/gradle-check-pristine.yml)
+![Release](https://img.shields.io/github/v/release/Nava2/kaff4)
 
 The kaff4 project is a [kotlin](https://kotlinlang.org/) implementation of
 the [AFF4 file format](https://github.com/aff4/Standard).
 
-This library is build to run in any JVM-based environment.
+This library is built to run in any JVM-based environment.
+
+## Warranty
+
+This software has no warranty, it might eat your lunch for all we know. Use at your own risk and cross-validate with
+other tools. We are not responsible for any usages or outcomes from using this software.
 
 ## What works today
 
 * Reading
     * Physical Images
     * Logical Images
-        * Querying files/directories is not "first part" but supported
+        * Querying files/directories is not "first party" but can be easily implemented by querying
 * Writing via `Aff4ContainerBuilder`
     * Physical Images
 
@@ -27,23 +37,20 @@ This library is build to run in any JVM-based environment.
 
 ## Attributions
 
-* [IntervalTree](https://github.com/charcuterie/interval-tree/blob/65dc2fc8f754127aa09fba0dff6f43b10ac151cb/src/datastructures/IntervalTree.java)
-    - [MIT License (MIT)](https://github.com/charcuterie/interval-tree/blob/65dc2fc8f754127aa09fba0dff6f43b10ac151cb/LICENSE)
+* [IntervalTree](https://github.com/Nava2/kinterval-tree) - [MIT](https://github.com/Nava2/kinterval-tree/LICENSE)
     - Mason M Lai
+    - Kevin Brightwell
 
 For individual projects, see `./gradlew :path:to:project:licenseReport`
 
 ## License - MIT
 
-See `LICENSE` in the root of this file.
+See `LICENSE` in the root of this project.
 
 For individual projects, see `./gradlew :path:to:project:licenseReport`
 
 ## TODO
 
-* General
-    * [ ] Add "plugin" support for optional features
-    * [ ] Package into jitpack
 * [ ] Add documentation on general architecture
     * Eclipse RDF4J, witness scoping, queries
 * [x] Add attributions for licenses
