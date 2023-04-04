@@ -14,7 +14,7 @@ class NamespacesProvider internal constructor(
   operator fun get(prefix: String): String? = tryFindPrefix(prefix)
 
   fun fromPrefix(prefix: String): String {
-    return tryFindPrefix(prefix) ?: throw IllegalArgumentException("Prefix not found: $prefix")
+    return requireNotNull(tryFindPrefix(prefix)) { "Prefix not found: $prefix" }
   }
 
   fun iriFromTurtle(iri: TurtleIri): IRI {

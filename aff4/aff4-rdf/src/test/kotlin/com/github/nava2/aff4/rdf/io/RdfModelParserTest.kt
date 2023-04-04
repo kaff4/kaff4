@@ -3,18 +3,21 @@
 package com.github.nava2.aff4.rdf.io
 
 import com.github.nava2.aff4.TestActionScopeModule
-import com.github.nava2.aff4.TestToolDialectModule
 import com.github.nava2.aff4.model.Aff4Container
 import com.github.nava2.aff4.model.dialect.DefaultToolDialect
 import com.github.nava2.aff4.model.dialect.DialectTypeResolver
+import com.github.nava2.aff4.model.dialect.DialectsModule
 import com.github.nava2.aff4.model.dialect.ToolDialect
+import com.github.nava2.aff4.model.rdf.Aff4RdfModelPlugin
 import com.github.nava2.aff4.model.rdf.annotations.RdfSubject
 import com.github.nava2.aff4.model.rdf.annotations.RdfValue
 import com.github.nava2.aff4.model.rdf.createArn
 import com.github.nava2.aff4.rdf.MemoryRdfRepositoryPlugin
 import com.github.nava2.aff4.rdf.MutableRdfConnection
 import com.github.nava2.aff4.rdf.RdfExecutor
-import com.github.nava2.guice.to
+import com.github.nava2.guice.KAff4AbstractModule
+import com.github.nava2.guice.action_scoped.ActionScoped
+import com.github.nava2.guice.key
 import com.github.nava2.test.GuiceModule
 import com.google.inject.util.Modules
 import org.assertj.core.api.Assertions.assertThat
@@ -25,6 +28,7 @@ import org.eclipse.rdf4j.model.ValueFactory
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import javax.inject.Inject
+import javax.inject.Provider
 import javax.inject.Singleton
 import kotlin.Long
 import java.lang.Integer as JInteger
@@ -36,9 +40,7 @@ internal class RdfModelParserTest {
     MemoryRdfRepositoryPlugin,
     RdfModelParserModule,
     TestActionScopeModule,
-    TestToolDialectModule {
-      to<CustomToolDialect>()
-    },
+    Modules.override(DialectsModule).with(CustomDialectModule),
   )
 
   @Inject
@@ -240,3 +242,21 @@ internal data class PrimitiveModelWithInt(
   @RdfValue("test:jintValue")
   val jintValue: JInteger,
 )
+
+private object CustomDialectModule : KAff4AbstractModule() {
+  override fun configure() {
+    install(Aff4RdfModelPlugin)
+
+    bind(key<ToolDialect>(DefaultToolDialect::class))
+      .to<CustomToolDialect>()
+    bind<ToolDialect>()
+      .toProvider(ToolDialectActionScopeProvider::class.java)
+      .`in`(ActionScoped::class.java)
+  }
+
+  private class ToolDialectActionScopeProvider @Inject constructor(
+    private val provider: Provider<CustomToolDialect>,
+  ) : Provider<CustomToolDialect> {
+    override fun get(): CustomToolDialect = provider.get()
+  }
+}
