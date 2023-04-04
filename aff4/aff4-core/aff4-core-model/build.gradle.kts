@@ -16,7 +16,6 @@ dependencies {
 
   testImplementation(Dependencies.RDF4J_MODEL)
 
-  testImplementation(project(":guice-action-scoped"))
   testImplementation(project(":aff4:aff4-core:aff4-core-test"))
 }
 

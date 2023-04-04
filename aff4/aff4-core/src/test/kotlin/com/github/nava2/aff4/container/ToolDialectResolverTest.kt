@@ -10,10 +10,11 @@ import com.github.nava2.aff4.model.dialect.DialectsModule
 import com.github.nava2.aff4.model.dialect.ToolDialect
 import com.github.nava2.aff4.model.rdf.Aff4RdfModelPlugin
 import com.github.nava2.guice.KAff4AbstractModule
-import com.github.nava2.guice.action_scoped.ActionScoped
 import com.github.nava2.guice.key
 import com.github.nava2.test.GuiceModule
 import com.google.inject.util.Modules
+import misk.scope.ActionScopedProvider
+import misk.scope.ActionScopedProviderModule
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import javax.inject.Inject
@@ -96,14 +97,17 @@ private object CustomDialectModule : KAff4AbstractModule() {
 
     bind(key<ToolDialect>(DefaultToolDialect::class))
       .to<DefaultToolDialectImpl>()
-    bind<ToolDialect>()
-      .toProvider(ToolDialectActionScopeProvider::class.java)
-      .`in`(ActionScoped::class.java)
+
+    install(object : ActionScopedProviderModule() {
+      override fun configureProviders() {
+        bindProvider(ToolDialect::class, ToolDialectActionScopeProvider::class)
+      }
+    })
   }
 
   private class ToolDialectActionScopeProvider @Inject constructor(
     private val provider: Provider<DefaultToolDialectImpl>,
-  ) : Provider<DefaultToolDialectImpl> {
+  ) : ActionScopedProvider<DefaultToolDialectImpl> {
     override fun get(): DefaultToolDialectImpl = provider.get()
   }
 }

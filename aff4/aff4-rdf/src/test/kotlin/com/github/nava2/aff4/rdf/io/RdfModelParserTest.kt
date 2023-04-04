@@ -16,10 +16,11 @@ import com.github.nava2.aff4.rdf.MemoryRdfRepositoryPlugin
 import com.github.nava2.aff4.rdf.MutableRdfConnection
 import com.github.nava2.aff4.rdf.RdfExecutor
 import com.github.nava2.guice.KAff4AbstractModule
-import com.github.nava2.guice.action_scoped.ActionScoped
 import com.github.nava2.guice.key
 import com.github.nava2.test.GuiceModule
 import com.google.inject.util.Modules
+import misk.scope.ActionScopedProvider
+import misk.scope.ActionScopedProviderModule
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.Resource
@@ -249,14 +250,17 @@ private object CustomDialectModule : KAff4AbstractModule() {
 
     bind(key<ToolDialect>(DefaultToolDialect::class))
       .to<CustomToolDialect>()
-    bind<ToolDialect>()
-      .toProvider(ToolDialectActionScopeProvider::class.java)
-      .`in`(ActionScoped::class.java)
+
+    install(object : ActionScopedProviderModule() {
+      override fun configureProviders() {
+        bindProvider(ToolDialect::class, ToolDialectActionScopeProvider::class)
+      }
+    })
   }
 
   private class ToolDialectActionScopeProvider @Inject constructor(
     private val provider: Provider<CustomToolDialect>,
-  ) : Provider<CustomToolDialect> {
+  ) : ActionScopedProvider<CustomToolDialect> {
     override fun get(): CustomToolDialect = provider.get()
   }
 }

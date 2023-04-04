@@ -1,16 +1,14 @@
 package com.github.nava2.aff4
 
 import com.github.nava2.guice.KAff4AbstractModule
-import com.github.nava2.guice.action_scoped.ActionScope
-import com.github.nava2.guice.action_scoped.ActionScopeModule
 import com.github.nava2.test.GuiceExtension
+import misk.scope.ActionScope
 import javax.inject.Inject
+import javax.inject.Provider
 import javax.inject.Singleton
 
 object TestActionScopeModule : KAff4AbstractModule() {
   override fun configure() {
-    install(ActionScopeModule)
-
     bindSet<GuiceExtension.TestLifecycleAction> {
       to<ActionScopeLifecycleAction>()
     }
@@ -18,17 +16,16 @@ object TestActionScopeModule : KAff4AbstractModule() {
 
   @Singleton
   private class ActionScopeLifecycleAction @Inject constructor(
-    private val actionScope: ActionScope,
+    private val actionScopeProvider: Provider<ActionScope>,
   ) : GuiceExtension.TestLifecycleAction {
     private lateinit var action: AutoCloseable
 
     override fun beforeEach() {
       check(!::action.isInitialized) { "Action is already setup" }
-      action = actionScope.start(mapOf())
+      action = actionScopeProvider.get().enter(mapOf())
     }
 
     override fun afterEach() {
-      if (!::action.isInitialized) return
       action.close()
     }
   }

@@ -17,8 +17,8 @@ import com.github.nava2.aff4.rdf.RdfExecutor
 import com.github.nava2.aff4.rdf.io.RdfModelParser
 import com.github.nava2.aff4.streams.Aff4StreamLoaderContext
 import com.github.nava2.aff4.streams.symbolics.Symbolics
-import com.github.nava2.guice.action_scoped.ActionScoped
 import com.google.inject.TypeLiteral
+import misk.scope.ActionScoped
 import okio.Closeable
 import okio.Source
 import org.eclipse.rdf4j.model.IRI
@@ -29,7 +29,6 @@ import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Proxy
 import javax.inject.Inject
-import javax.inject.Provider
 import kotlin.reflect.KClass
 import kotlin.reflect.jvm.javaMethod
 import kotlin.reflect.jvm.javaType
@@ -40,13 +39,12 @@ private val closeableMethods = setOf(
   java.io.Closeable::close.javaMethod,
 )
 
-@ActionScoped
 internal class RealAff4StreamOpener @Inject constructor(
   private val rdfExecutor: RdfExecutor,
   private val rdfModelParser: RdfModelParser,
   private val modelKlasses: Set<KClass<out Aff4RdfModel>>,
   aff4StreamLoaderContexts: Set<Aff4StreamLoaderContext>,
-  @ActionScoped private val toolDialectProvider: Provider<ToolDialect>,
+  private val toolDialectProvider: ActionScoped<ToolDialect>,
   private val symbolics: Symbolics,
 ) : Aff4StreamOpener {
   @Volatile
