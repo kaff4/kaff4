@@ -56,3 +56,29 @@ For individual projects, see `./gradlew :path:to:project:licenseReport`
 ## Development Dependencies
 
 * Java 19 JVM: `brew install --cask temurin`
+
+### Releasing
+
+```shell
+# Clean the repo first to not have any old artifacts
+./gradlew clean
+
+# Verify the repo is in good shape
+./gradlew check
+
+# Tag a version
+git tag v0.0.0
+
+# Publish a new build - BE MINDFUL OF SHELL HISTORY PRESERVING ENVIRONMENT VARIABLES
+ORG_GRADLE_PROJECT_signingKey=${SIGNING_KEY} \                                                                                                                   [14:52:36]
+ORG_GRADLE_PROJECT_signingPassword=${SIGNING_PASSWORD} \
+OSSRH_USERNAME=${OSSRH_USERNAME} \
+OSSRH_PASSWORD=${OSSRH_PASSWORD} \
+RELEASE=1 \
+./gradlew build publishToSonatype closeAndReleaseSonatypeStagingRepository
+
+# Push tags to github
+git push --tags
+
+# Create a new release: https://github.com/Nava2/kaff4/releases
+```

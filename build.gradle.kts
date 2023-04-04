@@ -8,6 +8,8 @@ plugins {
   id("com.jaredsburrows.license") version "0.9.0"
   id("com.autonomousapps.dependency-analysis") version "1.19.0"
   `maven-publish`
+  signing
+  id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
 }
 
 buildscript {
@@ -17,6 +19,9 @@ buildscript {
 }
 
 java {
+  withJavadocJar()
+  withSourcesJar()
+
   toolchain {
     configureJavaToolchain()
   }
@@ -27,6 +32,24 @@ kotlin {
     configureJavaToolchain()
   }
 }
+
+apply {
+  plugin("io.github.gradle-nexus.publish-plugin")
+}
+
+nexusPublishing {
+  repositories {
+    sonatype {
+      nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+      snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+
+      username.set(System.getenv("OSSRH_USERNAME"))
+      password.set(System.getenv("OSSRH_PASSWORD"))
+    }
+  }
+}
+
+val isRelease = !System.getenv("RELEASE").isNullOrBlank()
 
 allprojects {
   apply {
@@ -39,8 +62,12 @@ allprojects {
     }
   }
 
-  group = "com.github.nava2.kaff4"
-  version = "0.0.0"
+  group = "net.navatwo.kaff4"
+  version = "0.0.0-SNAPSHOT"
+
+  if (isRelease) {
+    version = version.toString().substringBefore("-SNAPSHOT")
+  }
 
   repositories {
     mavenCentral()
@@ -62,32 +89,63 @@ subprojects {
     plugin("org.jetbrains.kotlin.jvm")
     plugin("io.gitlab.arturbosch.detekt")
     plugin("maven-publish")
+    plugin("signing")
   }
 
   repositories {
     mavenLocal()
   }
 
+  java {
+    withJavadocJar()
+    withSourcesJar()
+  }
+
   publishing {
     publications {
       create<MavenPublication>("maven") {
-        from(components["kotlin"])
+        from(components["java"])
 
         pom {
+          name.set("kaff4")
+          description.set("Kotlin implementation the AFF4 standard")
+          url.set("https://github.com/Nava2/kaff4")
+
           licenses {
             license {
               name.set("MIT License")
               url.set("https://opensource.org/licenses/MIT")
             }
           }
+          developers {
+            developer {
+              id.set("Nava2")
+              name.set("Kevin Brightwell")
+              email.set("kevin.brightwell2+kaff4@gmail.com")
+            }
+          }
           scm {
-            connection.set("scm:git:https://github.com/Nava2/kaff4.git")
-            developerConnection.set("scm:git:ssh://github.com:Nava2/kaff4.git")
-            url.set("https://github.com/Nava2/kaff4")
+            url.set("https://github.com/Nava2/kaff4.git")
           }
         }
       }
     }
+  }
+
+  signing {
+    fun findProperty(name: String): String? {
+      val propertyName = "ORG_GRADLE_PROJECT_$name"
+      return project.findProperty(propertyName) as? String
+        ?: System.getenv("ORG_GRADLE_PROJECT_$name")
+    }
+
+    val signingKeyId: String? = findProperty("signingKeyId")
+    val signingKey: String? = findProperty("signingKey")
+    val signingPassword: String? = findProperty("signingPassword")
+
+    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+
+    sign(publishing.publications["maven"])
   }
 
   tasks.test {
