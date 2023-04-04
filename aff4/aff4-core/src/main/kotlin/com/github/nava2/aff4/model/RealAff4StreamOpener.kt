@@ -50,21 +50,6 @@ internal class RealAff4StreamOpener @Inject constructor(
   @Volatile
   private var closed = false
 
-  // TODO separate
-  private fun getModelKlassesByTypes(types: Set<IRI>): Set<KClass<out Aff4RdfModel>> {
-    return rdfExecutor.withReadOnlySession { connection ->
-      modelKlasses.asSequence()
-        .flatMap { klass ->
-          val rdfModelTypes = toolDialectProvider.get().typeResolver.getAll(klass)
-          rdfModelTypes.asSequence()
-            .map { connection.namespaces.iriFromTurtle(it) to klass }
-            .filter { (iri, _) -> iri in types }
-            .map { (_, klass) -> klass }
-        }
-        .toSet()
-    }
-  }
-
   private val aff4StreamLoaderContexts = aff4StreamLoaderContexts.associateBy { it.configTypeLiteral }
 
   private val openStreams: LoadingCache<Aff4Arn, AutoCloseableSourceProvider<Source>> = Caffeine.newBuilder()
@@ -166,7 +151,7 @@ internal class RealAff4StreamOpener @Inject constructor(
       .mapNotNull { it.`object` as? Aff4Arn }
       .toSet()
 
-    val modelType = getModelKlassesByTypes(rdfTypes)
+    val modelType = getModelKlassesForTypes(rdfTypes)
       .firstOrNull { TypeLiteral.get(it.java) in aff4StreamLoaderContexts }
       ?: error("Could not load Stream: $streamIri")
 
@@ -181,6 +166,22 @@ internal class RealAff4StreamOpener @Inject constructor(
 
     openStreams.invalidateAll()
     openStreams.cleanUp()
+  }
+
+  private fun getModelKlassesForTypes(types: Set<IRI>): Set<KClass<out Aff4RdfModel>> {
+    // TODO We should cache this per RDF session, this is more than likely operating within
+    //      a session. Thus it can be reused.
+    return rdfExecutor.withReadOnlySession { connection ->
+      modelKlasses.asSequence()
+        .flatMap { klass ->
+          val rdfModelTypes = toolDialectProvider.get().typeResolver.getAll(klass)
+          rdfModelTypes.asSequence()
+            .map { connection.namespaces.iriFromTurtle(it) to klass }
+            .filter { (iri, _) -> iri in types }
+            .map { (_, klass) -> klass }
+        }
+        .toSet()
+    }
   }
 }
 
