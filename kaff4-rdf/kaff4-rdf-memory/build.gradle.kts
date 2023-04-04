@@ -1,5 +1,5 @@
 dependencies {
-  api(project(":aff4:aff4-plugin"))
+  api(project(":kaff4-plugin"))
 
   implementation(Dependencies.GUICE)
   implementation(Dependencies.JAVAX_INJECT)
@@ -7,7 +7,7 @@ dependencies {
   implementation(Dependencies.RDF4J_SAIL_API)
   implementation(Dependencies.RDF4J_REPOSITORY_SAIL_MEMORY)
 
-  implementation(project(":aff4:aff4-core:aff4-core-guice"))
-  implementation(project(":aff4:aff4-rdf:aff4-rdf-api"))
-  implementation(project(":aff4:aff4-rdf"))
+  implementation(project(":kaff4-core:kaff4-core-guice"))
+  implementation(project(":kaff4-rdf:kaff4-rdf-api"))
+  implementation(project(":kaff4-rdf"))
 }

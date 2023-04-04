@@ -1,9 +1,9 @@
 dependencies {
   implementation(kotlin("reflect"))
 
-  api(project(":aff4:aff4-core:aff4-core-guice"))
-  api(project(":aff4:aff4-core:aff4-core-model"))
-  api(project(":aff4:aff4-core:aff4-core-okio"))
+  api(project(":kaff4-core:kaff4-core-guice"))
+  api(project(":kaff4-core:kaff4-core-model"))
+  api(project(":kaff4-core:kaff4-core-okio"))
 
   api(Dependencies.ASSERTJ_CORE)
   api(Dependencies.GUICE)
@@ -14,9 +14,9 @@ dependencies {
   implementation(Dependencies.MISK_INJECT)
   implementation(Dependencies.MISK_ACTION_SCOPES)
 
-  implementation(project(":aff4:aff4-core"))
-  implementation(project(":aff4:aff4-core:aff4-core-model:aff4-core-model-api"))
-  implementation(project(":aff4:aff4-rdf:aff4-rdf-memory"))
+  implementation(project(":kaff4-core"))
+  implementation(project(":kaff4-core:kaff4-core-model:kaff4-core-model-api"))
+  implementation(project(":kaff4-rdf:kaff4-rdf-memory"))
 }
 
 val projectPath = project.path
