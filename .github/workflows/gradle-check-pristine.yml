@@ -17,7 +17,7 @@ jobs:
       - name: Verify gradle wrapper
         uses: gradle/wrapper-validation-action@v1
 
-      - name: Build kinterval-tree
+      - name: Build kaff4
         uses: burrunan/gradle-cache-action@v1
         with:
           arguments: check buildHealth --continue
