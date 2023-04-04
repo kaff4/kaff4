@@ -17,8 +17,6 @@ import javax.inject.Inject
 
 object Aff4ImageOpenerModule : KAff4AbstractModule() {
   override fun configure() {
-    install(ImageScopeModule)
-
     install(Aff4ModelModule)
     install(Aff4StreamOpenerModule)
 

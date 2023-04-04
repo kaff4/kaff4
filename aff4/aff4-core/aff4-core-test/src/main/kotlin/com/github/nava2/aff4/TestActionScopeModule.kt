@@ -18,16 +18,15 @@ object TestActionScopeModule : KAff4AbstractModule() {
   private class ActionScopeLifecycleAction @Inject constructor(
     private val actionScopeProvider: Provider<ActionScope>,
   ) : GuiceExtension.TestLifecycleAction {
-    private var action: AutoCloseable? = null
+    private lateinit var action: AutoCloseable
 
     override fun beforeEach() {
-      check(action == null) { "Action is already setup" }
-
+      check(!::action.isInitialized) { "Action is already setup" }
       action = actionScopeProvider.get().enter(mapOf())
     }
 
     override fun afterEach() {
-      action?.close()
+      action.close()
     }
   }
 }

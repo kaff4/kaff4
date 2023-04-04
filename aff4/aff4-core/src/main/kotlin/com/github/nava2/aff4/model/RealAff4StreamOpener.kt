@@ -50,6 +50,7 @@ internal class RealAff4StreamOpener @Inject constructor(
   @Volatile
   private var closed = false
 
+  // TODO separate
   private fun getModelKlassesByTypes(types: Set<IRI>): Set<KClass<out Aff4RdfModel>> {
     return rdfExecutor.withReadOnlySession { connection ->
       modelKlasses.asSequence()
