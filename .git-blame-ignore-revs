@@ -1,9 +1,9 @@
 # Fix line-endings dos2unix 
 # `find . -type f -name .git -not -name build -prune -o -name "*.kt" -exec dos2unix {} \;`
-57b5f4b
+57b5f4bfebb95ba1beb48ccdb0fa8f2ea5e46dff
 
 # Move folders around to remove extra nesting (#67)
-7e1c6df
+7e1c6df7176f9070c8d0b2bf2434809b9c0efe36
 
 # Rename packages from `com.github.nava2` -> `net.navatwo` (#68)
-243acb7
+243acb7fcf0c64c9fe7b174ffd96742d700ca164
