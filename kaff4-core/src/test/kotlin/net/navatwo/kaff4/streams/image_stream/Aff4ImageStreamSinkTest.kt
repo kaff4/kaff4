@@ -21,6 +21,8 @@ import net.navatwo.kaff4.rdf.MemoryRdfRepositoryPlugin
 import net.navatwo.kaff4.streams.TestAff4ContainerBuilderModule
 import net.navatwo.kaff4.streams.compression.Aff4SnappyPlugin
 import net.navatwo.kaff4.streams.compression.SnappyCompression
+import net.navatwo.kaff4.streams.compression.lz4.Aff4Lz4Plugin
+import net.navatwo.kaff4.streams.compression.lz4.Lz4Compression
 import net.navatwo.test.GuiceModule
 import net.navatwo.test.OffTestThreadExecutor
 import okio.Buffer
@@ -34,16 +36,18 @@ import org.eclipse.rdf4j.model.ValueFactory
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import javax.inject.Inject
 
-class Aff4ImageStreamSinkTest {
-
+internal class Aff4ImageStreamSinkTest {
   @GuiceModule
   val module = Modules.combine(
     TestAff4ContainerBuilderModule,
     Aff4BaseStreamModule,
     MemoryRdfRepositoryPlugin,
     Aff4SnappyPlugin,
+    Aff4Lz4Plugin,
   )
 
   @Inject
@@ -51,6 +55,9 @@ class Aff4ImageStreamSinkTest {
 
   @Inject
   private lateinit var snappyCompression: SnappyCompression
+
+  @Inject
+  private lateinit var lz4Compression: Lz4Compression
 
   @Inject
   private lateinit var aff4ImageOpener: Aff4ImageOpener
@@ -177,18 +184,35 @@ class Aff4ImageStreamSinkTest {
     verifyWrittenStream(writtenImageStream)
   }
 
-  @Test
-  fun `create snappy bevy`() {
-    val content = 0.repeatByteString(100)
+  @ParameterizedTest(name = "create ({0}) compressed bevy")
+  @ValueSource(
+    strings = [
+      SnappyCompression.IDENTIFIER,
+      Lz4Compression.IDENTIFIER,
+    ]
+  )
+  fun `create compressed bevy`(identifier: String) {
+    val compressionMethod = when (identifier) {
+      SnappyCompression.IDENTIFIER -> snappyCompression
+      Lz4Compression.IDENTIFIER -> lz4Compression
+      else -> error("unknown identifier")
+    }
 
-    val chunkSize = 40
+    val content = Buffer().use { buffer ->
+      for (i in 0..10) {
+        buffer.write(i.repeatByteString(1024 * i))
+      }
+      buffer.readByteString()
+    }
+
+    val chunkSize = 512
     val chunksInSegment = 1
     val imageStream = ImageStream(
       arn = valueFactory.createIRI("aff4://99cc4380-308f-4235-838c-e20a8898ad00"),
       chunkSize = chunkSize,
       chunksInSegment = chunksInSegment,
       size = content.size.toLong(),
-      compressionMethod = snappyCompression,
+      compressionMethod = compressionMethod,
       stored = aff4ContainerBuilder.containerArn,
       linearHashes = listOf(HashType.SHA256, HashType.MD5).map { it.value(ByteString.EMPTY) }.toSet(),
     )
@@ -200,8 +224,8 @@ class Aff4ImageStreamSinkTest {
         imageStreamSink.imageStream
       }
 
-    val md5LinearHash = Hash.Md5.decode("6d0bb00954ceb7fbee436bb55a8397a9")
-    val sha256LinearHash = Hash.Sha256.decode("cd00e292c5970d3c5e2f0ffa5171e555bc46bfc4faddfb4a418b6840b86e79a3")
+    val md5LinearHash = Hash.Md5.decode("9b9e507936c06ea38b3787fef8e9cd49")
+    val sha256LinearHash = Hash.Sha256.decode("4ba9a822ab26251d8ae55840bc3194af4203ca42fdd7e29f9a681877dccaaa9e")
 
     assertThat(writtenImageStream)
       .usingRecursiveComparison()

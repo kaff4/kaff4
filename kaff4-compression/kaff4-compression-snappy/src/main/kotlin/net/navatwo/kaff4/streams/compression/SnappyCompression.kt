@@ -7,8 +7,8 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class SnappyCompression @Inject constructor() : CompressionMethod {
-  override val method: String = "http://code.google.com/p/snappy/"
+class SnappyCompression @Inject internal constructor() : CompressionMethod {
+  override val method: String = IDENTIFIER
 
   override fun compress(uncompressed: ByteBuffer, compressed: ByteBuffer): Int {
     return Snappy.compress(uncompressed, compressed)
@@ -30,5 +30,9 @@ class SnappyCompression @Inject constructor() : CompressionMethod {
 
   override fun hashCode(): Int {
     return method.hashCode()
+  }
+
+  companion object {
+    const val IDENTIFIER = "http://code.google.com/p/snappy/"
   }
 }
