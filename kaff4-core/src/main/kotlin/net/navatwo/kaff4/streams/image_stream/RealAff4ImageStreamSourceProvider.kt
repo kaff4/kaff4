@@ -82,15 +82,15 @@ internal class RealAff4ImageStreamSourceProvider @AssistedInject constructor(
   }
 
   private fun verifyLinearHashes(timeout: Timeout): Sequence<FailedHash> = sequence {
+    val linearHashesByHashType = imageStream.linearHashes.associateBy { it.hashType }
     val calculatedLinearHashes = use(timeout = timeout) { s ->
-      s.computeLinearHashes(imageStream.linearHashes.map { it.hashType })
+      s.computeLinearHashes(linearHashesByHashType.keys)
     }
 
-    val linearHashesByHashType = imageStream.linearHashes.associateBy { it.hashType }
     for ((hashType, actualHash) in calculatedLinearHashes) {
       val expectedHash = linearHashesByHashType.getValue(hashType)
       if (expectedHash.value != actualHash) {
-        yield(FailedHash(imageStream, "Linear", expectedHash))
+        yield(FailedHash(imageStream, "Linear", expectedHash, actualHash))
       }
     }
   }
@@ -118,7 +118,9 @@ internal class RealAff4ImageStreamSourceProvider @AssistedInject constructor(
       }
 
       if (blockHash.hash.value != actualHash) {
-        yield(FailedHash(imageStream, "BlockHash ${blockHash.forHashType}", blockHash.hash))
+        yield(
+          FailedHash(imageStream, "BlockHash ${blockHash.forHashType}", blockHash.hash, actualHash)
+        )
       }
     }
   }

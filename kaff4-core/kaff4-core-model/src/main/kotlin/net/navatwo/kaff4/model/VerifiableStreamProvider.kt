@@ -2,6 +2,7 @@ package net.navatwo.kaff4.model
 
 import net.navatwo.kaff4.model.rdf.Aff4RdfModel
 import net.navatwo.kaff4.model.rdf.Hash
+import okio.ByteString
 import okio.Timeout
 
 interface VerifiableStreamProvider {
@@ -22,8 +23,16 @@ interface VerifiableStreamProvider {
     data class FailedHash(
       val stream: Aff4RdfModel,
       val name: String,
-      val hash: Hash,
-    )
+      val expectedHash: Hash,
+      val actualHash: Hash,
+    ) {
+      constructor(
+        stream: Aff4RdfModel,
+        name: String,
+        expectedHash: Hash,
+        actualHash: ByteString,
+      ) : this(stream, name, expectedHash, expectedHash.hashType.value(actualHash))
+    }
 
     companion object {
       fun fromFailedHashes(failureReasons: Collection<FailedHash>): Result = if (failureReasons.isNotEmpty()) {

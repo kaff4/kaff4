@@ -57,14 +57,7 @@ internal class RealAff4MapStreamSourceProvider @AssistedInject constructor(
 
       val failedHashes = mutableListOf<FailedHash>()
 
-      failedHashes += computeMapComponentHashes(timeout)
-
-      val dependentStreamVerificationResults = mapStream.dependentStreams.asSequence()
-        .map { aff4StreamOpener.openStream(it) as VerifiableStreamProvider }
-        .map { it.verify(aff4Model, timeout) }
-      for (dependentStreamResult in dependentStreamVerificationResults) {
-        failedHashes += dependentStreamResult.failedHashes
-      }
+      failedHashes += mapStream.computeMapComponentHashes(timeout)
 
       // TODO Map block hash
 
@@ -79,42 +72,43 @@ internal class RealAff4MapStreamSourceProvider @AssistedInject constructor(
   }
 
   // https://github.com/aff4/Standard/blob/master/inprogress/AFF4StandardSpecification-v1.0a.md#map-hashes
-  private fun computeMapComponentHashes(timeout: Timeout): Sequence<FailedHash> = sequence {
-    yieldNotNull(maybeValidateHashComponent("idx", mapStream.idxPath, mapStream.mapIdxHash, timeout))
-    yieldNotNull(maybeValidateHashComponent("mapPoint", mapStream.mapPath, mapStream.mapPointHash, timeout))
-    yieldNotNull(maybeValidateHashComponent("mapPath", mapStream.mapPathPath, mapStream.mapPathHash, timeout))
+  private fun MapStream.computeMapComponentHashes(timeout: Timeout): Sequence<FailedHash> = sequence {
+    yieldNotNull(mapIdxHash?.maybeValidateHashComponent("idx", idxPath, timeout))
+    yieldNotNull(mapPointHash?.maybeValidateHashComponent("mapPoint", mapPath, timeout))
+    yieldNotNull(mapPathHash?.maybeValidateHashComponent("mapPath", mapPathPath, timeout))
 
-    val mapHash = mapStream.mapHash
+    val mapHash = mapHash
     if (mapHash != null) {
       val maybeFailure = listOfNotNull(
         // H( map || idx || [mapPath] )
-        mapStream.mapPath,
-        mapStream.idxPath,
-        mapStream.mapPathPath.takeIf { imageFileSystem.exists(it) },
+        mapPath,
+        idxPath,
+        mapPathPath.takeIf { imageFileSystem.exists(it) },
       )
         .map { imageFileSystem.sourceProvider(it) }
         .concatLazily()
         .use { source ->
           val actualHash = source.computeLinearHash(mapHash.hashType)
-          FailedHash(mapStream, "map", mapHash).takeIf { actualHash != mapHash.value }
+          if (actualHash != mapHash.value) {
+            FailedHash(this@computeMapComponentHashes, "map", mapHash, actualHash)
+          } else {
+            null
+          }
         }
 
       yieldNotNull(maybeFailure)
     }
   }
 
-  private fun maybeValidateHashComponent(
+  private fun Hash.maybeValidateHashComponent(
     key: String,
     path: Path,
-    hash: Hash?,
     timeout: Timeout,
   ): FailedHash? {
-    if (hash == null) return null
-
     val actualHash = imageFileSystem.sourceProvider(path).use(timeout) { source ->
-      source.computeLinearHash(hash.hashType)
+      source.computeLinearHash(hashType)
     }
 
-    return FailedHash(mapStream, key, hash).takeIf { actualHash != hash.value }
+    return FailedHash(mapStream, key, this, actualHash).takeIf { actualHash != value }
   }
 }
