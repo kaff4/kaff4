@@ -1,23 +1,28 @@
 package net.navatwo.kaff4.streams.compression
 
 import net.navatwo.kaff4.model.rdf.CompressionMethod
+import net.navatwo.kaff4.model.rdf.CompressionMethod.Companion.NOT_UNCOMPRESSED_SENTINEL_VALUE
 import org.xerial.snappy.Snappy
 import java.nio.ByteBuffer
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class SnappyCompression @Inject constructor() : CompressionMethod {
-  override val method: String = "http://code.google.com/p/snappy/"
+class SnappyCompression @Inject internal constructor() : CompressionMethod {
+  override val method: String = IDENTIFIER
 
-  override fun compress(uncompressed: ByteBuffer, compressed: ByteBuffer): Int {
-    return Snappy.compress(uncompressed, compressed)
+  override fun isCompressed(compressed: ByteBuffer): Boolean = Snappy.isValidCompressedBuffer(compressed)
+
+  override fun compress(source: ByteBuffer, destination: ByteBuffer): Int {
+    return Snappy.compress(source, destination)
   }
 
-  override fun uncompress(compressed: ByteBuffer, uncompressed: ByteBuffer): Int {
-    if (!Snappy.isValidCompressedBuffer(compressed)) return 0
-
-    return Snappy.uncompress(compressed, uncompressed)
+  override fun uncompress(source: ByteBuffer, destination: ByteBuffer): Int {
+    return if (isCompressed(source)) {
+      Snappy.uncompress(source, destination)
+    } else {
+      NOT_UNCOMPRESSED_SENTINEL_VALUE
+    }
   }
 
   override fun toString(): String = SnappyCompression::class.java.simpleName
@@ -30,5 +35,9 @@ class SnappyCompression @Inject constructor() : CompressionMethod {
 
   override fun hashCode(): Int {
     return method.hashCode()
+  }
+
+  companion object {
+    const val IDENTIFIER = "http://code.google.com/p/snappy/"
   }
 }
