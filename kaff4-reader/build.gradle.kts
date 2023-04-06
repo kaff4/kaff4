@@ -16,6 +16,7 @@ dependencies {
   implementation(project(":kaff4-core:kaff4-core-model:kaff4-core-model-api"))
   implementation(project(":kaff4-core:kaff4-core-okio"))
   implementation(project(":kaff4-rdf:kaff4-rdf-memory"))
+  implementation(project(":kaff4-compression"))
   implementation(project(":kaff4-compression:kaff4-compression-snappy"))
   implementation(project(":kaff4-compression:kaff4-compression-lz4"))
 }

@@ -29,6 +29,7 @@ dependencies {
   testImplementation(Dependencies.JUNIT_JUPITER_PARAMS)
 
   testImplementation(project(":kaff4-rdf:kaff4-rdf-memory"))
+  testImplementation(project(":kaff4-compression"))
   testImplementation(project(":kaff4-compression:kaff4-compression-lz4"))
   testImplementation(project(":kaff4-compression:kaff4-compression-snappy"))
   testImplementation(project(":kaff4-core:kaff4-core-test"))
