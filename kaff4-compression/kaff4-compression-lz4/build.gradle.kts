@@ -12,9 +12,8 @@ dependencies {
 
   implementation(project(":kaff4-core:kaff4-core-guice"))
   implementation(project(":kaff4-compression"))
-
-  testImplementation(Dependencies.OKIO)
   
+  testImplementation(project(":kaff4-compression:kaff4-compression-test"))
   testImplementation(project(":kaff4-core:kaff4-core-test"))
 }
 
