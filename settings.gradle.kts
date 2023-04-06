@@ -2,6 +2,7 @@ rootProject.name = "kaff4"
 
 include(
   "kaff4-compression:kaff4-compression-snappy",
+  "kaff4-compression:kaff4-compression-test",
   "kaff4-core",
   "kaff4-core:kaff4-core-kotlin",
   "kaff4-core:kaff4-core-model",
