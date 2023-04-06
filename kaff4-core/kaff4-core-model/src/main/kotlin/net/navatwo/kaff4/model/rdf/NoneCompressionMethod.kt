@@ -1,6 +1,7 @@
 package net.navatwo.kaff4.model.rdf
 
 import net.navatwo.kaff4.model.rdf.CompressionMethod.Companion.NOT_COMPRESSED_SENTINEL_VALUE
+import net.navatwo.kaff4.model.rdf.CompressionMethod.Companion.NOT_UNCOMPRESSED_SENTINEL_VALUE
 import java.nio.ByteBuffer
 
 internal object NoneCompressionMethod : CompressionMethod {
@@ -11,9 +12,7 @@ internal object NoneCompressionMethod : CompressionMethod {
 
   override fun compress(source: ByteBuffer, destination: ByteBuffer): Int = NOT_COMPRESSED_SENTINEL_VALUE
 
-  override fun uncompress(source: ByteBuffer, destination: ByteBuffer): Int {
-    return 0
-  }
+  override fun uncompress(source: ByteBuffer, destination: ByteBuffer): Int = NOT_UNCOMPRESSED_SENTINEL_VALUE
 
   override fun toString(): String = javaClass.simpleName
 }

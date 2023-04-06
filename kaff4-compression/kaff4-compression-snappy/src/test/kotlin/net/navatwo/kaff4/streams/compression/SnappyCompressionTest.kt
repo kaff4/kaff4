@@ -1,6 +1,5 @@
 package net.navatwo.kaff4.streams.compression
 
-import net.navatwo.kaff4.streams.compression.lz4.BaseCompressionMethodTest
 import net.navatwo.test.GuiceModule
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test

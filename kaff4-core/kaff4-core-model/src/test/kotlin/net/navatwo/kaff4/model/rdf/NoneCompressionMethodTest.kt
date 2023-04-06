@@ -8,7 +8,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.nio.ByteBuffer
 
-class NoneCompressionMethodTest {
+internal class NoneCompressionMethodTest {
+
   @Test
   fun compress() {
     val uncompressedBuffer = ByteBuffer.allocate(10)
