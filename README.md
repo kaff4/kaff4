@@ -23,17 +23,26 @@ other tools. We are not responsible for any usages or outcomes from using this s
         * Querying files/directories is not "first party" but can be easily implemented by querying
 * Writing via `Aff4ContainerBuilder`
     * Physical Images
+* Hashing
+    * `MD5`, `Sha1`, `Sha256`, and `Sha512` types are supported
+    * `Blake2b` is *not* supported (see [#77](https://github.com/Nava2/kaff4/issues/77))
+* Compression
+    * `lz4`, `snappy`, `deflate`, "none"
+* Striped (segmented) images
 
-### Hashing
+## License - MIT
 
-* `MD5`, `Sha1`, `Sha256`, and `Sha512` types are supported
-* **Blake2b** is not supported
+See `LICENSE` in the root of this project.
 
-### Compression
+For individual projects, see `./gradlew :path:to:project:licenseReport`
 
-* `ZipSegment`, and `snappy` are supported
-* All others are not supported at this time - these can be supported by creating a module similar to
-  `aff4-compression:aff4-compression-snappy`
+## Examples
+
+To see this project in use, the `kaff4-reader` provides a simple CLI that can verify supported images. For example:
+
+```shell 
+java -jar ./kaff4-reader-0.0.0-SNAPSHOT.jar verify test_images/base-linear_striped/Base-Linear_1.aff4
+```
 
 ## Attributions
 
@@ -43,26 +52,9 @@ other tools. We are not responsible for any usages or outcomes from using this s
 
 For individual projects, see `./gradlew :path:to:project:licenseReport`
 
-## License - MIT
-
-See `LICENSE` in the root of this project.
-
-For individual projects, see `./gradlew :path:to:project:licenseReport`
-
-## TODO
-
-* [ ] Add documentation on general architecture
-    * Eclipse RDF4J, witness scoping, queries
-* [x] Add attributions for licenses
-* [ ] CLI
-    * [ ] Add create command
-    * [ ] Create report for `verify` subcommand
-* [ ] Logical
-    * [ ] Implement file system walking
-
 ## Development Dependencies
 
-* Java 19 JVM: `brew install --cask temurin`
+* Java 17 JVM: `brew install --cask temurin-17`
 
 ### Releasing
 
