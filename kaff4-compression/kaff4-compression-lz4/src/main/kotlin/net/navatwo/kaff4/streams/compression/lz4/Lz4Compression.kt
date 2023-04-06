@@ -19,7 +19,7 @@ class Lz4Compression @Inject internal constructor() : CompressionMethod {
   override fun isCompressed(compressed: ByteBuffer): Boolean {
     if (compressed.remaining() < LZ4_MAGIC_NUMBER_SIZE_BYTES) return false
 
-    markAndReset(compressed) {
+    compressed.markAndReset {
       val originalOrder = compressed.order()
       return try {
         val magicNumberHeader = compressed.order(ByteOrder.LITTLE_ENDIAN).getInt()

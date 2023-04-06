@@ -21,6 +21,8 @@ import net.navatwo.kaff4.rdf.MemoryRdfRepositoryPlugin
 import net.navatwo.kaff4.streams.TestAff4ContainerBuilderModule
 import net.navatwo.kaff4.streams.compression.Aff4SnappyPlugin
 import net.navatwo.kaff4.streams.compression.SnappyCompression
+import net.navatwo.kaff4.streams.compression.deflate.Aff4DeflatePlugin
+import net.navatwo.kaff4.streams.compression.deflate.DeflateCompression
 import net.navatwo.kaff4.streams.compression.lz4.Aff4Lz4Plugin
 import net.navatwo.kaff4.streams.compression.lz4.Lz4Compression
 import net.navatwo.test.GuiceModule
@@ -48,6 +50,7 @@ internal class Aff4ImageStreamSinkTest {
     MemoryRdfRepositoryPlugin,
     Aff4SnappyPlugin,
     Aff4Lz4Plugin,
+    Aff4DeflatePlugin,
   )
 
   @Inject
@@ -58,6 +61,9 @@ internal class Aff4ImageStreamSinkTest {
 
   @Inject
   private lateinit var lz4Compression: Lz4Compression
+
+  @Inject
+  private lateinit var deflateCompression: DeflateCompression
 
   @Inject
   private lateinit var aff4ImageOpener: Aff4ImageOpener
@@ -189,12 +195,14 @@ internal class Aff4ImageStreamSinkTest {
     strings = [
       SnappyCompression.IDENTIFIER,
       Lz4Compression.IDENTIFIER,
+      DeflateCompression.IDENTIFIER,
     ]
   )
   fun `create compressed bevy`(identifier: String) {
     val compressionMethod = when (identifier) {
       SnappyCompression.IDENTIFIER -> snappyCompression
       Lz4Compression.IDENTIFIER -> lz4Compression
+      DeflateCompression.IDENTIFIER -> deflateCompression
       else -> error("unknown identifier")
     }
 
