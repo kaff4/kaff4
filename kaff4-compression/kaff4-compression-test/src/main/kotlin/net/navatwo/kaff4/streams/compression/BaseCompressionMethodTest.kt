@@ -10,13 +10,16 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.nio.ByteBuffer
 
+// This is a test, these are normally ignored
 @Suppress("FunctionNaming", "MagicNumber")
 abstract class BaseCompressionMethodTest protected constructor() {
+  /** Compression method under test */
   protected abstract val compressionMethod: CompressionMethod
 
+  /** Data values used for [compress and decompress round trip] */
   protected abstract val compressedDataValues: CompressedDataValues
 
-  data class CompressedDataValues(
+  protected data class CompressedDataValues(
     val compressedSize: Int,
     val md5: String,
   )
