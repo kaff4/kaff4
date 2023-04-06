@@ -117,6 +117,10 @@ internal class Aff4BevySource(
 
       while (compressedChunkBuffer.hasRemaining()) {
         val dataRead = read(compressedChunkBuffer)
+        if (dataRead == -1) {
+          error("Failed to read expected data from source into compressed chunk buffer.")
+        }
+
         lastDataSourcePosition += dataRead
 
         if (dataRead == 0) break

@@ -1,6 +1,7 @@
 rootProject.name = "kaff4"
 
 include(
+  "kaff4-compression:kaff4-compression-lz4",
   "kaff4-compression:kaff4-compression-snappy",
   "kaff4-compression:kaff4-compression-test",
   "kaff4-core",

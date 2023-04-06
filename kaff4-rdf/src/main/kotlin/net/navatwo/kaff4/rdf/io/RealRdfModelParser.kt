@@ -50,9 +50,13 @@ private fun <T : Any> buildNonSubjectParamMap(
   val aggregateValues = statementsAndParameters.asSequence()
     .flatMap { (statement, parameters) ->
       parameters.asSequence().map { parameter ->
-        val obj = statement.`object`
-        val handler = valueConverterProvider.getConverter(parameter.elementType)
-        parameter to handler.parse(parameter.elementType, obj)
+        try {
+          val obj = statement.`object`
+          val handler = valueConverterProvider.getConverter(parameter.elementType)
+          parameter to handler.parse(parameter.elementType, obj)
+        } catch (@Suppress("TooGenericExceptionCaught") ex: Exception) {
+          throw ModelParsingException(statement, ex)
+        }
       }
     }
     .groupBy(
@@ -62,10 +66,17 @@ private fun <T : Any> buildNonSubjectParamMap(
 
   for ((parameter, values) in aggregateValues) {
     parameterMap[parameter.parameter] = when (parameter.collectionType) {
-      null -> values.singleOrNull() ?: error("Found multiple values for ${parameter.parameter}: $values")
+      null -> values.singleOrNull()
+        ?: error("Found multiple values for ${parameter.parameter}: $values")
+
       List::class.java -> values
       Set::class.java -> values.toSet()
       else -> error("error: unsupported type: ${parameter.collectionType}")
     }
   }
 }
+
+private class ModelParsingException(
+  statement: Statement,
+  cause: Exception,
+) : Exception("Failed to parse $statement", cause)

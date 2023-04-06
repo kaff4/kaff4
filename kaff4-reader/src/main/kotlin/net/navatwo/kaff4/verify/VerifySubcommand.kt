@@ -12,8 +12,10 @@ import net.navatwo.kaff4.Aff4CoreModule
 import net.navatwo.kaff4.Aff4LogicalModule
 import net.navatwo.kaff4.RandomsModule
 import net.navatwo.kaff4.container.Aff4ImageOpenerModule
+import net.navatwo.kaff4.model.rdf.Aff4RdfModelPlugin
 import net.navatwo.kaff4.rdf.MemoryRdfRepositoryPlugin
 import net.navatwo.kaff4.streams.compression.Aff4SnappyPlugin
+import net.navatwo.kaff4.streams.compression.lz4.Aff4Lz4Plugin
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
@@ -55,6 +57,8 @@ class VerifySubcommand : Subcommand("verify", "Verify an image") {
       Aff4BaseStreamModule,
       Aff4LogicalModule,
       Aff4SnappyPlugin,
+      Aff4Lz4Plugin,
+      Aff4RdfModelPlugin,
     )
 
     val verifyAction = injector.getInstance<VerifyAction>()

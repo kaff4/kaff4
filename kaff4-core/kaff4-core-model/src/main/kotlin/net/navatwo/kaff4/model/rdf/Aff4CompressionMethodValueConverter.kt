@@ -13,7 +13,11 @@ internal class Aff4CompressionMethodValueConverter @Inject constructor(
 ) : ConcreteRdfValueConverter<CompressionMethod>(typeLiteral<CompressionMethod>()) {
   override fun parse(value: Value): CompressionMethod? {
     val method = value as? Aff4Arn ?: return null
-    return compressionMethodProviders.get().firstOrNull { it.method == method.toString() }
+    val methodString = method.toString()
+
+    val allMethods = compressionMethodProviders.get()
+    val matchingMethod = allMethods.firstOrNull { it.method == methodString }
+    return matchingMethod ?: error("Found unsupported compression method: $method")
   }
 
   override fun serialize(value: CompressionMethod): Value? = value.method?.let { valueFactory.createIRI(it) }
