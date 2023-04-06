@@ -49,7 +49,7 @@ internal class RealAff4ZipSegmentSourceProvider @AssistedInject constructor(
       for (expectedHash in zipSegment.linearHashes) {
         val actualHash = actualLinearHashes.getValue(expectedHash.hashType)
         if (expectedHash.value != actualHash) {
-          failedHashes += FailedHash(zipSegment, "Linear", expectedHash)
+          failedHashes += FailedHash(zipSegment, "Linear", expectedHash, actualHash)
         }
       }
 

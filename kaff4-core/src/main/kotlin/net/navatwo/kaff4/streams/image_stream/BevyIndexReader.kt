@@ -62,7 +62,7 @@ internal class BevyIndexReader @AssistedInject constructor(
       position = indexFilePosition
     }
 
-    if (!bufferArray.hasRemaining()) {
+    if (bufferArray.remaining() < IndexValue.SIZE_BYTES) {
       val source = currentSource ?: run {
         val nextSource = fileSystem.source(bevy.indexSegment).buffer()
         currentSource = nextSource
