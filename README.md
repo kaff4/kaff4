@@ -36,13 +36,50 @@ See `LICENSE` in the root of this project.
 
 For individual projects, see `./gradlew :path:to:project:licenseReport`
 
+## Using the `kaff4-cli` CLI
+
+The `kaff4-cli` CLI provides several commands for working with AFF4 containers.
+
+### Prerequisites
+
+* [ ] Working Java 17 JDK (e.g. [Eclipse Temurin 17](https://adoptium.net/temurin/releases/))
+* [ ] Downloaded distribution zip/tar (e.g. `kaff4-cli-0.0.0-SNAPSHOT.zip`), unpacked
+
+### Example usage
+
+```shell
+# Change directory into the unpacked distribution
+$ cd ./path/to/kaff4-cli-0.0.0-SNAPSHOT && ls -l
+total 0
+drwxrwxrwx 1 kevin kevin 4096 Apr  7 09:57 bin
+drwxrwxrwx 1 kevin kevin 4096 Apr  7 09:57 lib
+
+# Change to the bin directory
+$ cd bin 
+
+# Run the CLI help
+$ ./kaff4-cli --help
+Usage: kaff4-cli options_list
+Subcommands:
+    verify - Verify an image
+    dump-stream - Dump an image stream
+
+Options:
+    --help, -h -> Usage info
+
+# Individual commands have their own help description
+$ ./kaff4-cli verify --help
+Usage: kaff4-cli verify options_list
+Arguments:
+    input_file -> Input image to verify { Value is a path to a file }
+Options:
+    --thread_count, -n [8] -> Number of threads to use for verification { Int }
+    --help, -h -> Usage info
+```
+
 ## Examples
 
-To see this project in use, the `kaff4-reader` provides a simple CLI that can verify supported images. For example:
-
-```shell 
-java -jar ./kaff4-reader-0.0.0-SNAPSHOT.jar verify test_images/base-linear_striped/Base-Linear_1.aff4
-```
+The best way to understand capabilities is to play with `kaff4-cli` and look at the implementations of commands.
 
 ## Attributions
 

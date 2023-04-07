@@ -16,5 +16,5 @@ include(
   "kaff4-rdf",
   "kaff4-rdf:kaff4-rdf-api",
   "kaff4-rdf:kaff4-rdf-memory",
-  "kaff4-reader",
+  "kaff4-cli",
 )
