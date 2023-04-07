@@ -4,7 +4,7 @@ package net.navatwo.kaff4.model.rdf
 value class TurtleIri private constructor(val iri: String) {
   init {
     val index = iri.indexOf(':', startIndex = 1)
-    check(index in (0 until iri.lastIndex)) {
+    require(index in (0 until iri.lastIndex)) {
       "Must use valid IRI syntax for Turtle: \$NAMESPACE:\$LOCAL_NAME (e.g. aff4:Image)"
     }
   }

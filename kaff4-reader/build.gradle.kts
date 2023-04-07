@@ -7,6 +7,7 @@ dependencies {
   implementation(Dependencies.LOG4J_API)
   implementation(Dependencies.OKIO)
   implementation(Dependencies.RDF4J_MODEL_API)
+  implementation(Dependencies.RDF4J_MODEL)
   implementation("org.jetbrains.kotlinx:kotlinx-cli:0.3.5")
 
   implementation(project(":kaff4-core"))
