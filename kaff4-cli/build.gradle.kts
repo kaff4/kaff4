@@ -1,5 +1,9 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+plugins {
+  application
+}
+
 dependencies {
   implementation(Dependencies.GUICE)
   implementation(Dependencies.JAVAX_INJECT)
@@ -24,4 +28,40 @@ dependencies {
 
 tasks.withType<KotlinCompile> {
   kotlinOptions.freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
+}
+
+application {
+  mainClass.set("net.navatwo.kaff4.MainKt")
+}
+
+val copyMetaFiles by tasks.registering {
+  val meta = layout.buildDirectory.dir("meta")
+  outputs.dir(meta)
+
+  doLast {
+    copy {
+      into(meta)
+
+      from(rootDir) {
+        include("LICENSE", "README.md")
+      }
+    }
+  }
+}
+
+copy {
+  into(layout.buildDirectory.dir("scripts"))
+  from(rootDir) {
+    include(".java-version")
+  }
+}
+
+distributions {
+  main {
+    contents {
+      from(copyMetaFiles) {
+        into("bin")
+      }
+    }
+  }
 }
