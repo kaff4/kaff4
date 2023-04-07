@@ -7,7 +7,6 @@ import net.navatwo.kaff4.io.buffer
 import net.navatwo.kaff4.model.Aff4ImageOpener
 import net.navatwo.kaff4.model.Aff4StreamSourceProvider
 import net.navatwo.kaff4.model.rdf.Aff4Arn
-import net.navatwo.logging.Logging
 import okio.BufferedSource
 import okio.FileSystem
 import okio.GzipSink
@@ -17,23 +16,16 @@ import okio.Timeout
 import okio.sink
 import java.math.BigDecimal
 import java.math.BigInteger
+import java.math.RoundingMode
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
-private val logger = Logging.getLogger()
-
 @Singleton
 internal class DumpImageAction @Inject constructor(
   private val imageOpener: Aff4ImageOpener,
 ) {
-  enum class OutputFormat {
-    BIN,
-    GZIP,
-    ;
-  }
-
   fun execute(
     imagePath: Path,
     streamIdentifier: Aff4Arn,
@@ -41,33 +33,47 @@ internal class DumpImageAction @Inject constructor(
     dumpStandardOut: Boolean,
     outputFile: Path?,
   ) {
+    fun log(message: String) {
+      if (!dumpStandardOut) {
+        println(message)
+      }
+    }
+
     openOutputSinks(outputFormat, dumpStandardOut, outputFile).use { outputSink ->
       imageOpener.open(FileSystem.SYSTEM, imagePath) { container ->
-        logger.debug("Opened image, querying streams")
+        log("Opened [$imagePath]")
 
         val streamOpener = container.streamOpener
         streamOpener.openStream(streamIdentifier).use { sourceProvider ->
           val sourceSize = (sourceProvider as? Aff4StreamSourceProvider)?.size?.toBigDecimal()
 
-          // TODO Make this do the things we need, compute md5/sha1, dump to `outputSink`, wrap for `outputFormat` etc
           sourceProvider.buffer().source(timeout = Timeout.NONE).use { streamSource ->
-            dumpSourceWithProgressReporting(streamSource, outputSink, sourceSize)
+            dumpSourceWithProgressReporting(streamSource, outputSink, sourceSize, ::log)
           }
         }
       }
     }
+
+    if (outputFile != null) {
+      log("Dumped image to $outputFile")
+    }
   }
 
-  private fun dumpSourceWithProgressReporting(streamSource: BufferedSource, outputSink: Sink, sourceSize: BigDecimal?) {
+  private fun dumpSourceWithProgressReporting(
+    streamSource: BufferedSource,
+    outputSink: Sink,
+    sourceSize: BigDecimal?,
+    log: (String) -> Unit,
+  ) {
     ProgressSink(outputSink).use { progressSink ->
       if (sourceSize != null) {
-        progressSink.addListener(StreamingProgressListener(sourceSize))
+        progressSink.addListener(StreamingProgressListener(sourceSize, log))
       }
 
       streamSource.readAll(progressSink)
 
       if (sourceSize != null) {
-        println("[100%] $sourceSize / $sourceSize bytes")
+        log("[100%] $sourceSize / $sourceSize bytes")
       }
     }
   }
@@ -90,7 +96,16 @@ internal class DumpImageAction @Inject constructor(
     }
   }
 
-  private class StreamingProgressListener(sourceSize: BigDecimal) : ProgressSink.Listener {
+  enum class OutputFormat {
+    BIN,
+    GZIP,
+    ;
+  }
+
+  private class StreamingProgressListener(
+    sourceSize: BigDecimal,
+    private val log: (message: String) -> Unit,
+  ) : ProgressSink.Listener {
     private val sourceSize = sourceSize.setScale(@Suppress("MagicNumber") 4)
 
     private var dumpedBytes: BigInteger = BigInteger.ZERO
@@ -104,17 +119,18 @@ internal class DumpImageAction @Inject constructor(
       dumpedBytes += bytesWritten.toBigInteger()
 
       if (!firstReported || reportStopwatch.elapsed() >= REPORT_CADENCE) {
-        val progress = (dumpedBytes.toBigDecimal() / sourceSize * DECIMAL_PERCENT_TO_ONE_HUNDRED_FACTOR)
-          .setScale(2)
+        val progress = computeProgress()
 
         val millisElapsed = operationStopwatch.elapsed(TimeUnit.MILLISECONDS).toBigDecimal()
         val mibpsRate = if (millisElapsed > BigDecimal.ZERO) {
-          dumpedBytes.toBigDecimal() / millisElapsed * BYTES_PER_MILLI_TO_MIBYTES_PER_SECOND_FACTOR
+          dumpedBytes.toBigDecimal().setScale(2) / millisElapsed * BYTES_PER_MILLI_TO_MIBIYTES_PER_SECOND_FACTOR
         } else {
           BigDecimal.ZERO
-        }.setScale(2)
+        }.setScale(@Suppress("MagicNumber") 3, RoundingMode.UP)
 
-        println("[$progress%] $dumpedBytes / $sourceSize bytes ($mibpsRate MiB/second)")
+        log.invoke(
+          "[$progress%] $dumpedBytes / ${sourceSize.setScale(0)} bytes ($mibpsRate MiB/second)"
+        )
 
         reportStopwatch.reset()
         reportStopwatch.start()
@@ -122,12 +138,19 @@ internal class DumpImageAction @Inject constructor(
         firstReported = true
       }
     }
-  }
 
-  companion object {
-    private val REPORT_CADENCE = Duration.ofMillis(250)
-    private val DECIMAL_PERCENT_TO_ONE_HUNDRED_FACTOR = 100.toBigDecimal()
-    private val BYTES_PER_MILLI_TO_MIBYTES_PER_SECOND_FACTOR =
-      1000.toBigDecimal().setScale(4) / (1024 * 1024).toBigDecimal()
+    private fun computeProgress(): BigDecimal {
+      val ratioComplete = dumpedBytes.toBigDecimal().setScale(@Suppress("MagicNumber") 4) / sourceSize
+      val progress = ratioComplete * DECIMAL_PERCENT_TO_ONE_HUNDRED_FACTOR
+      return progress.coerceAtMost(MAXIMUM_PROGRESS_REPORTED).setScale(2)
+    }
+
+    companion object {
+      private val REPORT_CADENCE = Duration.ofMillis(250)
+      private val MAXIMUM_PROGRESS_REPORTED = "99.9999".toBigDecimal()
+      private val DECIMAL_PERCENT_TO_ONE_HUNDRED_FACTOR = 100.toBigDecimal()
+      private val BYTES_PER_MILLI_TO_MIBIYTES_PER_SECOND_FACTOR =
+        1000.toBigDecimal().setScale(4) / (1024 * 1024).toBigDecimal()
+    }
   }
 }

@@ -12,7 +12,7 @@ internal class PathArgType private constructor(private val requireExistingPath: 
   override val description: kotlin.String
     get() = "{ Value is a path to a file }"
 
-  override fun convert(value: kotlin.String, name: kotlin.String): okio.Path {
+  override fun convert(value: kotlin.String, name: kotlin.String): Path {
     val path = Paths.get(value)
 
     if (requireExistingPath && !path.exists()) {
