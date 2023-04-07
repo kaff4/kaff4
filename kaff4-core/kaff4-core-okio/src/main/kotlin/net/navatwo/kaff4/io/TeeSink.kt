@@ -8,9 +8,11 @@ import okio.Timeout
 /**
  * Duplicates any calls to [write] to all [sinks].
  */
-class TeeSink(
-  val sinks: List<Sink>,
+data class TeeSink(
+  private val sinks: List<Sink>,
   private val timeout: Timeout,
+  /** If true, closes all sinks when this closes */
+  private val closeAllOnClose: Boolean = false,
 ) : Sink {
   override fun write(source: Buffer, byteCount: Long) {
     timeout.throwIfReached()
@@ -26,7 +28,13 @@ class TeeSink(
     }
   }
 
-  override fun close() = Unit
+  override fun close() {
+    if (!closeAllOnClose) return
+
+    for (sink in sinks) {
+      sink.close()
+    }
+  }
 
   override fun flush() {
     var caughtEx: Exception? = null
