@@ -28,6 +28,7 @@ dependencies {
   testImplementation(project(":kaff4-core"))
   testImplementation(project(":kaff4-core:kaff4-core-model"))
   testImplementation(project(":kaff4-core:kaff4-core-test"))
+  testImplementation(project(":kaff4-rdf"))
   testImplementation(project(":kaff4-rdf:kaff4-rdf-memory"))
 }
 

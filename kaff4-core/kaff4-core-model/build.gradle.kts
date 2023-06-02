@@ -16,6 +16,7 @@ dependencies {
 
   testImplementation(Dependencies.RDF4J_MODEL)
 
+  testImplementation(project(":kaff4-core:kaff4-core-model"))
   testImplementation(project(":kaff4-core:kaff4-core-test"))
 }
 
