@@ -5,7 +5,7 @@ import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
 plugins {
   kotlin("jvm") version Versions.KOTLIN
   id("io.gitlab.arturbosch.detekt") version Versions.DETEKT
-  id("com.jaredsburrows.license") version "0.9.0"
+  id("com.jaredsburrows.license") version "0.9.2"
   id("com.autonomousapps.dependency-analysis") version "1.19.0"
   `maven-publish`
   signing
