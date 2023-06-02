@@ -4,7 +4,7 @@ import org.gradle.jvm.toolchain.JvmVendorSpec
 
 object Versions {
   const val JVM_BYTECODE_TARGET = 17
-  const val KOTLIN = "1.8.10"
+  const val KOTLIN = "1.8.21"
   const val DETEKT = "1.22.0"
 
   const val JUNIT = "5.9.1"

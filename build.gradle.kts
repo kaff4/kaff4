@@ -183,3 +183,15 @@ subprojects {
     }
   }
 }
+
+// See https://github.com/autonomousapps/dependency-analysis-android-gradle-plugin/issues/884
+dependencyAnalysis {
+  issues {
+    all {
+      onAny {
+        severity("fail")
+        exclude("() -> java.io.File?")
+      }
+    }
+  }
+}
