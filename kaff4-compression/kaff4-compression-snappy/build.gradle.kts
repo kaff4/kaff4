@@ -8,7 +8,7 @@ dependencies {
 
   implementation(Dependencies.GUICE)
   implementation(Dependencies.MISK_INJECT)
-  implementation("org.xerial.snappy:snappy-java:1.1.8.4")
+  implementation("org.xerial.snappy:snappy-java:1.1.10.0")
 
   implementation(project(":kaff4-core:kaff4-core-guice"))
 
