@@ -6,7 +6,7 @@ plugins {
   kotlin("jvm") version Versions.KOTLIN
   id("io.gitlab.arturbosch.detekt") version Versions.DETEKT
   id("com.jaredsburrows.license") version "0.9.2"
-  id("com.autonomousapps.dependency-analysis") version "1.19.0"
+  id("com.autonomousapps.dependency-analysis") version "1.20.0"
   `maven-publish`
   signing
   id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
