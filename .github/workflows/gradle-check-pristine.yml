@@ -4,15 +4,15 @@ jobs:
   JVM-Run-Gradle-Check:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+        with:
+          lfs: 'true'
+
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           java-version-file: '.java-version'
           distribution: 'temurin'
-
-      - uses: actions/checkout@v3
-        with:
-          lfs: 'true'
 
       - name: Verify gradle wrapper
         uses: gradle/wrapper-validation-action@v1
