@@ -76,15 +76,15 @@ internal class RealAff4Model @AssistedInject constructor(
             """.trimIndent()
           )
 
-          append("    FILTER( ?s IN (")
+          append("    FILTER( ?s IN ( ")
             .append(
-              subjects.joinToString { subj ->
+              subjects.joinToString(", ") { subj ->
                 val binding = "subj_%03d".format(bindings.size)
                 bindings[binding] = subj
                 "?$binding"
               }
             )
-            .appendLine("))")
+            .appendLine(" ) )")
 
           appendLine('}')
           appendLine("ORDER BY ?s ?p ?o")
