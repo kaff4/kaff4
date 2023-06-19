@@ -3,11 +3,11 @@ dependencies {
 
   api(project(":kaff4-core:kaff4-core-model:kaff4-core-model-api"))
 
-  api(Dependencies.JUNIT_JUIPTER_API)
+  api("org.junit.jupiter:junit-jupiter-api:5.9.1")
 
   implementation(project(":kaff4-compression"))
   implementation(project(":kaff4-core:kaff4-core-test"))
 
-  implementation(Dependencies.ASSERTJ_CORE)
-  implementation(Dependencies.OKIO)
+  implementation("org.assertj:assertj-core:3.22.0")
+  implementation("com.squareup.okio:okio:3.1.0")
 }

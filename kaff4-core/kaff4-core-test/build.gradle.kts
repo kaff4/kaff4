@@ -5,14 +5,14 @@ dependencies {
   api(project(":kaff4-core:kaff4-core-model"))
   api(project(":kaff4-core:kaff4-core-okio"))
 
-  api(Dependencies.ASSERTJ_CORE)
-  api(Dependencies.GUICE)
-  api(Dependencies.JAVAX_INJECT)
-  api(Dependencies.JUNIT_JUIPTER_API)
-  api(Dependencies.OKIO)
+  api("org.assertj:assertj-core:3.22.0")
+  api("com.google.inject:guice:5.1.0")
+  api("javax.inject:javax.inject:1")
+  api("org.junit.jupiter:junit-jupiter-api:5.9.1")
+  api("com.squareup.okio:okio:3.1.0")
 
-  implementation(Dependencies.MISK_INJECT)
-  implementation(Dependencies.MISK_ACTION_SCOPES)
+  implementation("com.squareup.misk:misk-inject:0.24.0")
+  implementation("com.squareup.misk:misk-action-scopes:0.24.0")
 
   implementation(project(":kaff4-core"))
   implementation(project(":kaff4-core:kaff4-core-model:kaff4-core-model-api"))

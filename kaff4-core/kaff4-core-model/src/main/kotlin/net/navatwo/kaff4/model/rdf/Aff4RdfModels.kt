@@ -122,12 +122,10 @@ data class CaseDetails(
 
 enum class Aff4ImagingOperation {
   CAPTURE,
-  ;
 }
 
 enum class Aff4TimeSource {
   SINK,
-  ;
 }
 
 @RdfStandardType("aff4:TimeStamps")
