@@ -3,12 +3,15 @@ import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
 
 plugins {
-  kotlin("jvm") version Versions.KOTLIN
-  id("io.gitlab.arturbosch.detekt") version Versions.DETEKT
-  id("com.jaredsburrows.license") version "0.9.2"
-  id("com.autonomousapps.dependency-analysis") version "1.20.0"
+  kotlin("jvm") version "1.8.22"
   `maven-publish`
   signing
+
+  id("io.gitlab.arturbosch.detekt") version "1.23.0"
+
+  id("com.autonomousapps.dependency-analysis") version "1.20.0"
+
+  id("com.jaredsburrows.license") version "0.9.2"
   id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
 }
 
@@ -163,7 +166,7 @@ subprojects {
   }
 
   dependencies {
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:${Versions.DETEKT}")
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.0")
   }
 
   tasks.named("check") {

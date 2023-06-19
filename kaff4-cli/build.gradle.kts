@@ -5,13 +5,13 @@ plugins {
 }
 
 dependencies {
-  implementation(Dependencies.GUICE)
-  implementation(Dependencies.JAVAX_INJECT)
-  implementation(Dependencies.MISK_ACTION_SCOPES)
-  implementation(Dependencies.LOG4J_API)
-  implementation(Dependencies.OKIO)
-  implementation(Dependencies.RDF4J_MODEL_API)
-  implementation(Dependencies.RDF4J_MODEL)
+  implementation("com.google.inject:guice:5.1.0")
+  implementation("javax.inject:javax.inject:1")
+  implementation("com.squareup.misk:misk-action-scopes:0.24.0")
+  implementation("org.apache.logging.log4j:log4j-api:2.17.1")
+  implementation("com.squareup.okio:okio:3.1.0")
+  implementation("org.eclipse.rdf4j:rdf4j-model-api:4.0.0")
+  implementation("org.eclipse.rdf4j:rdf4j-model:4.0.0")
   implementation("org.jetbrains.kotlinx:kotlinx-cli:0.3.5")
 
   implementation(project(":kaff4-core"))

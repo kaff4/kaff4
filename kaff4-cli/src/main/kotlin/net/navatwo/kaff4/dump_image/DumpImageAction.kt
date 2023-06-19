@@ -99,7 +99,6 @@ internal class DumpImageAction @Inject constructor(
   enum class OutputFormat {
     BIN,
     GZIP,
-    ;
   }
 
   private class StreamingProgressListener(

@@ -1,7 +1,7 @@
 dependencies {
-  api(Dependencies.GUICE)
-  api(Dependencies.JAVAX_INJECT)
+  api("com.google.inject:guice:5.1.0")
+  api("javax.inject:javax.inject:1")
 
-  api(Dependencies.RDF4J_MODEL_API)
-  api(Dependencies.RDF4J_SAIL_API)
+  api("org.eclipse.rdf4j:rdf4j-model-api:4.0.0")
+  api("org.eclipse.rdf4j:rdf4j-sail-api:4.0.0")
 }

@@ -1,9 +1,9 @@
 dependencies {
   runtimeOnly(kotlin("reflect"))
 
-  api(Dependencies.GUICE)
-  api(Dependencies.JAVAX_INJECT)
-  api(Dependencies.MISK_INJECT)
+  api("com.google.inject:guice:5.1.0")
+  api("javax.inject:javax.inject:1")
+  api("com.squareup.misk:misk-inject:0.24.0")
 
-  implementation(Dependencies.GUICE_ASSISTED_INJECT)
+  implementation("com.google.inject.extensions:guice-assistedinject:5.1.0")
 }
