@@ -12,7 +12,7 @@ dependencies {
   api("com.squareup.okio:okio:3.1.0")
 
   implementation("com.squareup.misk:misk-inject:0.24.0")
-  implementation("com.squareup.misk:misk-action-scopes:0.24.0")
+  implementation("com.squareup.misk:misk-action-scopes:0.25.0-20230405.1913-51e097f")
 
   implementation(project(":kaff4-core"))
   implementation(project(":kaff4-core:kaff4-core-model:kaff4-core-model-api"))
