@@ -10,8 +10,8 @@ dependencies {
   implementation("com.squareup.misk:misk-action-scopes:0.24.0")
   implementation("org.apache.logging.log4j:log4j-api:2.17.1")
   implementation("com.squareup.okio:okio:3.1.0")
-  implementation("org.eclipse.rdf4j:rdf4j-model-api:4.0.0")
-  implementation("org.eclipse.rdf4j:rdf4j-model:4.0.0")
+  implementation("org.eclipse.rdf4j:rdf4j-model-api:4.3.2")
+  implementation("org.eclipse.rdf4j:rdf4j-model:4.3.2")
   implementation("org.jetbrains.kotlinx:kotlinx-cli:0.3.5")
 
   implementation(project(":kaff4-core"))
