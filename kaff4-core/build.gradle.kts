@@ -17,7 +17,7 @@ dependencies {
   implementation("com.google.guava:guava:31.1-jre")
   implementation("com.google.inject.extensions:guice-assistedinject:5.1.0")
   implementation("com.squareup.misk:misk-inject:0.24.0")
-  implementation("com.squareup.misk:misk-action-scopes:0.24.0")
+  implementation("com.squareup.misk:misk-action-scopes:0.25.0-20230405.1913-51e097f")
   implementation("org.eclipse.rdf4j:rdf4j-query:4.0.0")
   implementation("org.eclipse.rdf4j:rdf4j-repository-api:4.0.0")
   implementation("org.eclipse.rdf4j:rdf4j-rio-api:4.0.0")
