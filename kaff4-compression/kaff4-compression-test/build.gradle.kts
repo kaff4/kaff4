@@ -9,5 +9,5 @@ dependencies {
   implementation(project(":kaff4-core:kaff4-core-test"))
 
   implementation("org.assertj:assertj-core:3.22.0")
-  implementation("com.squareup.okio:okio:3.1.0")
+  implementation("com.squareup.okio:okio:3.3.0")
 }

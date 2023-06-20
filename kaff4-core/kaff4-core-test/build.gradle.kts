@@ -9,7 +9,7 @@ dependencies {
   api("com.google.inject:guice:5.1.0")
   api("javax.inject:javax.inject:1")
   api("org.junit.jupiter:junit-jupiter-api:5.9.1")
-  api("com.squareup.okio:okio:3.1.0")
+  api("com.squareup.okio:okio:3.3.0")
 
   implementation("com.squareup.misk:misk-inject:0.24.0")
   implementation("com.squareup.misk:misk-action-scopes:0.25.0-20230405.1913-51e097f")
