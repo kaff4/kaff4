@@ -8,7 +8,7 @@ dependencies {
   api("org.assertj:assertj-core:3.22.0")
   api("com.google.inject:guice:5.1.0")
   api("javax.inject:javax.inject:1")
-  api("org.junit.jupiter:junit-jupiter-api:5.9.1")
+  api("org.junit.jupiter:junit-jupiter-api:5.9.3")
   api("com.squareup.okio:okio:3.3.0")
 
   implementation("com.squareup.misk:misk-inject:0.24.0")
