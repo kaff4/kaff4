@@ -10,11 +10,11 @@ dependencies {
   api("com.google.inject:guice:5.1.0")
   api("javax.inject:javax.inject:1")
   api("com.squareup.okio:okio:3.3.0")
-  api("org.eclipse.rdf4j:rdf4j-model-api:4.0.5")
+  api("org.eclipse.rdf4j:rdf4j-model-api:4.3.2")
 
   implementation("com.squareup.misk:misk-inject:0.24.0")
 
-  testImplementation("org.eclipse.rdf4j:rdf4j-model:4.0.5")
+  testImplementation("org.eclipse.rdf4j:rdf4j-model:4.3.2")
 
   testImplementation(project(":kaff4-core:kaff4-core-model"))
   testImplementation(project(":kaff4-core:kaff4-core-test"))
