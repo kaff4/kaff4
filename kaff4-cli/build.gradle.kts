@@ -9,7 +9,7 @@ dependencies {
   implementation("javax.inject:javax.inject:1")
   implementation("com.squareup.misk:misk-action-scopes:0.25.0-20230405.1913-51e097f")
   implementation("org.apache.logging.log4j:log4j-api:2.17.1")
-  implementation("com.squareup.okio:okio:3.1.0")
+  implementation("com.squareup.okio:okio:3.3.0")
   implementation("org.eclipse.rdf4j:rdf4j-model-api:4.0.5")
   implementation("org.eclipse.rdf4j:rdf4j-model:4.0.5")
   implementation("org.jetbrains.kotlinx:kotlinx-cli:0.3.5")
