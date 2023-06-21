@@ -3,7 +3,7 @@ dependencies {
 
   api(project(":kaff4-core:kaff4-core-model:kaff4-core-model-api"))
 
-  api("org.junit.jupiter:junit-jupiter-api:5.9.1")
+  api("org.junit.jupiter:junit-jupiter-api:5.9.3")
 
   implementation(project(":kaff4-compression"))
   implementation(project(":kaff4-core:kaff4-core-test"))
