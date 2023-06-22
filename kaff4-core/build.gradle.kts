@@ -20,7 +20,7 @@ dependencies {
   implementation("com.squareup.misk:misk-action-scopes:0.25.0-20230405.1913-51e097f")
   implementation("org.eclipse.rdf4j:rdf4j-query:4.3.2")
   implementation("org.eclipse.rdf4j:rdf4j-repository-api:4.0.5")
-  implementation("org.eclipse.rdf4j:rdf4j-rio-api:4.0.5")
+  implementation("org.eclipse.rdf4j:rdf4j-rio-api:4.3.2")
   implementation("io.github.zabuzard.fastcdc4j:fastcdc4j:1.3")
 
   implementation(project(":kaff4-core:kaff4-core-kotlin"))
