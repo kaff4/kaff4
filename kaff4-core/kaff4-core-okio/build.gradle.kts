@@ -1,5 +1,5 @@
 dependencies {
-  api("com.google.guava:guava:31.1-jre")
+  api("com.google.guava:guava:32.0.1-jre")
 
   implementation("com.squareup.okio:okio:3.3.0")
 
