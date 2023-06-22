@@ -15,7 +15,7 @@ dependencies {
   implementation("org.apache.commons:commons-lang3:3.12.0")
   implementation("com.github.ben-manes.caffeine:caffeine:3.1.0")
   implementation("org.checkerframework:checker-qual:3.21.4")
-  implementation("com.google.guava:guava:31.1-jre")
+  implementation("com.google.guava:guava:32.0.1-jre")
   implementation("com.google.inject.extensions:guice-assistedinject:5.1.0")
   implementation("com.squareup.misk:misk-inject:0.24.0")
   implementation("com.squareup.misk:misk-action-scopes:0.25.0-20230405.1913-51e097f")
