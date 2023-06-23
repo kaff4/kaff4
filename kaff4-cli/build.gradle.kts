@@ -5,7 +5,7 @@ plugins {
 }
 
 dependencies {
-  implementation("com.google.inject:guice:5.1.0")
+  implementation("com.google.inject:guice:7.0.0")
   implementation("javax.inject:javax.inject:1")
   implementation("com.squareup.misk:misk-action-scopes:0.25.0-20230405.1913-51e097f")
   implementation("org.apache.logging.log4j:log4j-api:2.17.1")

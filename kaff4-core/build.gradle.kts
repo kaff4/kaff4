@@ -1,7 +1,7 @@
 dependencies {
   implementation(kotlin("reflect"))
 
-  api("com.google.inject:guice:5.1.0")
+  api("com.google.inject:guice:7.0.0")
   api("javax.inject:javax.inject:1")
   api("com.squareup.okio:okio:3.3.0")
   api("org.eclipse.rdf4j:rdf4j-model-api:4.3.2")
@@ -15,7 +15,7 @@ dependencies {
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.0")
   implementation("org.checkerframework:checker-qual:3.21.4")
   implementation("com.google.guava:guava:32.0.1-jre")
-  implementation("com.google.inject.extensions:guice-assistedinject:5.1.0")
+  implementation("com.google.inject.extensions:guice-assistedinject:7.0.0")
   implementation("com.squareup.misk:misk-inject:0.24.0")
   implementation("com.squareup.misk:misk-action-scopes:0.25.0-20230405.1913-51e097f")
   implementation("org.eclipse.rdf4j:rdf4j-query:4.3.2")

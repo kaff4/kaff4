@@ -7,7 +7,7 @@ dependencies {
 
   api(project(":kaff4-core:kaff4-core-guice"))
 
-  implementation("com.google.inject:guice:5.1.0")
+  implementation("com.google.inject:guice:7.0.0")
   implementation("com.squareup.misk:misk-inject:0.24.0")
 
   implementation(kotlin("reflect"))
