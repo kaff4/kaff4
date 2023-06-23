@@ -4,7 +4,7 @@ dependencies {
   api("com.google.inject:guice:5.1.0")
   api("javax.inject:javax.inject:1")
   api("com.squareup.okio:okio:3.3.0")
-  api("org.eclipse.rdf4j:rdf4j-model-api:4.0.5")
+  api("org.eclipse.rdf4j:rdf4j-model-api:4.3.2")
   api("net.navatwo:kinterval-tree:0.1.0")
 
   api(project(":kaff4-core:kaff4-core-guice"))
