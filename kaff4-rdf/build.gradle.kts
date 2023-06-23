@@ -21,7 +21,7 @@ dependencies {
   implementation("com.squareup.misk:misk-action-scopes:0.25.0-20230405.1913-51e097f")
   implementation("org.eclipse.rdf4j:rdf4j-repository-sail:4.0.5")
   implementation("org.eclipse.rdf4j:rdf4j-rio-turtle:4.0.5")
-  implementation("org.eclipse.rdf4j:rdf4j-sail-api:4.0.5")
+  implementation("org.eclipse.rdf4j:rdf4j-sail-api:4.3.2")
 
   implementation(project(":kaff4-core:kaff4-core-kotlin"))
 
