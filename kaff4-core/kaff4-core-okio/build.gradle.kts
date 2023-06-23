@@ -1,7 +1,7 @@
 dependencies {
-  api("com.google.guava:guava:32.0.1-jre")
+  api(libs.guava)
 
-  implementation("com.squareup.okio:okio:3.3.0")
+  implementation(libs.okio)
 
   testImplementation(project(":kaff4-core:kaff4-core-okio"))
   testImplementation(project(":kaff4-core:kaff4-core-test"))
