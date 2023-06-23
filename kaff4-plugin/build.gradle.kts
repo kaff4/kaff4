@@ -8,5 +8,5 @@ dependencies {
   api(project(":kaff4-rdf:kaff4-rdf-api"))
 
 
-  runtimeOnly("org.eclipse.rdf4j:rdf4j-repository-sail:4.0.5")
+  runtimeOnly("org.eclipse.rdf4j:rdf4j-repository-sail:4.3.2")
 }
