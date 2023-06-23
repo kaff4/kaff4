@@ -2,7 +2,7 @@ dependencies {
   api("com.google.guava:guava:32.0.1-jre")
   api("javax.inject:javax.inject:1")
   api("com.squareup.okio:okio:3.3.0")
-  api("org.eclipse.rdf4j:rdf4j-model-api:4.0.5")
+  api("org.eclipse.rdf4j:rdf4j-model-api:4.3.2")
   api("org.eclipse.rdf4j:rdf4j-query:4.3.2")
 
   api(project(":kaff4-core:kaff4-core-guice"))
