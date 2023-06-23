@@ -5,7 +5,7 @@ dependencies {
   api(libs.javax.inject)
   api(libs.okio)
   api(libs.rdf4j.model.api)
-  api("net.navatwo:kinterval-tree:0.1.0")
+  api(libs.kintervaltree)
 
   api(project(":kaff4-core:kaff4-core-guice"))
   api(project(":kaff4-core:kaff4-core-model:kaff4-core-model-api"))

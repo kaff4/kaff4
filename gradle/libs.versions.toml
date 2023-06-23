@@ -38,6 +38,8 @@ guice-assistedInject = { module = "com.google.inject.extensions:guice-assistedin
 
 javax-inject = "javax.inject:javax.inject:1"
 
+kintervaltree = "net.navatwo:kinterval-tree:0.1.0"
+
 kotlinx-cli = "org.jetbrains.kotlinx:kotlinx-cli:0.3.5"
 
 junit-juipter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
@@ -60,6 +62,7 @@ rdf4j-repository-sail = { module = "org.eclipse.rdf4j:rdf4j-repository-sail", ve
 rdf4j-rio-api = { module = "org.eclipse.rdf4j:rdf4j-rio-api", version.ref = "rdf4j" }
 rdf4j-rio-turtle = { module = "org.eclipse.rdf4j:rdf4j-rio-turtle", version.ref = "rdf4j" }
 rdf4j-sail-api = { module = "org.eclipse.rdf4j:rdf4j-sail-api", version.ref = "rdf4j-sail" }
+rdf4j-sail-memory = { module = "org.eclipse.rdf4j:rdf4j-sail-memory", version.ref = "rdf4j-sail" }
 rdf4j-query = { module = "org.eclipse.rdf4j:rdf4j-query", version.ref = "rdf4j" }
 
 xerial-snappy = "org.xerial.snappy:snappy-java:1.1.10.1"
