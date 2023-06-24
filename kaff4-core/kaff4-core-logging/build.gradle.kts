@@ -1,8 +1,8 @@
 dependencies {
-  api("org.apache.logging.log4j:log4j-api:2.17.1")
+  api(libs.log4j.api)
 
-  runtimeOnly("org.apache.logging.log4j:log4j-core:2.20.0")
-  runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:2.20.0")
+  runtimeOnly(libs.log4j.core)
+  runtimeOnly(libs.log4j.slf4j.impl)
 }
 
 useJunit5()
