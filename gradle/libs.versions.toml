@@ -18,7 +18,7 @@ rdf4j-sail = "4.0.5"
 
 [libraries]
 
-assertj = "org.assertj:assertj-core:3.22.0"
+assertj = "org.assertj:assertj-core:3.24.2"
 
 caffeine = "com.github.ben-manes.caffeine:caffeine:3.1.6"
 
