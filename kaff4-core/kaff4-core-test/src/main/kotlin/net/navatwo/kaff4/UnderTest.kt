@@ -1,6 +1,6 @@
 package net.navatwo.kaff4
 
-import javax.inject.Qualifier
+import jakarta.inject.Qualifier
 
 /**
  * Defines a value that is provided from a test rule.

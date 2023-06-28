@@ -1,6 +1,7 @@
 package net.navatwo.kaff4.streams.image_stream
 
 import com.google.inject.util.Modules
+import jakarta.inject.Inject
 import net.navatwo.kaff4.TestActionScopeModule
 import net.navatwo.kaff4.UsingTemporary
 import net.navatwo.kaff4.io.content
@@ -25,7 +26,6 @@ import okio.buffer
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
 import org.junit.jupiter.api.Test
-import javax.inject.Inject
 
 class Aff4BevySinkTest {
   @GuiceModule

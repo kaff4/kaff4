@@ -1,13 +1,13 @@
 package net.navatwo.kaff4.rdf
 
 import com.google.inject.Provides
+import jakarta.inject.Singleton
 import net.navatwo.guice.KAff4AbstractModule
 import net.navatwo.guice.assistedFactoryModule
 import net.navatwo.guice.key
 import net.navatwo.guice.to
 import org.eclipse.rdf4j.repository.Repository
 import org.eclipse.rdf4j.repository.sail.SailRepository
-import javax.inject.Singleton
 
 object RdfRepositoryModule : KAff4AbstractModule() {
   override fun configure() {

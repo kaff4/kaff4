@@ -1,12 +1,12 @@
 package net.navatwo.kaff4.container
 
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import misk.scope.ActionScoped
 import net.navatwo.kaff4.model.Aff4ImageContext
 import net.navatwo.kaff4.model.rdf.Aff4Arn
 import net.navatwo.kaff4.model.rdf.StoredRdfModel
 import okio.FileSystem
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 internal class ContainerDataFileSystemProvider @Inject constructor(

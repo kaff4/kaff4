@@ -1,6 +1,8 @@
 package net.navatwo.kaff4
 
 import com.google.inject.Provides
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import net.navatwo.guice.KAff4AbstractModule
 import net.navatwo.kaff4.container.Aff4ImageOpenerModule
 import net.navatwo.kaff4.model.Aff4Image
@@ -8,8 +10,6 @@ import net.navatwo.kaff4.model.Aff4ImageOpener
 import net.navatwo.test.GuiceExtension
 import okio.FileSystem
 import okio.Path.Companion.toPath
-import javax.inject.Inject
-import javax.inject.Singleton
 
 abstract class Aff4ImageTestModule(val imageName: String) : KAff4AbstractModule() {
   val imagePath = imageName.toPath()

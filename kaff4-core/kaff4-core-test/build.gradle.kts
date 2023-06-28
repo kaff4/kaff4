@@ -7,7 +7,7 @@ dependencies {
 
   api(libs.assertj)
   api(libs.guice)
-  api(libs.javax.inject)
+  api(libs.jakarta.inject.api)
   api(libs.junit.juipter.api)
   api(libs.okio)
 

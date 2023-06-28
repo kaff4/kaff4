@@ -2,6 +2,8 @@ package net.navatwo.kaff4.model
 
 import com.google.inject.assistedinject.Assisted
 import com.google.inject.assistedinject.AssistedInject
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import misk.scope.ActionScoped
 import net.navatwo.kaff4.model.dialect.ToolDialect
 import net.navatwo.kaff4.model.rdf.Aff4RdfModel
@@ -17,8 +19,6 @@ import org.eclipse.rdf4j.model.Resource
 import org.eclipse.rdf4j.model.Statement
 import org.eclipse.rdf4j.model.ValueFactory
 import org.eclipse.rdf4j.query.GraphQuery
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.reflect.KClass
 
 private val PATTERN_ORDER_BY = Regex("\\s+order by\\s+", RegexOption.IGNORE_CASE)

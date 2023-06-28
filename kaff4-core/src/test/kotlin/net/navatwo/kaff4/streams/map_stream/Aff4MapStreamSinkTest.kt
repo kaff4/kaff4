@@ -1,6 +1,7 @@
 package net.navatwo.kaff4.streams.map_stream
 
 import com.google.inject.util.Modules
+import jakarta.inject.Inject
 import net.navatwo.kaff4.Aff4BaseStreamModule
 import net.navatwo.kaff4.TestActionScopeModule
 import net.navatwo.kaff4.UsingTemporary
@@ -41,7 +42,6 @@ import org.eclipse.rdf4j.model.ValueFactory
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.function.Consumer
-import javax.inject.Inject
 
 class Aff4MapStreamSinkTest {
 

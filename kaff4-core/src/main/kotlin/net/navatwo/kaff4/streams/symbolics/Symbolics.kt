@@ -1,5 +1,7 @@
 package net.navatwo.kaff4.streams.symbolics
 
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import net.navatwo.kaff4.model.rdf.Aff4Arn
 import net.navatwo.kaff4.model.rdf.Aff4Schema
 import net.navatwo.kaff4.model.rdf.createAff4Iri
@@ -7,8 +9,6 @@ import okio.ByteString
 import okio.ByteString.Companion.decodeHex
 import okio.ByteString.Companion.encode
 import org.eclipse.rdf4j.model.ValueFactory
-import javax.inject.Inject
-import javax.inject.Singleton
 
 // https://github.com/aff4/Standard/blob/master/inprogress/AFF4StandardSpecification-v1.0a.md#44-symbolic-streams
 private const val AFF4_SYMBOLIC_CHUNK_BOUNDARY = 1 * 1024 * 1024

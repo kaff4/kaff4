@@ -1,7 +1,7 @@
 dependencies {
   implementation(kotlin("stdlib-jdk8"))
 
-  api(libs.javax.inject)
+  api(libs.jakarta.inject.api)
 
   api(project(":kaff4-plugin"))
   api(project(":kaff4-core:kaff4-core-model:kaff4-core-model-api"))

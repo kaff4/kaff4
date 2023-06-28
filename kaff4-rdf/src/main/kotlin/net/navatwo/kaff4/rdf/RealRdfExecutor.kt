@@ -1,9 +1,9 @@
 package net.navatwo.kaff4.rdf
 
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import org.eclipse.rdf4j.repository.Repository
 import org.eclipse.rdf4j.repository.RepositoryConnection
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private val currentConnection: ThreadLocal<QueryableRdfConnection?> = ThreadLocal.withInitial { null }
 

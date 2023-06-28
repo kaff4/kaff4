@@ -6,7 +6,7 @@ dependencies {
   api(project(":kaff4-rdf:kaff4-rdf-api"))
 
   api(libs.guice)
-  api(libs.javax.inject)
+  api(libs.jakarta.inject.api)
   api(libs.rdf4j.model.api)
   api(libs.rdf4j.repository.api)
   api(libs.rdf4j.rio.api)

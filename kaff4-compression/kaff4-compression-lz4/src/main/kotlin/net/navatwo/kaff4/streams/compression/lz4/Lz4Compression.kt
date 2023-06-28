@@ -1,6 +1,8 @@
 package net.navatwo.kaff4.streams.compression.lz4
 
 import com.google.common.io.ByteStreams
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import net.navatwo.kaff4.model.rdf.CompressionMethod
 import net.navatwo.kaff4.streams.compression.ByteBuffers.markAndReset
 import net.navatwo.kaff4.streams.compression.Streams.useAsInputStream
@@ -9,8 +11,6 @@ import org.apache.commons.compress.compressors.lz4.FramedLZ4CompressorInputStrea
 import org.apache.commons.compress.compressors.lz4.FramedLZ4CompressorOutputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 class Lz4Compression @Inject internal constructor() : CompressionMethod {

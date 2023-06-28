@@ -6,7 +6,7 @@ plugins {
 
 dependencies {
   implementation(libs.guice)
-  implementation(libs.javax.inject)
+  implementation(libs.jakarta.inject.api)
   implementation(libs.misk.actionscopes)
   implementation(libs.log4j.api)
   implementation(libs.okio)

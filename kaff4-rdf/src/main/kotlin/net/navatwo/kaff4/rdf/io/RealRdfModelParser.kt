@@ -1,10 +1,10 @@
 package net.navatwo.kaff4.rdf.io
 
+import jakarta.inject.Inject
 import misk.scope.ActionScoped
 import net.navatwo.kaff4.rdf.QueryableRdfConnection
 import org.eclipse.rdf4j.model.Resource
 import org.eclipse.rdf4j.model.Statement
-import javax.inject.Inject
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 

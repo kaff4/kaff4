@@ -1,6 +1,7 @@
 package net.navatwo.kaff4.container
 
 import com.google.inject.util.Modules
+import jakarta.inject.Inject
 import net.navatwo.kaff4.Aff4ImageTestModule
 import net.navatwo.kaff4.Aff4TestModule
 import net.navatwo.kaff4.BaseLinear
@@ -29,7 +30,6 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import org.junit.jupiter.params.provider.ValueSource
 import java.util.stream.Stream
-import javax.inject.Inject
 
 internal class ContainerLoaderTest {
   companion object {

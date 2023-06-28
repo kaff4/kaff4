@@ -1,6 +1,7 @@
 package net.navatwo.kaff4.streams.map_stream
 
 import com.google.inject.util.Modules
+import jakarta.inject.Inject
 import net.navatwo.kaff4.Aff4CoreModule
 import net.navatwo.kaff4.TestActionScopeModule
 import net.navatwo.kaff4.container.Aff4ImageOpenerModule
@@ -14,7 +15,6 @@ import okio.Timeout
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
-import javax.inject.Inject
 
 class MapStreamDataChunkerBufferedSinkTest {
   @GuiceModule

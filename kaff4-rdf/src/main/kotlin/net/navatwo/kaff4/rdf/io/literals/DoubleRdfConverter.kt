@@ -2,9 +2,9 @@
 
 package net.navatwo.kaff4.rdf.io.literals
 
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import org.eclipse.rdf4j.model.Literal
-import javax.inject.Inject
-import javax.inject.Singleton
 import java.lang.Double as JDouble
 
 @Singleton

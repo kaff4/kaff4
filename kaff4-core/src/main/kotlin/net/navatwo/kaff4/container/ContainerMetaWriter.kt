@@ -1,5 +1,6 @@
 package net.navatwo.kaff4.container
 
+import jakarta.inject.Inject
 import net.navatwo.kaff4.model.rdf.Aff4Arn
 import net.navatwo.kaff4.rdf.QueryableRdfConnection
 import okio.FileSystem
@@ -7,7 +8,6 @@ import okio.Path.Companion.toPath
 import org.eclipse.rdf4j.rio.RDFFormat
 import org.eclipse.rdf4j.rio.RDFWriter
 import org.eclipse.rdf4j.rio.Rio
-import javax.inject.Inject
 
 internal class ContainerMetaWriter @Inject constructor() {
   fun write(connection: QueryableRdfConnection, fileSystem: FileSystem, containerArn: Aff4Arn) {

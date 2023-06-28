@@ -1,5 +1,8 @@
 package net.navatwo.kaff4.verify
 
+import jakarta.inject.Inject
+import jakarta.inject.Provider
+import jakarta.inject.Singleton
 import misk.scope.ActionScope
 import misk.scope.executor.ActionScopedExecutorService
 import net.navatwo.kaff4.model.Aff4Image
@@ -18,9 +21,6 @@ import java.util.concurrent.Callable
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.ThreadFactory
-import javax.inject.Inject
-import javax.inject.Provider
-import javax.inject.Singleton
 
 private val logger = Logging.getLogger()
 

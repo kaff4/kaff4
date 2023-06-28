@@ -3,6 +3,9 @@
 package net.navatwo.kaff4.rdf.io
 
 import com.google.inject.util.Modules
+import jakarta.inject.Inject
+import jakarta.inject.Provider
+import jakarta.inject.Singleton
 import misk.scope.ActionScopedProvider
 import misk.scope.ActionScopedProviderModule
 import net.navatwo.guice.KAff4AbstractModule
@@ -28,9 +31,6 @@ import org.eclipse.rdf4j.model.Value
 import org.eclipse.rdf4j.model.ValueFactory
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import javax.inject.Inject
-import javax.inject.Provider
-import javax.inject.Singleton
 import kotlin.Long
 import java.lang.Integer as JInteger
 import java.lang.Long as JLong

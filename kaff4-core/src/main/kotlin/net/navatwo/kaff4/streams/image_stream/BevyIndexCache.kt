@@ -1,9 +1,9 @@
 package net.navatwo.kaff4.streams.image_stream
 
 import com.github.benmanes.caffeine.cache.Caffeine
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import org.eclipse.rdf4j.model.IRI
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private const val INDEX_CACHE_SIZE = 500L
 

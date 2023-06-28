@@ -1,6 +1,8 @@
 package net.navatwo.kaff4.streams.map_stream
 
 import com.github.benmanes.caffeine.cache.Caffeine
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import net.navatwo.kaff4.container.ContainerDataFileSystemProvider
 import net.navatwo.kaff4.io.lineSequence
 import net.navatwo.kaff4.model.rdf.Aff4Arn
@@ -9,8 +11,6 @@ import net.navatwo.kaff4.model.rdf.createArn
 import okio.Path
 import okio.buffer
 import org.eclipse.rdf4j.model.ValueFactory
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private const val MAP_TARGETS_CACHE_SIZE = 10L
 

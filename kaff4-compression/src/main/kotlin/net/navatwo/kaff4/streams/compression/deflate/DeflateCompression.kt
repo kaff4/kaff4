@@ -1,12 +1,12 @@
 package net.navatwo.kaff4.streams.compression.deflate
 
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import net.navatwo.kaff4.model.rdf.CompressionMethod
 import net.navatwo.kaff4.streams.compression.ByteBuffers.markAndReset
 import java.nio.ByteBuffer
 import java.util.zip.Deflater
 import java.util.zip.Inflater
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 class DeflateCompression @Inject internal constructor() : CompressionMethod {
