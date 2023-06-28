@@ -1,6 +1,8 @@
 package net.navatwo.kaff4.dump_image
 
 import com.google.common.base.Stopwatch
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import net.navatwo.kaff4.io.ProgressSink
 import net.navatwo.kaff4.io.TeeSink
 import net.navatwo.kaff4.io.buffer
@@ -19,8 +21,6 @@ import java.math.BigInteger
 import java.math.RoundingMode
 import java.time.Duration
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 internal class DumpImageAction @Inject constructor(

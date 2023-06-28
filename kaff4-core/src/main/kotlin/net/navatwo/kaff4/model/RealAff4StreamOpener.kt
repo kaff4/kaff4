@@ -3,6 +3,7 @@ package net.navatwo.kaff4.model
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.benmanes.caffeine.cache.LoadingCache
 import com.google.inject.TypeLiteral
+import jakarta.inject.Inject
 import misk.scope.ActionScoped
 import net.navatwo.kaff4.io.AutoCloseableSourceProvider
 import net.navatwo.kaff4.io.SourceProvider
@@ -28,7 +29,6 @@ import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Proxy
-import javax.inject.Inject
 import kotlin.reflect.KClass
 import kotlin.reflect.jvm.javaMethod
 import kotlin.reflect.jvm.javaType

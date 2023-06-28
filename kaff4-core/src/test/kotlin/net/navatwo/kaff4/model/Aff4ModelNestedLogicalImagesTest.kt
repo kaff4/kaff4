@@ -1,5 +1,6 @@
 package net.navatwo.kaff4.model
 
+import jakarta.inject.Inject
 import net.navatwo.kaff4.Aff4ImageTestModule
 import net.navatwo.kaff4.NestedLogicalImages
 import net.navatwo.kaff4.UnderTest
@@ -10,7 +11,6 @@ import net.navatwo.test.GuiceModule
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
 import org.junit.jupiter.api.Test
-import javax.inject.Inject
 
 class Aff4ModelNestedLogicalImagesTest {
   @GuiceModule

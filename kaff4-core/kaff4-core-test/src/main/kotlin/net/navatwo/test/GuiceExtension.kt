@@ -13,7 +13,6 @@ import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace
 import java.lang.reflect.ParameterizedType
-import javax.inject.Provider
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
@@ -117,7 +116,7 @@ class GuiceExtension : BeforeEachCallback, AfterEachCallback, BeforeAllCallback 
 
   private object TestModule : KAff4AbstractModule() {
     override fun configure() {
-      bind<Sha256FileSystemFactory>().toProvider(Provider { Sha256FileSystemFactory() })
+      bind<Sha256FileSystemFactory>().toProvider { Sha256FileSystemFactory() }
 
       bindSet<TestLifecycleAction> {
         to<OffTestThreadExecutor>()

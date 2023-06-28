@@ -1,5 +1,6 @@
 package net.navatwo.kaff4.container
 
+import jakarta.inject.Inject
 import misk.scope.ActionScope
 import misk.scope.ActionScoped
 import net.navatwo.guice.key
@@ -9,7 +10,6 @@ import net.navatwo.kaff4.model.Aff4ImageOpener
 import net.navatwo.kaff4.model.Aff4ImageOpener.Aff4ImageWithResources
 import okio.FileSystem
 import okio.Path
-import javax.inject.Inject
 
 internal class RealAff4ImageOpener @Inject constructor(
   private val actionScope: ActionScope,

@@ -1,6 +1,6 @@
 dependencies {
   api(libs.guice)
-  api(libs.javax.inject)
+  api(libs.jakarta.inject.api)
   api(libs.misk.inject)
 
   api(project("::kaff4-core:kaff4-core-model:kaff4-core-model-api"))

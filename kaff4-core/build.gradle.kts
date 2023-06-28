@@ -2,7 +2,7 @@ dependencies {
   implementation(kotlin("reflect"))
 
   api(libs.guice)
-  api(libs.javax.inject)
+  api(libs.jakarta.inject.api)
   api(libs.okio)
   api(libs.rdf4j.model.api)
   api(libs.kintervaltree)

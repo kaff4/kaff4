@@ -1,13 +1,13 @@
 package net.navatwo.kaff4.plugins
 
 import com.google.inject.Binder
+import jakarta.inject.Qualifier
 import net.navatwo.guice.KAff4AbstractModule
 import net.navatwo.guice.KSetMultibinderHelper
 import net.navatwo.kaff4.model.rdf.Aff4RdfModel
 import net.navatwo.kaff4.model.rdf.CompressionMethod
 import net.navatwo.kaff4.rdf.RdfRepositoryConfiguration
 import net.navatwo.kaff4.rdf.RdfValueConverter
-import javax.inject.Qualifier
 import kotlin.annotation.AnnotationTarget.PROPERTY
 import kotlin.annotation.AnnotationTarget.VALUE_PARAMETER
 import kotlin.reflect.KClass

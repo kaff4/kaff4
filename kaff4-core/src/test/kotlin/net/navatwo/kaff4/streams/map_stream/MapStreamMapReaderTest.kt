@@ -1,6 +1,7 @@
 package net.navatwo.kaff4.streams.map_stream
 
 import com.github.nava2.interval_tree.Interval
+import jakarta.inject.Inject
 import net.navatwo.kaff4.Aff4ImageTestModule
 import net.navatwo.kaff4.BaseLinear
 import net.navatwo.kaff4.UnderTest
@@ -13,7 +14,6 @@ import org.eclipse.rdf4j.model.ValueFactory
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.function.Consumer
-import javax.inject.Inject
 
 class MapStreamMapReaderTest {
   @GuiceModule

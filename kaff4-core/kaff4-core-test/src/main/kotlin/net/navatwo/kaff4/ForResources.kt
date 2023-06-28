@@ -1,6 +1,6 @@
 package net.navatwo.kaff4
 
-import javax.inject.Qualifier
+import jakarta.inject.Qualifier
 
 @Target(
   AnnotationTarget.PROPERTY,

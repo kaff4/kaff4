@@ -6,7 +6,7 @@ import com.google.inject.TypeLiteral
 import com.google.inject.binder.AnnotatedBindingBuilder
 import com.google.inject.binder.LinkedBindingBuilder
 import com.google.inject.binder.ScopedBindingBuilder
-import javax.inject.Provider
+import jakarta.inject.Provider
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 

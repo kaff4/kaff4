@@ -1,6 +1,8 @@
 package net.navatwo.kaff4.streams.image_stream
 
 import com.github.benmanes.caffeine.cache.Caffeine
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import net.navatwo.kaff4.container.ContainerDataFileSystemProvider
 import net.navatwo.kaff4.io.source
 import net.navatwo.kaff4.model.rdf.HashType
@@ -9,8 +11,6 @@ import okio.ByteString
 import okio.Timeout
 import org.eclipse.rdf4j.model.IRI
 import java.nio.ByteBuffer
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private const val BLOCK_HASH_VALUES_CACHE = 1024L
 

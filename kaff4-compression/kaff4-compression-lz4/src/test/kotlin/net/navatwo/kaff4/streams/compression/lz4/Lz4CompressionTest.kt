@@ -1,10 +1,10 @@
 package net.navatwo.kaff4.streams.compression.lz4
 
+import jakarta.inject.Inject
 import net.navatwo.kaff4.streams.compression.BaseCompressionMethodTest
 import net.navatwo.test.GuiceModule
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import javax.inject.Inject
 
 internal class Lz4CompressionTest : BaseCompressionMethodTest() {
   @GuiceModule

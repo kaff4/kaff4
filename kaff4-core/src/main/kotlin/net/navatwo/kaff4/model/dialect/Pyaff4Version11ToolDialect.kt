@@ -1,10 +1,10 @@
 package net.navatwo.kaff4.model.dialect
 
 import com.google.inject.Provides
+import jakarta.inject.Singleton
 import net.navatwo.guice.KAff4AbstractModule
 import net.navatwo.kaff4.model.Aff4Container
 import net.navatwo.kaff4.model.rdf.ZipSegment
-import javax.inject.Singleton
 
 class Pyaff4Version11ToolDialect private constructor(override val typeResolver: DialectTypeResolver) : ToolDialect {
   override fun isApplicable(toolMetadata: Aff4Container.ToolMetadata): Boolean {

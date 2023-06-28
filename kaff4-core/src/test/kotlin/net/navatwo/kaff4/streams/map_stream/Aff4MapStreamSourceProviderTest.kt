@@ -1,5 +1,6 @@
 package net.navatwo.kaff4.streams.map_stream
 
+import jakarta.inject.Inject
 import net.navatwo.kaff4.Aff4ImageTestModule
 import net.navatwo.kaff4.BaseLinear
 import net.navatwo.kaff4.UnderTest
@@ -20,7 +21,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import javax.inject.Inject
 
 private const val CHUNK_SIZE: Long = 32 * 1024
 

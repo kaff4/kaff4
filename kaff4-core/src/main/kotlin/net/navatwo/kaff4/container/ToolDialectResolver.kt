@@ -1,11 +1,11 @@
 package net.navatwo.kaff4.container
 
+import jakarta.inject.Inject
+import jakarta.inject.Provider
+import jakarta.inject.Singleton
 import net.navatwo.kaff4.model.Aff4Container
 import net.navatwo.kaff4.model.dialect.DefaultToolDialect
 import net.navatwo.kaff4.model.dialect.ToolDialect
-import javax.inject.Inject
-import javax.inject.Provider
-import javax.inject.Singleton
 
 @Singleton
 internal class ToolDialectResolver @Inject constructor(

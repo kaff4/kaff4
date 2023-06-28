@@ -1,6 +1,7 @@
 package net.navatwo.kaff4.streams.image_stream
 
 import com.google.inject.util.Modules
+import jakarta.inject.Inject
 import net.navatwo.kaff4.Aff4BaseStreamModule
 import net.navatwo.kaff4.UsingTemporary
 import net.navatwo.kaff4.container.Aff4ContainerBuilder
@@ -40,7 +41,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
-import javax.inject.Inject
 
 internal class Aff4ImageStreamSinkTest {
   @GuiceModule

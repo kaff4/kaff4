@@ -1,5 +1,6 @@
 package net.navatwo.kaff4.streams.image_stream
 
+import jakarta.inject.Inject
 import net.navatwo.kaff4.container.ContainerDataFileSystemProvider
 import net.navatwo.kaff4.mapNotNullValues
 import net.navatwo.kaff4.model.rdf.Aff4Arn
@@ -9,7 +10,6 @@ import net.navatwo.kaff4.model.rdf.createArn
 import net.navatwo.kaff4.model.rdf.toAff4Path
 import okio.Path
 import org.eclipse.rdf4j.model.ValueFactory
-import javax.inject.Inject
 
 private const val BEVY_FILENAME_PADDING_LENGTH = 8
 

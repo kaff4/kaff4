@@ -1,7 +1,7 @@
 package net.navatwo.kaff4.rdf.io
 
+import jakarta.inject.Inject
 import net.navatwo.kaff4.rdf.RdfValueConverter
-import javax.inject.Inject
 
 internal class RdfValueConverterProvider @Inject constructor(
   private val converters: Set<RdfValueConverter<*>>,

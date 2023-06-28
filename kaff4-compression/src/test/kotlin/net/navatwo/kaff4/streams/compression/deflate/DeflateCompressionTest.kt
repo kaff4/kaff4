@@ -1,10 +1,10 @@
 package net.navatwo.kaff4.streams.compression.deflate
 
+import jakarta.inject.Inject
 import net.navatwo.kaff4.streams.compression.BaseCompressionMethodTest
 import net.navatwo.test.GuiceModule
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import javax.inject.Inject
 
 internal class DeflateCompressionTest : BaseCompressionMethodTest() {
   @GuiceModule

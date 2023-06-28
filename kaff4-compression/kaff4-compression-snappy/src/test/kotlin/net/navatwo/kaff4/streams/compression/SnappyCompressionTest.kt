@@ -1,9 +1,9 @@
 package net.navatwo.kaff4.streams.compression
 
+import jakarta.inject.Inject
 import net.navatwo.test.GuiceModule
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
-import javax.inject.Inject
 
 class SnappyCompressionTest : BaseCompressionMethodTest() {
   @GuiceModule

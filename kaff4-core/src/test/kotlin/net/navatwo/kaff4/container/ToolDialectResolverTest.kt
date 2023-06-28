@@ -1,6 +1,9 @@
 package net.navatwo.kaff4.container
 
 import com.google.inject.util.Modules
+import jakarta.inject.Inject
+import jakarta.inject.Provider
+import jakarta.inject.Singleton
 import misk.scope.ActionScopedProvider
 import misk.scope.ActionScopedProviderModule
 import net.navatwo.guice.KAff4AbstractModule
@@ -17,9 +20,6 @@ import net.navatwo.kaff4.model.rdf.Aff4RdfModelPlugin
 import net.navatwo.test.GuiceModule
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import javax.inject.Inject
-import javax.inject.Provider
-import javax.inject.Singleton
 
 internal class ToolDialectResolverTest {
   @GuiceModule

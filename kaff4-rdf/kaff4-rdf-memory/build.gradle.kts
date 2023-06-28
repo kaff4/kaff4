@@ -2,7 +2,7 @@ dependencies {
   api(project(":kaff4-plugin"))
 
   implementation(libs.guice)
-  implementation(libs.javax.inject)
+  implementation(libs.jakarta.inject.api)
   implementation(libs.misk.inject)
   implementation(libs.rdf4j.sail.api)
   implementation(libs.rdf4j.sail.memory)

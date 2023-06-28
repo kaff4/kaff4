@@ -1,11 +1,11 @@
 package net.navatwo.kaff4
 
+import jakarta.inject.Inject
+import jakarta.inject.Provider
+import jakarta.inject.Singleton
 import misk.scope.ActionScope
 import net.navatwo.guice.KAff4AbstractModule
 import net.navatwo.test.GuiceExtension
-import javax.inject.Inject
-import javax.inject.Provider
-import javax.inject.Singleton
 
 object TestActionScopeModule : KAff4AbstractModule() {
   override fun configure() {

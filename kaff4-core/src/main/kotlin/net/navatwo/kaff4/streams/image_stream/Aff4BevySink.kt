@@ -1,5 +1,7 @@
 package net.navatwo.kaff4.streams.image_stream
 
+import jakarta.inject.Inject
+import jakarta.inject.Named
 import net.navatwo.kaff4.io.source
 import net.navatwo.kaff4.model.rdf.ImageStream
 import net.navatwo.kaff4.streams.computeLinearHashes
@@ -9,8 +11,6 @@ import okio.Sink
 import okio.Timeout
 import okio.buffer
 import java.nio.ByteBuffer
-import javax.inject.Inject
-import javax.inject.Named
 
 internal class Aff4BevySink @Inject constructor(
   @Named("ImageOutput") private val outputFileSystem: FileSystem,

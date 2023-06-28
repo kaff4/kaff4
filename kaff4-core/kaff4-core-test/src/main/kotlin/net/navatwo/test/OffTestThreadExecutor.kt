@@ -1,9 +1,9 @@
 package net.navatwo.test
 
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Runs code in a separate thread. This is typically used to avoid collisions between action scopes in tests.

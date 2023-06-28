@@ -1,5 +1,6 @@
 package net.navatwo.kaff4.streams.zip_segment
 
+import jakarta.inject.Inject
 import net.navatwo.kaff4.Aff4ImageTestModule
 import net.navatwo.kaff4.Dream
 import net.navatwo.kaff4.UnderTest
@@ -19,7 +20,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import javax.inject.Inject
 
 private const val DREAM_TXT_SIZE = 8688L
 private val DREAM_FIRST_LINE = "I have a Dream by Martin Luther King, Jr; August 28, 1963\n".encodeUtf8()

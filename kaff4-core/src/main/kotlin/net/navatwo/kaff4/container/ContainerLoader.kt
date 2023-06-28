@@ -1,6 +1,7 @@
 package net.navatwo.kaff4.container
 
 import com.google.common.annotations.VisibleForTesting
+import jakarta.inject.Inject
 import net.navatwo.kaff4.container.RealAff4ImageOpener.LoadedContainersContext
 import net.navatwo.kaff4.io.relativeTo
 import net.navatwo.kaff4.model.Aff4Container
@@ -10,7 +11,6 @@ import okio.Path
 import okio.Path.Companion.toPath
 import okio.openZip
 import org.eclipse.rdf4j.model.ValueFactory
-import javax.inject.Inject
 import kotlin.io.path.name
 
 private val AFF4_STRIPE_PATTERNS = listOf(

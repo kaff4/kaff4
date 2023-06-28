@@ -1,6 +1,6 @@
 package net.navatwo.kaff4.model.dialect
 
-import javax.inject.Qualifier
+import jakarta.inject.Qualifier
 import kotlin.annotation.AnnotationRetention.RUNTIME
 import kotlin.annotation.AnnotationTarget.FIELD
 import kotlin.annotation.AnnotationTarget.PROPERTY_SETTER

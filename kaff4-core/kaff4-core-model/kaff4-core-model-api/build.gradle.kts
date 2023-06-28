@@ -1,6 +1,6 @@
 dependencies {
   api(libs.guava)
-  api(libs.javax.inject)
+  api(libs.jakarta.inject.api)
   api(libs.okio)
   api(libs.rdf4j.model.api)
   api(libs.rdf4j.query)

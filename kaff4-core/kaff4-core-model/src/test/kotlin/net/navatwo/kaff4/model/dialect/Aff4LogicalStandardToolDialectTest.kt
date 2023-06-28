@@ -1,6 +1,8 @@
 package net.navatwo.kaff4.model.dialect
 
 import com.google.inject.util.Modules
+import jakarta.inject.Inject
+import jakarta.inject.Provider
 import net.navatwo.kaff4.Aff4TestModule
 import net.navatwo.kaff4.TestActionScopeModule
 import net.navatwo.kaff4.TestToolDialectModule
@@ -13,8 +15,6 @@ import net.navatwo.kaff4.model.rdf.ZipSegment
 import net.navatwo.test.GuiceModule
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import javax.inject.Inject
-import javax.inject.Provider
 
 internal class Aff4LogicalStandardToolDialectTest {
   @GuiceModule

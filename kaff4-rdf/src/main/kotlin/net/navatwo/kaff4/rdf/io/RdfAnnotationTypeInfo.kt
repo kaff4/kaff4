@@ -2,6 +2,8 @@ package net.navatwo.kaff4.rdf.io
 
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.google.common.collect.ImmutableMultimap
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import net.navatwo.kaff4.model.dialect.ToolDialect
 import net.navatwo.kaff4.model.rdf.TurtleIri.Companion.toTurtleIri
 import net.navatwo.kaff4.model.rdf.annotations.RdfSubject
@@ -9,8 +11,6 @@ import net.navatwo.kaff4.model.rdf.annotations.RdfValue
 import net.navatwo.kaff4.rdf.NamespacesProvider
 import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.Resource
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter

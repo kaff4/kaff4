@@ -1,5 +1,6 @@
 package net.navatwo.kaff4.rdf.io
 
+import jakarta.inject.Inject
 import misk.scope.ActionScoped
 import misk.scope.ActionScopedProvider
 import misk.scope.ActionScopedProviderModule
@@ -7,7 +8,6 @@ import net.navatwo.guice.KAff4AbstractModule
 import net.navatwo.guice.assistedFactoryModule
 import net.navatwo.kaff4.model.dialect.ToolDialect
 import net.navatwo.kaff4.rdf.io.literals.RdfLiteralConvertersModule
-import javax.inject.Inject
 
 object RdfModelParserModule : KAff4AbstractModule() {
   override fun configure() {

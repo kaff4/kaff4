@@ -1,10 +1,10 @@
 package net.navatwo.kaff4.model.dialect
 
 import com.google.inject.Provides
+import jakarta.inject.Singleton
 import net.navatwo.guice.KAff4AbstractModule
 import net.navatwo.kaff4.model.Aff4Container
 import net.navatwo.kaff4.model.rdf.Aff4RdfModel
-import javax.inject.Singleton
 import kotlin.annotation.AnnotationRetention.RUNTIME
 import kotlin.annotation.AnnotationTarget.CLASS
 import kotlin.reflect.KClass

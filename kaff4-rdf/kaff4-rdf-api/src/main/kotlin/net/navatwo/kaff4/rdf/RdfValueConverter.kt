@@ -1,9 +1,9 @@
 package net.navatwo.kaff4.rdf
 
 import com.google.inject.TypeLiteral
+import jakarta.inject.Inject
 import org.eclipse.rdf4j.model.Value
 import org.eclipse.rdf4j.model.ValueFactory
-import javax.inject.Inject
 
 abstract class RdfValueConverter<T> protected constructor(val types: Set<TypeLiteral<*>>) {
   init {

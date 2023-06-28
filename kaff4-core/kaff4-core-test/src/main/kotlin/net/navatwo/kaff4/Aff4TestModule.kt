@@ -1,13 +1,13 @@
 package net.navatwo.kaff4
 
 import com.google.inject.Provides
+import jakarta.inject.Singleton
 import net.navatwo.guice.KAff4AbstractModule
 import net.navatwo.kaff4.io.relativeTo
 import net.navatwo.kaff4.model.rdf.Aff4RdfModelPlugin
 import net.navatwo.kaff4.rdf.MemoryRdfRepositoryPlugin
 import okio.FileSystem
 import okio.Path.Companion.toPath
-import javax.inject.Singleton
 
 object Aff4TestModule : KAff4AbstractModule() {
   override fun configure() {

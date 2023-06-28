@@ -1,5 +1,6 @@
 package net.navatwo.kaff4.container
 
+import jakarta.inject.Inject
 import misk.scope.ActionScoped
 import misk.scope.ActionScopedProvider
 import misk.scope.ActionScopedProviderModule
@@ -13,7 +14,6 @@ import net.navatwo.kaff4.model.Aff4StreamOpener
 import net.navatwo.kaff4.model.Aff4StreamOpenerModule
 import net.navatwo.kaff4.model.dialect.ToolDialect
 import net.navatwo.kaff4.rdf.RdfExecutor
-import javax.inject.Inject
 
 object Aff4ImageOpenerModule : KAff4AbstractModule() {
   override fun configure() {

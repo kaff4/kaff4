@@ -1,6 +1,7 @@
 package net.navatwo.kaff4.rdf
 
 import com.google.inject.util.Modules
+import jakarta.inject.Inject
 import net.navatwo.kaff4.Aff4CoreModule
 import net.navatwo.kaff4.TestActionScopeModule
 import net.navatwo.kaff4.container.Aff4ImageOpenerModule
@@ -13,7 +14,6 @@ import org.assertj.core.api.ObjectAssert
 import org.eclipse.rdf4j.model.Statement
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import javax.inject.Inject
 
 internal class RealRdfExecutorTest {
   @GuiceModule

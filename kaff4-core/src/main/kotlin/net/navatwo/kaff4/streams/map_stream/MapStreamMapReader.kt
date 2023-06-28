@@ -1,13 +1,13 @@
 package net.navatwo.kaff4.streams.map_stream
 
 import com.github.nava2.interval_tree.IntervalTree
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import net.navatwo.kaff4.container.ContainerDataFileSystemProvider
 import net.navatwo.kaff4.model.rdf.MapStream
 import net.navatwo.kaff4.streams.symbolics.Symbolics
 import okio.buffer
 import org.eclipse.rdf4j.model.IRI
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private const val ENTRIES_INSERT_CHUNK_SIZE = 50
 

@@ -1,9 +1,9 @@
 package net.navatwo.kaff4.streams
 
 import com.google.inject.TypeLiteral
+import jakarta.inject.Provider
 import net.navatwo.kaff4.model.Aff4StreamSourceProvider
 import net.navatwo.kaff4.model.rdf.Aff4RdfModel
-import javax.inject.Provider
 
 internal class Aff4StreamLoaderContext(
   val configTypeLiteral: TypeLiteral<out Aff4RdfModel>,

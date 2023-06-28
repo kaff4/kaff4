@@ -1,6 +1,7 @@
 package net.navatwo.kaff4.container
 
 import com.google.inject.util.Modules
+import jakarta.inject.Inject
 import misk.scope.ActionScoped
 import net.navatwo.kaff4.Aff4BaseStreamModule
 import net.navatwo.kaff4.Aff4CoreModule
@@ -19,7 +20,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import javax.inject.Inject
 
 private const val BASE_LINEAR_NAME = "Base-Linear"
 private const val BASE_LINEAR_IMAGE = "$BASE_LINEAR_NAME.aff4"
