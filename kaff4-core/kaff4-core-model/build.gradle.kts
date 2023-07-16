@@ -12,7 +12,6 @@ dependencies {
   api(libs.rdf4j.model.api)
 
   implementation(libs.guice)
-  implementation(libs.misk.inject)
 
   compileOnly(project(":kaff4-api"))
 

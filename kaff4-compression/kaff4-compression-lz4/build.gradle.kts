@@ -10,7 +10,6 @@ dependencies {
 
   implementation(libs.guava)
   implementation(libs.guice)
-  implementation(libs.misk.inject)
   implementation(libs.commons.compress)
 
   implementation(project(":kaff4-core:kaff4-core-guice"))
