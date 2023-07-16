@@ -5,8 +5,7 @@ guice = "6.0.0"
 
 junit = "5.9.3"
 
-# Update buildSrc/build.gradle.kts, too
-kotlin = "1.9.0"
+kotlin = "1.8.22"
 
 log4j = "2.20.0"
 

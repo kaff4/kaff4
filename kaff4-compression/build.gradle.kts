@@ -7,6 +7,7 @@ dependencies {
   api(project(":kaff4-core:kaff4-core-model:kaff4-core-model-api"))
 
   implementation(libs.guice)
+  implementation(libs.misk.inject)
 
   implementation(project(":kaff4-core:kaff4-core-guice"))
 

@@ -12,6 +12,8 @@ dependencies {
   api(libs.okio)
   api(libs.rdf4j.model.api)
 
+  implementation(libs.misk.inject)
+
   testImplementation(libs.assertj)
   testImplementation(libs.junit.juipter.api)
   testImplementation(libs.rdf4j.model)
