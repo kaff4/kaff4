@@ -5,6 +5,7 @@ plugins {
 }
 
 dependencies {
+  implementation(libs.guava)
   implementation(libs.guice)
   implementation(libs.jakarta.inject.api)
   implementation(libs.misk.actionscopes)
