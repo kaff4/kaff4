@@ -7,7 +7,7 @@ import net.navatwo.kaff4.TestRandomsModule
 import net.navatwo.kaff4.container.Aff4ContainerBuilderModule
 import net.navatwo.kaff4.container.Aff4ImageOpenerModule
 import net.navatwo.kaff4.model.Aff4StreamOpenerModule
-import net.navatwo.kaff4.model.rdf.Aff4RdfModelPlugin
+import net.navatwo.kaff4.model.rdf.Aff4RdfModelFeatureModule
 
 object TestAff4ContainerBuilderModule : KAff4AbstractModule() {
   override fun configure() {
@@ -19,6 +19,6 @@ object TestAff4ContainerBuilderModule : KAff4AbstractModule() {
 
     install(Aff4StreamOpenerModule)
     install(Aff4ImageOpenerModule)
-    install(Aff4RdfModelPlugin)
+    install(Aff4RdfModelFeatureModule)
   }
 }

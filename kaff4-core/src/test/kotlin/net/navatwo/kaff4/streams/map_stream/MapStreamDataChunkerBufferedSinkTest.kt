@@ -6,7 +6,7 @@ import net.navatwo.kaff4.Aff4CoreModule
 import net.navatwo.kaff4.TestActionScopeModule
 import net.navatwo.kaff4.container.Aff4ImageOpenerModule
 import net.navatwo.kaff4.io.repeatByteString
-import net.navatwo.kaff4.rdf.MemoryRdfRepositoryPlugin
+import net.navatwo.kaff4.rdf.MemoryRdfRepositoryFeatureModule
 import net.navatwo.kaff4.streams.symbolics.Symbolics
 import net.navatwo.test.GuiceModule
 import okio.Buffer
@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test
 class MapStreamDataChunkerBufferedSinkTest {
   @GuiceModule
   val module = Modules.combine(
-    MemoryRdfRepositoryPlugin,
+    MemoryRdfRepositoryFeatureModule,
     Aff4CoreModule,
     Aff4ImageOpenerModule,
     TestActionScopeModule,

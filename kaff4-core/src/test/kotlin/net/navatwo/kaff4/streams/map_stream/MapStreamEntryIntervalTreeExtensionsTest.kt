@@ -6,7 +6,7 @@ import jakarta.inject.Inject
 import net.navatwo.kaff4.Aff4CoreModule
 import net.navatwo.kaff4.TestActionScopeModule
 import net.navatwo.kaff4.container.Aff4ImageOpenerModule
-import net.navatwo.kaff4.rdf.MemoryRdfRepositoryPlugin
+import net.navatwo.kaff4.rdf.MemoryRdfRepositoryFeatureModule
 import net.navatwo.test.GuiceModule
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.rdf4j.model.ValueFactory
@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
 class MapStreamEntryIntervalTreeExtensionsTest {
   @GuiceModule
   val module = Modules.combine(
-    MemoryRdfRepositoryPlugin,
+    MemoryRdfRepositoryFeatureModule,
     Aff4CoreModule,
     Aff4ImageOpenerModule,
     TestActionScopeModule,

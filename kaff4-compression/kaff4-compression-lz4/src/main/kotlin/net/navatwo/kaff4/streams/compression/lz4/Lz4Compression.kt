@@ -3,6 +3,7 @@ package net.navatwo.kaff4.streams.compression.lz4
 import com.google.common.io.ByteStreams
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import net.navatwo.kaff4.api.InternalApi
 import net.navatwo.kaff4.model.rdf.CompressionMethod
 import net.navatwo.kaff4.streams.compression.ByteBuffers.markAndReset
 import net.navatwo.kaff4.streams.compression.Streams.useAsInputStream
@@ -12,6 +13,7 @@ import org.apache.commons.compress.compressors.lz4.FramedLZ4CompressorOutputStre
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
+@InternalApi
 @Singleton
 class Lz4Compression @Inject internal constructor() : CompressionMethod {
   override val method: String = IDENTIFIER

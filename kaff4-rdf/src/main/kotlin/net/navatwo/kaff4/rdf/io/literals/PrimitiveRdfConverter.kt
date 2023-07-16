@@ -1,5 +1,3 @@
-@file:Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-
 package net.navatwo.kaff4.rdf.io.literals
 
 import com.google.inject.TypeLiteral
@@ -9,7 +7,7 @@ import org.apache.commons.lang3.ClassUtils
 import org.eclipse.rdf4j.model.Literal
 import org.eclipse.rdf4j.model.Value
 
-abstract class PrimitiveRdfConverter<KOTLIN> internal constructor(
+internal abstract class PrimitiveRdfConverter<KOTLIN>(
   matchingTypes: Set<TypeLiteral<*>>,
 ) : ConcreteRdfValueConverter<KOTLIN>(matchingTypes) {
 

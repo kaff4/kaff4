@@ -4,7 +4,6 @@ import okio.BufferedSource
 import okio.Source
 import okio.Timeout
 import okio.buffer
-import java.io.InputStream
 
 fun SourceProvider<Source>.buffer(): SourceProvider<BufferedSource> {
   return transform { source ->
@@ -25,14 +24,4 @@ inline fun <T, SOURCE : Source> SourceProvider<SOURCE>.use(
   block: (source: SOURCE) -> T,
 ): T {
   return source(timeout).use { block(it) }
-}
-
-inline fun <T, SOURCE : Source> SourceProvider<SOURCE>.useAsInputStream(
-  position: Long = 0L,
-  timeout: Timeout = Timeout.NONE,
-  block: (input: InputStream) -> T,
-): T {
-  return buffer().use(position, timeout) { source ->
-    source.inputStream().use { block(it) }
-  }
 }

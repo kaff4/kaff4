@@ -1,0 +1,17 @@
+public final class net/navatwo/guice/GuiceExtensionsKt {
+	public static final fun getKey (Lcom/google/inject/TypeLiteral;)Lcom/google/inject/Key;
+	public static final fun getValue (Ljakarta/inject/Provider;Ljava/lang/Object;Lkotlin/reflect/KProperty;)Ljava/lang/Object;
+}
+
+public abstract class net/navatwo/guice/KAff4AbstractModule : misk/inject/KAbstractModule {
+	protected fun <init> ()V
+	protected fun binder ()Lcom/google/inject/Binder;
+	protected abstract fun configure ()V
+}
+
+public final class net/navatwo/guice/KSetMultibinderHelper {
+	public fun <init> (Lcom/google/inject/multibindings/Multibinder;)V
+	public final fun getMultibinder ()Lcom/google/inject/multibindings/Multibinder;
+	public final fun toInstance (Ljava/lang/Object;)V
+}
+

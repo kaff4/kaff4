@@ -1,5 +1,6 @@
 package net.navatwo.kaff4.rdf
 
+import net.navatwo.kaff4.api.InternalApi
 import net.navatwo.kaff4.model.rdf.Aff4Arn
 import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.Resource
@@ -9,6 +10,7 @@ import org.eclipse.rdf4j.repository.RepositoryConnection
 import org.eclipse.rdf4j.rio.RDFFormat
 import java.io.InputStream
 
+@InternalApi
 interface MutableRdfConnection : QueryableRdfConnection {
   fun addTurtle(containerArn: Aff4Arn, input: InputStream)
 

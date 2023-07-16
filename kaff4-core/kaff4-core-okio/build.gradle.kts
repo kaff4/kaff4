@@ -2,6 +2,8 @@ dependencies {
   api(libs.guava)
 
   implementation(libs.okio)
+  
+  compileOnly(project(":kaff4-api"))
 
   testImplementation(libs.assertj)
   testImplementation(libs.junit.juipter.api)

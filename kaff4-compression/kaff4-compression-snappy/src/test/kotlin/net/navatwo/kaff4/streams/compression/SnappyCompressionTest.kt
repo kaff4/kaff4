@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test
 
 class SnappyCompressionTest : BaseCompressionMethodTest() {
   @GuiceModule
-  val testModule = Aff4SnappyPlugin
+  val testModule = Aff4SnappyFeatureModule
 
   @Inject
   override lateinit var compressionMethod: SnappyCompression

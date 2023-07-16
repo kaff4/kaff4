@@ -18,13 +18,13 @@ import net.navatwo.kaff4.model.rdf.HashType
 import net.navatwo.kaff4.model.rdf.ImageStream
 import net.navatwo.kaff4.model.rdf.None
 import net.navatwo.kaff4.model.rdf.createArn
-import net.navatwo.kaff4.rdf.MemoryRdfRepositoryPlugin
+import net.navatwo.kaff4.rdf.MemoryRdfRepositoryFeatureModule
 import net.navatwo.kaff4.streams.TestAff4ContainerBuilderModule
-import net.navatwo.kaff4.streams.compression.Aff4SnappyPlugin
+import net.navatwo.kaff4.streams.compression.Aff4SnappyFeatureModule
 import net.navatwo.kaff4.streams.compression.SnappyCompression
-import net.navatwo.kaff4.streams.compression.deflate.Aff4DeflatePlugin
+import net.navatwo.kaff4.streams.compression.deflate.Aff4DeflateFeatureModule
 import net.navatwo.kaff4.streams.compression.deflate.DeflateCompression
-import net.navatwo.kaff4.streams.compression.lz4.Aff4Lz4Plugin
+import net.navatwo.kaff4.streams.compression.lz4.Aff4Lz4FeatureModule
 import net.navatwo.kaff4.streams.compression.lz4.Lz4Compression
 import net.navatwo.test.GuiceModule
 import net.navatwo.test.OffTestThreadExecutor
@@ -47,10 +47,10 @@ internal class Aff4ImageStreamSinkTest {
   val module = Modules.combine(
     TestAff4ContainerBuilderModule,
     Aff4BaseStreamModule,
-    MemoryRdfRepositoryPlugin,
-    Aff4SnappyPlugin,
-    Aff4Lz4Plugin,
-    Aff4DeflatePlugin,
+    MemoryRdfRepositoryFeatureModule,
+    Aff4SnappyFeatureModule,
+    Aff4Lz4FeatureModule,
+    Aff4DeflateFeatureModule,
   )
 
   @Inject

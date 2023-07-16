@@ -2,10 +2,9 @@ package net.navatwo.kaff4.model
 
 import net.navatwo.guice.KAff4AbstractModule
 import net.navatwo.guice.assistedFactoryModule
-import net.navatwo.guice.to
 import java.util.Objects
 
-object Aff4ModelModule : KAff4AbstractModule() {
+internal object Aff4ModelModule : KAff4AbstractModule() {
   override fun configure() {
     binder().requireAtInjectOnConstructors()
 

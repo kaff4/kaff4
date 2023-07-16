@@ -1,0 +1,31 @@
+public final class net/navatwo/kaff4/streams/compression/ByteBuffers {
+	public static final field INSTANCE Lnet/navatwo/kaff4/streams/compression/ByteBuffers;
+	public final fun markAndReset (Ljava/nio/ByteBuffer;Ljava/nio/ByteBuffer;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public final fun markAndReset (Ljava/nio/ByteBuffer;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+}
+
+public final class net/navatwo/kaff4/streams/compression/Streams {
+	public static final field INSTANCE Lnet/navatwo/kaff4/streams/compression/Streams;
+	public final fun useAsInputStream (Ljava/nio/ByteBuffer;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public final fun useAsOutputStream (Ljava/nio/ByteBuffer;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+}
+
+public final class net/navatwo/kaff4/streams/compression/deflate/Aff4DeflateFeatureModule : net/navatwo/kaff4/api/KAff4FeatureModule {
+	public static final field INSTANCE Lnet/navatwo/kaff4/streams/compression/deflate/Aff4DeflateFeatureModule;
+}
+
+public final class net/navatwo/kaff4/streams/compression/deflate/DeflateCompression : net/navatwo/kaff4/model/rdf/CompressionMethod {
+	public static final field Companion Lnet/navatwo/kaff4/streams/compression/deflate/DeflateCompression$Companion;
+	public static final field IDENTIFIER Ljava/lang/String;
+	public fun compress (Ljava/nio/ByteBuffer;Ljava/nio/ByteBuffer;)I
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getMethod ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun isCompressed (Ljava/nio/ByteBuffer;)Z
+	public fun toString ()Ljava/lang/String;
+	public fun uncompress (Ljava/nio/ByteBuffer;Ljava/nio/ByteBuffer;)I
+}
+
+public final class net/navatwo/kaff4/streams/compression/deflate/DeflateCompression$Companion {
+}
+

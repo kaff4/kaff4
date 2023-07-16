@@ -23,9 +23,9 @@ import net.navatwo.kaff4.model.rdf.ImageStream
 import net.navatwo.kaff4.model.rdf.MapStream
 import net.navatwo.kaff4.model.rdf.None
 import net.navatwo.kaff4.model.rdf.createArn
-import net.navatwo.kaff4.rdf.MemoryRdfRepositoryPlugin
+import net.navatwo.kaff4.rdf.MemoryRdfRepositoryFeatureModule
 import net.navatwo.kaff4.streams.TestAff4ContainerBuilderModule
-import net.navatwo.kaff4.streams.compression.Aff4SnappyPlugin
+import net.navatwo.kaff4.streams.compression.Aff4SnappyFeatureModule
 import net.navatwo.kaff4.streams.compression.SnappyCompression
 import net.navatwo.kaff4.streams.image_stream.Bevy
 import net.navatwo.kaff4.streams.symbolics.Symbolics
@@ -49,8 +49,8 @@ class Aff4MapStreamSinkTest {
   val module = Modules.combine(
     TestAff4ContainerBuilderModule,
     Aff4BaseStreamModule,
-    MemoryRdfRepositoryPlugin,
-    Aff4SnappyPlugin,
+    MemoryRdfRepositoryFeatureModule,
+    Aff4SnappyFeatureModule,
     TestActionScopeModule,
   )
 

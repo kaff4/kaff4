@@ -1,8 +1,8 @@
 package net.navatwo.kaff4.streams.compression
 
-import net.navatwo.kaff4.plugins.KAff4Plugin
+import net.navatwo.kaff4.api.KAff4FeatureModule
 
-object Aff4SnappyPlugin : KAff4Plugin(pluginIdentifier = "kaff4:aff4-compression-snappy") {
+object Aff4SnappyFeatureModule : KAff4FeatureModule() {
   override fun configurePlugin() {
     bindCompressionMethods {
       to<SnappyCompression>()

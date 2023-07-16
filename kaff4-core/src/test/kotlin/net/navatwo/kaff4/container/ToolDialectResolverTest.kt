@@ -16,7 +16,7 @@ import net.navatwo.kaff4.model.dialect.DefaultToolDialect
 import net.navatwo.kaff4.model.dialect.DialectTypeResolver
 import net.navatwo.kaff4.model.dialect.DialectsModule
 import net.navatwo.kaff4.model.dialect.ToolDialect
-import net.navatwo.kaff4.model.rdf.Aff4RdfModelPlugin
+import net.navatwo.kaff4.model.rdf.Aff4RdfModelFeatureModule
 import net.navatwo.test.GuiceModule
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -93,7 +93,7 @@ private class DefaultToolDialectImpl @Inject constructor() : ToolDialect {
 
 private object CustomDialectModule : KAff4AbstractModule() {
   override fun configure() {
-    install(Aff4RdfModelPlugin)
+    install(Aff4RdfModelFeatureModule)
 
     bind(key<ToolDialect>(DefaultToolDialect::class))
       .to<DefaultToolDialectImpl>()

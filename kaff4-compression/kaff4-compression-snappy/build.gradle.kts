@@ -3,8 +3,10 @@ dependencies {
 
   api(libs.jakarta.inject.api)
 
-  api(project(":kaff4-plugin"))
+  api(project(":kaff4-api:kaff4-api-features"))
   api(project(":kaff4-core:kaff4-core-model:kaff4-core-model-api"))
+
+  compileOnly(project(":kaff4-api"))
 
   implementation(libs.guice)
   implementation(libs.misk.inject)

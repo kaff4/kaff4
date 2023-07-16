@@ -19,7 +19,7 @@ internal class RealRdfExecutorTest {
   @GuiceModule
   val module = Modules.combine(
     Aff4CoreModule,
-    MemoryRdfRepositoryPlugin,
+    MemoryRdfRepositoryFeatureModule,
     Aff4ImageOpenerModule,
     TestActionScopeModule,
   )

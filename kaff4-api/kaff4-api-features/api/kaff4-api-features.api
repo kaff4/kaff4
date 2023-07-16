@@ -1,0 +1,11 @@
+public abstract class net/navatwo/kaff4/api/KAff4FeatureModule : net/navatwo/guice/KAff4AbstractModule {
+	protected fun <init> ()V
+	protected final fun bindAff4Models (Lkotlin/jvm/functions/Function1;)V
+	protected final fun bindCompressionMethods (Lkotlin/jvm/functions/Function1;)V
+	protected final fun bindRdfRepositoryConfiguration ()Lmisk/inject/KAbstractModule$KotlinAnnotatedBindingBuilder;
+	protected final fun bindRdfValueConverters (Lkotlin/jvm/functions/Function1;)V
+	protected fun binder ()Lcom/google/inject/Binder;
+	protected final fun configure ()V
+	protected abstract fun configurePlugin ()V
+}
+

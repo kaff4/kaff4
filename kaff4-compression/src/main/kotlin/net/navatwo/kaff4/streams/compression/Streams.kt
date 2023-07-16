@@ -1,9 +1,11 @@
 package net.navatwo.kaff4.streams.compression
 
+import net.navatwo.kaff4.api.InternalApi
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.ByteBuffer
 
+@InternalApi
 object Streams {
   private const val ONE_BYTE_MASK = 0xFF
 

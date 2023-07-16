@@ -12,6 +12,8 @@ dependencies {
   api(libs.rdf4j.rio.api)
   api(libs.rdf4j.query)
 
+  compileOnly(project(":kaff4-api"))
+
   implementation(libs.commons.lang3)
   implementation(libs.caffeine)
   implementation(libs.checker.qual)

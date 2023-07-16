@@ -3,6 +3,7 @@ package net.navatwo.kaff4.model.dialect
 import com.google.inject.Provides
 import jakarta.inject.Singleton
 import net.navatwo.guice.KAff4AbstractModule
+import net.navatwo.kaff4.api.InternalApi
 import net.navatwo.kaff4.model.Aff4Container
 import net.navatwo.kaff4.model.rdf.Aff4RdfModel
 import kotlin.annotation.AnnotationRetention.RUNTIME
@@ -18,10 +19,12 @@ class Aff4LogicalStandardToolDialect internal constructor(
     return true
   }
 
+  @InternalApi
   @Target(CLASS)
   @Retention(RUNTIME)
   annotation class RdfStandardType(val rdfType: String)
 
+  @InternalApi
   object Module : KAff4AbstractModule() {
     override fun configure() {
       install(Aff4ToolDialectModule)

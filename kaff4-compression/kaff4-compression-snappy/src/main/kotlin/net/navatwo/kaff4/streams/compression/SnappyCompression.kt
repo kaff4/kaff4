@@ -2,11 +2,13 @@ package net.navatwo.kaff4.streams.compression
 
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import net.navatwo.kaff4.api.InternalApi
 import net.navatwo.kaff4.model.rdf.CompressionMethod
 import net.navatwo.kaff4.model.rdf.CompressionMethod.Companion.NOT_UNCOMPRESSED_SENTINEL_VALUE
 import org.xerial.snappy.Snappy
 import java.nio.ByteBuffer
 
+@InternalApi
 @Singleton
 class SnappyCompression @Inject internal constructor() : CompressionMethod {
   override val method: String = IDENTIFIER

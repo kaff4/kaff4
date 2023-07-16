@@ -1,0 +1,16 @@
+public abstract interface class net/navatwo/kaff4/rdf/RdfRepositoryConfiguration {
+	public abstract fun provideStore ()Lorg/eclipse/rdf4j/sail/Sail;
+}
+
+public abstract class net/navatwo/kaff4/rdf/RdfValueConverter {
+	protected field valueFactory Lorg/eclipse/rdf4j/model/ValueFactory;
+	protected fun <init> (Lcom/google/inject/TypeLiteral;[Lcom/google/inject/TypeLiteral;)V
+	protected fun <init> (Ljava/util/Set;)V
+	public final fun getTypes ()Ljava/util/Set;
+	protected final fun getValueFactory ()Lorg/eclipse/rdf4j/model/ValueFactory;
+	public abstract fun matches (Ljava/lang/Class;)Z
+	public abstract fun parse (Ljava/lang/Class;Lorg/eclipse/rdf4j/model/Value;)Ljava/lang/Object;
+	public abstract fun serialize (Ljava/lang/Class;Ljava/lang/Object;)Lorg/eclipse/rdf4j/model/Value;
+	protected final fun setValueFactory (Lorg/eclipse/rdf4j/model/ValueFactory;)V
+}
+

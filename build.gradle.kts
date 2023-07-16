@@ -8,6 +8,7 @@ plugins {
   alias(libs.plugins.detekt)
   alias(libs.plugins.dependencyanalysis)
   alias(libs.plugins.kotlin)
+  alias(libs.plugins.kotlinx.binary.compatibility.validator)
   alias(libs.plugins.license)
   alias(libs.plugins.nexus.publish)
 }
@@ -52,6 +53,12 @@ nexusPublishing {
       password.set(System.getenv("OSSRH_PASSWORD"))
     }
   }
+}
+
+apiValidation {
+  ignoredProjects.addAll(
+    rootProject.subprojects.map { it.name }.filter { it.endsWith("-test") }
+  )
 }
 
 val isRelease = !System.getenv("RELEASE").isNullOrBlank()

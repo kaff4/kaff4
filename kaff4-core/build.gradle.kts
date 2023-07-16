@@ -5,17 +5,19 @@ dependencies {
   api(libs.jakarta.inject.api)
   api(libs.okio)
   api(libs.rdf4j.model.api)
-  api(libs.kintervaltree)
 
   api(project(":kaff4-core:kaff4-core-guice"))
   api(project(":kaff4-core:kaff4-core-model:kaff4-core-model-api"))
   api(project(":kaff4-core:kaff4-core-model"))
   api(project(":kaff4-core:kaff4-core-okio"))
 
+  compileOnly(project(":kaff4-api"))
+
   implementation(libs.caffeine)
   implementation(libs.checker.qual)
   implementation(libs.guava)
   implementation(libs.guice.assistedInject)
+  implementation(libs.kintervaltree)
   implementation(libs.misk.inject)
   implementation(libs.misk.actionscopes)
   implementation(libs.rdf4j.query)

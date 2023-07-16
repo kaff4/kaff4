@@ -1,0 +1,9 @@
+public final class net/navatwo/kaff4/MainKt {
+	public static final fun main ([Ljava/lang/String;)V
+}
+
+public final class net/navatwo/kaff4/verify/VerifySubcommand : kotlinx/cli/Subcommand {
+	public fun <init> ()V
+	public fun execute ()V
+}
+

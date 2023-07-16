@@ -1,0 +1,152 @@
+public final class net/navatwo/kaff4/model/Aff4Container {
+	public fun <init> (Lorg/eclipse/rdf4j/model/IRI;Lokio/FileSystem;Lnet/navatwo/kaff4/model/Aff4Container$ToolMetadata;)V
+	public final fun component1 ()Lorg/eclipse/rdf4j/model/IRI;
+	public final fun component2 ()Lokio/FileSystem;
+	public final fun component3 ()Lnet/navatwo/kaff4/model/Aff4Container$ToolMetadata;
+	public final fun copy (Lorg/eclipse/rdf4j/model/IRI;Lokio/FileSystem;Lnet/navatwo/kaff4/model/Aff4Container$ToolMetadata;)Lnet/navatwo/kaff4/model/Aff4Container;
+	public static synthetic fun copy$default (Lnet/navatwo/kaff4/model/Aff4Container;Lorg/eclipse/rdf4j/model/IRI;Lokio/FileSystem;Lnet/navatwo/kaff4/model/Aff4Container$ToolMetadata;ILjava/lang/Object;)Lnet/navatwo/kaff4/model/Aff4Container;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getContainerArn ()Lorg/eclipse/rdf4j/model/IRI;
+	public final fun getDataFileSystem ()Lokio/FileSystem;
+	public final fun getMetadata ()Lnet/navatwo/kaff4/model/Aff4Container$ToolMetadata;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class net/navatwo/kaff4/model/Aff4Container$ToolMetadata {
+	public static final field Companion Lnet/navatwo/kaff4/model/Aff4Container$ToolMetadata$Companion;
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Lnet/navatwo/kaff4/model/Aff4Container$ToolMetadata;
+	public static synthetic fun copy$default (Lnet/navatwo/kaff4/model/Aff4Container$ToolMetadata;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lnet/navatwo/kaff4/model/Aff4Container$ToolMetadata;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getTool ()Ljava/lang/String;
+	public final fun getVersion ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class net/navatwo/kaff4/model/Aff4Container$ToolMetadata$Companion {
+}
+
+public final class net/navatwo/kaff4/model/dialect/Aff4ToolDialectModule : net/navatwo/guice/KAff4AbstractModule {
+	public static final field INSTANCE Lnet/navatwo/kaff4/model/dialect/Aff4ToolDialectModule;
+}
+
+public abstract interface annotation class net/navatwo/kaff4/model/dialect/DefaultToolDialect : java/lang/annotation/Annotation {
+}
+
+public abstract interface class net/navatwo/kaff4/model/dialect/DialectTypeResolver {
+	public static final field Companion Lnet/navatwo/kaff4/model/dialect/DialectTypeResolver$Companion;
+	public abstract fun get-YCRxbuY (Lkotlin/reflect/KClass;)Ljava/lang/String;
+	public abstract fun get-kVgYAnM (Ljava/lang/String;)Lkotlin/reflect/KClass;
+	public abstract fun getAll (Lkotlin/reflect/KClass;)Ljava/util/List;
+	public abstract fun getBindings ()Lcom/google/common/collect/ImmutableListMultimap;
+	public abstract fun getPrimaryBindings ()Lcom/google/common/collect/ImmutableMap;
+	public abstract fun getValue-fgSsMoE (Lkotlin/reflect/KClass;)Ljava/lang/String;
+	public abstract fun getValue-kVgYAnM (Ljava/lang/String;)Lkotlin/reflect/KClass;
+}
+
+public final class net/navatwo/kaff4/model/dialect/DialectTypeResolver$AnnotationBasedBuilder : net/navatwo/kaff4/model/dialect/DialectTypeResolver$BuilderBase {
+	public final fun register (Lkotlin/reflect/KClass;)Lnet/navatwo/kaff4/model/dialect/DialectTypeResolver$AnnotationBasedBuilder;
+}
+
+public final class net/navatwo/kaff4/model/dialect/DialectTypeResolver$Builder {
+	public static final field INSTANCE Lnet/navatwo/kaff4/model/dialect/DialectTypeResolver$Builder;
+	public final fun forAnnotation (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Lnet/navatwo/kaff4/model/dialect/DialectTypeResolver$AnnotationBasedBuilder;
+	public final fun newBuilder ()Lnet/navatwo/kaff4/model/dialect/DialectTypeResolver$SimpleBuilder;
+	public final fun withExisting (Lnet/navatwo/kaff4/model/dialect/DialectTypeResolver;)Lnet/navatwo/kaff4/model/dialect/DialectTypeResolver$SimpleBuilder;
+}
+
+public class net/navatwo/kaff4/model/dialect/DialectTypeResolver$BuilderBase {
+	public final fun build ()Lnet/navatwo/kaff4/model/dialect/DialectTypeResolver;
+	public final fun register-N8nLyfY (Lkotlin/reflect/KClass;Ljava/lang/String;Ljava/util/Collection;)Lnet/navatwo/kaff4/model/dialect/DialectTypeResolver$BuilderBase;
+	public final fun remove-YCRxbuY (Lkotlin/reflect/KClass;)Ljava/lang/String;
+}
+
+public final class net/navatwo/kaff4/model/dialect/DialectTypeResolver$Companion {
+	public final fun getEMPTY ()Lnet/navatwo/kaff4/model/dialect/DialectTypeResolver;
+}
+
+public final class net/navatwo/kaff4/model/dialect/DialectTypeResolver$DefaultImpls {
+	public static fun getValue-fgSsMoE (Lnet/navatwo/kaff4/model/dialect/DialectTypeResolver;Lkotlin/reflect/KClass;)Ljava/lang/String;
+	public static fun getValue-kVgYAnM (Lnet/navatwo/kaff4/model/dialect/DialectTypeResolver;Ljava/lang/String;)Lkotlin/reflect/KClass;
+}
+
+public final class net/navatwo/kaff4/model/dialect/DialectTypeResolver$SimpleBuilder : net/navatwo/kaff4/model/dialect/DialectTypeResolver$BuilderBase {
+	public final fun register (Lkotlin/reflect/KClass;Ljava/lang/String;[Ljava/lang/String;)Lnet/navatwo/kaff4/model/dialect/DialectTypeResolver$SimpleBuilder;
+	public final fun set (Lkotlin/reflect/KClass;Ljava/lang/String;)Lnet/navatwo/kaff4/model/dialect/DialectTypeResolver$SimpleBuilder;
+}
+
+public abstract interface class net/navatwo/kaff4/model/dialect/ToolDialect {
+	public abstract fun getTypeResolver ()Lnet/navatwo/kaff4/model/dialect/DialectTypeResolver;
+	public abstract fun isApplicable (Lnet/navatwo/kaff4/model/Aff4Container$ToolMetadata;)Z
+}
+
+public abstract interface class net/navatwo/kaff4/model/rdf/Aff4RdfModel {
+	public abstract fun getArn ()Lorg/eclipse/rdf4j/model/IRI;
+}
+
+public final class net/navatwo/kaff4/model/rdf/Aff4Schema {
+	public static final field INSTANCE Lnet/navatwo/kaff4/model/rdf/Aff4Schema;
+	public static final field SCHEMA Ljava/lang/String;
+}
+
+public abstract interface class net/navatwo/kaff4/model/rdf/CompressionMethod {
+	public static final field Companion Lnet/navatwo/kaff4/model/rdf/CompressionMethod$Companion;
+	public static final field NOT_COMPRESSED_SENTINEL_VALUE I
+	public static final field NOT_UNCOMPRESSED_SENTINEL_VALUE I
+	public abstract fun compress (Ljava/nio/ByteBuffer;Ljava/nio/ByteBuffer;)I
+	public abstract fun getMethod ()Ljava/lang/String;
+	public abstract fun isCompressed (Ljava/nio/ByteBuffer;)Z
+	public abstract fun uncompress (Ljava/nio/ByteBuffer;Ljava/nio/ByteBuffer;)I
+}
+
+public final class net/navatwo/kaff4/model/rdf/CompressionMethod$Companion {
+	public static final field NOT_COMPRESSED_SENTINEL_VALUE I
+	public static final field NOT_UNCOMPRESSED_SENTINEL_VALUE I
+}
+
+public final class net/navatwo/kaff4/model/rdf/GraphQuerySafeExtensionsKt {
+	public static final fun evaluateSequence (Lorg/eclipse/rdf4j/query/GraphQuery;)Lkotlin/sequences/Sequence;
+}
+
+public abstract interface class net/navatwo/kaff4/model/rdf/StoredRdfModel : net/navatwo/kaff4/model/rdf/Aff4RdfModel {
+	public abstract fun getStored ()Lorg/eclipse/rdf4j/model/IRI;
+}
+
+public final class net/navatwo/kaff4/model/rdf/TurtleIri {
+	public static final field Companion Lnet/navatwo/kaff4/model/rdf/TurtleIri$Companion;
+	public static final synthetic fun box-impl (Ljava/lang/String;)Lnet/navatwo/kaff4/model/rdf/TurtleIri;
+	public static final fun component1-impl (Ljava/lang/String;)Ljava/lang/String;
+	public static final fun component2-impl (Ljava/lang/String;)Ljava/lang/String;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/lang/String;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/lang/String;Ljava/lang/String;)Z
+	public final fun getIri ()Ljava/lang/String;
+	public static final fun getLocalName-impl (Ljava/lang/String;)Ljava/lang/String;
+	public static final fun getNamespace-impl (Ljava/lang/String;)Ljava/lang/String;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/lang/String;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/lang/String;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/lang/String;
+}
+
+public final class net/navatwo/kaff4/model/rdf/TurtleIri$Companion {
+	public final fun getRDF_TYPE-N3Ni1Uk ()Ljava/lang/String;
+	public final fun toTurtleIri-fgSsMoE (Ljava/lang/String;)Ljava/lang/String;
+}
+
+public final class net/navatwo/kaff4/model/rdf/ValueFactoryAff4ExtensionsKt {
+	public static final fun createAff4Iri (Lorg/eclipse/rdf4j/model/ValueFactory;Ljava/lang/String;)Lorg/eclipse/rdf4j/model/IRI;
+}
+
+public abstract interface annotation class net/navatwo/kaff4/model/rdf/annotations/RdfSubject : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class net/navatwo/kaff4/model/rdf/annotations/RdfValue : java/lang/annotation/Annotation {
+	public abstract fun turtleRdfIri ()Ljava/lang/String;
+}
+

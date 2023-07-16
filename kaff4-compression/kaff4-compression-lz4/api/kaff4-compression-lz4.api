@@ -1,0 +1,19 @@
+public final class net/navatwo/kaff4/streams/compression/lz4/Aff4Lz4FeatureModule : net/navatwo/kaff4/api/KAff4FeatureModule {
+	public static final field INSTANCE Lnet/navatwo/kaff4/streams/compression/lz4/Aff4Lz4FeatureModule;
+}
+
+public final class net/navatwo/kaff4/streams/compression/lz4/Lz4Compression : net/navatwo/kaff4/model/rdf/CompressionMethod {
+	public static final field Companion Lnet/navatwo/kaff4/streams/compression/lz4/Lz4Compression$Companion;
+	public static final field IDENTIFIER Ljava/lang/String;
+	public fun compress (Ljava/nio/ByteBuffer;Ljava/nio/ByteBuffer;)I
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getMethod ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun isCompressed (Ljava/nio/ByteBuffer;)Z
+	public fun toString ()Ljava/lang/String;
+	public fun uncompress (Ljava/nio/ByteBuffer;Ljava/nio/ByteBuffer;)I
+}
+
+public final class net/navatwo/kaff4/streams/compression/lz4/Lz4Compression$Companion {
+}
+

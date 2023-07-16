@@ -1,9 +1,8 @@
 package net.navatwo.kaff4.rdf
 
-import net.navatwo.guice.to
-import net.navatwo.kaff4.plugins.KAff4Plugin
+import net.navatwo.kaff4.api.KAff4FeatureModule
 
-object MemoryRdfRepositoryPlugin : KAff4Plugin(pluginIdentifier = "kaff4:aff4-rdf-memory") {
+object MemoryRdfRepositoryFeatureModule : KAff4FeatureModule() {
   override fun configurePlugin() {
     install(RdfRepositoryModule)
 

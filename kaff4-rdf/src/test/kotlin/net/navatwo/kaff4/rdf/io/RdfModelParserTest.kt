@@ -16,11 +16,11 @@ import net.navatwo.kaff4.model.dialect.DefaultToolDialect
 import net.navatwo.kaff4.model.dialect.DialectTypeResolver
 import net.navatwo.kaff4.model.dialect.DialectsModule
 import net.navatwo.kaff4.model.dialect.ToolDialect
-import net.navatwo.kaff4.model.rdf.Aff4RdfModelPlugin
+import net.navatwo.kaff4.model.rdf.Aff4RdfModelFeatureModule
 import net.navatwo.kaff4.model.rdf.annotations.RdfSubject
 import net.navatwo.kaff4.model.rdf.annotations.RdfValue
 import net.navatwo.kaff4.model.rdf.createArn
-import net.navatwo.kaff4.rdf.MemoryRdfRepositoryPlugin
+import net.navatwo.kaff4.rdf.MemoryRdfRepositoryFeatureModule
 import net.navatwo.kaff4.rdf.MutableRdfConnection
 import net.navatwo.kaff4.rdf.RdfExecutor
 import net.navatwo.test.GuiceModule
@@ -38,7 +38,7 @@ import java.lang.Long as JLong
 internal class RdfModelParserTest {
   @GuiceModule
   val module = Modules.combine(
-    MemoryRdfRepositoryPlugin,
+    MemoryRdfRepositoryFeatureModule,
     RdfModelParserModule,
     TestActionScopeModule,
     Modules.override(DialectsModule).with(CustomDialectModule),
@@ -246,7 +246,7 @@ internal data class PrimitiveModelWithInt(
 
 private object CustomDialectModule : KAff4AbstractModule() {
   override fun configure() {
-    install(Aff4RdfModelPlugin)
+    install(Aff4RdfModelFeatureModule)
 
     bind(key<ToolDialect>(DefaultToolDialect::class))
       .to<CustomToolDialect>()

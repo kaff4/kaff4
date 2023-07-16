@@ -1,0 +1,101 @@
+public final class net/navatwo/kaff4/Aff4BaseStreamModule : net/navatwo/guice/KAff4AbstractModule {
+	public static final field INSTANCE Lnet/navatwo/kaff4/Aff4BaseStreamModule;
+}
+
+public final class net/navatwo/kaff4/Aff4CoreModule : net/navatwo/guice/KAff4AbstractModule {
+	public static final field INSTANCE Lnet/navatwo/kaff4/Aff4CoreModule;
+}
+
+public final class net/navatwo/kaff4/Aff4LogicalModule : net/navatwo/guice/KAff4AbstractModule {
+	public static final field INSTANCE Lnet/navatwo/kaff4/Aff4LogicalModule;
+}
+
+public final class net/navatwo/kaff4/RandomsModule : net/navatwo/guice/KAff4AbstractModule {
+	public static final field INSTANCE Lnet/navatwo/kaff4/RandomsModule;
+	public final fun providesRandom ()Ljava/util/Random;
+}
+
+public abstract interface class net/navatwo/kaff4/container/Aff4ContainerBuilder : java/io/Closeable {
+	public abstract fun buildIntoDirectory (Lokio/FileSystem;Lokio/Path;)V
+	public abstract fun buildIntoZip (Lokio/Path;)V
+	public abstract fun createImageStream (Lnet/navatwo/kaff4/model/rdf/ImageStream;Ljava/util/Collection;Lokio/Timeout;)Lnet/navatwo/kaff4/io/SizedSink;
+	public abstract fun createMapStream (Lnet/navatwo/kaff4/model/rdf/MapStream;Lnet/navatwo/kaff4/streams/Aff4Sink;Lokio/Timeout;)Lnet/navatwo/kaff4/io/SeekableSink;
+	public abstract fun getContainerArn ()Lorg/eclipse/rdf4j/model/IRI;
+	public abstract fun getDefaultTimeout ()Lokio/Timeout;
+}
+
+public final class net/navatwo/kaff4/container/Aff4ContainerBuilder$Context {
+	public fun <init> (Lokio/FileSystem;Lorg/eclipse/rdf4j/model/IRI;Lnet/navatwo/kaff4/model/dialect/ToolDialect;Lokio/Timeout;)V
+	public synthetic fun <init> (Lokio/FileSystem;Lorg/eclipse/rdf4j/model/IRI;Lnet/navatwo/kaff4/model/dialect/ToolDialect;Lokio/Timeout;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lokio/FileSystem;
+	public final fun component2 ()Lorg/eclipse/rdf4j/model/IRI;
+	public final fun component3 ()Lnet/navatwo/kaff4/model/dialect/ToolDialect;
+	public final fun component4 ()Lokio/Timeout;
+	public final fun copy (Lokio/FileSystem;Lorg/eclipse/rdf4j/model/IRI;Lnet/navatwo/kaff4/model/dialect/ToolDialect;Lokio/Timeout;)Lnet/navatwo/kaff4/container/Aff4ContainerBuilder$Context;
+	public static synthetic fun copy$default (Lnet/navatwo/kaff4/container/Aff4ContainerBuilder$Context;Lokio/FileSystem;Lorg/eclipse/rdf4j/model/IRI;Lnet/navatwo/kaff4/model/dialect/ToolDialect;Lokio/Timeout;ILjava/lang/Object;)Lnet/navatwo/kaff4/container/Aff4ContainerBuilder$Context;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getArn ()Lorg/eclipse/rdf4j/model/IRI;
+	public final fun getDefaultTimeout ()Lokio/Timeout;
+	public final fun getTemporaryFileSystem ()Lokio/FileSystem;
+	public final fun getToolDialect ()Lnet/navatwo/kaff4/model/dialect/ToolDialect;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class net/navatwo/kaff4/container/Aff4ContainerBuilder$DefaultImpls {
+	public static synthetic fun createImageStream$default (Lnet/navatwo/kaff4/container/Aff4ContainerBuilder;Lnet/navatwo/kaff4/model/rdf/ImageStream;Ljava/util/Collection;Lokio/Timeout;ILjava/lang/Object;)Lnet/navatwo/kaff4/io/SizedSink;
+	public static synthetic fun createMapStream$default (Lnet/navatwo/kaff4/container/Aff4ContainerBuilder;Lnet/navatwo/kaff4/model/rdf/MapStream;Lnet/navatwo/kaff4/streams/Aff4Sink;Lokio/Timeout;ILjava/lang/Object;)Lnet/navatwo/kaff4/io/SeekableSink;
+}
+
+public abstract interface class net/navatwo/kaff4/container/Aff4ContainerBuilder$Factory {
+	public abstract fun create (Lnet/navatwo/kaff4/container/Aff4ContainerBuilder$Context;)Lnet/navatwo/kaff4/container/Aff4ContainerBuilder;
+}
+
+public final class net/navatwo/kaff4/container/Aff4ImageOpenerModule : net/navatwo/guice/KAff4AbstractModule {
+	public static final field INSTANCE Lnet/navatwo/kaff4/container/Aff4ImageOpenerModule;
+}
+
+public final class net/navatwo/kaff4/model/dialect/DialectsModule : net/navatwo/guice/KAff4AbstractModule {
+	public static final field INSTANCE Lnet/navatwo/kaff4/model/dialect/DialectsModule;
+}
+
+public abstract interface class net/navatwo/kaff4/streams/Aff4Sink : net/navatwo/kaff4/io/SizedSink {
+	public abstract fun getArn ()Lorg/eclipse/rdf4j/model/IRI;
+	public abstract fun getModel ()Lnet/navatwo/kaff4/model/rdf/Aff4RdfModel;
+}
+
+public final class net/navatwo/kaff4/streams/HashingKt {
+	public static final fun computeLinearHash (Lokio/Source;Lnet/navatwo/kaff4/model/rdf/HashType;)Lokio/ByteString;
+	public static final fun computeLinearHashes (Lokio/Source;Ljava/util/Collection;)Ljava/util/Map;
+	public static final fun hashingSink (Lnet/navatwo/kaff4/model/rdf/HashType;Lokio/Sink;)Lokio/HashingSink;
+	public static synthetic fun hashingSink$default (Lnet/navatwo/kaff4/model/rdf/HashType;Lokio/Sink;ILjava/lang/Object;)Lokio/HashingSink;
+}
+
+public final class net/navatwo/kaff4/streams/symbolics/SymbolicSourceProvider : net/navatwo/kaff4/model/Aff4StreamSourceProvider {
+	public fun <init> (Lorg/eclipse/rdf4j/model/IRI;Lokio/ByteString;I)V
+	public final fun component1 ()Lorg/eclipse/rdf4j/model/IRI;
+	public final fun component2 ()Lokio/ByteString;
+	public final fun component3 ()I
+	public final fun copy (Lorg/eclipse/rdf4j/model/IRI;Lokio/ByteString;I)Lnet/navatwo/kaff4/streams/symbolics/SymbolicSourceProvider;
+	public static synthetic fun copy$default (Lnet/navatwo/kaff4/streams/symbolics/SymbolicSourceProvider;Lorg/eclipse/rdf4j/model/IRI;Lokio/ByteString;IILjava/lang/Object;)Lnet/navatwo/kaff4/streams/symbolics/SymbolicSourceProvider;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getArn ()Lorg/eclipse/rdf4j/model/IRI;
+	public final fun getChunkBoundary ()I
+	public final fun getPattern ()Lokio/ByteString;
+	public fun getSize ()J
+	public fun hashCode ()I
+	public fun source (JLokio/Timeout;)Lokio/Source;
+	public fun source (Lokio/Timeout;)Lokio/Source;
+	public fun toString ()Ljava/lang/String;
+	public fun transform (Lnet/navatwo/kaff4/io/SourceProvider$Transformer;)Lnet/navatwo/kaff4/io/SourceProvider;
+}
+
+public final class net/navatwo/kaff4/streams/symbolics/Symbolics {
+	public fun <init> (Lorg/eclipse/rdf4j/model/ValueFactory;)V
+	public final fun getArnForSimplePattern (B)Lorg/eclipse/rdf4j/model/IRI;
+	public final fun getZero ()Lnet/navatwo/kaff4/streams/symbolics/SymbolicSourceProvider;
+	public final fun maybeGetProvider (Lorg/eclipse/rdf4j/model/IRI;)Lnet/navatwo/kaff4/streams/symbolics/SymbolicSourceProvider;
+	public final fun provider (B)Lnet/navatwo/kaff4/streams/symbolics/SymbolicSourceProvider;
+	public final fun provider (Lorg/eclipse/rdf4j/model/IRI;)Lnet/navatwo/kaff4/streams/symbolics/SymbolicSourceProvider;
+}
+

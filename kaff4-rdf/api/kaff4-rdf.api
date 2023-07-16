@@ -1,0 +1,92 @@
+public final class net/navatwo/kaff4/rdf/ConnectionQueriesKt {
+	public static final fun querySubjectsByType (Lnet/navatwo/kaff4/rdf/RdfConnection;Lorg/eclipse/rdf4j/model/IRI;)Ljava/util/List;
+}
+
+public abstract interface class net/navatwo/kaff4/rdf/MutableRdfConnection : net/navatwo/kaff4/rdf/QueryableRdfConnection {
+	public abstract fun add (Ljava/io/InputStream;Lorg/eclipse/rdf4j/rio/RDFFormat;[Lorg/eclipse/rdf4j/model/Resource;)V
+	public abstract fun add (Ljava/lang/Iterable;)V
+	public abstract fun add (Lkotlin/sequences/Sequence;)V
+	public abstract fun add (Lorg/eclipse/rdf4j/model/Resource;[Lkotlin/Pair;)V
+	public abstract fun addTurtle (Lorg/eclipse/rdf4j/model/IRI;Ljava/io/InputStream;)V
+	public abstract fun setNamespace (Ljava/lang/String;Ljava/lang/String;)V
+}
+
+public final class net/navatwo/kaff4/rdf/MutableRdfConnection$DefaultImpls {
+	public static fun add (Lnet/navatwo/kaff4/rdf/MutableRdfConnection;Lkotlin/sequences/Sequence;)V
+}
+
+public final class net/navatwo/kaff4/rdf/NamespacesProvider {
+	public final fun fromPrefix (Ljava/lang/String;)Ljava/lang/String;
+	public final fun get (Ljava/lang/String;)Ljava/lang/String;
+	public final fun getDefaultNamespace ()Ljava/lang/String;
+	public final fun iriFromTurtle-kVgYAnM (Ljava/lang/String;)Lorg/eclipse/rdf4j/model/IRI;
+}
+
+public abstract interface class net/navatwo/kaff4/rdf/QueryableRdfConnection {
+	public abstract fun getNamespaces ()Lnet/navatwo/kaff4/rdf/NamespacesProvider;
+	public abstract fun getParserConfig ()Lorg/eclipse/rdf4j/rio/ParserConfig;
+	public abstract fun getValueFactory ()Lorg/eclipse/rdf4j/model/ValueFactory;
+	public abstract fun prepareGraphQuery (Ljava/lang/String;)Lorg/eclipse/rdf4j/query/GraphQuery;
+	public abstract fun prepareGraphQuery (Lorg/eclipse/rdf4j/query/QueryLanguage;Ljava/lang/String;)Lorg/eclipse/rdf4j/query/GraphQuery;
+	public abstract fun prepareQuery (Ljava/lang/String;)Lorg/eclipse/rdf4j/query/Query;
+	public abstract fun prepareQuery (Lorg/eclipse/rdf4j/query/QueryLanguage;Ljava/lang/String;)Lorg/eclipse/rdf4j/query/Query;
+	public abstract fun prepareTupleQuery (Ljava/lang/String;)Lorg/eclipse/rdf4j/query/TupleQuery;
+	public abstract fun prepareTupleQuery (Lorg/eclipse/rdf4j/query/QueryLanguage;Ljava/lang/String;)Lorg/eclipse/rdf4j/query/TupleQuery;
+	public abstract fun queryNamespaces ()Lorg/eclipse/rdf4j/repository/RepositoryResult;
+	public abstract fun queryStatements (Lorg/eclipse/rdf4j/model/Resource;Lorg/eclipse/rdf4j/model/IRI;Lorg/eclipse/rdf4j/model/Value;)Lorg/eclipse/rdf4j/repository/RepositoryResult;
+}
+
+public final class net/navatwo/kaff4/rdf/QueryableRdfConnection$DefaultImpls {
+	public static synthetic fun queryStatements$default (Lnet/navatwo/kaff4/rdf/QueryableRdfConnection;Lorg/eclipse/rdf4j/model/Resource;Lorg/eclipse/rdf4j/model/IRI;Lorg/eclipse/rdf4j/model/Value;ILjava/lang/Object;)Lorg/eclipse/rdf4j/repository/RepositoryResult;
+}
+
+public abstract interface class net/navatwo/kaff4/rdf/RdfConnection : net/navatwo/kaff4/rdf/QueryableRdfConnection {
+}
+
+public abstract interface class net/navatwo/kaff4/rdf/RdfExecutor {
+	public abstract fun withReadOnlySession (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public abstract fun withReadWriteSession (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+}
+
+public final class net/navatwo/kaff4/rdf/RdfRepositoryModule : net/navatwo/guice/KAff4AbstractModule {
+	public static final field INSTANCE Lnet/navatwo/kaff4/rdf/RdfRepositoryModule;
+	public final fun providesRepository (Lnet/navatwo/kaff4/rdf/RdfRepositoryConfiguration;)Lorg/eclipse/rdf4j/repository/Repository;
+	public final fun providesValueFactory (Lorg/eclipse/rdf4j/repository/Repository;)Lorg/eclipse/rdf4j/model/ValueFactory;
+}
+
+public abstract class net/navatwo/kaff4/rdf/io/ConcreteRdfValueConverter : net/navatwo/kaff4/rdf/RdfValueConverter {
+	protected fun <init> (Lcom/google/inject/TypeLiteral;[Lcom/google/inject/TypeLiteral;)V
+	protected fun <init> (Ljava/util/Set;)V
+	public final fun matches (Ljava/lang/Class;)Z
+	public final fun parse (Ljava/lang/Class;Lorg/eclipse/rdf4j/model/Value;)Ljava/lang/Object;
+	public abstract fun parse (Lorg/eclipse/rdf4j/model/Value;)Ljava/lang/Object;
+	public final fun serialize (Ljava/lang/Class;Ljava/lang/Object;)Lorg/eclipse/rdf4j/model/Value;
+	public abstract fun serialize (Ljava/lang/Object;)Lorg/eclipse/rdf4j/model/Value;
+}
+
+public abstract interface class net/navatwo/kaff4/rdf/io/RdfModelParser {
+	public abstract fun parse (Lnet/navatwo/kaff4/rdf/QueryableRdfConnection;Lkotlin/reflect/KClass;Lorg/eclipse/rdf4j/model/Resource;Ljava/util/Collection;)Ljava/lang/Object;
+}
+
+public final class net/navatwo/kaff4/rdf/io/RdfModelParserModule : net/navatwo/guice/KAff4AbstractModule {
+	public static final field INSTANCE Lnet/navatwo/kaff4/rdf/io/RdfModelParserModule;
+}
+
+public final class net/navatwo/kaff4/rdf/io/RdfModelSerializer {
+	public final fun serialize (Lnet/navatwo/kaff4/rdf/QueryableRdfConnection;Ljava/lang/Object;)Lkotlin/sequences/Sequence;
+}
+
+public abstract interface class net/navatwo/kaff4/rdf/io/RdfModelSerializer$Factory {
+	public abstract fun create (Lnet/navatwo/kaff4/model/dialect/ToolDialect;)Lnet/navatwo/kaff4/rdf/io/RdfModelSerializer;
+}
+
+public final class net/navatwo/kaff4/rdf/schema/RdfSchema {
+	public static final field INSTANCE Lnet/navatwo/kaff4/rdf/schema/RdfSchema;
+	public static final field SCHEMA Ljava/lang/String;
+}
+
+public final class net/navatwo/kaff4/rdf/schema/XsdSchema {
+	public static final field INSTANCE Lnet/navatwo/kaff4/rdf/schema/XsdSchema;
+	public static final field SCHEMA Ljava/lang/String;
+}
+

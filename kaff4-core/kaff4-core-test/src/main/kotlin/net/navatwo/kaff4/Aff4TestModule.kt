@@ -4,8 +4,8 @@ import com.google.inject.Provides
 import jakarta.inject.Singleton
 import net.navatwo.guice.KAff4AbstractModule
 import net.navatwo.kaff4.io.relativeTo
-import net.navatwo.kaff4.model.rdf.Aff4RdfModelPlugin
-import net.navatwo.kaff4.rdf.MemoryRdfRepositoryPlugin
+import net.navatwo.kaff4.model.rdf.Aff4RdfModelFeatureModule
+import net.navatwo.kaff4.rdf.MemoryRdfRepositoryFeatureModule
 import okio.FileSystem
 import okio.Path.Companion.toPath
 
@@ -16,8 +16,8 @@ object Aff4TestModule : KAff4AbstractModule() {
       .toInstance(FileSystem.RESOURCES)
 
     install(TestRandomsModule)
-    install(MemoryRdfRepositoryPlugin)
-    install(Aff4RdfModelPlugin)
+    install(MemoryRdfRepositoryFeatureModule)
+    install(Aff4RdfModelFeatureModule)
   }
 
   @Provides

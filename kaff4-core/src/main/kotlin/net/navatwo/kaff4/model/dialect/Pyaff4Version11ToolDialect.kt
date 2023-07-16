@@ -6,7 +6,8 @@ import net.navatwo.guice.KAff4AbstractModule
 import net.navatwo.kaff4.model.Aff4Container
 import net.navatwo.kaff4.model.rdf.ZipSegment
 
-class Pyaff4Version11ToolDialect private constructor(override val typeResolver: DialectTypeResolver) : ToolDialect {
+internal class Pyaff4Version11ToolDialect private constructor(override val typeResolver: DialectTypeResolver) :
+  ToolDialect {
   override fun isApplicable(toolMetadata: Aff4Container.ToolMetadata): Boolean {
     return toolMetadata == Aff4Container.ToolMetadata(version = "1.1", tool = "pyaff4")
   }

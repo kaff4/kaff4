@@ -1,0 +1,4 @@
+public final class net/navatwo/kaff4/rdf/MemoryRdfRepositoryFeatureModule : net/navatwo/kaff4/api/KAff4FeatureModule {
+	public static final field INSTANCE Lnet/navatwo/kaff4/rdf/MemoryRdfRepositoryFeatureModule;
+}
+

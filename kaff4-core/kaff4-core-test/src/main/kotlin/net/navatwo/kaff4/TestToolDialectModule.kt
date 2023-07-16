@@ -8,12 +8,12 @@ import net.navatwo.guice.KAff4AbstractModule
 import net.navatwo.kaff4.model.dialect.Aff4LogicalStandardToolDialect
 import net.navatwo.kaff4.model.dialect.DialectsModule
 import net.navatwo.kaff4.model.dialect.ToolDialect
-import net.navatwo.kaff4.model.rdf.Aff4RdfModelPlugin
+import net.navatwo.kaff4.model.rdf.Aff4RdfModelFeatureModule
 
 object TestToolDialectModule : KAff4AbstractModule() {
   override fun configure() {
     install(DialectsModule)
-    install(Aff4RdfModelPlugin)
+    install(Aff4RdfModelFeatureModule)
     install(Aff4LogicalStandardToolDialect.Module)
 
     install(
