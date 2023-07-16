@@ -4,7 +4,7 @@ import com.github.nava2.interval_tree.Interval
 import net.navatwo.kaff4.model.rdf.Aff4Arn
 import okio.BufferedSink
 
-data class MapStreamEntry(
+internal data class MapStreamEntry(
   val mappedOffset: Long,
   override val length: Long,
   val targetOffset: Long,

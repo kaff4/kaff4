@@ -1,4 +1,8 @@
+@file:InternalApi
+
 package net.navatwo.kaff4
+
+import net.navatwo.kaff4.api.InternalApi
 
 suspend inline fun <T> SequenceScope<T>.yieldNotNull(nullableValue: T?) {
   if (nullableValue != null) {

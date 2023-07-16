@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 
 internal class DeflateCompressionTest : BaseCompressionMethodTest() {
   @GuiceModule
-  val testModule = Aff4DeflatePlugin
+  val testModule = Aff4DeflateFeatureModule
 
   @Inject
   override lateinit var compressionMethod: DeflateCompression

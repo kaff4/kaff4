@@ -1,10 +1,12 @@
 package net.navatwo.kaff4.io
 
+import net.navatwo.kaff4.api.InternalApi
 import okio.FileSystem
 import okio.ForwardingFileSystem
 import okio.Path
 import okio.Path.Companion.toPath
 
+@InternalApi
 class RelativeFileSystem(
   delegate: FileSystem,
   rootDirectory: Path,

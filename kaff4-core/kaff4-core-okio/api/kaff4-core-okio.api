@@ -1,0 +1,137 @@
+public final class net/navatwo/kaff4/io/AutoCloseableCloseOnThrowExtensionsKt {
+	public static final fun alsoCloseOnThrow (Ljava/lang/AutoCloseable;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun applyAndCloseOnThrow (Ljava/lang/AutoCloseable;Lkotlin/jvm/functions/Function1;)Ljava/lang/AutoCloseable;
+	public static final fun runAndCloseOnThrow (Ljava/lang/AutoCloseable;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+}
+
+public abstract interface class net/navatwo/kaff4/io/AutoCloseableSourceProvider : java/lang/AutoCloseable, net/navatwo/kaff4/io/SourceProvider {
+}
+
+public final class net/navatwo/kaff4/io/AutoCloseableSourceProvider$DefaultImpls {
+	public static fun source (Lnet/navatwo/kaff4/io/AutoCloseableSourceProvider;Lokio/Timeout;)Lokio/Source;
+	public static fun transform (Lnet/navatwo/kaff4/io/AutoCloseableSourceProvider;Lnet/navatwo/kaff4/io/SourceProvider$Transformer;)Lnet/navatwo/kaff4/io/SourceProvider;
+}
+
+public final class net/navatwo/kaff4/io/BufferAvailableRangeExtensionKt {
+	public static final fun availableRange (Ljava/nio/Buffer;J)Lkotlin/ranges/LongRange;
+}
+
+public final class net/navatwo/kaff4/io/BufferedSourceLineSequenceExtensionKt {
+	public static final fun lineSequence (Lokio/BufferedSource;)Lkotlin/sequences/Sequence;
+}
+
+public final class net/navatwo/kaff4/io/ByteBufferSourceExtensionsKt {
+	public static final fun source (Ljava/nio/ByteBuffer;Lokio/Timeout;)Lokio/Source;
+	public static synthetic fun source$default (Ljava/nio/ByteBuffer;Lokio/Timeout;ILjava/lang/Object;)Lokio/Source;
+}
+
+public final class net/navatwo/kaff4/io/ByteStringSourceExtensionKt {
+	public static final fun source (Lokio/ByteString;Lokio/Timeout;)Lokio/Source;
+	public static synthetic fun source$default (Lokio/ByteString;Lokio/Timeout;ILjava/lang/Object;)Lokio/Source;
+}
+
+public final class net/navatwo/kaff4/io/FileSystemPathSourceProvider : net/navatwo/kaff4/io/SourceProvider {
+	public final fun getPath ()Lokio/Path;
+	public fun source (JLokio/Timeout;)Lokio/BufferedSource;
+	public synthetic fun source (JLokio/Timeout;)Lokio/Source;
+	public fun source (Lokio/Timeout;)Lokio/BufferedSource;
+	public synthetic fun source (Lokio/Timeout;)Lokio/Source;
+	public fun toString ()Ljava/lang/String;
+	public fun transform (Lnet/navatwo/kaff4/io/SourceProvider$Transformer;)Lnet/navatwo/kaff4/io/SourceProvider;
+}
+
+public final class net/navatwo/kaff4/io/FileSystemPathSourceProviderKt {
+	public static final fun sourceProvider (Lokio/FileSystem;Lokio/Path;)Lnet/navatwo/kaff4/io/FileSystemPathSourceProvider;
+}
+
+public final class net/navatwo/kaff4/io/ListSourceProviderConcatLazilyExtensionKt {
+	public static final fun concatLazily (Ljava/util/List;)Lnet/navatwo/kaff4/io/SourceProvider;
+}
+
+public final class net/navatwo/kaff4/io/OkioFixedLengthSourceProviderExtensionsKt {
+	public static final fun bounded (Lnet/navatwo/kaff4/io/SourceProvider;JJ)Lnet/navatwo/kaff4/io/SourceProvider;
+	public static final fun limit (Lnet/navatwo/kaff4/io/SourceProvider;J)Lnet/navatwo/kaff4/io/SourceProvider;
+	public static final fun offset (Lnet/navatwo/kaff4/io/SourceProvider;J)Lnet/navatwo/kaff4/io/SourceProvider;
+}
+
+public final class net/navatwo/kaff4/io/RelativeFileSystem : okio/ForwardingFileSystem {
+	public fun <init> (Lokio/FileSystem;Lokio/Path;)V
+	public final fun getRootDirectory ()Lokio/Path;
+	public fun onPathParameter (Lokio/Path;Ljava/lang/String;Ljava/lang/String;)Lokio/Path;
+	public fun onPathResult (Lokio/Path;Ljava/lang/String;)Lokio/Path;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class net/navatwo/kaff4/io/RelativeFileSystemKt {
+	public static final fun relativeTo (Lokio/FileSystem;Lokio/Path;)Lnet/navatwo/kaff4/io/RelativeFileSystem;
+}
+
+public abstract interface class net/navatwo/kaff4/io/Seekable {
+	public abstract fun getPosition ()J
+	public abstract fun setPosition (J)V
+}
+
+public abstract interface class net/navatwo/kaff4/io/SeekableSink : net/navatwo/kaff4/io/Seekable, net/navatwo/kaff4/io/SizedSink {
+}
+
+public final class net/navatwo/kaff4/io/Sha256FileSystemFactory {
+	public fun <init> ()V
+	public final fun create (Lokio/FileSystem;Lokio/Path;)Lnet/navatwo/kaff4/io/Sha256FileSystemFactory$MappedFileSystem;
+	public final fun create (Lokio/Path;)Lnet/navatwo/kaff4/io/Sha256FileSystemFactory$MappedFileSystem;
+}
+
+public final class net/navatwo/kaff4/io/Sha256FileSystemFactory$MappedFileSystem : okio/ForwardingFileSystem {
+	public fun createDirectory (Lokio/Path;Z)V
+	public fun delete (Lokio/Path;Z)V
+	public final fun getBaseDirectory ()Lokio/Path;
+	public final fun getMappingsView ()Lcom/google/common/collect/HashBiMap;
+	public fun list (Lokio/Path;)Ljava/util/List;
+	public fun listRecursively (Lokio/Path;Z)Lkotlin/sequences/Sequence;
+	public fun metadataOrNull (Lokio/Path;)Lokio/FileMetadata;
+	public fun onPathParameter (Lokio/Path;Ljava/lang/String;Ljava/lang/String;)Lokio/Path;
+	public fun onPathResult (Lokio/Path;Ljava/lang/String;)Lokio/Path;
+}
+
+public abstract interface class net/navatwo/kaff4/io/Sized {
+	public abstract fun getSize ()J
+}
+
+public abstract interface class net/navatwo/kaff4/io/SizedSink : net/navatwo/kaff4/io/Sized, okio/Sink {
+}
+
+public abstract interface class net/navatwo/kaff4/io/SourceProvider {
+	public abstract fun source (JLokio/Timeout;)Lokio/Source;
+	public abstract fun source (Lokio/Timeout;)Lokio/Source;
+	public abstract fun transform (Lnet/navatwo/kaff4/io/SourceProvider$Transformer;)Lnet/navatwo/kaff4/io/SourceProvider;
+}
+
+public final class net/navatwo/kaff4/io/SourceProvider$DefaultImpls {
+	public static fun source (Lnet/navatwo/kaff4/io/SourceProvider;Lokio/Timeout;)Lokio/Source;
+	public static fun transform (Lnet/navatwo/kaff4/io/SourceProvider;Lnet/navatwo/kaff4/io/SourceProvider$Transformer;)Lnet/navatwo/kaff4/io/SourceProvider;
+}
+
+public abstract interface class net/navatwo/kaff4/io/SourceProvider$Transformer {
+	public abstract fun transform (Lokio/Source;)Lokio/Source;
+}
+
+public final class net/navatwo/kaff4/io/SourceProviderExtensionsKt {
+	public static final fun buffer (Lnet/navatwo/kaff4/io/SourceProvider;)Lnet/navatwo/kaff4/io/SourceProvider;
+	public static final fun use (Lnet/navatwo/kaff4/io/SourceProvider;JLokio/Timeout;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun use (Lnet/navatwo/kaff4/io/SourceProvider;Lokio/Timeout;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static synthetic fun use$default (Lnet/navatwo/kaff4/io/SourceProvider;JLokio/Timeout;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class net/navatwo/kaff4/io/TeeSink : okio/Sink {
+	public fun <init> (Ljava/util/List;Lokio/Timeout;Z)V
+	public synthetic fun <init> (Ljava/util/List;Lokio/Timeout;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun close ()V
+	public final fun copy (Ljava/util/List;Lokio/Timeout;Z)Lnet/navatwo/kaff4/io/TeeSink;
+	public static synthetic fun copy$default (Lnet/navatwo/kaff4/io/TeeSink;Ljava/util/List;Lokio/Timeout;ZILjava/lang/Object;)Lnet/navatwo/kaff4/io/TeeSink;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun flush ()V
+	public fun hashCode ()I
+	public fun timeout ()Lokio/Timeout;
+	public fun toString ()Ljava/lang/String;
+	public fun write (Lokio/Buffer;J)V
+}
+

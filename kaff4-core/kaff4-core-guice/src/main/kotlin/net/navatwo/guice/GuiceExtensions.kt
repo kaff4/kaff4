@@ -1,3 +1,5 @@
+@file:InternalApi
+
 package net.navatwo.guice
 
 import com.google.inject.Injector
@@ -7,6 +9,7 @@ import com.google.inject.binder.AnnotatedBindingBuilder
 import com.google.inject.binder.LinkedBindingBuilder
 import com.google.inject.binder.ScopedBindingBuilder
 import jakarta.inject.Provider
+import net.navatwo.kaff4.api.InternalApi
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 

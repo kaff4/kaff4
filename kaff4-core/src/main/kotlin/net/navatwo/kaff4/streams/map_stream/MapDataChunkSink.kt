@@ -6,13 +6,13 @@ import java.io.Closeable
 import java.io.Flushable
 import java.nio.ByteBuffer
 
-interface MapDataChunkSink : Closeable, Flushable {
+internal interface MapDataChunkSink : Closeable, Flushable {
   fun write(chunk: MapDataChunk)
 
   fun timeout(): Timeout
 }
 
-sealed interface MapDataChunk {
+internal sealed interface MapDataChunk {
   val length: Long
 
   data class Symbolic(

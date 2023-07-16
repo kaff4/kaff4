@@ -1,4 +1,8 @@
+@file:InternalApi
+
 package net.navatwo.kaff4.io
+
+import net.navatwo.kaff4.api.InternalApi
 
 inline fun <T : AutoCloseable> T.applyAndCloseOnThrow(block: T.() -> Unit): T {
   runAndCloseOnThrow(block)

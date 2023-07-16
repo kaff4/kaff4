@@ -13,7 +13,7 @@ import org.eclipse.rdf4j.model.ValueFactory
 
 private const val BEVY_FILENAME_PADDING_LENGTH = 8
 
-data class Bevy(
+internal data class Bevy(
   val stored: Aff4Arn,
   val arn: Aff4Arn,
   val index: Int,

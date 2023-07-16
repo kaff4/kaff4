@@ -1,11 +1,13 @@
 package net.navatwo.kaff4.io
 
+import net.navatwo.kaff4.api.InternalApi
 import okio.BufferedSource
 import okio.FileSystem
 import okio.Path
 import okio.Timeout
 import okio.buffer
 
+@InternalApi
 class FileSystemPathSourceProvider internal constructor(
   private val fileSystem: FileSystem,
   val path: Path,

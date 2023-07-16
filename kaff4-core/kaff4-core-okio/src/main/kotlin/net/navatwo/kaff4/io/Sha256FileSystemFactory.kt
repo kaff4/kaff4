@@ -1,6 +1,7 @@
 package net.navatwo.kaff4.io
 
 import com.google.common.collect.HashBiMap
+import net.navatwo.kaff4.api.InternalApi
 import okio.Buffer
 import okio.ByteString.Companion.encodeUtf8
 import okio.FileMetadata
@@ -9,6 +10,7 @@ import okio.ForwardingFileSystem
 import okio.Path
 import okio.Path.Companion.toPath
 
+@InternalApi
 class Sha256FileSystemFactory {
   fun create(baseDirectory: Path): MappedFileSystem = create(FileSystem.SYSTEM, baseDirectory)
 

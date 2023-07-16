@@ -5,5 +5,7 @@ dependencies {
   api(libs.jakarta.inject.api)
   api(libs.misk.inject)
 
+  compileOnly(project(":kaff4-api"))
+
   implementation(libs.guice.assistedInject)
 }

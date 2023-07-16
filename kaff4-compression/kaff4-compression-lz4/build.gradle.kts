@@ -3,8 +3,10 @@ dependencies {
 
   api(libs.jakarta.inject.api)
 
-  api(project(":kaff4-plugin"))
+  api(project(":kaff4-api:kaff4-api-features"))
   api(project(":kaff4-core:kaff4-core-model:kaff4-core-model-api"))
+
+  compileOnly(project(":kaff4-api"))
 
   implementation(libs.guava)
   implementation(libs.guice)
@@ -13,7 +15,6 @@ dependencies {
 
   implementation(project(":kaff4-core:kaff4-core-guice"))
   implementation(project(":kaff4-compression"))
-
 
   testImplementation(libs.assertj)
   testImplementation(libs.junit.juipter.api)

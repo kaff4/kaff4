@@ -1,15 +1,12 @@
-package net.navatwo.kaff4.plugins
+package net.navatwo.kaff4.api
 
 import com.google.inject.Binder
-import jakarta.inject.Qualifier
 import net.navatwo.guice.KAff4AbstractModule
 import net.navatwo.guice.KSetMultibinderHelper
 import net.navatwo.kaff4.model.rdf.Aff4RdfModel
 import net.navatwo.kaff4.model.rdf.CompressionMethod
 import net.navatwo.kaff4.rdf.RdfRepositoryConfiguration
 import net.navatwo.kaff4.rdf.RdfValueConverter
-import kotlin.annotation.AnnotationTarget.PROPERTY
-import kotlin.annotation.AnnotationTarget.VALUE_PARAMETER
 import kotlin.reflect.KClass
 
 /**
@@ -17,18 +14,10 @@ import kotlin.reflect.KClass
  *
  * This is a wrapper around a Guice [com.google.inject.Module].
  */
-abstract class KAff4Plugin protected constructor(
-  pluginIdentifier: String,
-) : KAff4AbstractModule() {
-
-  val pluginIdentifier = PluginIdentifier(name = pluginIdentifier)
+abstract class KAff4FeatureModule protected constructor() : KAff4AbstractModule() {
 
   final override fun configure() {
     binder().requireAtInjectOnConstructors()
-
-    bindSet<PluginIdentifier>(Identifiers::class) {
-      toInstance(pluginIdentifier)
-    }
 
     bindRdfValueConverters {}
     bindCompressionMethods {}
@@ -39,7 +28,7 @@ abstract class KAff4Plugin protected constructor(
 
   protected abstract fun configurePlugin()
 
-  override fun binder(): Binder = super.binder().skipSources(KAff4Plugin::class.java)
+  override fun binder(): Binder = super.binder().skipSources(KAff4FeatureModule::class.java)
 
   protected fun bindRdfRepositoryConfiguration(): KotlinAnnotatedBindingBuilder<in RdfRepositoryConfiguration> = bind()
 
@@ -60,10 +49,4 @@ abstract class KAff4Plugin protected constructor(
   ) {
     bindSet { block() }
   }
-
-  data class PluginIdentifier(val name: String)
-
-  @Qualifier
-  @Target(PROPERTY, VALUE_PARAMETER)
-  annotation class Identifiers
 }

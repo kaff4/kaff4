@@ -1,5 +1,8 @@
+@file:InternalApi
+
 package net.navatwo.kaff4.streams
 
+import net.navatwo.kaff4.api.InternalApi
 import net.navatwo.kaff4.model.rdf.HashType
 import okio.ByteString
 import okio.HashingSink

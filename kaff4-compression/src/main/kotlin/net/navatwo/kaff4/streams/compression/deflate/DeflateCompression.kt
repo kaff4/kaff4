@@ -2,12 +2,14 @@ package net.navatwo.kaff4.streams.compression.deflate
 
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import net.navatwo.kaff4.api.InternalApi
 import net.navatwo.kaff4.model.rdf.CompressionMethod
 import net.navatwo.kaff4.streams.compression.ByteBuffers.markAndReset
 import java.nio.ByteBuffer
 import java.util.zip.Deflater
 import java.util.zip.Inflater
 
+@InternalApi
 @Singleton
 class DeflateCompression @Inject internal constructor() : CompressionMethod {
   override val method: String = IDENTIFIER

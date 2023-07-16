@@ -1,7 +1,10 @@
+@file:InternalApi
+
 package net.navatwo.guice
 
 import com.google.inject.Module
 import com.google.inject.assistedinject.FactoryModuleBuilder
+import net.navatwo.kaff4.api.InternalApi
 
 inline fun <reified F> assistedFactoryModule(setupFn: FactoryModuleBuilder.() -> Unit = {}): Module {
   return FactoryModuleBuilder()

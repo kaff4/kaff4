@@ -1,0 +1,5 @@
+public final class net/navatwo/logging/Logging {
+	public static final field INSTANCE Lnet/navatwo/logging/Logging;
+	public final fun getLogger ()Lorg/apache/logging/log4j/Logger;
+}
+

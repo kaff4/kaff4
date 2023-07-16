@@ -13,7 +13,7 @@ import net.navatwo.kaff4.model.rdf.ImageStream
 import net.navatwo.kaff4.model.rdf.None
 import net.navatwo.kaff4.model.rdf.hash
 import net.navatwo.kaff4.model.rdf.toAff4Path
-import net.navatwo.kaff4.rdf.MemoryRdfRepositoryPlugin
+import net.navatwo.kaff4.rdf.MemoryRdfRepositoryFeatureModule
 import net.navatwo.kaff4.streams.TestAff4ContainerBuilderModule
 import net.navatwo.kaff4.streams.compression.SnappyCompression
 import net.navatwo.test.GuiceModule
@@ -31,7 +31,7 @@ class Aff4BevySinkTest {
   @GuiceModule
   val module = Modules.combine(
     TestAff4ContainerBuilderModule,
-    MemoryRdfRepositoryPlugin,
+    MemoryRdfRepositoryFeatureModule,
     TestActionScopeModule,
   )
 

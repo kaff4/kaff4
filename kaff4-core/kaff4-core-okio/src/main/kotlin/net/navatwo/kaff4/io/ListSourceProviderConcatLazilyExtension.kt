@@ -1,15 +1,17 @@
 package net.navatwo.kaff4.io
 
+import net.navatwo.kaff4.api.InternalApi
 import okio.Buffer
 import okio.Source
 import okio.Timeout
 import okio.buffer
 
+@InternalApi
 fun List<SourceProvider<Source>>.concatLazily(): SourceProvider<Source> {
   return LazyConcatSourceProvider(this)
 }
 
-class LazyConcatSourceProvider internal constructor(
+internal class LazyConcatSourceProvider(
   private val lazySources: List<SourceProvider<Source>>,
 ) : SourceProvider<Source> {
   override fun source(position: Long, timeout: Timeout): Source {
@@ -42,6 +44,7 @@ private class LazyConcatSource(
 
         read(sink, byteCount)
       }
+
       else -> bytesRead
     }
   }

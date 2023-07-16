@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 
 internal class Lz4CompressionTest : BaseCompressionMethodTest() {
   @GuiceModule
-  val testModule = Aff4Lz4Plugin
+  val testModule = Aff4Lz4FeatureModule
 
   @Inject
   override lateinit var compressionMethod: Lz4Compression

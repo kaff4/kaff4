@@ -1,8 +1,8 @@
 package net.navatwo.kaff4.model.rdf
 
-import net.navatwo.kaff4.plugins.KAff4Plugin
+import net.navatwo.kaff4.api.KAff4FeatureModule
 
-object Aff4RdfModelPlugin : KAff4Plugin(pluginIdentifier = "kaff4:aff4-rdf-models") {
+object Aff4RdfModelFeatureModule : KAff4FeatureModule() {
   override fun configurePlugin() {
     bindAff4Models {
       for (subclass in Aff4RdfBaseModels::class.sealedSubclasses) {

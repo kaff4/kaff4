@@ -7,6 +7,8 @@ dependencies {
 
   api(project(":kaff4-core:kaff4-core-guice"))
 
+  compileOnly(project(":kaff4-api"))
+
   implementation(libs.guice)
   implementation(libs.misk.inject)
 

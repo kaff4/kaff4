@@ -7,7 +7,7 @@ import net.navatwo.kaff4.TestActionScopeModule
 import net.navatwo.kaff4.container.Aff4ImageOpenerModule
 import net.navatwo.kaff4.io.md5
 import net.navatwo.kaff4.isIllegalArgumentException
-import net.navatwo.kaff4.rdf.MemoryRdfRepositoryPlugin
+import net.navatwo.kaff4.rdf.MemoryRdfRepositoryFeatureModule
 import net.navatwo.kaff4.satisfies
 import net.navatwo.test.GuiceModule
 import org.assertj.core.api.AbstractObjectAssert
@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test
 class MapStreamEntryTest {
   @GuiceModule
   val module = Modules.combine(
-    MemoryRdfRepositoryPlugin,
+    MemoryRdfRepositoryFeatureModule,
     Aff4CoreModule,
     Aff4ImageOpenerModule,
     TestActionScopeModule,
