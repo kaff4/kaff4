@@ -10,9 +10,12 @@ dependencies {
   implementation(libs.misk.inject)
 
   implementation(project(":kaff4-core:kaff4-core-guice"))
-  
+
+  testImplementation(libs.assertj)
+  testImplementation(libs.junit.juipter.api)
+
   testImplementation(project(":kaff4-compression:kaff4-compression-test"))
   testImplementation(project(":kaff4-core:kaff4-core-test"))
-}
 
-useJunit5()
+  testRuntimeOnly(libs.junit.juipter.engine)
+}

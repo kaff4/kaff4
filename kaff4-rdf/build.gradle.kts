@@ -25,11 +25,14 @@ dependencies {
 
   implementation(project(":kaff4-core:kaff4-core-kotlin"))
 
+  testImplementation(libs.assertj)
+  testImplementation(libs.junit.juipter.api)
+
   testImplementation(project(":kaff4-core"))
   testImplementation(project(":kaff4-core:kaff4-core-model"))
   testImplementation(project(":kaff4-core:kaff4-core-test"))
   testImplementation(project(":kaff4-rdf"))
   testImplementation(project(":kaff4-rdf:kaff4-rdf-memory"))
-}
 
-useJunit5()
+  testRuntimeOnly(libs.junit.juipter.engine)
+}

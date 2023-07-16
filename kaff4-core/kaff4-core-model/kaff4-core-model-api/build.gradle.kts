@@ -11,6 +11,9 @@ dependencies {
   implementation(libs.misk.inject)
 
   implementation(kotlin("reflect"))
-}
 
-useJunit5()
+  testImplementation(libs.assertj)
+  testImplementation(libs.junit.juipter.api)
+
+  testRuntimeOnly(libs.junit.juipter.engine)
+}

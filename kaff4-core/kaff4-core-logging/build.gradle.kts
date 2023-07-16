@@ -3,6 +3,9 @@ dependencies {
 
   runtimeOnly(libs.log4j.core)
   runtimeOnly(libs.log4j.slf4j.impl)
-}
 
-useJunit5()
+  testImplementation(libs.assertj)
+  testImplementation(libs.junit.juipter.api)
+
+  testRuntimeOnly(libs.junit.juipter.engine)
+}
