@@ -1,4 +1,3 @@
-import Versions.configureJavaToolchain
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
 
@@ -17,6 +16,11 @@ buildscript {
   repositories {
     mavenCentral()
   }
+}
+
+fun JavaToolchainSpec.configureJavaToolchain() {
+  languageVersion.set(JavaLanguageVersion.of(18))
+  vendor.set(JvmVendorSpec.ADOPTIUM)
 }
 
 java {

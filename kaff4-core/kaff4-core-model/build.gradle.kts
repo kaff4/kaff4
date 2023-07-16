@@ -12,12 +12,12 @@ dependencies {
   api(libs.okio)
   api(libs.rdf4j.model.api)
 
-  implementation(libs.misk.inject)
-
+  testImplementation(libs.assertj)
+  testImplementation(libs.junit.juipter.api)
   testImplementation(libs.rdf4j.model)
 
   testImplementation(project(":kaff4-core:kaff4-core-model"))
   testImplementation(project(":kaff4-core:kaff4-core-test"))
-}
 
-useJunit5()
+  testRuntimeOnly(libs.junit.juipter.engine)
+}

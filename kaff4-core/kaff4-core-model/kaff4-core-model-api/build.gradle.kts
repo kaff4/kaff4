@@ -8,9 +8,11 @@ dependencies {
   api(project(":kaff4-core:kaff4-core-guice"))
 
   implementation(libs.guice)
-  implementation(libs.misk.inject)
 
   implementation(kotlin("reflect"))
-}
 
-useJunit5()
+  testImplementation(libs.assertj)
+  testImplementation(libs.junit.juipter.api)
+
+  testRuntimeOnly(libs.junit.juipter.engine)
+}
