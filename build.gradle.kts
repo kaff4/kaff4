@@ -59,6 +59,9 @@ apiValidation {
   ignoredProjects.addAll(
     rootProject.subprojects.map { it.name }.filter { it.endsWith("-test") }
   )
+  ignoredProjects.add(
+    "kaff4-cli",
+  )
 }
 
 val isRelease = !System.getenv("RELEASE").isNullOrBlank()
