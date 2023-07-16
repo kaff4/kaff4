@@ -56,6 +56,8 @@ nexusPublishing {
 }
 
 apiValidation {
+  nonPublicMarkers.add("net.navatwo.kaff4.api.InternalApi")
+
   ignoredProjects.addAll(
     rootProject.subprojects.map { it.name }.filter { it.endsWith("-test") }
   )
