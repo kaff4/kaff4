@@ -9,7 +9,6 @@ dependencies {
   compileOnly(project(":kaff4-api"))
 
   implementation(libs.guice)
-  implementation(libs.misk.inject)
   implementation(libs.xerial.snappy)
 
   implementation(project(":kaff4-core:kaff4-core-guice"))

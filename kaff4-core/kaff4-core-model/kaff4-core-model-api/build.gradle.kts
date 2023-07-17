@@ -10,7 +10,6 @@ dependencies {
   compileOnly(project(":kaff4-api"))
 
   implementation(libs.guice)
-  implementation(libs.misk.inject)
 
   implementation(kotlin("reflect"))
 
