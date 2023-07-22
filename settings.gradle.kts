@@ -1,5 +1,10 @@
 rootProject.name = "kaff4"
 
+plugins {
+  id("com.gradle.enterprise") version "3.14"
+  id("io.github.gradle.gradle-enterprise-conventions-plugin") version "0.7.6"
+}
+
 include(
   "kaff4-api",
   "kaff4-api:kaff4-api-features",
@@ -19,3 +24,17 @@ include(
   "kaff4-rdf:kaff4-rdf-api",
   "kaff4-rdf:kaff4-rdf-memory",
 )
+
+gradleEnterprise {
+  buildScan {
+    publishAlways()
+    
+    capture {
+      isTaskInputFiles = true
+    }
+
+    buildScanPublished {
+      println("Build Scan: ${buildScanUri}")
+    }
+  }
+}
