@@ -13,7 +13,7 @@ misk = "2023.07.20.003232-185efd4"
 
 rdf4j = "4.3.3"
 # Upgrading this causes issues with query logic as written.
-rdf4j-sail = "4.0.5"
+rdf4j-sail = "4.3.4"
 
 [libraries]
 
