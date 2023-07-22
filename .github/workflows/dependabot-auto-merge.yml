@@ -24,10 +24,10 @@ jobs:
 
       - name: Enable auto-merge for Dependabot PRs
         if: |
-          false &&
+          false && (
           ${{steps.dependabot-metadata.outputs.update-type == 'version-update:semver-patch' ||
               (steps.dependabot-metadata.outputs.update-type == 'version-update:semver-minor' && 
-                contains(steps.metadata.outputs.dependency-group, 'misk')) }}
+                contains(steps.metadata.outputs.dependency-group, 'misk')) }} )
         run: echo "WOULD HAVE MERGED" # gh pr merge --auto --merge "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
