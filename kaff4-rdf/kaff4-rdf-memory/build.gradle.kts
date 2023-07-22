@@ -1,3 +1,7 @@
+plugins {
+  id("kaff4.library")
+}
+
 dependencies {
   api(project(":kaff4-api:kaff4-api-features"))
 

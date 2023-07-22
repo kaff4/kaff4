@@ -1,3 +1,7 @@
+plugins {
+  id("kaff4.library")
+}
+
 dependencies {
   runtimeOnly(kotlin("reflect"))
 
