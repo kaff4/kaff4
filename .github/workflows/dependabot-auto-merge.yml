@@ -8,7 +8,7 @@ permissions:
 jobs:
   dependabot:
     runs-on: ubuntu-latest
-    if: ${{ github.actor == 'dependabot[bot]' || github.actor == 'Nava2' }}
+    if: ${{ github.actor == 'dependabot[bot]' }}
     steps:
       - name: Dependabot metadata
         id: metadata
@@ -17,15 +17,14 @@ jobs:
           github-token: "${{ secrets.DEPENDABOT_GITHUB_TOKEN }}"
 
       - name: Enable auto-merge for Dependabot PRs
-#            steps.dependabot-metadata.outputs.update-type == 'version-update:semver-patch' ||
         if: |
-          false && (
           ${{
+            steps.dependabot-metadata.outputs.update-type == 'version-update:semver-patch' ||
               (steps.dependabot-metadata.outputs.update-type == 'version-update:semver-minor' && 
                 contains(join(steps.metadata.outputs.dependency-names, ';'), 'com.squareup.misk:misk-')
               )
-            }} )
-        run: echo "WOULD HAVE MERGED" # gh pr merge --auto --merge "$PR_URL"
+            }}
+        run: gh pr merge --auto --merge "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
           GITHUB_TOKEN: ${{secrets.DEPENDABOT_GITHUB_TOKEN}}
