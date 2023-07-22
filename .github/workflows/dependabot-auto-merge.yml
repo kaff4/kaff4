@@ -16,18 +16,15 @@ jobs:
         with:
           github-token: "${{ secrets.DEPENDABOT_GITHUB_TOKEN }}"
 
-      - name: dump config
-        run: |
-          echo "dependency-group=${{steps.dependabot-metadata.outputs.dependency-group}}"
-          echo "dependency-names=${{steps.dependabot-metadata.outputs.dependency-names}}"
-          echo "pull-request-title=${{ github.event.pull_request.title }}"
-
       - name: Enable auto-merge for Dependabot PRs
         if: |
           false && (
-          ${{steps.dependabot-metadata.outputs.update-type == 'version-update:semver-patch' ||
+          ${{
+#            steps.dependabot-metadata.outputs.update-type == 'version-update:semver-patch' ||
               (steps.dependabot-metadata.outputs.update-type == 'version-update:semver-minor' && 
-                contains(steps.metadata.outputs.dependency-group, 'misk')) }} )
+                contains(join(steps.metadata.outputs.dependency-names, ';'), 'com.squareup.misk:misk-')
+              )
+            }} )
         run: echo "WOULD HAVE MERGED" # gh pr merge --auto --merge "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
