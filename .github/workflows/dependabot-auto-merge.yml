@@ -15,6 +15,13 @@ jobs:
         uses: dependabot/fetch-metadata@v1
         with:
           github-token: "${{ secrets.DEPENDABOT_GITHUB_TOKEN }}"
+
+      - name: dump config
+        run: |
+          echo "dependency-group=${{steps.dependabot-metadata.outputs.dependency-group}}"
+          echo "dependency-names=${{steps.dependabot-metadata.outputs.dependency-names}}"
+          echo "pull-request-title=${{ github.event.pull_request.title }}"
+
       - name: Enable auto-merge for Dependabot PRs
         if: |
           ${{steps.dependabot-metadata.outputs.update-type == 'version-update:semver-patch' ||
