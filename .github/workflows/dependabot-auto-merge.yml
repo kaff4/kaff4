@@ -27,7 +27,7 @@ jobs:
           ${{steps.dependabot-metadata.outputs.update-type == 'version-update:semver-patch' ||
               (steps.dependabot-metadata.outputs.update-type == 'version-update:semver-minor' && 
                 contains(steps.metadata.outputs.dependency-names, 'misk-inject')) }}
-        run: gh pr merge --auto --merge "$PR_URL"
+        run: echo "WOULD HAVE MERGED" # gh pr merge --auto --merge "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
           GITHUB_TOKEN: ${{secrets.DEPENDABOT_GITHUB_TOKEN}}
