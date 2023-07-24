@@ -19,7 +19,7 @@ rdf4j-sail = "4.0.5"
 
 assertj = "org.assertj:assertj-core:3.24.2"
 
-caffeine = "com.github.ben-manes.caffeine:caffeine:3.1.6"
+caffeine = "com.github.ben-manes.caffeine:caffeine:3.1.7"
 
 checker-qual = "org.checkerframework:checker-qual:3.36.0"
 
