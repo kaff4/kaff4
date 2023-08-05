@@ -4,7 +4,6 @@ import com.google.inject.Guice
 import com.google.inject.Injector
 import com.google.inject.Module
 import com.google.inject.Stage
-import jakarta.inject.Provider
 import net.navatwo.guice.KAff4AbstractModule
 import net.navatwo.guice.getInstance
 import net.navatwo.kaff4.io.Sha256FileSystemFactory
@@ -117,7 +116,7 @@ class GuiceExtension : BeforeEachCallback, AfterEachCallback, BeforeAllCallback 
 
   private object TestModule : KAff4AbstractModule() {
     override fun configure() {
-      bind<Sha256FileSystemFactory>().toProvider(Provider { Sha256FileSystemFactory() })
+      bind<Sha256FileSystemFactory>().toProvider(com.google.inject.Provider { Sha256FileSystemFactory() })
 
       bindSet<TestLifecycleAction> {
         to<OffTestThreadExecutor>()
