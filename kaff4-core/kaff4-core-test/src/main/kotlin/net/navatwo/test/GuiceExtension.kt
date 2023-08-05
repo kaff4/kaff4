@@ -116,7 +116,7 @@ class GuiceExtension : BeforeEachCallback, AfterEachCallback, BeforeAllCallback 
 
   private object TestModule : KAff4AbstractModule() {
     override fun configure() {
-      bind<Sha256FileSystemFactory>().toProvider { Sha256FileSystemFactory() }
+      bind<Sha256FileSystemFactory>().toProvider(com.google.inject.Provider { Sha256FileSystemFactory() })
 
       bindSet<TestLifecycleAction> {
         to<OffTestThreadExecutor>()

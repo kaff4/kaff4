@@ -9,7 +9,7 @@ object TestRandomsModule : Module by Modules.override(RandomsModule)
   .with(
     object : KAff4AbstractModule() {
       override fun configure() {
-        bind<Random>().toProvider { Random(0) }
+        bind<Random>().toProvider(com.google.inject.Provider { Random(0) })
       }
     }
   )
