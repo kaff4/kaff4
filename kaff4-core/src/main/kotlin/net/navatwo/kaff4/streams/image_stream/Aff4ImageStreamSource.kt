@@ -1,12 +1,12 @@
 package net.navatwo.kaff4.streams.image_stream
 
 import net.navatwo.kaff4.io.AbstractSource
+import net.navatwo.kaff4.io.BufferedSource
+import net.navatwo.kaff4.io.Source
 import net.navatwo.kaff4.io.applyAndCloseOnThrow
 import net.navatwo.kaff4.io.buffer
 import net.navatwo.kaff4.model.rdf.ImageStream
 import okio.Buffer
-import okio.BufferedSource
-import okio.Source
 import okio.Timeout
 import java.io.Closeable
 

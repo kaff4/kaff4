@@ -5,6 +5,7 @@ import jakarta.inject.Inject
 import net.navatwo.kaff4.Aff4CoreModule
 import net.navatwo.kaff4.TestActionScopeModule
 import net.navatwo.kaff4.container.Aff4ImageOpenerModule
+import net.navatwo.kaff4.io.asKAff4
 import net.navatwo.kaff4.io.md5
 import net.navatwo.kaff4.isIllegalArgumentException
 import net.navatwo.kaff4.rdf.MemoryRdfRepositoryFeatureModule
@@ -191,7 +192,7 @@ class MapStreamEntryTest {
 
       // Golden value: Little-endian Long, Long, Long, Int
       // Where final `int` is `4096`, the ID in the target map
-      assertThat(buffer).md5(MapStreamEntry.SIZE_BYTES, "fabb72b8055e271fd78eaff656095567")
+      assertThat(buffer.asKAff4()).md5(MapStreamEntry.SIZE_BYTES, "fabb72b8055e271fd78eaff656095567")
     }
   }
 }

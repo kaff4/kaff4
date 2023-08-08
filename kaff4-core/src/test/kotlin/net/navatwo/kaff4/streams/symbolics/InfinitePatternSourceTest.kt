@@ -1,5 +1,7 @@
 package net.navatwo.kaff4.streams.symbolics
 
+import net.navatwo.kaff4.io.buffer
+import net.navatwo.kaff4.io.readByteString
 import net.navatwo.kaff4.io.repeatByteString
 import okio.ByteString
 import okio.ByteString.Companion.encode

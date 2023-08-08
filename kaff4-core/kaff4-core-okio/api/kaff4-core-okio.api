@@ -1,13 +1,9 @@
-public final class net/navatwo/kaff4/io/BufferedSourceLineSequenceExtensionKt {
-	public static final fun lineSequence (Lokio/BufferedSource;)Lkotlin/sequences/Sequence;
-}
-
 public final class net/navatwo/kaff4/io/FileSystemPathSourceProvider : net/navatwo/kaff4/io/SourceProvider {
 	public final fun getPath ()Lokio/Path;
-	public fun source (JLokio/Timeout;)Lokio/BufferedSource;
-	public synthetic fun source (JLokio/Timeout;)Lokio/Source;
-	public fun source (Lokio/Timeout;)Lokio/BufferedSource;
-	public synthetic fun source (Lokio/Timeout;)Lokio/Source;
+	public fun source (JLokio/Timeout;)Lnet/navatwo/kaff4/io/BufferedSource;
+	public synthetic fun source (JLokio/Timeout;)Lnet/navatwo/kaff4/io/Source;
+	public fun source (Lokio/Timeout;)Lnet/navatwo/kaff4/io/BufferedSource;
+	public synthetic fun source (Lokio/Timeout;)Lnet/navatwo/kaff4/io/Source;
 	public fun toString ()Ljava/lang/String;
 	public fun transform (Lnet/navatwo/kaff4/io/SourceProvider$Transformer;)Lnet/navatwo/kaff4/io/SourceProvider;
 }

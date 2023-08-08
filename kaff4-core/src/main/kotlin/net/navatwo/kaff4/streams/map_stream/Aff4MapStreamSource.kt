@@ -1,13 +1,13 @@
 package net.navatwo.kaff4.streams.map_stream
 
 import net.navatwo.kaff4.io.AbstractSource
+import net.navatwo.kaff4.io.BufferedSource
 import net.navatwo.kaff4.io.applyAndCloseOnThrow
 import net.navatwo.kaff4.io.buffer
 import net.navatwo.kaff4.io.limit
 import net.navatwo.kaff4.model.Aff4StreamOpener
 import net.navatwo.kaff4.model.rdf.MapStream
 import okio.Buffer
-import okio.BufferedSource
 import okio.Timeout
 import java.io.Closeable
 

@@ -1,7 +1,6 @@
 package net.navatwo.kaff4.io
 
 import okio.Buffer
-import okio.Source
 import okio.Timeout
 
 abstract class AbstractSource protected constructor(

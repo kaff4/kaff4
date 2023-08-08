@@ -2,9 +2,7 @@ package net.navatwo.kaff4.io
 
 import net.navatwo.kaff4.api.InternalApi
 import okio.Buffer
-import okio.Source
 import okio.Timeout
-import okio.buffer
 
 @InternalApi
 fun List<SourceProvider<Source>>.concatLazily(): SourceProvider<Source> {

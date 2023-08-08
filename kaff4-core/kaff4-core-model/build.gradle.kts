@@ -17,6 +17,7 @@ dependencies {
 
   implementation(libs.guice)
 
+
   compileOnly(project(":kaff4-api"))
 
   testImplementation(libs.assertj)

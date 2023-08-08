@@ -1,5 +1,6 @@
-public abstract class net/navatwo/kaff4/io/AbstractSource : okio/Source {
+public abstract class net/navatwo/kaff4/io/AbstractSource : net/navatwo/kaff4/io/Source {
 	protected fun <init> (Lokio/Timeout;)V
+	public fun asOkio ()Lokio/Source;
 	protected final fun checkClosedOrTimedOut ()V
 	public final fun close ()V
 	protected abstract fun exhausted ()Lnet/navatwo/kaff4/io/AbstractSource$Exhausted;
@@ -33,7 +34,7 @@ public abstract interface class net/navatwo/kaff4/io/AutoCloseableSourceProvider
 }
 
 public final class net/navatwo/kaff4/io/AutoCloseableSourceProvider$DefaultImpls {
-	public static fun source (Lnet/navatwo/kaff4/io/AutoCloseableSourceProvider;Lokio/Timeout;)Lokio/Source;
+	public static fun source (Lnet/navatwo/kaff4/io/AutoCloseableSourceProvider;Lokio/Timeout;)Lnet/navatwo/kaff4/io/Source;
 	public static fun transform (Lnet/navatwo/kaff4/io/AutoCloseableSourceProvider;Lnet/navatwo/kaff4/io/SourceProvider$Transformer;)Lnet/navatwo/kaff4/io/SourceProvider;
 }
 
@@ -41,14 +42,38 @@ public final class net/navatwo/kaff4/io/BufferAvailableRangeExtensionKt {
 	public static final fun availableRange (Ljava/nio/Buffer;J)Lkotlin/ranges/LongRange;
 }
 
+public final class net/navatwo/kaff4/io/BufferedSource : net/navatwo/kaff4/io/Source {
+	public fun <init> (Lnet/navatwo/kaff4/io/Source;)V
+	public fun asOkio ()Lokio/Source;
+	public fun close ()V
+	public final fun getSource ()Lnet/navatwo/kaff4/io/Source;
+	public fun read (Lokio/Buffer;J)J
+	public final fun skip (J)J
+	public fun timeout ()Lokio/Timeout;
+}
+
+public final class net/navatwo/kaff4/io/BufferedSourceKt {
+	public static final fun buffer (Lnet/navatwo/kaff4/io/Source;)Lnet/navatwo/kaff4/io/BufferedSource;
+}
+
+public final class net/navatwo/kaff4/io/BufferedSourceReadExtensionsKt {
+	public static final fun lineSequence (Lnet/navatwo/kaff4/io/BufferedSource;)Lkotlin/sequences/Sequence;
+	public static final fun read (Lnet/navatwo/kaff4/io/BufferedSource;Ljava/nio/ByteBuffer;)I
+	public static final fun readAll (Lnet/navatwo/kaff4/io/BufferedSource;Lokio/Sink;)J
+	public static final fun readByteString (Lnet/navatwo/kaff4/io/BufferedSource;)Lokio/ByteString;
+	public static final fun readByteString (Lnet/navatwo/kaff4/io/BufferedSource;J)Lokio/ByteString;
+	public static final fun readFully (Lnet/navatwo/kaff4/io/BufferedSource;Lokio/Buffer;J)V
+	public static final fun readUtf8Line (Lnet/navatwo/kaff4/io/BufferedSource;)Ljava/lang/String;
+}
+
 public final class net/navatwo/kaff4/io/ByteBufferSourceExtensionsKt {
-	public static final fun source (Ljava/nio/ByteBuffer;Lokio/Timeout;)Lokio/Source;
-	public static synthetic fun source$default (Ljava/nio/ByteBuffer;Lokio/Timeout;ILjava/lang/Object;)Lokio/Source;
+	public static final fun source (Ljava/nio/ByteBuffer;Lokio/Timeout;)Lnet/navatwo/kaff4/io/Source;
+	public static synthetic fun source$default (Ljava/nio/ByteBuffer;Lokio/Timeout;ILjava/lang/Object;)Lnet/navatwo/kaff4/io/Source;
 }
 
 public final class net/navatwo/kaff4/io/ByteStringSourceExtensionKt {
-	public static final fun source (Lokio/ByteString;Lokio/Timeout;)Lokio/Source;
-	public static synthetic fun source$default (Lokio/ByteString;Lokio/Timeout;ILjava/lang/Object;)Lokio/Source;
+	public static final fun source (Lokio/ByteString;Lokio/Timeout;)Lnet/navatwo/kaff4/io/Source;
+	public static synthetic fun source$default (Lokio/ByteString;Lokio/Timeout;ILjava/lang/Object;)Lnet/navatwo/kaff4/io/Source;
 }
 
 public final class net/navatwo/kaff4/io/FixedLengthSourceProviderExtensionsKt {
@@ -59,6 +84,18 @@ public final class net/navatwo/kaff4/io/FixedLengthSourceProviderExtensionsKt {
 
 public final class net/navatwo/kaff4/io/ListSourceProviderConcatLazilyExtensionKt {
 	public static final fun concatLazily (Ljava/util/List;)Lnet/navatwo/kaff4/io/SourceProvider;
+}
+
+public final class net/navatwo/kaff4/io/OkioConversionKt {
+	public static final fun asKAff4 (Lokio/Source;)Lnet/navatwo/kaff4/io/OkioWrappedSource;
+}
+
+public final class net/navatwo/kaff4/io/OkioWrappedSource : net/navatwo/kaff4/io/Source {
+	public fun asOkio ()Lokio/Source;
+	public fun close ()V
+	public final fun getWrapped ()Lokio/Source;
+	public fun read (Lokio/Buffer;J)J
+	public fun timeout ()Lokio/Timeout;
 }
 
 public abstract interface class net/navatwo/kaff4/io/Seekable {
@@ -76,19 +113,30 @@ public abstract interface class net/navatwo/kaff4/io/Sized {
 public abstract interface class net/navatwo/kaff4/io/SizedSink : net/navatwo/kaff4/io/Sized, okio/Sink {
 }
 
+public abstract interface class net/navatwo/kaff4/io/Source : java/io/Closeable, java/lang/AutoCloseable {
+	public abstract fun asOkio ()Lokio/Source;
+	public abstract fun close ()V
+	public abstract fun read (Lokio/Buffer;J)J
+	public abstract fun timeout ()Lokio/Timeout;
+}
+
+public final class net/navatwo/kaff4/io/Source$DefaultImpls {
+	public static fun asOkio (Lnet/navatwo/kaff4/io/Source;)Lokio/Source;
+}
+
 public abstract interface class net/navatwo/kaff4/io/SourceProvider {
-	public abstract fun source (JLokio/Timeout;)Lokio/Source;
-	public abstract fun source (Lokio/Timeout;)Lokio/Source;
+	public abstract fun source (JLokio/Timeout;)Lnet/navatwo/kaff4/io/Source;
+	public abstract fun source (Lokio/Timeout;)Lnet/navatwo/kaff4/io/Source;
 	public abstract fun transform (Lnet/navatwo/kaff4/io/SourceProvider$Transformer;)Lnet/navatwo/kaff4/io/SourceProvider;
 }
 
 public final class net/navatwo/kaff4/io/SourceProvider$DefaultImpls {
-	public static fun source (Lnet/navatwo/kaff4/io/SourceProvider;Lokio/Timeout;)Lokio/Source;
+	public static fun source (Lnet/navatwo/kaff4/io/SourceProvider;Lokio/Timeout;)Lnet/navatwo/kaff4/io/Source;
 	public static fun transform (Lnet/navatwo/kaff4/io/SourceProvider;Lnet/navatwo/kaff4/io/SourceProvider$Transformer;)Lnet/navatwo/kaff4/io/SourceProvider;
 }
 
 public abstract interface class net/navatwo/kaff4/io/SourceProvider$Transformer {
-	public abstract fun transform (Lokio/Source;)Lokio/Source;
+	public abstract fun transform (Lnet/navatwo/kaff4/io/Source;)Lnet/navatwo/kaff4/io/Source;
 }
 
 public final class net/navatwo/kaff4/io/SourceProviderExtensionsKt {
@@ -96,5 +144,13 @@ public final class net/navatwo/kaff4/io/SourceProviderExtensionsKt {
 	public static final fun use (Lnet/navatwo/kaff4/io/SourceProvider;JLokio/Timeout;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 	public static final fun use (Lnet/navatwo/kaff4/io/SourceProvider;Lokio/Timeout;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 	public static synthetic fun use$default (Lnet/navatwo/kaff4/io/SourceProvider;JLokio/Timeout;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public abstract interface class net/navatwo/kaff4/io/WrappingSource : net/navatwo/kaff4/io/Source {
+	public abstract fun getWrapped ()Lnet/navatwo/kaff4/io/Source;
+}
+
+public final class net/navatwo/kaff4/io/WrappingSource$DefaultImpls {
+	public static fun asOkio (Lnet/navatwo/kaff4/io/WrappingSource;)Lokio/Source;
 }
 

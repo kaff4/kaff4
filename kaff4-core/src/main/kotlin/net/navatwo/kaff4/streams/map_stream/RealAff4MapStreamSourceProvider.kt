@@ -3,6 +3,7 @@ package net.navatwo.kaff4.streams.map_stream
 import com.google.inject.assistedinject.Assisted
 import com.google.inject.assistedinject.AssistedInject
 import net.navatwo.kaff4.container.ContainerDataFileSystemProvider
+import net.navatwo.kaff4.io.Source
 import net.navatwo.kaff4.io.concatLazily
 import net.navatwo.kaff4.io.sourceProvider
 import net.navatwo.kaff4.io.use
@@ -16,7 +17,6 @@ import net.navatwo.kaff4.model.rdf.MapStream
 import net.navatwo.kaff4.streams.computeLinearHash
 import net.navatwo.kaff4.yieldNotNull
 import okio.Path
-import okio.Source
 import okio.Timeout
 
 internal class RealAff4MapStreamSourceProvider @AssistedInject constructor(
