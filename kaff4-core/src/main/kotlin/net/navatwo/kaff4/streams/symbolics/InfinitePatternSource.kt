@@ -30,19 +30,26 @@ internal class InfinitePatternSource(
     return bytesRead.toLong()
   }
 
+  override fun protectedSkip(byteCount: Long): Long {
+    position += byteCount
+    byteBuffer.reset()
+
+    return byteCount
+  }
+
   // infinite sources always have values
   override fun exhausted(): Exhausted = Exhausted.HAS_VALUES
 
-  private fun refreshBufferIfNeeded() {
-    if (!byteBuffer.hasRemaining()) {
-      byteBuffer.rewind()
-
-      val remainingInChunk = repetitionBoundary - (position % repetitionBoundary).toInt()
-      byteBuffer.limit(remainingInChunk.coerceAtMost(byteBuffer.capacity()))
-    }
-  }
-
   override fun protectedClose() = Unit
+
+  private fun refreshBufferIfNeeded() {
+    if (byteBuffer.hasRemaining()) return
+
+    byteBuffer.rewind()
+
+    val remainingInChunk = repetitionBoundary - (position % repetitionBoundary).toInt()
+    byteBuffer.limit(remainingInChunk.coerceAtMost(byteBuffer.capacity()))
+  }
 
   override fun toString(): String = "infinite($pattern)"
 }

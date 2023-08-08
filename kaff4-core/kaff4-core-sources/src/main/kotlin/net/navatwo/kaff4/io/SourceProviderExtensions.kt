@@ -1,9 +1,6 @@
 package net.navatwo.kaff4.io
 
-import okio.BufferedSource
-import okio.Source
 import okio.Timeout
-import okio.buffer
 
 fun SourceProvider<Source>.buffer(): SourceProvider<BufferedSource> {
   return transform { source ->

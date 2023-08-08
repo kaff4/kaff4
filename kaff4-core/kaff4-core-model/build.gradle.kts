@@ -8,7 +8,7 @@ dependencies {
   api(project(":kaff4-api:kaff4-api-features"))
   api(project(":kaff4-core:kaff4-core-guice"))
   api(project(":kaff4-core:kaff4-core-model:kaff4-core-model-api"))
-  api(project(":kaff4-core:kaff4-core-okio"))
+  api(project(":kaff4-core:kaff4-core-sources"))
   api(project(":kaff4-rdf"))
 
   api(libs.jakarta.inject.api)
@@ -16,6 +16,7 @@ dependencies {
   api(libs.rdf4j.model.api)
 
   implementation(libs.guice)
+
 
   compileOnly(project(":kaff4-api"))
 

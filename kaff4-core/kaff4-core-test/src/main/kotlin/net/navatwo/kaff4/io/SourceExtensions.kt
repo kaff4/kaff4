@@ -3,7 +3,6 @@ package net.navatwo.kaff4.io
 import okio.Buffer
 import okio.ByteString
 import okio.ByteString.Companion.decodeHex
-import okio.Source
 import org.assertj.core.api.AbstractObjectAssert
 import org.assertj.core.api.Assertions.assertThat
 import kotlin.reflect.KCallable
@@ -36,7 +35,7 @@ private fun <SELF, T> SELF.computeHashAssert(
     .extracting { source: T ->
       sourceString = source.toString()
       Buffer().use { readSink ->
-        readSink.write(source, byteCount)
+        readSink.write(source.asOkio(), byteCount)
         assertThat(readSink.size).isEqualTo(byteCount)
         computeHash.call(readSink)
       }

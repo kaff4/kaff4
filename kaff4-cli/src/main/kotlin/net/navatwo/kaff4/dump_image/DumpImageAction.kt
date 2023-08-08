@@ -3,13 +3,14 @@ package net.navatwo.kaff4.dump_image
 import com.google.common.base.Stopwatch
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import net.navatwo.kaff4.io.BufferedSource
 import net.navatwo.kaff4.io.ProgressSink
 import net.navatwo.kaff4.io.TeeSink
 import net.navatwo.kaff4.io.buffer
+import net.navatwo.kaff4.io.readAll
 import net.navatwo.kaff4.model.Aff4ImageOpener
 import net.navatwo.kaff4.model.Aff4StreamSourceProvider
 import net.navatwo.kaff4.model.rdf.Aff4Arn
-import okio.BufferedSource
 import okio.FileSystem
 import okio.GzipSink
 import okio.Path

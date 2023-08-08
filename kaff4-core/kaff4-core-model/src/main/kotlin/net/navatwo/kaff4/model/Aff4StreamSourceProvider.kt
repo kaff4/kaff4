@@ -1,9 +1,9 @@
 package net.navatwo.kaff4.model
 
+import net.navatwo.kaff4.io.Source
 import net.navatwo.kaff4.io.SourceProvider
 import net.navatwo.kaff4.model.rdf.Aff4Arn
 import net.navatwo.kaff4.model.rdf.Aff4RdfModel
-import okio.Source
 
 interface Aff4StreamSourceProvider : SourceProvider<Source> {
   val arn: Aff4Arn

@@ -3,9 +3,11 @@ package net.navatwo.kaff4.streams.image_stream
 import com.google.inject.assistedinject.Assisted
 import com.google.inject.assistedinject.AssistedInject
 import net.navatwo.kaff4.container.ContainerDataFileSystemProvider
+import net.navatwo.kaff4.io.Source
 import net.navatwo.kaff4.io.SourceProvider
 import net.navatwo.kaff4.io.buffer
 import net.navatwo.kaff4.io.concatLazily
+import net.navatwo.kaff4.io.readAll
 import net.navatwo.kaff4.io.sourceProvider
 import net.navatwo.kaff4.io.use
 import net.navatwo.kaff4.model.Aff4Model
@@ -15,7 +17,6 @@ import net.navatwo.kaff4.model.rdf.Aff4Arn
 import net.navatwo.kaff4.model.rdf.ImageStream
 import net.navatwo.kaff4.streams.computeLinearHashes
 import net.navatwo.kaff4.streams.hashingSink
-import okio.Source
 import okio.Timeout
 
 internal class RealAff4ImageStreamSourceProvider @AssistedInject constructor(

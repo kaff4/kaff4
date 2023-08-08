@@ -2,9 +2,7 @@ package net.navatwo.kaff4.io
 
 import net.navatwo.kaff4.api.InternalApi
 import okio.Buffer
-import okio.Source
 import okio.Timeout
-import okio.buffer
 
 @InternalApi
 fun List<SourceProvider<Source>>.concatLazily(): SourceProvider<Source> {
@@ -29,6 +27,7 @@ private class LazyConcatSource(
   private val timeout: Timeout,
 ) : AbstractSource(timeout) {
   private val iter = lazySources.iterator()
+
   private var current: Source = iter.next().source(timeout = timeout)
 
   override fun protectedRead(sink: Buffer, byteCount: Long): Long {
@@ -48,6 +47,20 @@ private class LazyConcatSource(
   }
 
   override fun exhausted(): Exhausted = Exhausted.UNKNOWN
+
+  override fun protectedSkip(byteCount: Long): Long {
+    var remainingBytes = byteCount
+    do {
+      val bytesSkipped = current.skip(byteCount)
+      if (bytesSkipped == -1L) {
+        break
+      }
+
+      remainingBytes -= bytesSkipped
+    } while (remainingBytes != 0L)
+
+    return byteCount - remainingBytes
+  }
 
   override fun protectedClose() = current.close()
 

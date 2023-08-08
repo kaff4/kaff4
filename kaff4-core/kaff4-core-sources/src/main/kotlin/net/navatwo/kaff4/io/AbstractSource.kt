@@ -1,7 +1,6 @@
 package net.navatwo.kaff4.io
 
 import okio.Buffer
-import okio.Source
 import okio.Timeout
 
 abstract class AbstractSource protected constructor(
@@ -19,6 +18,16 @@ abstract class AbstractSource protected constructor(
     return protectedRead(sink, byteCount)
   }
 
+  final override fun skip(byteCount: Long): Long {
+    checkClosedOrTimedOut()
+    require(byteCount >= 0) { "byteCount >= 0" }
+
+    if (exhausted() == Exhausted.EXHAUSTED) return -1L
+    if (byteCount == 0L) return 0L
+
+    return protectedSkip(byteCount)
+  }
+
   final override fun timeout(): Timeout = timeout
 
   final override fun close() {
@@ -29,6 +38,7 @@ abstract class AbstractSource protected constructor(
   }
 
   protected abstract fun protectedRead(sink: Buffer, byteCount: Long): Long
+  protected abstract fun protectedSkip(byteCount: Long): Long
 
   protected abstract fun protectedClose()
 
