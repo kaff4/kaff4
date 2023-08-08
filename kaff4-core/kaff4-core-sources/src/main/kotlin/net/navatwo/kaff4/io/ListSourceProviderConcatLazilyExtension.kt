@@ -7,7 +7,11 @@ import okio.Timeout
 
 @InternalApi
 fun List<SourceProvider<Source>>.concatLazily(): SourceProvider<Source> {
-  return LazyConcatSourceProvider(this)
+  return when (size) {
+    0 -> NullSourceProvider
+    1 -> single()
+    else -> LazyConcatSourceProvider(this)
+  }
 }
 
 internal class LazyConcatSourceProvider(
@@ -30,22 +34,6 @@ private class LazyConcatSource(
   private val iter = lazySources.iterator()
   private var current: Source = iter.next().source(timeout = timeout)
 
-  override fun protectedRead(sink: Buffer, byteCount: Long): Long {
-    val bytesRead = current.read(sink, byteCount)
-
-    return when {
-      bytesRead == -1L && !iter.hasNext() -> -1L
-      bytesRead == -1L && iter.hasNext() -> {
-        current.close()
-        current = iter.next().source(timeout = timeout)
-
-        read(sink, byteCount)
-      }
-
-      else -> bytesRead
-    }
-  }
-
   override fun exhausted(): Exhausted {
     return when (val currentExhaustion = current.exhausted()) {
       Exhausted.HAS_VALUES, Exhausted.UNKNOWN -> currentExhaustion
@@ -54,7 +42,23 @@ private class LazyConcatSource(
     }
   }
 
+  override fun protectedRead(sink: Buffer, byteCount: Long): Long {
+    return iterateUntilValidResultOrExhausted { read(sink, byteCount) }
+  }
+
   override fun protectedClose() = current.close()
 
   override fun toString(): String = "lazyConcatSource(Sources(${lazySources.size}))"
+
+  private inline fun iterateUntilValidResultOrExhausted(block: Source.() -> Long): Long {
+    var result = current.block()
+
+    while (result == -1L && iter.hasNext()) {
+      current.close()
+      current = iter.next().source(timeout = timeout)
+      result = current.block()
+    }
+
+    return result
+  }
 }
