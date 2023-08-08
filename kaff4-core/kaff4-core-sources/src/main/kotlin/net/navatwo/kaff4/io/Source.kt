@@ -4,6 +4,11 @@ import okio.Buffer
 import okio.Timeout
 import java.io.Closeable
 
+/**
+ * Defines a source for the kaff4 library. This is a very similar construct to [okio.Source].
+ *
+ * **Note:** This does not extend [okio.Source] as we aim to keep this independent from [okio.Source], though similar.
+ */
 interface Source : AutoCloseable, Closeable {
 
   /**
