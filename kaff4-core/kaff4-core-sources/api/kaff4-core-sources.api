@@ -1,0 +1,25 @@
+public abstract class net/navatwo/kaff4/io/AbstractSource : okio/Source {
+	protected fun <init> (Lokio/Timeout;)V
+	protected final fun checkClosedOrTimedOut ()V
+	public final fun close ()V
+	protected abstract fun exhausted ()Lnet/navatwo/kaff4/io/AbstractSource$Exhausted;
+	protected abstract fun protectedClose ()V
+	protected abstract fun protectedRead (Lokio/Buffer;J)J
+	public final fun read (Lokio/Buffer;J)J
+	public final fun timeout ()Lokio/Timeout;
+}
+
+protected final class net/navatwo/kaff4/io/AbstractSource$Exhausted : java/lang/Enum {
+	public static final field Companion Lnet/navatwo/kaff4/io/AbstractSource$Exhausted$Companion;
+	public static final field EXHAUSTED Lnet/navatwo/kaff4/io/AbstractSource$Exhausted;
+	public static final field HAS_VALUES Lnet/navatwo/kaff4/io/AbstractSource$Exhausted;
+	public static final field UNKNOWN Lnet/navatwo/kaff4/io/AbstractSource$Exhausted;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lnet/navatwo/kaff4/io/AbstractSource$Exhausted;
+	public static fun values ()[Lnet/navatwo/kaff4/io/AbstractSource$Exhausted;
+}
+
+public final class net/navatwo/kaff4/io/AbstractSource$Exhausted$Companion {
+	public final fun from (Z)Lnet/navatwo/kaff4/io/AbstractSource$Exhausted;
+}
+

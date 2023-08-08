@@ -1,8 +1,8 @@
 package net.navatwo.kaff4.io
 
+import okio.Buffer
 import okio.Source
 import okio.Timeout
-import java.nio.Buffer
 import java.nio.ByteBuffer
 
 fun ByteBuffer.source(timeout: Timeout = Timeout.NONE): Source {
@@ -11,13 +11,10 @@ fun ByteBuffer.source(timeout: Timeout = Timeout.NONE): Source {
 
 private class ByteBufferSource(
   private val buffer: ByteBuffer,
-  private val timeout: Timeout,
-) : Source {
-  override fun read(sink: okio.Buffer, byteCount: Long): Long {
-    timeout.throwIfReached()
+  timeout: Timeout,
+) : AbstractSource(timeout) {
 
-    if (!buffer.hasRemaining()) return -1
-
+  override fun protectedRead(sink: Buffer, byteCount: Long): Long {
     val maxAvailableBytes = byteCount.toInt().coerceAtMost(buffer.remaining())
     val slice = buffer.slice(buffer.position(), maxAvailableBytes)
     val bytesRead = sink.write(slice)
@@ -27,8 +24,9 @@ private class ByteBufferSource(
     return bytesRead.toLong()
   }
 
-  override fun timeout(): Timeout = timeout
-  override fun close() = Unit
+  override fun exhausted(): Exhausted = Exhausted.from(!buffer.hasRemaining())
+
+  override fun protectedClose() = Unit
 
   override fun toString(): String = "byteBuffer($buffer)"
 }

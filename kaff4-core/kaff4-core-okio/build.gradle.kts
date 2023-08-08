@@ -6,7 +6,9 @@ dependencies {
   api(libs.guava)
 
   implementation(libs.okio)
-  
+
+  implementation(project(":kaff4-core:kaff4-core-sources"))
+
   compileOnly(project(":kaff4-api"))
 
   testImplementation(libs.assertj)

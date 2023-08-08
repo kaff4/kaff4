@@ -19,6 +19,7 @@ include(
   "kaff4-core:kaff4-core-model",
   "kaff4-core:kaff4-core-model:kaff4-core-model-api",
   "kaff4-core:kaff4-core-okio",
+  "kaff4-core:kaff4-core-sources",
   "kaff4-core:kaff4-core-test",
   "kaff4-rdf",
   "kaff4-rdf:kaff4-rdf-api",

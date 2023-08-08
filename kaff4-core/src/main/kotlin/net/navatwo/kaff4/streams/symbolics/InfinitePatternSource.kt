@@ -1,8 +1,8 @@
 package net.navatwo.kaff4.streams.symbolics
 
+import net.navatwo.kaff4.io.AbstractSource
 import okio.Buffer
 import okio.ByteString
-import okio.Source
 import okio.Timeout
 import java.nio.ByteBuffer
 
@@ -10,14 +10,13 @@ internal class InfinitePatternSource(
   private val pattern: ByteString,
   patternBuffer: ByteBuffer,
   private val repetitionBoundary: Int,
-  private val timeout: Timeout,
-) : Source {
+  timeout: Timeout,
+) : AbstractSource(timeout) {
   private var position: Long = 0L
 
   private val byteBuffer = patternBuffer.asReadOnlyBuffer()
 
-  override fun read(sink: Buffer, byteCount: Long): Long {
-    timeout.throwIfReached()
+  override fun protectedRead(sink: Buffer, byteCount: Long): Long {
     refreshBufferIfNeeded()
 
     val maxBytesToRead = byteCount.toInt().coerceAtMost(byteBuffer.remaining())
@@ -31,6 +30,9 @@ internal class InfinitePatternSource(
     return bytesRead.toLong()
   }
 
+  // infinite sources always have values
+  override fun exhausted(): Exhausted = Exhausted.HAS_VALUES
+
   private fun refreshBufferIfNeeded() {
     if (!byteBuffer.hasRemaining()) {
       byteBuffer.rewind()
@@ -40,8 +42,7 @@ internal class InfinitePatternSource(
     }
   }
 
-  override fun close() = Unit
-  override fun timeout(): Timeout = timeout
+  override fun protectedClose() = Unit
 
   override fun toString(): String = "infinite($pattern)"
 }
