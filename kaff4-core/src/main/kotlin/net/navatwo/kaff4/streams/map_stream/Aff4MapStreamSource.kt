@@ -2,11 +2,15 @@ package net.navatwo.kaff4.streams.map_stream
 
 import net.navatwo.kaff4.io.AbstractSource
 import net.navatwo.kaff4.io.BufferedSource
+import net.navatwo.kaff4.io.Sized
+import net.navatwo.kaff4.io.Source.Exhausted
 import net.navatwo.kaff4.io.applyAndCloseOnThrow
 import net.navatwo.kaff4.io.buffer
 import net.navatwo.kaff4.io.limit
 import net.navatwo.kaff4.model.Aff4StreamOpener
 import net.navatwo.kaff4.model.rdf.MapStream
+import net.navatwo.kaff4.streams.PositionAwareSource
+import net.navatwo.kaff4.streams.PositionAwareSource.Companion.currentlyExhausted
 import okio.Buffer
 import okio.Timeout
 import java.io.Closeable
@@ -15,10 +19,12 @@ internal class Aff4MapStreamSource(
   private val aff4StreamOpener: Aff4StreamOpener,
   private val mapStream: MapStream,
   private val map: MapStreamMap,
-  private var position: Long,
+  position: Long,
   timeout: Timeout,
-) : AbstractSource(timeout) {
-  private val size = mapStream.size
+) : AbstractSource(timeout), PositionAwareSource, Sized {
+  override val size = mapStream.size
+  override var position: Long = position
+    private set
 
   private var currentSource: CurrentSourceInfo? = null
 
@@ -45,7 +51,7 @@ internal class Aff4MapStreamSource(
     resetCurrentSource()
   }
 
-  override fun exhausted() = Exhausted.from(position == size)
+  override fun exhausted(): Exhausted = currentlyExhausted()
 
   private fun getAndUpdateCurrentSourceIfChanged(
     nextPosition: Long,
@@ -66,7 +72,7 @@ internal class Aff4MapStreamSource(
       .source(entryToRead.targetOffset, timeout())
       .applyAndCloseOnThrow {
         if (nextPosition != entryToRead.mappedOffset) {
-          skip(entryToRead.mappedOffset - nextPosition)
+          skipFully(entryToRead.mappedOffset - nextPosition)
         }
       }
 

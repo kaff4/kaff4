@@ -2,17 +2,21 @@ package net.navatwo.kaff4.streams.image_stream
 
 import net.navatwo.kaff4.io.AbstractSource
 import net.navatwo.kaff4.io.BufferedSource
+import net.navatwo.kaff4.io.Sized
+import net.navatwo.kaff4.io.Source.Exhausted
 import net.navatwo.kaff4.io.SourceProvider
 import net.navatwo.kaff4.io.read
+import net.navatwo.kaff4.streams.PositionAwareSource
+import net.navatwo.kaff4.streams.PositionAwareSource.Companion.currentlyExhausted
 import okio.Buffer
 import okio.Timeout
 import java.nio.ByteBuffer
 
 internal class Aff4BevySource(
   context: Aff4BevySourceContext,
-  private var position: Long,
+  position: Long,
   timeout: Timeout,
-) : AbstractSource(timeout) {
+) : AbstractSource(timeout), Sized, PositionAwareSource {
 
   private val compressionMethod = context.imageStream.compressionMethod
   private val chunkSize = context.imageStream.chunkSize
@@ -27,7 +31,9 @@ internal class Aff4BevySource(
   private val dataSourceProvider: SourceProvider<BufferedSource> = context.dataSegmentSourceProvider()
   private var dataSource: BufferedSource? = null
 
-  private val uncompressedSize = context.uncompressedSize
+  override val size = context.uncompressedSize
+  override var position: Long = position
+    private set
 
   private val chunkBuffer = ByteBuffer.allocateDirect(chunkSize)
 
@@ -38,7 +44,7 @@ internal class Aff4BevySource(
   private val compressedChunkBuffer = ByteBuffer.allocateDirect(chunkSize)
 
   override fun protectedRead(sink: Buffer, byteCount: Long): Long {
-    val maxBytesToRead = byteCount.coerceAtMost(uncompressedSize - position)
+    val maxBytesToRead = byteCount.coerceAtMost(size - position)
 
     if (!chunkBuffer.hasRemaining()) {
       readIntoBuffer()
@@ -56,7 +62,7 @@ internal class Aff4BevySource(
     return readIntoSink.toLong()
   }
 
-  override fun exhausted(): Exhausted = Exhausted.from(position == uncompressedSize)
+  override fun exhausted(): Exhausted = currentlyExhausted()
 
   override fun protectedClose() {
     dataSource?.close()
@@ -75,7 +81,7 @@ internal class Aff4BevySource(
     chunkBuffer.limit(chunkBuffer.capacity())
 
     bevyChunkCache.getOrPutInto(bevy, index, chunkBuffer) {
-      readCompressedBuffer(timeout(), index.dataPosition, index.compressedLength)
+      readCompressedBuffer(index.dataPosition, index.compressedLength)
 
       val chunkBufferLength = compressionMethod.uncompress(compressedChunkBuffer, chunkBuffer)
 
@@ -96,35 +102,41 @@ internal class Aff4BevySource(
     chunkBuffer.position((position % chunkSize).toInt())
   }
 
-  private fun readCompressedBuffer(timeout: Timeout, dataPosition: Long, byteCount: Int) {
-    if (dataSource == null || dataPosition < lastDataSourcePosition) {
-      dataSource?.close()
-      dataSource = dataSourceProvider.source(timeout)
-      lastDataSourcePosition = 0
+  private fun readCompressedBuffer(dataPosition: Long, byteCount: Int) {
+    val dataSource = if (dataSource == null || dataPosition < lastDataSourcePosition) {
+      resetDataSource()
+    } else {
+      dataSource!!
     }
 
-    dataSource!!.apply {
-      skip(dataPosition - lastDataSourcePosition)
-      lastDataSourcePosition = dataPosition
+    dataSource.skipFully(dataPosition - lastDataSourcePosition)
+    lastDataSourcePosition = dataPosition
 
-      compressedChunkBuffer.rewind()
-      compressedChunkBuffer.limit(byteCount)
+    compressedChunkBuffer.rewind()
+    compressedChunkBuffer.limit(byteCount)
 
-      while (compressedChunkBuffer.hasRemaining()) {
-        val dataRead = read(compressedChunkBuffer)
-        if (dataRead == -1) {
-          error("Failed to read expected data from source into compressed chunk buffer.")
-        }
-
-        lastDataSourcePosition += dataRead
-
-        if (dataRead == 0) break
+    while (compressedChunkBuffer.hasRemaining()) {
+      val dataRead = dataSource.read(compressedChunkBuffer)
+      if (dataRead == -1) {
+        error("Failed to read expected data from source into compressed chunk buffer.")
       }
+
+      lastDataSourcePosition += dataRead
+
+      if (dataRead == 0) break
     }
 
     // check after such that `lastDataSourcePosition is always correct
     check(!compressedChunkBuffer.hasRemaining())
 
     compressedChunkBuffer.rewind()
+  }
+
+  private fun resetDataSource(): BufferedSource {
+    dataSource?.close()
+    return dataSourceProvider.source(timeout()).also {
+      dataSource = it
+      lastDataSourcePosition = 0
+    }
   }
 }

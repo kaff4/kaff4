@@ -4,9 +4,9 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import net.navatwo.kaff4.container.ContainerDataFileSystemProvider
+import net.navatwo.kaff4.io.BufferedSource
 import net.navatwo.kaff4.io.asKAff4
 import net.navatwo.kaff4.io.buffer
-import net.navatwo.kaff4.io.lineSequence
 import net.navatwo.kaff4.model.rdf.Aff4Arn
 import net.navatwo.kaff4.model.rdf.MapStream
 import net.navatwo.kaff4.model.rdf.createArn
@@ -42,3 +42,13 @@ internal class MapIdxFileReader @Inject constructor(
     val mapIdxPath: Path,
   )
 }
+
+private fun BufferedSource.lineSequence(): Sequence<String> = sequence {
+  var targetLine = readUtf8Line()
+  while (targetLine != null) {
+    yield(targetLine)
+    targetLine = readUtf8Line()
+  }
+}
+
+private fun BufferedSource.readUtf8Line(): String? = asOkio().readUtf8Line()

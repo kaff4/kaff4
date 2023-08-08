@@ -1,5 +1,6 @@
 package net.navatwo.kaff4.io
 
+import net.navatwo.kaff4.io.Source.Exhausted
 import okio.Buffer
 import okio.Timeout
 
@@ -30,19 +31,6 @@ abstract class AbstractSource protected constructor(
   protected abstract fun protectedRead(sink: Buffer, byteCount: Long): Long
 
   protected abstract fun protectedClose()
-
-  protected abstract fun exhausted(): Exhausted
-
-  protected enum class Exhausted {
-    HAS_VALUES,
-    EXHAUSTED,
-    UNKNOWN,
-    ;
-
-    companion object {
-      fun from(exhausted: Boolean) = if (exhausted) EXHAUSTED else HAS_VALUES
-    }
-  }
 
   protected fun checkClosedOrTimedOut() {
     check(!closed) { "closed" }

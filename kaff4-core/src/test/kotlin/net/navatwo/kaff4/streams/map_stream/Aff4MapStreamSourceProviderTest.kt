@@ -92,12 +92,12 @@ class Aff4MapStreamSourceProviderTest {
   @Test
   fun `open and read skip bytes via buffering`() {
     bufferedProvider.use { mapStreamSource ->
-      mapStreamSource.skip(1024)
+      mapStreamSource.skipFully(1024)
       assertThat(mapStreamSource).md5(CHUNK_SIZE - 1024, "50615dd05bb46aafc9490a7c48391314")
     }
 
     bufferedProvider.use { mapStreamSource ->
-      mapStreamSource.skip(1024)
+      mapStreamSource.skipFully(1024)
       assertThat(mapStreamSource).md5(CHUNK_SIZE, 0.repeatByteString(CHUNK_SIZE.toInt()).md5())
     }
   }
