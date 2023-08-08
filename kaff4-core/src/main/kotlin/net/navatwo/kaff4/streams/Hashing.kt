@@ -3,11 +3,11 @@
 package net.navatwo.kaff4.streams
 
 import net.navatwo.kaff4.api.InternalApi
+import net.navatwo.kaff4.io.Source
 import net.navatwo.kaff4.model.rdf.HashType
 import okio.ByteString
 import okio.HashingSink
 import okio.Sink
-import okio.Source
 import okio.blackholeSink
 import okio.buffer
 
@@ -25,7 +25,7 @@ fun Source.computeLinearHashes(linearHashTypes: Collection<HashType>): Map<HashT
     }
 
     wrappedSink.buffer().use { buffer ->
-      buffer.writeAll(this)
+      buffer.writeAll(this.asOkio())
     }
 
     wrappedSink.close()

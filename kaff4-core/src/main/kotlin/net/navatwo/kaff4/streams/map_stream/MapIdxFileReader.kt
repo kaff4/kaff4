@@ -4,12 +4,13 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import net.navatwo.kaff4.container.ContainerDataFileSystemProvider
+import net.navatwo.kaff4.io.asKAff4
+import net.navatwo.kaff4.io.buffer
 import net.navatwo.kaff4.io.lineSequence
 import net.navatwo.kaff4.model.rdf.Aff4Arn
 import net.navatwo.kaff4.model.rdf.MapStream
 import net.navatwo.kaff4.model.rdf.createArn
 import okio.Path
-import okio.buffer
 import org.eclipse.rdf4j.model.ValueFactory
 
 private const val MAP_TARGETS_CACHE_SIZE = 10L
@@ -24,6 +25,7 @@ internal class MapIdxFileReader @Inject constructor(
     .build<CacheKey, List<Aff4Arn>> { key ->
       containerDataFileSystemProvider[key.stored]
         .source(key.mapIdxPath)
+        .asKAff4()
         .buffer()
         .use { s ->
           s.lineSequence().map { valueFactory.createArn(it) }.toList()

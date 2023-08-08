@@ -1,9 +1,10 @@
 package net.navatwo.kaff4.streams.image_stream
 
 import net.navatwo.kaff4.io.AbstractSource
+import net.navatwo.kaff4.io.BufferedSource
 import net.navatwo.kaff4.io.SourceProvider
+import net.navatwo.kaff4.io.read
 import okio.Buffer
-import okio.BufferedSource
 import okio.Timeout
 import java.nio.ByteBuffer
 

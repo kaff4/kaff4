@@ -1,8 +1,8 @@
 package net.navatwo.kaff4.streams.symbolics
 
+import net.navatwo.kaff4.io.Source
 import net.navatwo.kaff4.model.Aff4StreamSourceProvider
 import okio.ByteString
-import okio.Source
 import okio.Timeout
 import org.eclipse.rdf4j.model.IRI
 import java.nio.ByteBuffer

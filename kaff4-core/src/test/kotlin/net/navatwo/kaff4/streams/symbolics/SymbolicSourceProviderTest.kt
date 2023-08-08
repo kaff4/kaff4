@@ -5,6 +5,7 @@ import net.navatwo.kaff4.Aff4ImageTestModule
 import net.navatwo.kaff4.BaseLinear
 import net.navatwo.kaff4.io.buffer
 import net.navatwo.kaff4.io.limit
+import net.navatwo.kaff4.io.readByteString
 import net.navatwo.kaff4.io.repeatByteString
 import net.navatwo.kaff4.io.use
 import net.navatwo.test.GuiceModule

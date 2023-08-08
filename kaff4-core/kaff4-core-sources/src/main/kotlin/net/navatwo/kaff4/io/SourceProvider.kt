@@ -1,6 +1,5 @@
 package net.navatwo.kaff4.io
 
-import okio.Source
 import okio.Timeout
 
 interface SourceProvider<out SOURCE : Source> {
