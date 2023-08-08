@@ -3,6 +3,7 @@ package net.navatwo.kaff4.streams.zip_segment
 import com.google.inject.assistedinject.Assisted
 import com.google.inject.assistedinject.AssistedInject
 import net.navatwo.kaff4.container.ContainerDataFileSystemProvider
+import net.navatwo.kaff4.io.Source
 import net.navatwo.kaff4.io.SourceProvider
 import net.navatwo.kaff4.io.buffer
 import net.navatwo.kaff4.io.sourceProvider
@@ -13,7 +14,6 @@ import net.navatwo.kaff4.model.VerifiableStreamProvider.Result.FailedHash
 import net.navatwo.kaff4.model.rdf.Aff4Arn
 import net.navatwo.kaff4.model.rdf.ZipSegment
 import net.navatwo.kaff4.streams.computeLinearHashes
-import okio.Source
 import okio.Timeout
 
 internal class RealAff4ZipSegmentSourceProvider @AssistedInject constructor(

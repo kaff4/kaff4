@@ -65,8 +65,8 @@ public abstract interface class net/navatwo/kaff4/streams/Aff4Sink : net/navatwo
 }
 
 public final class net/navatwo/kaff4/streams/HashingKt {
-	public static final fun computeLinearHash (Lokio/Source;Lnet/navatwo/kaff4/model/rdf/HashType;)Lokio/ByteString;
-	public static final fun computeLinearHashes (Lokio/Source;Ljava/util/Collection;)Ljava/util/Map;
+	public static final fun computeLinearHash (Lnet/navatwo/kaff4/io/Source;Lnet/navatwo/kaff4/model/rdf/HashType;)Lokio/ByteString;
+	public static final fun computeLinearHashes (Lnet/navatwo/kaff4/io/Source;Ljava/util/Collection;)Ljava/util/Map;
 	public static final fun hashingSink (Lnet/navatwo/kaff4/model/rdf/HashType;Lokio/Sink;)Lokio/HashingSink;
 	public static synthetic fun hashingSink$default (Lnet/navatwo/kaff4/model/rdf/HashType;Lokio/Sink;ILjava/lang/Object;)Lokio/HashingSink;
 }
@@ -84,8 +84,8 @@ public final class net/navatwo/kaff4/streams/symbolics/SymbolicSourceProvider : 
 	public final fun getPattern ()Lokio/ByteString;
 	public fun getSize ()J
 	public fun hashCode ()I
-	public fun source (JLokio/Timeout;)Lokio/Source;
-	public fun source (Lokio/Timeout;)Lokio/Source;
+	public fun source (JLokio/Timeout;)Lnet/navatwo/kaff4/io/Source;
+	public fun source (Lokio/Timeout;)Lnet/navatwo/kaff4/io/Source;
 	public fun toString ()Ljava/lang/String;
 	public fun transform (Lnet/navatwo/kaff4/io/SourceProvider$Transformer;)Lnet/navatwo/kaff4/io/SourceProvider;
 }

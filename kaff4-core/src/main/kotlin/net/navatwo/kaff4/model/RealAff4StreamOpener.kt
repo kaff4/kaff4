@@ -6,6 +6,7 @@ import com.google.inject.TypeLiteral
 import jakarta.inject.Inject
 import misk.scope.ActionScoped
 import net.navatwo.kaff4.io.AutoCloseableSourceProvider
+import net.navatwo.kaff4.io.Source
 import net.navatwo.kaff4.io.SourceProvider
 import net.navatwo.kaff4.io.bounded
 import net.navatwo.kaff4.model.dialect.ToolDialect
@@ -21,7 +22,6 @@ import net.navatwo.kaff4.rdf.io.RdfModelParser
 import net.navatwo.kaff4.streams.Aff4StreamLoaderContext
 import net.navatwo.kaff4.streams.symbolics.Symbolics
 import okio.Closeable
-import okio.Source
 import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.Statement
 import org.eclipse.rdf4j.model.ValueFactory

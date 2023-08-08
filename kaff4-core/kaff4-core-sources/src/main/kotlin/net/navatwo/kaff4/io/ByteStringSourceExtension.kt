@@ -2,7 +2,6 @@ package net.navatwo.kaff4.io
 
 import okio.Buffer
 import okio.ByteString
-import okio.Source
 import okio.Timeout
 
 fun ByteString.source(timeout: Timeout = Timeout.NONE): Source {
@@ -17,6 +16,10 @@ private class ByteStringSource(
 
   override fun read(sink: Buffer, byteCount: Long): Long {
     return delegate.read(sink, byteCount)
+  }
+
+  override fun skip(byteCount: Long): Long {
+    return delegate.skip(byteCount)
   }
 
   override fun timeout(): Timeout = timeout

@@ -1,7 +1,6 @@
 package net.navatwo.kaff4.io
 
 import okio.Buffer
-import okio.Source
 import okio.Timeout
 
 internal object NullSourceProvider : SourceProvider<Source> {
@@ -15,6 +14,7 @@ private class NullSource private constructor(timeout: Timeout) : AbstractSource(
   override fun protectedClose() = Unit
 
   override fun protectedRead(sink: Buffer, byteCount: Long): Long = -1L
+  override fun protectedSkip(byteCount: Long): Long = -1L
 
   override fun exhausted(): Exhausted = Exhausted.EXHAUSTED
 

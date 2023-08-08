@@ -6,6 +6,7 @@ import net.navatwo.kaff4.BaseLinear
 import net.navatwo.kaff4.UnderTest
 import net.navatwo.kaff4.io.buffer
 import net.navatwo.kaff4.io.md5
+import net.navatwo.kaff4.io.readAll
 import net.navatwo.kaff4.io.use
 import net.navatwo.kaff4.model.Aff4Model
 import net.navatwo.kaff4.model.VerifiableStreamProvider

@@ -1,7 +1,6 @@
 package net.navatwo.kaff4.io
 
 import okio.Buffer
-import okio.Source
 import okio.Timeout
 import java.nio.ByteBuffer
 
@@ -22,6 +21,13 @@ private class ByteBufferSource(
     buffer.position(buffer.position() + bytesRead)
 
     return bytesRead.toLong()
+  }
+
+  override fun protectedSkip(byteCount: Long): Long {
+    val maxAvailableBytes = byteCount.toInt().coerceAtMost(buffer.remaining())
+    buffer.position(buffer.position() + maxAvailableBytes)
+
+    return maxAvailableBytes.toLong()
   }
 
   override fun exhausted(): Exhausted = Exhausted.from(!buffer.hasRemaining())

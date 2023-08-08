@@ -55,7 +55,7 @@ public abstract interface class net/navatwo/kaff4/model/Aff4StreamSourceProvider
 }
 
 public final class net/navatwo/kaff4/model/Aff4StreamSourceProvider$DefaultImpls {
-	public static fun source (Lnet/navatwo/kaff4/model/Aff4StreamSourceProvider;Lokio/Timeout;)Lokio/Source;
+	public static fun source (Lnet/navatwo/kaff4/model/Aff4StreamSourceProvider;Lokio/Timeout;)Lnet/navatwo/kaff4/io/Source;
 	public static fun transform (Lnet/navatwo/kaff4/model/Aff4StreamSourceProvider;Lnet/navatwo/kaff4/io/SourceProvider$Transformer;)Lnet/navatwo/kaff4/io/SourceProvider;
 }
 

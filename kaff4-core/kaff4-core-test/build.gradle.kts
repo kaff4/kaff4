@@ -20,5 +20,6 @@ dependencies {
 
   implementation(project(":kaff4-core"))
   implementation(project(":kaff4-core:kaff4-core-model:kaff4-core-model-api"))
+  implementation(project(":kaff4-core:kaff4-core-sources"))
   implementation(project(":kaff4-rdf:kaff4-rdf-memory"))
 }

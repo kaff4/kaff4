@@ -1,11 +1,9 @@
 package net.navatwo.kaff4.io
 
 import net.navatwo.kaff4.api.InternalApi
-import okio.BufferedSource
 import okio.FileSystem
 import okio.Path
 import okio.Timeout
-import okio.buffer
 
 @InternalApi
 class FileSystemPathSourceProvider internal constructor(
@@ -22,7 +20,7 @@ class FileSystemPathSourceProvider internal constructor(
     require(position >= 0L) { "position < 0" }
     require(timeout == Timeout.NONE) { "Timeouts are not supported for file system sources. " }
 
-    return fileSystem.source(path).buffer().applyAndCloseOnThrow {
+    return fileSystem.source(path).asKAff4().buffer().applyAndCloseOnThrow {
       if (position != 0L) {
         skip(position)
       }

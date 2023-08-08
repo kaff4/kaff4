@@ -5,6 +5,7 @@ import net.navatwo.kaff4.Aff4ImageTestModule
 import net.navatwo.kaff4.BaseLinear
 import net.navatwo.kaff4.UnderTest
 import net.navatwo.kaff4.io.buffer
+import net.navatwo.kaff4.io.readFully
 import net.navatwo.kaff4.io.use
 import net.navatwo.kaff4.model.Aff4Model
 import net.navatwo.kaff4.model.rdf.ImageStream

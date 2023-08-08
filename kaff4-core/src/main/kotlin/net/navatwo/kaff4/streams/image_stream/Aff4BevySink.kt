@@ -2,6 +2,7 @@ package net.navatwo.kaff4.streams.image_stream
 
 import jakarta.inject.Inject
 import jakarta.inject.Named
+import net.navatwo.kaff4.io.buffer
 import net.navatwo.kaff4.io.source
 import net.navatwo.kaff4.model.rdf.ImageStream
 import net.navatwo.kaff4.streams.computeLinearHashes

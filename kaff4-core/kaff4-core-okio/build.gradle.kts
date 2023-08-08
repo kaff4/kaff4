@@ -5,9 +5,9 @@ plugins {
 dependencies {
   api(libs.guava)
 
-  implementation(libs.okio)
+  api(project(":kaff4-core:kaff4-core-sources"))
 
-  implementation(project(":kaff4-core:kaff4-core-sources"))
+  implementation(libs.okio)
 
   compileOnly(project(":kaff4-api"))
 
