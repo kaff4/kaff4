@@ -11,12 +11,12 @@ internal object NullSourceProvider : SourceProvider<Source> {
   }
 }
 
-private class NullSource private constructor(private val timeout: Timeout) : Source {
-  override fun close() = Unit
+private class NullSource private constructor(timeout: Timeout) : AbstractSource(timeout) {
+  override fun protectedClose() = Unit
 
-  override fun read(sink: Buffer, byteCount: Long): Long = -1L
+  override fun protectedRead(sink: Buffer, byteCount: Long): Long = -1L
 
-  override fun timeout(): Timeout = timeout
+  override fun exhausted(): Exhausted = Exhausted.EXHAUSTED
 
   override fun toString(): String {
     return "null(size = 0L)"

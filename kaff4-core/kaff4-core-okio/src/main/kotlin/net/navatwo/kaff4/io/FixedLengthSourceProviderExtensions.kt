@@ -1,7 +1,6 @@
 package net.navatwo.kaff4.io
 
 import okio.Buffer
-import okio.ForwardingSource
 import okio.Source
 
 fun <SOURCE : Source> SourceProvider<SOURCE>.bounded(position: Long, length: Long): SourceProvider<Source> {
@@ -31,14 +30,12 @@ fun <SOURCE : Source> SourceProvider<SOURCE>.limit(length: Long): SourceProvider
 }
 
 private class FixedLengthSource(
-  delegate: Source,
+  private val delegate: Source,
   private val length: Long,
-) : ForwardingSource(delegate) {
+) : AbstractSource(delegate.timeout()) {
   private var position = 0L
 
-  override fun read(sink: Buffer, byteCount: Long): Long {
-    if (position == length) return -1L
-
+  override fun protectedRead(sink: Buffer, byteCount: Long): Long {
     val remainingBytes = byteCount.coerceAtMost(length - position)
     val readBytes = delegate.read(sink, remainingBytes)
 
@@ -49,6 +46,10 @@ private class FixedLengthSource(
       readBytes
     }
   }
+
+  override fun exhausted(): Exhausted = Exhausted.from(position == length)
+
+  override fun protectedClose() = delegate.close()
 
   override fun toString(): String = "fixedLength($delegate, $length)"
 }

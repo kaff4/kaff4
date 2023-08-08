@@ -1,5 +1,6 @@
 package net.navatwo.kaff4.streams.image_stream
 
+import net.navatwo.kaff4.io.AbstractSource
 import net.navatwo.kaff4.io.applyAndCloseOnThrow
 import net.navatwo.kaff4.io.buffer
 import net.navatwo.kaff4.model.rdf.ImageStream
@@ -13,8 +14,8 @@ internal class Aff4ImageStreamSource(
   private val aff4ImageBevies: Aff4ImageBevies,
   private val imageStream: ImageStream,
   private var position: Long,
-  private val timeout: Timeout,
-) : Source {
+  timeout: Timeout,
+) : AbstractSource(timeout) {
   private val bevyMaxSize = imageStream.bevyMaxSize
 
   private val size = imageStream.size
@@ -25,19 +26,11 @@ internal class Aff4ImageStreamSource(
 
   private var currentSource: CurrentSourceInfo? = null
 
-  @Volatile
-  private var closed = false
-
-  override fun read(sink: Buffer, byteCount: Long): Long {
-    check(!closed) { "closed" }
-
-    // we are exhausted
-    if (position == size) return -1L
-
+  override fun protectedRead(sink: Buffer, byteCount: Long): Long {
     val nextBevyIndex = position.floorDiv(bevyMaxSize).toInt()
     val maxBytesToRead = byteCount.coerceAtMost(size - position)
 
-    val readSource = getAndUpdateCurrentSourceIfChanged(nextBevyIndex, timeout)
+    val readSource = getAndUpdateCurrentSourceIfChanged(nextBevyIndex)
 
     val bytesRead = readSource.read(sink, maxBytesToRead)
     check(bytesRead >= 0) {
@@ -51,19 +44,13 @@ internal class Aff4ImageStreamSource(
     return bytesRead
   }
 
-  override fun close() {
-    if (closed) return
-    synchronized(this) {
-      if (closed) return
-      closed = true
-    }
-
+  override fun protectedClose() {
     currentSource?.close()
   }
 
-  override fun timeout(): Timeout = timeout
+  override fun exhausted() = Exhausted.from(position == size)
 
-  private fun getAndUpdateCurrentSourceIfChanged(nextBevyIndex: Int, timeout: Timeout): Source {
+  private fun getAndUpdateCurrentSourceIfChanged(nextBevyIndex: Int): Source {
     val currentSource = currentSource
 
     if (currentSource?.bevyIndex == nextBevyIndex) {
@@ -75,7 +62,7 @@ internal class Aff4ImageStreamSource(
 
     val bevyPosition = position % bevyMaxSize
 
-    return aff4ImageBevies.getOrLoadBevy(nextBevyIndex).buffer().source(bevyPosition, timeout).applyAndCloseOnThrow {
+    return aff4ImageBevies.getOrLoadBevy(nextBevyIndex).buffer().source(bevyPosition, timeout()).applyAndCloseOnThrow {
       val sourceInfo = CurrentSourceInfo(nextBevyIndex, this)
 
       this@Aff4ImageStreamSource.currentSource = sourceInfo

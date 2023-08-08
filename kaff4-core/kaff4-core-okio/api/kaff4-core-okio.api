@@ -44,14 +44,14 @@ public final class net/navatwo/kaff4/io/FileSystemPathSourceProviderKt {
 	public static final fun sourceProvider (Lokio/FileSystem;Lokio/Path;)Lnet/navatwo/kaff4/io/FileSystemPathSourceProvider;
 }
 
-public final class net/navatwo/kaff4/io/ListSourceProviderConcatLazilyExtensionKt {
-	public static final fun concatLazily (Ljava/util/List;)Lnet/navatwo/kaff4/io/SourceProvider;
-}
-
-public final class net/navatwo/kaff4/io/OkioFixedLengthSourceProviderExtensionsKt {
+public final class net/navatwo/kaff4/io/FixedLengthSourceProviderExtensionsKt {
 	public static final fun bounded (Lnet/navatwo/kaff4/io/SourceProvider;JJ)Lnet/navatwo/kaff4/io/SourceProvider;
 	public static final fun limit (Lnet/navatwo/kaff4/io/SourceProvider;J)Lnet/navatwo/kaff4/io/SourceProvider;
 	public static final fun offset (Lnet/navatwo/kaff4/io/SourceProvider;J)Lnet/navatwo/kaff4/io/SourceProvider;
+}
+
+public final class net/navatwo/kaff4/io/ListSourceProviderConcatLazilyExtensionKt {
+	public static final fun concatLazily (Ljava/util/List;)Lnet/navatwo/kaff4/io/SourceProvider;
 }
 
 public final class net/navatwo/kaff4/io/RelativeFileSystem : okio/ForwardingFileSystem {

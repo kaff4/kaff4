@@ -1,17 +1,17 @@
 package net.navatwo.kaff4.streams.image_stream
 
+import net.navatwo.kaff4.io.AbstractSource
 import net.navatwo.kaff4.io.SourceProvider
 import okio.Buffer
 import okio.BufferedSource
-import okio.Source
 import okio.Timeout
 import java.nio.ByteBuffer
 
 internal class Aff4BevySource(
   context: Aff4BevySourceContext,
   private var position: Long,
-  private val timeout: Timeout,
-) : Source {
+  timeout: Timeout,
+) : AbstractSource(timeout) {
 
   private val compressionMethod = context.imageStream.compressionMethod
   private val chunkSize = context.imageStream.chunkSize
@@ -36,13 +36,7 @@ internal class Aff4BevySource(
 
   private val compressedChunkBuffer = ByteBuffer.allocateDirect(chunkSize)
 
-  override fun read(sink: Buffer, byteCount: Long): Long {
-    require(byteCount >= 0L)
-
-    timeout.throwIfReached()
-
-    if (position == uncompressedSize) return -1
-
+  override fun protectedRead(sink: Buffer, byteCount: Long): Long {
     val maxBytesToRead = byteCount.coerceAtMost(uncompressedSize - position)
 
     if (!chunkBuffer.hasRemaining()) {
@@ -61,26 +55,26 @@ internal class Aff4BevySource(
     return readIntoSink.toLong()
   }
 
-  override fun close() {
+  override fun exhausted(): Exhausted = Exhausted.from(position == uncompressedSize)
+
+  override fun protectedClose() {
     dataSource?.close()
     lastDataSourcePosition = 0
   }
 
-  override fun timeout(): Timeout = timeout
-
   private fun readIntoBuffer() {
-    val index = bevyIndexReader.readIndexContaining(position, timeout) ?: return
+    val index = bevyIndexReader.readIndexContaining(position, timeout()) ?: return
     check(index.compressedLength <= chunkSize) {
       "Read invalid compressed chunk index.length: ${index.compressedLength}"
     }
 
-    timeout.throwIfReached()
+    checkClosedOrTimedOut()
 
     chunkBuffer.rewind()
     chunkBuffer.limit(chunkBuffer.capacity())
 
     bevyChunkCache.getOrPutInto(bevy, index, chunkBuffer) {
-      readCompressedBuffer(timeout, index.dataPosition, index.compressedLength)
+      readCompressedBuffer(timeout(), index.dataPosition, index.compressedLength)
 
       val chunkBufferLength = compressionMethod.uncompress(compressedChunkBuffer, chunkBuffer)
 
@@ -95,7 +89,7 @@ internal class Aff4BevySource(
 
       chunkBuffer.rewind()
 
-      imageBlockHashVerification.verifyBlock(bevy, position.floorDiv(chunkSize), chunkBuffer, timeout)
+      imageBlockHashVerification.verifyBlock(bevy, position.floorDiv(chunkSize), chunkBuffer, timeout())
     }
 
     chunkBuffer.position((position % chunkSize).toInt())

@@ -30,6 +30,7 @@ dependencies {
   implementation(libs.fastcdc4j)
 
   implementation(project(":kaff4-core:kaff4-core-kotlin"))
+  implementation(project(":kaff4-core:kaff4-core-sources"))
   implementation(project(":kaff4-rdf"))
 
   testImplementation(libs.assertj)

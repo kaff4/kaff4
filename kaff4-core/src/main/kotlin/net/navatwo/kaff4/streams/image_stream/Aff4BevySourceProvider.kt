@@ -17,6 +17,9 @@ internal class Aff4BevySourceProvider @AssistedInject constructor(
   @Assisted imageStream: ImageStream,
   @Assisted val bevy: Bevy,
 ) : SourceProvider<Source>, Closeable {
+  @Volatile
+  private var closed = false
+
   private val bevyIndexReader: BevyIndexReader = bevyIndexReaderFactory.create(imageStream, bevy)
 
   private val bevySourceContext = Aff4BevySourceContext(
@@ -31,6 +34,8 @@ internal class Aff4BevySourceProvider @AssistedInject constructor(
   val uncompressedSize = imageStream.bevySize(bevy.index)
 
   override fun source(position: Long, timeout: Timeout): Source {
+    check(!closed) { "closed" }
+
     return Aff4BevySource(
       context = bevySourceContext,
       position = position,
@@ -39,6 +44,9 @@ internal class Aff4BevySourceProvider @AssistedInject constructor(
   }
 
   override fun close() {
+    if (closed) return
+
+    closed = true
     bevyIndexReader.close()
   }
 

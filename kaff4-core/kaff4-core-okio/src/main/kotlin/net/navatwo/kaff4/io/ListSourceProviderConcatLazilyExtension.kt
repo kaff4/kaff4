@@ -27,13 +27,11 @@ internal class LazyConcatSourceProvider(
 private class LazyConcatSource(
   private val lazySources: List<SourceProvider<Source>>,
   private val timeout: Timeout,
-) : Source {
+) : AbstractSource(timeout) {
   private val iter = lazySources.iterator()
   private var current: Source = iter.next().source(timeout = timeout)
 
-  override fun read(sink: Buffer, byteCount: Long): Long {
-    timeout.throwIfReached()
-
+  override fun protectedRead(sink: Buffer, byteCount: Long): Long {
     val bytesRead = current.read(sink, byteCount)
 
     return when {
@@ -49,8 +47,9 @@ private class LazyConcatSource(
     }
   }
 
-  override fun close() = current.close()
-  override fun timeout(): Timeout = timeout
+  override fun exhausted(): Exhausted = Exhausted.UNKNOWN
+
+  override fun protectedClose() = current.close()
 
   override fun toString(): String = "lazyConcatSource(Sources(${lazySources.size}))"
 }

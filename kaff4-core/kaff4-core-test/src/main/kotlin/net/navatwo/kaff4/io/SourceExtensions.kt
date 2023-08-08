@@ -30,7 +30,7 @@ private fun <SELF, T> SELF.computeHashAssert(
   byteCount: Long,
   computeHash: KCallable<ByteString>,
 ): AbstractObjectAssert<*, ByteString>
-  where SELF : AbstractObjectAssert<SELF, T>, T : Source {
+  where SELF : AbstractObjectAssert<out SELF, T>, T : Source {
   lateinit var sourceString: String
   return `as` { "${computeHash.name}($sourceString)" }
     .extracting { source: T ->
