@@ -90,7 +90,7 @@ class Aff4ImageStreamSourceProviderTest {
   @Test
   fun `open and read skip bytes via buffering`() {
     bufferedProvider.use { imageStreamSource ->
-      imageStreamSource.skip(1024)
+      imageStreamSource.skipFully(1024)
 
       assertThat(imageStreamSource).md5(chunkSize, "fea53f346a83f6fca5d4fa89ac96e758")
     }

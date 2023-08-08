@@ -2,10 +2,14 @@ package net.navatwo.kaff4.streams.image_stream
 
 import net.navatwo.kaff4.io.AbstractSource
 import net.navatwo.kaff4.io.BufferedSource
+import net.navatwo.kaff4.io.Sized
 import net.navatwo.kaff4.io.Source
+import net.navatwo.kaff4.io.Source.Exhausted
 import net.navatwo.kaff4.io.applyAndCloseOnThrow
 import net.navatwo.kaff4.io.buffer
 import net.navatwo.kaff4.model.rdf.ImageStream
+import net.navatwo.kaff4.streams.PositionAwareSource
+import net.navatwo.kaff4.streams.PositionAwareSource.Companion.currentlyExhausted
 import okio.Buffer
 import okio.Timeout
 import java.io.Closeable
@@ -13,12 +17,15 @@ import java.io.Closeable
 internal class Aff4ImageStreamSource(
   private val aff4ImageBevies: Aff4ImageBevies,
   private val imageStream: ImageStream,
-  private var position: Long,
+  position: Long,
   timeout: Timeout,
-) : AbstractSource(timeout) {
+) : AbstractSource(timeout), PositionAwareSource, Sized {
   private val bevyMaxSize = imageStream.bevyMaxSize
 
-  private val size = imageStream.size
+  override var position: Long = position
+    private set
+
+  override val size = imageStream.size
 
   init {
     require(position <= size) { "position [$position] <=  imageStream.size [$size] " }
@@ -48,7 +55,7 @@ internal class Aff4ImageStreamSource(
     currentSource?.close()
   }
 
-  override fun exhausted() = Exhausted.from(position == size)
+  override fun exhausted(): Exhausted = currentlyExhausted()
 
   private fun getAndUpdateCurrentSourceIfChanged(nextBevyIndex: Int): Source {
     val currentSource = currentSource

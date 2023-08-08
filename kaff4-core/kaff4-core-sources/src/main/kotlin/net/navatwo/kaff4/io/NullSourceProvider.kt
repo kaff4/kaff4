@@ -1,5 +1,6 @@
 package net.navatwo.kaff4.io
 
+import net.navatwo.kaff4.io.Source.Exhausted
 import okio.Buffer
 import okio.Timeout
 

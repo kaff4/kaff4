@@ -1,6 +1,7 @@
 package net.navatwo.kaff4.io
 
 import net.navatwo.kaff4.api.InternalApi
+import net.navatwo.kaff4.io.Source.Exhausted
 import okio.Buffer
 import okio.Timeout
 
@@ -18,7 +19,7 @@ internal class LazyConcatSourceProvider(
     val lazySource = LazyConcatSource(lazySources, timeout)
     if (position == 0L) return lazySource
 
-    return lazySource.buffer().applyAndCloseOnThrow { skip(position) }
+    return lazySource.buffer().applyAndCloseOnThrow { skipFully(position) }
   }
 }
 
@@ -45,7 +46,13 @@ private class LazyConcatSource(
     }
   }
 
-  override fun exhausted(): Exhausted = Exhausted.UNKNOWN
+  override fun exhausted(): Exhausted {
+    return when (val currentExhaustion = current.exhausted()) {
+      Exhausted.HAS_VALUES, Exhausted.UNKNOWN -> currentExhaustion
+      // If current is EXHAUSTED, we check if there's any more content available instead of returning [EXHAUSTED]
+      Exhausted.EXHAUSTED -> Exhausted.hasRemaining(iter.hasNext())
+    }
+  }
 
   override fun protectedClose() = current.close()
 

@@ -1,6 +1,7 @@
 package net.navatwo.kaff4.streams.symbolics
 
 import net.navatwo.kaff4.io.AbstractSource
+import net.navatwo.kaff4.io.Source.Exhausted
 import okio.Buffer
 import okio.ByteString
 import okio.Timeout

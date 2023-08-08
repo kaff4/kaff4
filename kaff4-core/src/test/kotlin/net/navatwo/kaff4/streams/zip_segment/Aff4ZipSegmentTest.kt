@@ -69,7 +69,7 @@ class Aff4ZipSegmentTest {
   fun `open and read multiple times has same read`() {
     bufferedProvider.use { mapStreamSource ->
       assertThat(mapStreamSource.readByteString(DREAM_FIRST_LINE.size.toLong())).isEqualTo(DREAM_FIRST_LINE)
-      mapStreamSource.skip(DREAM_TXT_SIZE - DREAM_LAST_STANZA.size - DREAM_FIRST_LINE.size)
+      mapStreamSource.skipFully(DREAM_TXT_SIZE - DREAM_LAST_STANZA.size - DREAM_FIRST_LINE.size)
       assertThat(mapStreamSource.readByteString()).isEqualTo(DREAM_LAST_STANZA)
     }
 

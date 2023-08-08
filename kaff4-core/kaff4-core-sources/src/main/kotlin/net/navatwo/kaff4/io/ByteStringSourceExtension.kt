@@ -10,16 +10,15 @@ fun ByteString.source(timeout: Timeout = Timeout.NONE): Source {
 
 private class ByteStringSource(
   private val byteString: ByteString,
-  private val timeout: Timeout,
-) : Source {
+  timeout: Timeout,
+) : AbstractSource(timeout) {
   private val delegate = byteString.asByteBuffer().source(timeout)
 
-  override fun read(sink: Buffer, byteCount: Long): Long {
-    return delegate.read(sink, byteCount)
-  }
+  override fun exhausted(): Source.Exhausted = delegate.exhausted()
 
-  override fun timeout(): Timeout = timeout
-  override fun close() = delegate.close()
+  override fun protectedRead(sink: Buffer, byteCount: Long): Long = delegate.read(sink, byteCount)
+
+  override fun protectedClose() = delegate.close()
 
   override fun toString(): String = "byteString($byteString)"
 }

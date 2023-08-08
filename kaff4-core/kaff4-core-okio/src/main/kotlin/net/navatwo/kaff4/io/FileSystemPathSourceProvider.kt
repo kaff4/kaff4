@@ -22,7 +22,7 @@ class FileSystemPathSourceProvider internal constructor(
 
     return fileSystem.source(path).asKAff4().buffer().applyAndCloseOnThrow {
       if (position != 0L) {
-        skip(position)
+        skipFully(position)
       }
     }
   }

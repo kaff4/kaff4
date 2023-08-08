@@ -125,7 +125,7 @@ class Aff4BevySourceProviderTest {
   @Test
   fun `open and read skip bytes via buffering`() {
     bufferedProvider.use { bevySource ->
-      bevySource.skip(1024)
+      bevySource.skipFully(1024)
 
       Buffer().use { readSink ->
         bevySource.readFully(readSink, chunkSize)

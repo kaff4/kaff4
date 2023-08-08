@@ -21,12 +21,30 @@ interface Source : AutoCloseable, Closeable {
   fun timeout(): Timeout
 
   /**
+   * Optionally supported: Returns [Exhausted.EXHAUSTED] if there are no values remaining.
+   */
+  fun exhausted(): Exhausted = Exhausted.UNKNOWN
+
+  /**
    * Closes this source and releases the resources held by this source. It is an error to read a
    * closed source. It is safe to close a source more than once.
    */
   override fun close()
 
   fun asOkio(): okio.Source = OkioSource(this)
+
+  enum class Exhausted {
+    HAS_VALUES,
+    EXHAUSTED,
+    UNKNOWN,
+    ;
+
+    companion object {
+      fun hasRemaining(hasRemaining: Boolean) = if (hasRemaining) HAS_VALUES else EXHAUSTED
+
+      fun Sized.positionExhausted(position: Long) = hasRemaining(position < size)
+    }
+  }
 
   private class OkioSource(private val source: Source) : okio.Source {
     override fun close() = source.close()

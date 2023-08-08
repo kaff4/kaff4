@@ -8,6 +8,7 @@ dependencies {
   api(project(":kaff4-core:kaff4-core-guice"))
   api(project(":kaff4-core:kaff4-core-model"))
   api(project(":kaff4-core:kaff4-core-okio"))
+  api(project(":kaff4-core:kaff4-core-sources"))
 
   api(libs.assertj)
   api(libs.guice)
@@ -20,6 +21,5 @@ dependencies {
 
   implementation(project(":kaff4-core"))
   implementation(project(":kaff4-core:kaff4-core-model:kaff4-core-model-api"))
-  implementation(project(":kaff4-core:kaff4-core-sources"))
   implementation(project(":kaff4-rdf:kaff4-rdf-memory"))
 }

@@ -1,5 +1,6 @@
 package net.navatwo.kaff4.io
 
+import net.navatwo.kaff4.io.Source.Exhausted
 import okio.Buffer
 import okio.Timeout
 import java.nio.ByteBuffer
@@ -23,7 +24,7 @@ private class ByteBufferSource(
     return bytesRead.toLong()
   }
 
-  override fun exhausted(): Exhausted = Exhausted.from(!buffer.hasRemaining())
+  override fun exhausted(): Exhausted = Exhausted.hasRemaining(buffer.hasRemaining())
 
   override fun protectedClose() = Unit
 
