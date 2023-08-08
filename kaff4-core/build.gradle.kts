@@ -13,7 +13,7 @@ dependencies {
   api(project(":kaff4-core:kaff4-core-guice"))
   api(project(":kaff4-core:kaff4-core-model:kaff4-core-model-api"))
   api(project(":kaff4-core:kaff4-core-model"))
-  api(project(":kaff4-core:kaff4-core-okio"))
+  api(project(":kaff4-core:kaff4-core-sources"))
 
   compileOnly(project(":kaff4-api"))
 
@@ -30,7 +30,7 @@ dependencies {
   implementation(libs.fastcdc4j)
 
   implementation(project(":kaff4-core:kaff4-core-kotlin"))
-  implementation(project(":kaff4-core:kaff4-core-sources"))
+  implementation(project(":kaff4-core:kaff4-core-okio"))
   implementation(project(":kaff4-rdf"))
 
   testImplementation(libs.assertj)
