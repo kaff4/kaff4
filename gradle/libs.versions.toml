@@ -37,7 +37,7 @@ guice-assistedInject = { module = "com.google.inject.extensions:guice-assistedin
 
 jakarta-inject-api = "jakarta.inject:jakarta.inject-api:2.0.1"
 
-kintervaltree = "net.navatwo:kinterval-tree:0.1.0"
+kintervaltree = "net.navatwo:kinterval-tree:0.1.1"
 
 kotlinx-cli = "org.jetbrains.kotlinx:kotlinx-cli:0.3.5"
 
