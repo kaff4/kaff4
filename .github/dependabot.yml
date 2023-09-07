@@ -8,4 +8,8 @@ updates:
       interval: "daily"
       time: '09:00'
       timezone: 'America/Toronto'
-
+    ignore:
+      # Misk updates daily, there's little to no benefit to these
+      # updates, so we only do it monthly.
+      - dependency-name: "misk"
+        update-types: ["version-update:semver-patch"]
