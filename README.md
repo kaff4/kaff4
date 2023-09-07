@@ -2,7 +2,7 @@
 
 ![License](https://img.shields.io/github/license/Nava2/kaff4)
 
-![Build](https://img.shields.io/github/actions/workflow/status/Nava2/kaff4/gradle-check-pristine.yml)
+![Build](https://img.shields.io/github/actions/workflow/status/Nava2/kaff4/ci.yml)
 ![Release](https://img.shields.io/github/v/release/Nava2/kaff4)
 
 The kaff4 project is a [kotlin](https://kotlinlang.org/) implementation of
