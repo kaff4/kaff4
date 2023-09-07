@@ -39,7 +39,7 @@ jakarta-inject-api = "jakarta.inject:jakarta.inject-api:2.0.1"
 
 kintervaltree = "net.navatwo:kinterval-tree:0.1.1"
 
-kotlinx-cli = "org.jetbrains.kotlinx:kotlinx-cli:0.3.5"
+kotlinx-cli = "org.jetbrains.kotlinx:kotlinx-cli:0.3.6"
 
 junit-juipter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
 junit-juipter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
