@@ -19,11 +19,16 @@ jobs:
       - name: Verify gradle wrapper
         uses: gradle/wrapper-validation-action@v1
 
-      - name: Run CI checks
+      - name: gradle build
         uses: gradle/gradle-build-action@v2
         id: gradle
         with:
-          arguments: check buildHealth --scan --continue
+          arguments: build --scan --continue
+
+      - name: gradle buildHealth
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: buildHealth --continue
           
       - name: Verify build health
         run: |
