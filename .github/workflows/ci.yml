@@ -1,8 +1,10 @@
 name: Build and test
-on: [ pull_request ]
+on: [ pull_request, push ]
 jobs:
   ci:
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    
     steps:
       - uses: actions/checkout@v4
         with:
