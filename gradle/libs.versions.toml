@@ -9,7 +9,7 @@ kotlin = "1.9.10"
 
 log4j = "2.20.0"
 
-misk = "2023.10.04.193956-378994d"
+misk = "2023.10.10.175148-9973088"
 
 rdf4j = "4.3.7"
 # Upgrading this causes issues with query logic as written.
