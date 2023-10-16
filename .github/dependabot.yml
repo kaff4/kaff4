@@ -12,4 +12,4 @@ updates:
       # Misk updates daily, there's little to no benefit to these
       # updates, so we only do it monthly.
       - dependency-name: "misk"
-        update-types: ["version-update:semver-minor"]
+        update-types: ["version-update:semver-major"]
