@@ -11,7 +11,7 @@ log4j = "2.21.1"
 
 misk = "2023.10.24.081359-13d4586"
 
-rdf4j = "4.3.7"
+rdf4j = "4.3.8"
 # Upgrading this causes issues with query logic as written.
 rdf4j-sail = "4.0.5"
 
