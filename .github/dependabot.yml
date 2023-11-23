@@ -5,7 +5,7 @@ updates:
     reviewers:
       - 'kaff4/kaff4-maintainers'
     schedule:
-      interval: "weekly"
+      interval: "monthly"
       time: '09:00'
       timezone: 'America/Toronto'
     ignore:
