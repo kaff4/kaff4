@@ -1,7 +1,7 @@
 rootProject.name = "kaff4"
 
 plugins {
-  id("com.gradle.enterprise") version "3.17.2"
+  id("com.gradle.enterprise") version "3.17.4"
   id("io.github.gradle.gradle-enterprise-conventions-plugin") version "0.10.0"
 }
 
