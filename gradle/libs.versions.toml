@@ -5,7 +5,7 @@ guice = "7.0.0"
 
 junit = "5.10.1"
 
-kotlin = "1.9.22"
+kotlin = "2.0.0"
 
 log4j = "2.23.1"
 
