@@ -3,7 +3,7 @@
 detekt = "1.23.4"
 guice = "7.0.0"
 
-junit = "5.10.1"
+junit = "5.10.2"
 
 kotlin = "1.9.22"
 
