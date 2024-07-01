@@ -1,6 +1,6 @@
 [versions]
 
-detekt = "1.23.4"
+detekt = "1.23.6"
 guice = "7.0.0"
 
 junit = "5.10.2"
